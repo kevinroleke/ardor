@@ -16,11 +16,14 @@
 package nxt.http.bundling;
 
 import nxt.Tester;
+import nxt.addons.JO;
 import nxt.blockchain.chaincontrol.PermissionTestUtil;
-import nxt.http.APICall;
 import nxt.http.assetexchange.AssetExchangeTest;
+import nxt.http.callers.CancelAskOrderCall;
+import nxt.http.callers.CancelBidOrderCall;
+import nxt.http.callers.IssueAssetCall;
+import nxt.http.callers.StartBundlerCall;
 import nxt.http.client.PlaceAssetOrderBuilder;
-import nxt.http.client.PlaceAssetOrderBuilder.PlaceOrderResult;
 import nxt.util.JSONAssert;
 import org.junit.Assert;
 import org.junit.Test;
@@ -39,10 +42,10 @@ public class AssetBundlerTest extends BundlerTest {
 
         startAssetBundler(assetId);
 
-        String fullHash = AssetExchangeTest.transfer(assetId, ALICE, CHUCK, 10, 0).getFullHash();
+        String fullHash = AssetExchangeTest.transfer(assetId, ALICE, CHUCK, 10, 0);
         Assert.assertTrue(isBundled(fullHash));
 
-        fullHash = AssetExchangeTest.transfer(assetId1, ALICE, CHUCK, 10, 0).getFullHash();
+        fullHash = AssetExchangeTest.transfer(assetId1, ALICE, CHUCK, 10, 0);
         Assert.assertFalse(isBundled(fullHash));
     }
 
@@ -78,76 +81,82 @@ public class AssetBundlerTest extends BundlerTest {
         String assetId = issueAsset();
 
         int quota = 4;
-        JSONAssert result = new JSONAssert(new APICall.Builder("startBundler").
+        JSONAssert result = new JSONAssert(StartBundlerCall.create(IGNIS.getId()).
                 secretPhrase(ALICE.getSecretPhrase()).
-                param("chain", IGNIS.getId()).
-                param("filter", new String[] {"AssetBundler:" + assetId, "QuotaBundler:" + quota}).
-                param("minRateNQTPerFXT", 0).
-                param("feeCalculatorName", "MIN_FEE").
-                build().invoke());
+                filter("AssetBundler:" + assetId, "QuotaBundler:" + quota).
+                minRateNQTPerFXT(0).
+                feeCalculatorName("MIN_FEE").call());
         result.str("totalFeesLimitFQT");
 
-        String fullHash = AssetExchangeTest.transfer(assetId, ALICE, BOB, 100, 0).getFullHash();
+        String fullHash = AssetExchangeTest.transfer(assetId, ALICE, BOB, 100, 0);
         Assert.assertTrue(isBundled(fullHash));
 
         for (int i = 0; i < quota; i++) {
-            fullHash = AssetExchangeTest.transfer(assetId, BOB, CHUCK, 10, 0).getFullHash();
+            fullHash = AssetExchangeTest.transfer(assetId, BOB, CHUCK, 10, 0);
             Assert.assertTrue(isBundled(fullHash));
         }
         //Bob's quota is over
-        fullHash = AssetExchangeTest.transfer(assetId, BOB, CHUCK, 10, 0).getFullHash();
+        fullHash = AssetExchangeTest.transfer(assetId, BOB, CHUCK, 10, 0);
         Assert.assertFalse(isBundled(fullHash));
 
         //Chuck still has quota
-        fullHash = AssetExchangeTest.transfer(assetId, CHUCK, BOB, 10, 0).getFullHash();
+        fullHash = AssetExchangeTest.transfer(assetId, CHUCK, BOB, 10, 0);
         Assert.assertTrue(isBundled(fullHash));
 
         //Transferring to unknown account is not allowed
         Tester unknownTester = new Tester("Unknown account secret " + System.currentTimeMillis());
         PermissionTestUtil.grantPermission(IGNIS, unknownTester, CHAIN_USER);
-        fullHash = AssetExchangeTest.transfer(assetId, CHUCK, unknownTester, 10, 0).getFullHash();
+        fullHash = AssetExchangeTest.transfer(assetId, CHUCK, unknownTester, 10, 0);
         Assert.assertFalse(isBundled(fullHash));
     }
 
+    @SuppressWarnings("SameParameterValue")
     private String placeAssetOrder(Tester sender, String assetId, long quantityQNT, long price, boolean isBid) {
         PlaceAssetOrderBuilder builder = new PlaceAssetOrderBuilder(sender, assetId, quantityQNT, price);
-        PlaceOrderResult result = isBid ? builder.placeBidOrder() : builder.placeAskOrder();
+        JO result = isBid ? builder.placeBidOrder() : builder.placeAskOrder();
         generateBlock();
-        return result.getFullHash();
+        return new JSONAssert(result).str("fullHash");
     }
 
     private String cancelAssetOrder(Tester sender, String orderId, boolean isBid) {
-        String result = new JSONAssert(new APICall.Builder(isBid ? "cancelBidOrder" : "cancelAskOrder")
-                .param("secretPhrase", sender.getSecretPhrase())
-                .param("order", orderId)
-                .param("feeNQT", 0)
-                .build().invoke()).str("fullHash");
+        JO response;
+        if (isBid) {
+            response = CancelBidOrderCall.create(IGNIS.getId())
+                    .secretPhrase(sender.getSecretPhrase())
+                    .order(orderId)
+                    .feeNQT(0)
+                    .callNoError();
+        } else {
+            response = CancelAskOrderCall.create(IGNIS.getId())
+                    .secretPhrase(sender.getSecretPhrase())
+                    .order(orderId)
+                    .feeNQT(0)
+                    .callNoError();
+        }
+        String result = new JSONAssert(response).str("fullHash");
         generateBlock();
         return result;
     }
 
 
     private void startAssetBundler(String assetId) {
-        JSONAssert result = new JSONAssert(new APICall.Builder("startBundler").
+        JSONAssert result = new JSONAssert(StartBundlerCall.create(IGNIS.getId()).
                 secretPhrase(BOB.getSecretPhrase()).
-                param("chain", IGNIS.getId()).
-                param("filter", "AssetBundler:" + assetId).
-                param("minRateNQTPerFXT", 0).
-                param("feeCalculatorName", "MIN_FEE").
-                build().invoke());
+                filter("AssetBundler:" + assetId).
+                minRateNQTPerFXT(0).
+                feeCalculatorName("MIN_FEE").call());
         result.str("totalFeesLimitFQT");
     }
 
     private String issueAsset() {
-        JSONAssert result = new JSONAssert(new APICall.Builder("issueAsset")
-                .param("secretPhrase", ALICE.getSecretPhrase())
-                .param("name", "Bundl")
-                .param("description", "asset bundle testing")
-                .param("quantityQNT", 10000000)
-                .param("decimals", 4)
-                .param("feeNQT", 1000 * IGNIS.ONE_COIN)
-                .param("deadline", 1440)
-                .build().invoke());
+        JSONAssert result = new JSONAssert(IssueAssetCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .name("Bundl")
+                .description("asset bundle testing")
+                .quantityQNT(10000000)
+                .decimals(4)
+                .feeNQT(1000 * IGNIS.ONE_COIN)
+                .deadline(1440).call());
         String fullHash = result.str("fullHash");
         String assetId = Tester.hexFullHashToStringId(fullHash);
 

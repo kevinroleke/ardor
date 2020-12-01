@@ -20,6 +20,7 @@ import nxt.NxtException;
 import nxt.account.Account;
 import nxt.ae.AskOrderPlacementAttachment;
 import nxt.ae.Asset;
+import nxt.ae.AssetExchangeTransactionType;
 import nxt.blockchain.Attachment;
 import nxt.blockchain.ChildChain;
 import nxt.util.Convert;
@@ -35,7 +36,8 @@ public final class PlaceAskOrder extends CreateTransaction {
     static final PlaceAskOrder instance = new PlaceAskOrder();
 
     private PlaceAskOrder() {
-        super(new APITag[] {APITag.AE, APITag.CREATE_TRANSACTION}, "asset", "quantityQNT", "priceNQTPerShare");
+        super(AssetExchangeTransactionType.ASK_ORDER_PLACEMENT,
+                new APITag[] {APITag.AE, APITag.CREATE_TRANSACTION}, "asset", "quantityQNT", "priceNQTPerShare");
     }
 
     @Override

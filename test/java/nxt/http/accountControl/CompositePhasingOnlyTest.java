@@ -20,57 +20,66 @@ import nxt.BlockchainTest;
 import nxt.Nxt;
 import nxt.Tester;
 import nxt.account.AccountRestrictions;
-import nxt.blockchain.ChildChain;
+import nxt.addons.JO;
 import nxt.crypto.HashFunction;
-import nxt.http.APICall;
+import nxt.http.PhasingParamsBuilder;
+import nxt.http.PhasingParamsHelper;
+import nxt.http.callers.ApproveTransactionCall;
+import nxt.http.callers.GetPhasingOnlyControlCall;
+import nxt.http.callers.SendMoneyCall;
+import nxt.http.callers.SetPhasingOnlyControlCall;
 import nxt.util.JSONAssert;
-import org.json.simple.JSONObject;
+import nxt.util.Logger;
+import nxt.voting.VoteWeighting.VotingModel;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import nxt.voting.VoteWeighting.VotingModel;
+import static nxt.blockchain.ChildChain.IGNIS;
 
 public class CompositePhasingOnlyTest extends BlockchainTest {
 
     @Test
-    public void testSetAndGet() throws Exception {
+    public void testSetAndGet() {
         ACTestUtils.assertNoPhasingOnlyControl();
 
         setSimpleCompositeControl("A", BOB);
         JSONAssert jsonAssert;
 
-        APICall.Builder queryBuilder = new APICall.Builder("getPhasingOnlyControl")
-                .param("account", Long.toUnsignedString(ALICE.getId()));
+        GetPhasingOnlyControlCall queryBuilder = GetPhasingOnlyControlCall.create().account(ALICE.getId());
 
-        jsonAssert = new JSONAssert(queryBuilder.build().invoke());
+        jsonAssert = new JSONAssert(queryBuilder.call());
         jsonAssert.subObj("controlParams").subObj("phasingSubPolls").subObj("A");
     }
 
     @Test
-    public void testUpdateCompositeControl() throws Exception {
+    public void testUpdateCompositeControl() {
 
         ACTestUtils.assertNoPhasingOnlyControl();
 
         setSimpleCompositeControl("A", BOB);
 
-        APICall.Builder queryBuilder = new APICall.Builder("getPhasingOnlyControl")
-                .param("account", Long.toUnsignedString(ALICE.getId()));
+        GetPhasingOnlyControlCall queryBuilder = GetPhasingOnlyControlCall.create().account(ALICE.getId());
 
-        JSONAssert jsonAssert = new JSONAssert(queryBuilder.build().invoke());
+        JSONAssert jsonAssert = new JSONAssert(queryBuilder.call());
         JSONAssert subPollsJSON = jsonAssert.subObj("controlParams").subObj("phasingSubPolls");
         subPollsJSON.subObj("A");
         Assert.assertEquals(1, subPollsJSON.getJson().size());
 
-        ACTestUtils.PhasingBuilder builder = createCompositeBuilder();
-        builder.feeNQT(3 * ChildChain.IGNIS.ONE_COIN).param("controlExpression", "B");
-        builder.startSubPoll("B").votingModel(VotingModel.ACCOUNT).quorum(1).whitelist(CHUCK);
-
         //set the phasing to satisfy the previous account control
-        builder.startPhasingParams().votingModel(VotingModel.COMPOSITE).param("phasingExpression", "A").param("phasingQuorum", 1);
-        builder.startSubPoll("A").votingModel(VotingModel.ACCOUNT).quorum(1).whitelist(BOB);
+        SetPhasingOnlyControlCall builder = SetPhasingOnlyControlCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .controlMaxFees(IGNIS.getId() + ":" + 10 * IGNIS.ONE_COIN)
+                .controlMinDuration(5)
+                .controlMaxDuration(1440)
+                .feeNQT(3 * IGNIS.ONE_COIN)
+                .controlParams(PhasingParamsHelper.compositeSingleAccountSubpoll("B", CHUCK).toJSONString())
 
-        jsonAssert = new JSONAssert(builder.build().invoke());
+                //set the phasing to satisfy the previous account control
+                .phased(true)
+                .phasingFinishHeight(Nxt.getBlockchain().getHeight() + 5)
+                .phasingParams(PhasingParamsHelper.compositeSingleAccountSubpoll("A", BOB).toJSONString());
+
+        jsonAssert = new JSONAssert(builder.call());
         jsonAssert.str("fullHash");
         jsonAssert.subObj("transactionJSON").subObj("attachment").subObj("phasingControlParams").subObj("phasingSubPolls").subObj("B");
 
@@ -79,54 +88,55 @@ public class CompositePhasingOnlyTest extends BlockchainTest {
         approveUpdate(jsonAssert);
 
         //check
-        jsonAssert = new JSONAssert(queryBuilder.build().invoke());
+        jsonAssert = new JSONAssert(queryBuilder.call());
         subPollsJSON = jsonAssert.subObj("controlParams").subObj("phasingSubPolls");
         subPollsJSON.subObj("B");
         Assert.assertEquals(1, subPollsJSON.getJson().size());
     }
 
     @Test
-    public void testRemoveCompositeControl() throws Exception {
+    public void testRemoveCompositeControl() {
         final String varName = "RemoveTest";
         setSimpleCompositeControl(varName, BOB);
 
-        ACTestUtils.PhasingBuilder builder = new ACTestUtils.PhasingBuilder(ALICE);
-
-        builder.feeNQT(3 * ChildChain.IGNIS.ONE_COIN);
-        builder.votingModel(VotingModel.NONE);
-
         //set the phasing to satisfy the previous account control
-        builder.startPhasingParams().votingModel(VotingModel.COMPOSITE).param("phasingExpression", varName).param("phasingQuorum", 1);
-        builder.startSubPoll(varName).votingModel(VotingModel.ACCOUNT).quorum(1).whitelist(BOB);
+        SetPhasingOnlyControlCall builder = SetPhasingOnlyControlCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(3 * IGNIS.ONE_COIN)
+                .controlVotingModel(VotingModel.NONE.getCode())
 
-        JSONAssert jsonAssert = new JSONAssert(builder.build().invoke());
+                //set the phasing to satisfy the previous account control
+                .phased(true)
+                .phasingFinishHeight(Nxt.getBlockchain().getHeight() + 5)
+                .phasingParams(PhasingParamsHelper.compositeSingleAccountSubpoll(varName, BOB).toJSONString());
+
+        JSONAssert jsonAssert = new JSONAssert(builder.call());
         generateBlock();
 
         approveUpdate(jsonAssert);
 
         int heightAfterRemoval = Nxt.getBlockchain().getHeight();
 
-        APICall.Builder queryBuilder = new APICall.Builder("getPhasingOnlyControl")
-                .param("account", Long.toUnsignedString(ALICE.getId()));
+        GetPhasingOnlyControlCall queryBuilder = GetPhasingOnlyControlCall.create().account(ALICE.getId());
 
-        JSONObject response = queryBuilder.build().invoke();
+        JO response = queryBuilder.callNoError();
         Assert.assertEquals(0, response.size());
 
         String varName2 = "RmTest2";
         setSimpleCompositeControl(varName2, BOB);
 
-        jsonAssert = new JSONAssert(queryBuilder.build().invoke());
+        jsonAssert = new JSONAssert(queryBuilder.call());
         JSONAssert subPolls = jsonAssert.subObj("controlParams").subObj("phasingSubPolls");
         subPolls.subObj(varName2);
         Assert.assertEquals(1, subPolls.getJson().size());
 
         Nxt.getBlockchainProcessor().popOffTo(heightAfterRemoval);
 
-        response = queryBuilder.build().invoke();
+        response = queryBuilder.callNoError();
         Assert.assertEquals(0, response.size());
 
         setSimpleCompositeControl(varName2, BOB);
-        jsonAssert = new JSONAssert(queryBuilder.build().invoke());
+        jsonAssert = new JSONAssert(queryBuilder.call());
         subPolls = jsonAssert.subObj("controlParams").subObj("phasingSubPolls");
         subPolls.subObj(varName2);
         Assert.assertEquals(1, subPolls.getJson().size());
@@ -134,179 +144,228 @@ public class CompositePhasingOnlyTest extends BlockchainTest {
 
     @Test
     public void testSubParamsEqualCheck() {
-        ACTestUtils.PhasingBuilder builder = createCompositeBuilder();
-
-        builder.param("controlExpression", "A & B");
-
-        builder.startSubPoll("A").votingModel(VotingModel.ACCOUNT).quorum(1).whitelist(BOB);
-        builder.startSubPoll("B").votingModel(VotingModel.ACCOUNT).quorum(1).whitelist(CHUCK, DAVE);
-
-        builder.build().invoke();
+        PhasingParamsBuilder controlParamsBuilder = PhasingParamsBuilder.create()
+                .phasingVotingModel(VotingModel.COMPOSITE.getCode())
+                .phasingQuorum(1)
+                .phasingExpression("A & B")
+                .setSubPoll("A", PhasingParamsHelper.accountSubpoll(BOB))
+                .setSubPoll("B", PhasingParamsHelper.accountSubpoll(DAVE, CHUCK));
+        SetPhasingOnlyControlCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN).controlParams(controlParamsBuilder.toJSONString())
+                .controlMaxFees(IGNIS.getId() + ":" + 10 * IGNIS.ONE_COIN)
+                .controlMinDuration(5)
+                .controlMaxDuration(1440)
+                .callNoError();
 
         generateBlock();
 
-        builder = new ACTestUtils.PhasingBuilder("sendMoney", ALICE);
+        PhasingParamsBuilder phasingParamsBuilder = PhasingParamsBuilder.create()
+                .phasingVotingModel(VotingModel.COMPOSITE.getCode())
+                .phasingQuorum(1)
+                .phasingExpression("A & B")
+                .setSubPoll("A", PhasingParamsHelper.accountSubpoll(BOB))
+                .setSubPoll("B", PhasingParamsHelper.accountSubpoll(CHUCK));
 
-        builder.param("recipient", BOB.getStrId()).param("amountNQT", 100 * ChildChain.IGNIS.ONE_COIN);
+        SendMoneyCall builder = SendMoneyCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .recipient(BOB.getStrId())
+                .amountNQT(100 * IGNIS.ONE_COIN)
+                .phased(true)
+                .phasingFinishHeight(Nxt.getBlockchain().getHeight() + 5)
+                .phasingParams(phasingParamsBuilder.toJSONString());
 
-        builder.votingModel(VotingModel.COMPOSITE).param("phasingExpression", "A & B").param("phasingQuorum", 1);
-
-        builder.startSubPoll("A").votingModel(VotingModel.ACCOUNT).quorum(1).whitelist(BOB);
-        builder.startSubPoll("B").votingModel(VotingModel.ACCOUNT).quorum(1).whitelist(CHUCK);
-
-        JSONAssert jsonAssert = new JSONAssert(builder.build().invoke());
+        JSONAssert jsonAssert = new JSONAssert(builder.call());
+        Logger.logDebugMessage("response = " + jsonAssert.getJson().toJSONString());
         Assert.assertTrue(jsonAssert.str("errorDescription").startsWith("Sub-poll for variable \"B\" does not match"));
 
-        builder.startSubPoll("B").whitelist(CHUCK, DAVE).quorum(2);
-        jsonAssert = new JSONAssert(builder.build().invoke());
+        PhasingParamsBuilder subpollB = PhasingParamsBuilder.create()
+                .phasingVotingModel(VotingModel.ACCOUNT.getCode())
+                .phasingWhitelisted(DAVE.getStrId(), CHUCK.getStrId())
+                .phasingQuorum(2);
+        phasingParamsBuilder.setSubPoll("B", subpollB);
+        builder.phasingParams(phasingParamsBuilder.toJSONString());
+        jsonAssert = new JSONAssert(builder.call());
+        Logger.logDebugMessage("response = " + jsonAssert.getJson().toJSONString());
         Assert.assertTrue(jsonAssert.str("errorDescription").startsWith("Sub-poll for variable \"B\" does not match"));
 
-        builder.startSubPoll("B").quorum(1);
-        jsonAssert = new JSONAssert(builder.build().invoke());
+        phasingParamsBuilder.setSubPoll("B", subpollB.phasingQuorum(1));
+        builder.phasingParams(phasingParamsBuilder.toJSONString());
+        jsonAssert = new JSONAssert(builder.call());
+        Logger.logDebugMessage("response = " + jsonAssert.getJson().toJSONString());
         jsonAssert.str("fullHash");
         generateBlock();
     }
 
     @Test
     public void testCompositeControlImplication() {
-        ACTestUtils.PhasingBuilder control = createCompositeBuilder();
+        PhasingParamsBuilder controlParams = PhasingParamsBuilder.create()
+                .phasingVotingModel(VotingModel.COMPOSITE.getCode())
+                .phasingQuorum(1)
+                .phasingExpression("A & B")
+                .setSubPoll("A", PhasingParamsHelper.accountSubpoll(BOB))
+                .setSubPoll("B", PhasingParamsHelper.accountSubpoll(DAVE, CHUCK));
 
-        control.param("controlExpression", "A & B");
-
-        control.startSubPoll("A").votingModel(VotingModel.ACCOUNT).quorum(1).whitelist(BOB);
-        control.startSubPoll("B").votingModel(VotingModel.ACCOUNT).quorum(1).whitelist(CHUCK, DAVE);
-
-        control.build().invoke();
+        SetPhasingOnlyControlCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .controlMaxFees(IGNIS.getId() + ":" + 10 * IGNIS.ONE_COIN)
+                .controlMinDuration(5)
+                .controlMaxDuration(1440).controlParams(controlParams.toJSONString())
+                .callNoError();
 
         generateBlock();
 
-        ACTestUtils.PhasingBuilder txBuilder = new ACTestUtils.PhasingBuilder("sendMoney", ALICE);
+        PhasingParamsBuilder phasingParamsBuilder = PhasingParamsHelper.compositeSingleAccountSubpoll("A", BOB);
+        SendMoneyCall txBuilder = SendMoneyCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .recipient(BOB.getStrId())
+                .amountNQT(100 * IGNIS.ONE_COIN)
+                .phased(true)
+                .phasingFinishHeight(Nxt.getBlockchain().getHeight() + 5)
+                .phasingParams(phasingParamsBuilder.toJSONString());
 
-        txBuilder.param("recipient", BOB.getStrId()).param("amountNQT", 100 * ChildChain.IGNIS.ONE_COIN);
-
-        txBuilder.votingModel(VotingModel.COMPOSITE).param("phasingExpression", "A").param("phasingQuorum", 1);
-
-        txBuilder.startSubPoll("A").votingModel(VotingModel.ACCOUNT).quorum(1).whitelist(BOB);
-
-        JSONAssert jsonAssert = new JSONAssert(txBuilder.build().invoke());
+        JSONAssert jsonAssert = new JSONAssert(txBuilder.call());
         Assert.assertTrue(jsonAssert.str("errorDescription").startsWith("Phasing expression does not imply the account control expression"));
 
-        txBuilder.param("phasingExpression", "A & B | C");
-        txBuilder.startSubPoll("B").votingModel(VotingModel.ACCOUNT).quorum(1).whitelist(CHUCK, DAVE);
-        txBuilder.startSubPoll("C").votingModel(VotingModel.HASH).quorum(1).hashedSecret("somesecret", HashFunction.SHA256);
+        PhasingParamsBuilder subpollC = PhasingParamsBuilder.create()
+                .phasingVotingModel(VotingModel.HASH.getCode())
+                .phasingHashedSecret(HashFunction.SHA256.hash("somesecret".getBytes()))
+                .phasingHashedSecretAlgorithm(HashFunction.SHA256.getId())
+                .phasingQuorum(1);
+        phasingParamsBuilder.phasingExpression("A & B | C")
+                .setSubPoll("B", PhasingParamsHelper.accountSubpoll(DAVE, CHUCK))
+                .setSubPoll("C", subpollC);
+        txBuilder.phasingParams(phasingParamsBuilder.toJSONString());
 
-        jsonAssert = new JSONAssert(txBuilder.build().invoke());
+        jsonAssert = new JSONAssert(txBuilder.call());
         Assert.assertTrue(jsonAssert.str("errorDescription").startsWith("Phasing expression does not imply the account control expression"));
 
-        txBuilder.param("phasingExpression", "A & B & C");
-        jsonAssert = new JSONAssert(txBuilder.build().invoke());
+        txBuilder.phasingParams(phasingParamsBuilder.phasingExpression("A & B & C").toJSONString());
+        jsonAssert = new JSONAssert(txBuilder.call());
         jsonAssert.str("fullHash");
     }
 
     @Test
     public void testSimpleControl() {
-        ACTestUtils.PhasingBuilder builder = new ACTestUtils.PhasingBuilder(ALICE);
-        builder.votingModel(VotingModel.ACCOUNT).whitelist(BOB, CHUCK).quorum(1);
-        new JSONAssert(builder.build().invoke()).str("fullHash");
+        SetPhasingOnlyControlCall builder = SetPhasingOnlyControlCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN).controlParams(PhasingParamsHelper.accountSubpoll(BOB, CHUCK).toJSONString());
+        new JSONAssert(builder.call()).str("fullHash");
         generateBlock();
 
-        ACTestUtils.PhasingBuilder txBuilder = new ACTestUtils.PhasingBuilder("sendMoney", ALICE);
-        txBuilder.param("recipient", DAVE.getStrId()).param("amountNQT", 100 * ChildChain.IGNIS.ONE_COIN);
-
         final String AC_VAR = AccountRestrictions.PhasingOnly.DEFAULT_ACCOUNT_CONTROL_VARIABLE;
-        txBuilder.votingModel(VotingModel.COMPOSITE).param("phasingExpression", AC_VAR).param("phasingQuorum", 1);
-        txBuilder.startSubPoll(AC_VAR).votingModel(VotingModel.ACCOUNT).quorum(2).whitelist(BOB, CHUCK);
+        PhasingParamsBuilder phasingParamsBuilder = PhasingParamsBuilder.create()
+                .phasingVotingModel(VotingModel.COMPOSITE.getCode())
+                .phasingExpression(AC_VAR)
+                .phasingQuorum(1)
+                .setSubPoll(AC_VAR, PhasingParamsHelper.accountSubpoll(BOB, CHUCK).phasingQuorum(2));
+        SendMoneyCall txBuilder = SendMoneyCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .recipient(DAVE.getStrId())
+                .amountNQT(100 * IGNIS.ONE_COIN)
+                .phased(true)
+                .phasingFinishHeight(Nxt.getBlockchain().getHeight() + 5)
+                .phasingParams(phasingParamsBuilder.toJSONString());
 
-        JSONAssert jsonAssert = new JSONAssert(txBuilder.build().invoke());
+        JSONAssert jsonAssert = new JSONAssert(txBuilder.call());
         Assert.assertTrue(jsonAssert.str("errorDescription").startsWith("Sub-poll for variable \"" + AC_VAR + "\" does not match"));
 
-        txBuilder.param("phasingExpression", AC_VAR + " | B");
-        txBuilder.startSubPoll(AC_VAR).quorum(1);
-        txBuilder.startSubPoll("B").votingModel(VotingModel.ACCOUNT).quorum(1).whitelist(DAVE);
+        phasingParamsBuilder.phasingExpression(AC_VAR + " | B")
+                .setSubPoll(AC_VAR, PhasingParamsHelper.accountSubpoll(BOB, CHUCK))
+                .setSubPoll("B", PhasingParamsHelper.accountSubpoll(DAVE));
+        txBuilder.phasingParams(phasingParamsBuilder.toJSONString());
 
-        jsonAssert = new JSONAssert(txBuilder.build().invoke());
+        jsonAssert = new JSONAssert(txBuilder.call());
         Assert.assertTrue(jsonAssert.str("errorDescription").startsWith("Phasing expression does not imply the account control expression"));
 
-        txBuilder.param("phasingExpression", AC_VAR + " & B");
+        txBuilder.phasingParams(phasingParamsBuilder.phasingExpression(AC_VAR + " & B").toJSONString());
 
-        jsonAssert = new JSONAssert(txBuilder.build().invoke());
+        jsonAssert = new JSONAssert(txBuilder.call());
         jsonAssert.str("fullHash");
     }
 
     @Test
     public void testPropertyVoting() {
-        ACTestUtils.PhasingBuilder control = createCompositeBuilder();
-        JSONAssert jsonAssert;
-
-        control.param("controlExpression", "A & B");
-
         String propertyName = "propac2";
         String propertyValue = "valX";
 
-        control.startSubPoll("A").votingModel(VotingModel.ACCOUNT).quorum(1).whitelist(BOB);
-        control.startSubPoll("B").votingModel(VotingModel.PROPERTY).quorum(1);
-        control.phasingParam("SenderPropertySetter", CHUCK.getStrId());
-        control.phasingParam("SenderPropertyName", propertyName);
-        control.phasingParam("SenderPropertyValue", propertyValue);
+        PhasingParamsBuilder subpollB = PhasingParamsBuilder.create()
+                .phasingVotingModel(VotingModel.PROPERTY.getCode())
+                .phasingSenderProperty(CHUCK.getId(), propertyName, propertyValue)
+                .phasingQuorum(1);
 
-        jsonAssert = new JSONAssert(control.build().invoke());
+        PhasingParamsBuilder controlParams = PhasingParamsBuilder.create()
+                .phasingVotingModel(VotingModel.COMPOSITE.getCode())
+                .phasingQuorum(1)
+                .phasingExpression("A & B")
+                .setSubPoll("A", PhasingParamsHelper.accountSubpoll(BOB))
+                .setSubPoll("B", subpollB);
+
+        SetPhasingOnlyControlCall control = SetPhasingOnlyControlCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .controlMaxFees(IGNIS.getId() + ":" + 10 * IGNIS.ONE_COIN)
+                .controlMinDuration(5)
+                .controlMaxDuration(1440).controlParams(controlParams.toJSONString());
+
+        JSONAssert jsonAssert = new JSONAssert(control.call());
         jsonAssert.str("fullHash");
 
         generateBlock();
 
-        ACTestUtils.PhasingBuilder txBuilder = new ACTestUtils.PhasingBuilder("sendMoney", ALICE);
+        PhasingParamsBuilder phasingParams = PhasingParamsBuilder.create()
+                .phasingVotingModel(VotingModel.COMPOSITE.getCode())
+                .phasingQuorum(1)
+                .phasingExpression("A & B")
+                .setSubPoll("A", PhasingParamsHelper.accountSubpoll(BOB))
+                .setSubPoll("B", subpollB.phasingSenderProperty(CHUCK.getId(), propertyName, propertyValue + "a"));
 
-        txBuilder.param("recipient", DAVE.getStrId()).param("amountNQT", 100 * ChildChain.IGNIS.ONE_COIN);
+        SendMoneyCall txBuilder = SendMoneyCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .recipient(DAVE.getStrId())
+                .amountNQT(100 * IGNIS.ONE_COIN)
+                .phased(true)
+                .phasingFinishHeight(Nxt.getBlockchain().getHeight() + 5).phasingParams(phasingParams.toJSONString());
 
-        txBuilder.votingModel(VotingModel.COMPOSITE).param("phasingExpression", "A & B").param("phasingQuorum", 1);
-        txBuilder.startSubPoll("A").votingModel(VotingModel.ACCOUNT).quorum(1).whitelist(BOB);
-        txBuilder.startSubPoll("B").votingModel(VotingModel.PROPERTY).quorum(1);
-        txBuilder.phasingParam("SenderPropertySetter", CHUCK.getStrId());
-        txBuilder.phasingParam("SenderPropertyName", propertyName);
-        txBuilder.phasingParam("SenderPropertyValue", propertyValue + "a");
-
-        jsonAssert = new JSONAssert(txBuilder.build().invoke());
+        jsonAssert = new JSONAssert(txBuilder.call());
         Assert.assertTrue(jsonAssert.str("errorDescription").startsWith("Sub-poll for variable \"B\" does not match"));
 
-        txBuilder.phasingParam("SenderPropertyValue", propertyValue);
-        jsonAssert = new JSONAssert(txBuilder.build().invoke());
+        txBuilder.phasingParams(phasingParams.setSubPoll("B", subpollB.phasingSenderProperty(CHUCK.getId(), propertyName, propertyValue))
+                .toJSONString());
+        jsonAssert = new JSONAssert(txBuilder.call());
         jsonAssert.str("fullHash");
     }
 
-    private ACTestUtils.PhasingBuilder createCompositeBuilder() {
-        ACTestUtils.PhasingBuilder builder = new ACTestUtils.PhasingBuilder(ALICE);
+    private void setSimpleCompositeControl(String variableName, Tester whitelisted) {
+        SetPhasingOnlyControlCall builder = SetPhasingOnlyControlCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .controlMaxFees(IGNIS.getId() + ":" + 10 * IGNIS.ONE_COIN)
+                .controlMinDuration(5)
+                .controlMaxDuration(1440)
+                .controlParams(PhasingParamsHelper.compositeSingleAccountSubpoll(variableName, whitelisted)
+                        .toJSONString());
 
-        ACTestUtils.setControlPhasingParams(builder, VotingModel.COMPOSITE, null, 1L,
-                null, null, null, 10 * ChildChain.IGNIS.ONE_COIN, 5, 1440);
-        return builder;
-    }
-
-
-    private ACTestUtils.PhasingBuilder setSimpleCompositeControl(String variableName, Tester whitelisted) {
-        ACTestUtils.PhasingBuilder builder = createCompositeBuilder();
-
-        builder.param("controlExpression", variableName);
-
-        builder.startSubPoll(variableName).votingModel(VotingModel.ACCOUNT).quorum(1).whitelist(whitelisted);
-
-        JSONAssert jsonAssert = new JSONAssert(builder.build().invoke());
+        JSONAssert jsonAssert = new JSONAssert(builder.call());
         jsonAssert.str("fullHash");
         jsonAssert.subObj("transactionJSON").subObj("attachment").subObj("phasingControlParams").subObj("phasingSubPolls").subObj(variableName);
 
         generateBlock();
-
-        return builder;
     }
-
 
     private void approveUpdate(JSONAssert updateResponse) {
         //approve the update
-        APICall.Builder approveBuilder = new ACTestUtils.Builder("approveTransaction", BOB.getSecretPhrase()).
-                param("phasedTransaction", "" + updateResponse.subObj("transactionJSON").integer("chain") + ":" + updateResponse.str("fullHash"));
-        updateResponse = new JSONAssert(approveBuilder.build().invoke());
+        ApproveTransactionCall builder = ApproveTransactionCall.create(IGNIS.getId())
+                .secretPhrase(BOB.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .phasedTransaction("" + updateResponse.subObj("transactionJSON").integer("chain") + ":" + updateResponse.str("fullHash"));
+        updateResponse = new JSONAssert(builder.call());
         updateResponse.str("fullHash");
         generateBlock();
     }
-
-
 }

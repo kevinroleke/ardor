@@ -27,7 +27,6 @@ import nxt.peer.Peers;
 import nxt.util.Logger;
 import nxt.util.ThreadPool;
 import nxt.util.security.BlockchainPermission;
-
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
@@ -36,11 +35,13 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -55,7 +56,7 @@ import java.util.stream.Collectors;
 
 public class APIProxy {
     static final Set<String> NOT_FORWARDED_REQUESTS;
-    static final Set<String> NOT_CONFIRMED_REQUESTS = Collections.singleton("getPeers");
+    static final Set<String> NOT_CONFIRMED_REQUESTS = new HashSet<>(Arrays.asList("getPeers", "getNextBlockGenerators"));
 
     static final boolean enableAPIProxy = Constants.isLightClient ||
             (Nxt.getBooleanProperty("nxt.enableAPIProxy") && ! API.isOpenAPI && Nxt.isEnabled(SubSystem.PEER_NETWORKING));
@@ -159,6 +160,17 @@ public class APIProxy {
         if (Constants.isOffline) {
             message.append("Current instance is configured for offline work");
             return false;
+        }
+
+        if (!forcedServerURL.isEmpty()) {
+            Peer forcedPeer;
+            try {
+                forcedPeer = addAndConnectPeer(new URI(forcedServerURL).getHost());
+            } catch (URISyntaxException e) {
+                message.append("Malformed nxt.forceAPIProxyServerURL:").append(forcedServerURL);
+                return false;
+            }
+            setForcedPeer(forcedPeer);
         }
 
         if (forcedPeerHost != null) {

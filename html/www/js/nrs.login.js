@@ -135,7 +135,7 @@ NRS.onSiteBuildDone().then(() => {
                 $accountPhraseGeneratorPanel.find("textarea").val("");
                 $accountPhraseGeneratorPanel.find(".step_3 .callout").hide();
                 if ($("#entity_creation_type").val() === "seed") {
-                    $loginSeed.val(mnemonic);
+                    $loginSeed.val(mnemonic).trigger('input');
                     showLoginScreen();
                 } else {
                     NRS.loginWithOptions({ isPassphraseLogin: true, id: mnemonic });
@@ -1128,7 +1128,7 @@ NRS.onSiteBuildDone().then(() => {
             NRS.setEncryptionPrivateKey(privateKey);
             NRS.setServerPrivateKey(privateKey);
             NRS.setAccountDetailsPrivateKey(privateKey);
-            NRS.setAccountDetailsPassword(secretPhrase);
+            NRS.setAccountDetailsPassword(secretPhrase === '' ? privateKey : secretPhrase);
             NRS.setAdvancedModalPrivateKey(privateKey);
             NRS.setApprovalModelsPrivateKey(privateKey);
             NRS.setTokenPrivateKey(privateKey);

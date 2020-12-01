@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class ShufflingVerifyCall extends CreateTransactionCallBuilder<ShufflingVerifyCall> {
+public class ShufflingVerifyCall extends CreateOneSideTransactionCallBuilder<ShufflingVerifyCall> {
     private ShufflingVerifyCall() {
         super(ApiSpec.shufflingVerify);
     }

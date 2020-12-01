@@ -16,10 +16,11 @@
 package com.jelurida.ardor.contracts;
 
 import nxt.Tester;
-import nxt.http.APICall;
-import nxt.http.callers.TriggerContractByRequestCall;
-import nxt.util.Convert;
 import nxt.addons.JO;
+import nxt.http.callers.SendMoneyCall;
+import nxt.http.callers.TriggerContractByRequestCall;
+import nxt.http.callers.TriggerContractByVoucherCall;
+import nxt.util.Convert;
 import nxt.util.Logger;
 import org.junit.Assert;
 import org.junit.Test;
@@ -37,11 +38,9 @@ public class NewAccountFaucetTest extends AbstractContractTest {
         JO voucher = new JO(getVoucher(newGuy));
 
         // newGuy requests funding from the contract
-        APICall.Builder builder = new APICall.Builder("triggerContractByVoucher").
+        JO response = TriggerContractByVoucherCall.create().
                 parts("voucher", Convert.toBytes(voucher.toJSONString())).
-                param("contractName", contractName);
-        APICall apiCall = builder.build();
-        JO response = new JO(apiCall.invoke());
+                contractName(contractName).callNoError();
         Logger.logDebugMessage("triggerContractByVoucher: " + response);
         generateBlock();
 
@@ -51,11 +50,9 @@ public class NewAccountFaucetTest extends AbstractContractTest {
         Assert.assertEquals(402000000, FORGY.getChainBalanceDiff(2)); // Forging reward
 
         // newGuy requests funding from the contract again
-        builder = new APICall.Builder("triggerContractByVoucher").
+        response = TriggerContractByVoucherCall.create().
                 parts("voucher", Convert.toBytes(voucher.toJSONString())).
-                param("contractName", contractName);
-        apiCall = builder.build();
-        response = new JO(apiCall.invoke());
+                contractName(contractName).call();
         Logger.logDebugMessage("triggerContractByVoucher: " + response);
 
         // No luck since the account already has a public key
@@ -69,7 +66,12 @@ public class NewAccountFaucetTest extends AbstractContractTest {
         Tester newGuy = new Tester("rule chase pound passion whistle odd tumble joy howl reason crack turn");
 
         // newGuy requests funding from the contract
-        JO response = TriggerContractByRequestCall.create().contractName("NewAccountFaucet").setParamValidation(false).param("recipientPublicKey", newGuy.getPublicKeyStr()).param("chain", 2).call();
+        JO response = TriggerContractByRequestCall.create()
+                .contractName("NewAccountFaucet")
+                .setParamValidation(false)
+                .param("recipientPublicKey", newGuy.getPublicKeyStr())
+                .param("chain", IGNIS.getId())
+                .callNoError();
         Logger.logDebugMessage("triggerContractByRequest: " + response);
         generateBlock();
 
@@ -79,7 +81,12 @@ public class NewAccountFaucetTest extends AbstractContractTest {
         Assert.assertEquals(402000000, FORGY.getChainBalanceDiff(2)); // Forging reward
 
         // newGuy requests funding from the contract again
-        response = TriggerContractByRequestCall.create().contractName("NewAccountFaucet").setParamValidation(false).param("recipientPublicKey", newGuy.getPublicKeyStr()).param("chain", 2).call();
+        response = TriggerContractByRequestCall.create()
+                .contractName("NewAccountFaucet")
+                .setParamValidation(false)
+                .param("recipientPublicKey", newGuy.getPublicKeyStr())
+                .param("chain", IGNIS.getId())
+                .call();
         Logger.logDebugMessage("triggerContractByVoucher: " + response);
 
         // No luck since the account already has a public key
@@ -94,11 +101,9 @@ public class NewAccountFaucetTest extends AbstractContractTest {
         JO response = getVoucher(BOB);
 
         // Bob requests funding from the contract
-        APICall.Builder builder = new APICall.Builder("triggerContractByVoucher").
+        response = TriggerContractByVoucherCall.create().
                 parts("voucher", Convert.toBytes(response.toJSONString())).
-                param("contractName", contractName);
-        APICall apiCall = builder.build();
-        response = new JO(apiCall.invoke());
+                contractName(contractName).call();
 
         // Funding failed since Bob's account already has a public key
         Logger.logDebugMessage("triggerContractByVoucher: " + response);
@@ -141,27 +146,23 @@ public class NewAccountFaucetTest extends AbstractContractTest {
     private JO getPaymentFromFaucet(String contractName, String baseSecretPhrase) {
         Tester newGuy = new Tester(baseSecretPhrase);
         JO voucher = getVoucher(newGuy);
-        APICall.Builder builder = new APICall.Builder("triggerContractByVoucher").
+        JO response = TriggerContractByVoucherCall.create().
                 parts("voucher", Convert.toBytes(voucher.toJSONString())).
-                param("contractName", contractName);
-        APICall apiCall = builder.build();
-        JO response = new JO(apiCall.invoke());
+                contractName(contractName).callNoError();
         Logger.logDebugMessage("triggerContractByVoucher: " + response);
         generateBlock();
         return response;
     }
 
     private JO getVoucher(Tester newGuy) {
-        APICall.Builder builder = new APICall.Builder("sendMoney").
+        JO response = SendMoneyCall.create(IGNIS.getId()).
                 secretPhrase(newGuy.getSecretPhrase()).
-                param("chain", IGNIS.getId()).
-                param("publicKey", ALICE.getPublicKeyStr()).
-                param("recipient", newGuy.getRsAccount()).
-                param("amountNQT", 100 * IGNIS.ONE_COIN). // ignored by the contract
-                param("voucher", "true");
-        builder.feeNQT(0);
-        APICall apiCall = builder.build();
-        JO response = new JO(apiCall.invoke());
+                publicKey(ALICE.getPublicKeyStr()).
+                recipient(newGuy.getRsAccount()).
+                amountNQT(100 * IGNIS.ONE_COIN). // ignored by the contract
+                voucher(true).
+                feeNQT(0).
+                callNoError();
         Logger.logDebugMessage("sendMoney voucher: " + response);
         return response;
     }

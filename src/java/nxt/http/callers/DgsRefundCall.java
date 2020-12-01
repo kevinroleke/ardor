@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class DgsRefundCall extends CreateTransactionCallBuilder<DgsRefundCall> {
+public class DgsRefundCall extends CreateTwoSidesTransactionCallBuilder<DgsRefundCall> {
     private DgsRefundCall() {
         super(ApiSpec.dgsRefund);
     }

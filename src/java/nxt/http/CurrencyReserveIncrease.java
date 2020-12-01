@@ -22,6 +22,7 @@ import nxt.account.Account;
 import nxt.blockchain.Attachment;
 import nxt.ms.Currency;
 import nxt.ms.CurrencyType;
+import nxt.ms.MonetarySystemTransactionType;
 import nxt.ms.ReserveIncreaseAttachment;
 import org.json.simple.JSONStreamAware;
 
@@ -51,7 +52,8 @@ public final class CurrencyReserveIncrease extends CreateTransaction {
     static final CurrencyReserveIncrease instance = new CurrencyReserveIncrease();
 
     private CurrencyReserveIncrease() {
-        super(new APITag[] {APITag.MS, APITag.CREATE_TRANSACTION}, "currency", "amountPerUnitNQT");
+        super(MonetarySystemTransactionType.RESERVE_INCREASE, new APITag[] {APITag.MS, APITag.CREATE_TRANSACTION},
+                "currency", "amountPerUnitNQT");
     }
 
     @Override

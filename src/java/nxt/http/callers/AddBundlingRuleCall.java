@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class AddBundlingRuleCall extends APICall.Builder<AddBundlingRuleCall> {
+public class AddBundlingRuleCall extends ChainSpecificCallBuilder<AddBundlingRuleCall> {
     private AddBundlingRuleCall() {
         super(ApiSpec.addBundlingRule);
     }

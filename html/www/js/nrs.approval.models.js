@@ -415,6 +415,7 @@ NRS.onSiteBuildDone().then(() => {
         };
 
         NRS.processApprovalModel = function(data) {
+
             if (data.phasingApprovalModel !== undefined) {
                 if (data.phasingApprovalModel == "" || !approvalModels[data.phasingApprovalModel]) {
                     delete data.phased;

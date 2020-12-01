@@ -261,7 +261,7 @@ public class TransactionResponseImpl implements TransactionResponse {
 
     @Override
     public byte getSubType() {
-        return transactionType.getType();
+        return transactionType.getSubtype();
     }
 
     @Override

@@ -21,6 +21,7 @@ import nxt.account.Account;
 import nxt.blockchain.Attachment;
 import nxt.lightcontracts.ContractReference;
 import nxt.lightcontracts.ContractReferenceDeleteAttachment;
+import nxt.lightcontracts.LightContractTransactionType;
 import nxt.util.Convert;
 import org.json.simple.JSONStreamAware;
 
@@ -31,7 +32,8 @@ public final class DeleteContractReference extends CreateTransaction {
     static final DeleteContractReference instance = new DeleteContractReference();
 
     private DeleteContractReference() {
-        super(new APITag[] {APITag.ACCOUNTS, APITag.CREATE_TRANSACTION}, "contractName");
+        super(LightContractTransactionType.CONTRACT_REFERENCE_DELETE,
+                new APITag[] {APITag.ACCOUNTS, APITag.CREATE_TRANSACTION}, "contractName");
     }
 
     @Override

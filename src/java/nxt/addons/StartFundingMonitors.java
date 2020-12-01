@@ -69,7 +69,7 @@ public final class StartFundingMonitors extends StartAuto {
                 .holdingType(monitorJSON.getByte("holdingType"))
                 .holding(monitorJSON.getEntityId("holding"))
                 .property(monitorJSON.getString("property"))
-                .amount(monitorJSON.getString("amount"))
+                .amount(monitorJSON.getLong("amount"))
                 .threshold(monitorJSON.getString("threshold"))
                 .interval(monitorJSON.getString("interval"))
                 .feeRateNQTPerFXT(monitorJSON.getLong("feeRateNQTPerFXT"))

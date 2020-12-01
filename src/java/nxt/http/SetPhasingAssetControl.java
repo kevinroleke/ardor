@@ -19,6 +19,7 @@ package nxt.http;
 import nxt.NxtException;
 import nxt.account.Account;
 import nxt.ae.Asset;
+import nxt.ae.AssetExchangeTransactionType;
 import nxt.ae.SetPhasingAssetControlAttachment;
 import nxt.voting.PhasingParams;
 import org.json.simple.JSONObject;
@@ -46,7 +47,8 @@ public final class SetPhasingAssetControl extends CreateTransaction {
     static final SetPhasingAssetControl instance = new SetPhasingAssetControl();
 
     private SetPhasingAssetControl() {
-        super(new APITag[] {APITag.AE, APITag.CREATE_TRANSACTION}, "asset", "controlVotingModel", "controlQuorum", "controlMinBalance",
+        super(AssetExchangeTransactionType.SET_PHASING_CONTROL, new APITag[] {APITag.AE, APITag.CREATE_TRANSACTION},
+                "asset", "controlVotingModel", "controlQuorum", "controlMinBalance",
                 "controlMinBalanceModel", "controlHolding", "controlWhitelisted", "controlWhitelisted", "controlWhitelisted",
                 "controlSenderPropertySetter", "controlSenderPropertyName",
                 "controlSenderPropertyValue", "controlRecipientPropertySetter",

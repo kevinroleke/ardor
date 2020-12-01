@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class ShufflingCancelCall extends CreateTransactionCallBuilder<ShufflingCancelCall> {
+public class ShufflingCancelCall extends CreateOneSideTransactionCallBuilder<ShufflingCancelCall> {
     private ShufflingCancelCall() {
         super(ApiSpec.shufflingCancel);
     }
@@ -12,6 +12,10 @@ public class ShufflingCancelCall extends CreateTransactionCallBuilder<ShufflingC
 
     public ShufflingCancelCall cancellingAccount(String cancellingAccount) {
         return param("cancellingAccount", cancellingAccount);
+    }
+
+    public ShufflingCancelCall cancellingAccount(long cancellingAccount) {
+        return unsignedLongParam("cancellingAccount", cancellingAccount);
     }
 
     public ShufflingCancelCall shufflingStateHash(String shufflingStateHash) {

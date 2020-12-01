@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetUnconfirmedTransactionsCall extends APICall.Builder<GetUnconfirmedTransactionsCall> {
+public class GetUnconfirmedTransactionsCall extends ChainSpecificCallBuilder<GetUnconfirmedTransactionsCall> {
     private GetUnconfirmedTransactionsCall() {
         super(ApiSpec.getUnconfirmedTransactions);
     }
@@ -22,6 +20,11 @@ public class GetUnconfirmedTransactionsCall extends APICall.Builder<GetUnconfirm
 
     public GetUnconfirmedTransactionsCall firstIndex(int firstIndex) {
         return param("firstIndex", firstIndex);
+    }
+
+    public GetUnconfirmedTransactionsCall includeWaitingTransactions(
+            boolean includeWaitingTransactions) {
+        return param("includeWaitingTransactions", includeWaitingTransactions);
     }
 
     public GetUnconfirmedTransactionsCall lastIndex(int lastIndex) {

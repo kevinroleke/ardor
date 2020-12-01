@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetDGSPurchaseCall extends APICall.Builder<GetDGSPurchaseCall> {
+public class GetDGSPurchaseCall extends ChainSpecificCallBuilder<GetDGSPurchaseCall> {
     private GetDGSPurchaseCall() {
         super(ApiSpec.getDGSPurchase);
     }

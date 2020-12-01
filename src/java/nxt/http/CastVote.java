@@ -23,6 +23,7 @@ import nxt.blockchain.Attachment;
 import nxt.util.Convert;
 import nxt.voting.PollHome;
 import nxt.voting.VoteCastingAttachment;
+import nxt.voting.VotingTransactionType;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,7 +37,8 @@ public final class CastVote extends CreateTransaction {
     static final CastVote instance = new CastVote();
 
     private CastVote() {
-        super(new APITag[]{APITag.VS, APITag.CREATE_TRANSACTION}, "poll", "vote00", "vote01", "vote02");
+        super(VotingTransactionType.VOTE_CASTING, new APITag[]{APITag.VS, APITag.CREATE_TRANSACTION},
+                "poll", "vote00", "vote01", "vote02");
     }
 
     @Override

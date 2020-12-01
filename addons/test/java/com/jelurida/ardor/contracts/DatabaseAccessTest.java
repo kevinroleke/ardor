@@ -39,7 +39,7 @@ public class DatabaseAccessTest extends AbstractContractTest {
     @Ignore
     public void databaseAccessAllowed() {
         ContractTestHelper.deployContract(DatabaseAccess.class);
-        JO response = TriggerContractByRequestCall.create().contractName("DatabaseAccess").call();
+        JO response = TriggerContractByRequestCall.create().contractName("DatabaseAccess").callNoError();
         JA references = response.getArray("references");
         Assert.assertEquals(1, references.size());
         Assert.assertEquals("DatabaseAccess", references.get(0).getString("contractName"));
@@ -56,7 +56,7 @@ public class DatabaseAccessTest extends AbstractContractTest {
     @Ignore
     public void databaseAndBlockchainAccessAllowed() {
         ContractTestHelper.deployContract(DatabaseAccess.class);
-        JO response = TriggerContractByRequestCall.create().contractName("DatabaseAccess").call();
+        JO response = TriggerContractByRequestCall.create().contractName("DatabaseAccess").callNoError();
         JA references = response.getArray("references");
         Assert.assertEquals(1, references.size());
         Assert.assertEquals("DatabaseAccess", references.get(0).getString("contractName"));

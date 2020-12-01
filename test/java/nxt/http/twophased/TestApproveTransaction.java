@@ -18,17 +18,25 @@ package nxt.http.twophased;
 
 import nxt.BlockchainTest;
 import nxt.Nxt;
-import nxt.blockchain.ChildChain;
+import nxt.addons.JO;
 import nxt.crypto.HashFunction;
 import nxt.http.APICall;
 import nxt.http.accountControl.ACTestUtils;
-import nxt.http.twophased.TestCreateTwoPhased.TwoPhasedMoneyTransferBuilder;
+import nxt.http.callers.ApproveTransactionCall;
+import nxt.http.callers.BroadcastTransactionCall;
+import nxt.http.callers.GetAliasCall;
+import nxt.http.callers.SendMessageCall;
+import nxt.http.callers.SendMoneyCall;
+import nxt.http.callers.SetAliasCall;
+import nxt.http.callers.SignTransactionCall;
+import nxt.util.Convert;
 import nxt.util.JSONAssert;
 import nxt.util.Logger;
 import nxt.voting.VoteWeighting;
-import org.json.simple.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
+
+import static nxt.blockchain.ChildChain.IGNIS;
 
 public class TestApproveTransaction extends BlockchainTest {
 
@@ -36,149 +44,147 @@ public class TestApproveTransaction extends BlockchainTest {
     public void validVoteCasting() {
         int duration = 10;
 
-        APICall apiCall = new TwoPhasedMoneyTransferBuilder()
-                .finishHeight(Nxt.getBlockchain().getHeight() + duration)
+        APICall apiCall = TestCreateTwoPhased.createSendMoneyBuilder()
+                .phasingFinishHeight(Nxt.getBlockchain().getHeight() + duration)
                 .build();
 
-        JSONObject transactionJSON = TestCreateTwoPhased.issueCreateTwoPhased(apiCall, false);
+        JO transactionJSON = TestCreateTwoPhased.issueCreateTwoPhased(apiCall, false);
         generateBlock();
 
-        apiCall = new APICall.Builder("approveTransaction")
-                .param("secretPhrase", CHUCK.getSecretPhrase())
-                .param("phasedTransaction", ChildChain.IGNIS.getId() + ":" + transactionJSON.get("fullHash"))
-                .param("feeNQT", ChildChain.IGNIS.ONE_COIN)
-                .build();
+        JO response = ApproveTransactionCall.create(IGNIS.getId())
+                .secretPhrase(CHUCK.getSecretPhrase())
+                .phasedTransaction(IGNIS.getId() + ":" + transactionJSON.get("fullHash"))
+                .feeNQT(IGNIS.ONE_COIN)
+                .callNoError();
 
-        JSONObject response = apiCall.invoke();
         Logger.logMessage("approvePhasedTransactionResponse:" + response.toJSONString());
         Assert.assertNotNull(response.get("fullHash"));
 
         generateBlocks(duration);
-        Assert.assertEquals(-50 * ChildChain.IGNIS.ONE_COIN - 2 * ChildChain.IGNIS.ONE_COIN,
-                ALICE.getChainBalanceDiff(ChildChain.IGNIS.getId()));
-        Assert.assertEquals(50 * ChildChain.IGNIS.ONE_COIN, BOB.getChainBalanceDiff(ChildChain.IGNIS.getId()));
-        Assert.assertEquals(-ChildChain.IGNIS.ONE_COIN, CHUCK.getChainBalanceDiff(ChildChain.IGNIS.getId()));
+        Assert.assertEquals(-50 * IGNIS.ONE_COIN - 2 * IGNIS.ONE_COIN,
+                ALICE.getChainBalanceDiff(IGNIS.getId()));
+        Assert.assertEquals(50 * IGNIS.ONE_COIN, BOB.getChainBalanceDiff(IGNIS.getId()));
+        Assert.assertEquals(-IGNIS.ONE_COIN, CHUCK.getChainBalanceDiff(IGNIS.getId()));
     }
 
     @Test
     public void invalidVoteCasting() {
         int duration = 10;
 
-        APICall apiCall = new TwoPhasedMoneyTransferBuilder()
-                .finishHeight(Nxt.getBlockchain().getHeight() + duration)
+        APICall apiCall = TestCreateTwoPhased.createSendMoneyBuilder()
+                .phasingFinishHeight(Nxt.getBlockchain().getHeight() + duration)
                 .build();
 
-        JSONObject transactionJSON = TestCreateTwoPhased.issueCreateTwoPhased(apiCall, false);
+        JO transactionJSON = TestCreateTwoPhased.issueCreateTwoPhased(apiCall, false);
         generateBlock();
-        apiCall = new APICall.Builder("approveTransaction")
-                .param("secretPhrase", DAVE.getSecretPhrase())
-                .param("phasedTransaction", ChildChain.IGNIS.getId() + ":" + transactionJSON.get("fullHash"))
-                .param("feeNQT", ChildChain.IGNIS.ONE_COIN)
-                .build();
-        JSONObject response = apiCall.invoke();
+        JO response = ApproveTransactionCall.create(IGNIS.getId())
+                .secretPhrase(DAVE.getSecretPhrase())
+                .phasedTransaction(IGNIS.getId() + ":" + transactionJSON.get("fullHash"))
+                .feeNQT(IGNIS.ONE_COIN)
+                .call();
         Assert.assertNotNull(response.get("error"));
         generateBlock();
 
-        Assert.assertEquals("ALICE balance: ", -2 * ChildChain.IGNIS.ONE_COIN,
-                ALICE.getChainBalanceDiff(ChildChain.IGNIS.getId()));
-        Assert.assertEquals("BOB balance: ", 0, BOB.getChainBalanceDiff(ChildChain.IGNIS.getId()));
-        Assert.assertEquals("CHUCK balance: ", 0, CHUCK.getChainBalanceDiff(ChildChain.IGNIS.getId()));
-        Assert.assertEquals("DAVE balance: ", 0, DAVE.getChainBalanceDiff(ChildChain.IGNIS.getId()));
+        Assert.assertEquals("ALICE balance: ", -2 * IGNIS.ONE_COIN,
+                ALICE.getChainBalanceDiff(IGNIS.getId()));
+        Assert.assertEquals("BOB balance: ", 0, BOB.getChainBalanceDiff(IGNIS.getId()));
+        Assert.assertEquals("CHUCK balance: ", 0, CHUCK.getChainBalanceDiff(IGNIS.getId()));
+        Assert.assertEquals("DAVE balance: ", 0, DAVE.getChainBalanceDiff(IGNIS.getId()));
 
         generateBlocks(duration);
 
-        Assert.assertEquals("ALICE balance: ", -2 * ChildChain.IGNIS.ONE_COIN,
-                ALICE.getChainBalanceDiff(ChildChain.IGNIS.getId()));
-        Assert.assertEquals("BOB balance: ", 0, BOB.getChainBalanceDiff(ChildChain.IGNIS.getId()));
-        Assert.assertEquals("CHUCK balance: ", 0, CHUCK.getChainBalanceDiff(ChildChain.IGNIS.getId()));
-        Assert.assertEquals("DAVE balance: ", 0, DAVE.getChainBalanceDiff(ChildChain.IGNIS.getId()));
+        Assert.assertEquals("ALICE balance: ", -2 * IGNIS.ONE_COIN,
+                ALICE.getChainBalanceDiff(IGNIS.getId()));
+        Assert.assertEquals("BOB balance: ", 0, BOB.getChainBalanceDiff(IGNIS.getId()));
+        Assert.assertEquals("CHUCK balance: ", 0, CHUCK.getChainBalanceDiff(IGNIS.getId()));
+        Assert.assertEquals("DAVE balance: ", 0, DAVE.getChainBalanceDiff(IGNIS.getId()));
     }
 
     @Test
     public void sendMoneyPhasedNoVoting() {
-        long fee = 2* ChildChain.IGNIS.ONE_COIN;
-        JSONObject response = new APICall.Builder("sendMoney").
-                param("secretPhrase", ALICE.getSecretPhrase()).
-                param("recipient", BOB.getStrId()).
-                param("amountNQT", 100 * ChildChain.IGNIS.ONE_COIN).
-                param("feeNQT", fee).
-                param("phased", "true").
-                param("phasingFinishHeight", baseHeight + 2).
-                param("phasingVotingModel", -1).
-                build().invoke();
+        long fee = 2* IGNIS.ONE_COIN;
+        JO response = SendMoneyCall.create(IGNIS.getId()).
+                secretPhrase(ALICE.getSecretPhrase()).
+                recipient(BOB.getStrId()).
+                amountNQT(100 * IGNIS.ONE_COIN).
+                feeNQT(fee).
+                phased(true).
+                phasingFinishHeight(baseHeight + 2).
+                phasingVotingModel((byte) -1).
+                callNoError();
         Logger.logDebugMessage("sendMoney: " + response);
 
         generateBlock();
         // Transaction is not applied yet, fee is paid
         // Forger
-        Assert.assertEquals(fee, FORGY.getChainBalanceDiff(ChildChain.IGNIS.getId()));
-        Assert.assertEquals(fee, FORGY.getChainUnconfirmedBalanceDiff(ChildChain.IGNIS.getId()));
+        Assert.assertEquals(fee, FORGY.getChainBalanceDiff(IGNIS.getId()));
+        Assert.assertEquals(fee, FORGY.getChainUnconfirmedBalanceDiff(IGNIS.getId()));
         // Sender
-        Assert.assertEquals(-fee, ALICE.getChainBalanceDiff(ChildChain.IGNIS.getId()));
-        Assert.assertEquals(-100 * ChildChain.IGNIS.ONE_COIN - fee, ALICE.getChainUnconfirmedBalanceDiff(ChildChain.IGNIS.getId()));
+        Assert.assertEquals(-fee, ALICE.getChainBalanceDiff(IGNIS.getId()));
+        Assert.assertEquals(-100 * IGNIS.ONE_COIN - fee, ALICE.getChainUnconfirmedBalanceDiff(IGNIS.getId()));
         // Recipient
-        Assert.assertEquals(0, BOB.getChainBalanceDiff(ChildChain.IGNIS.getId()));
-        Assert.assertEquals(0, BOB.getChainUnconfirmedBalanceDiff(ChildChain.IGNIS.getId()));
+        Assert.assertEquals(0, BOB.getChainBalanceDiff(IGNIS.getId()));
+        Assert.assertEquals(0, BOB.getChainUnconfirmedBalanceDiff(IGNIS.getId()));
 
         generateBlock();
         // Transaction is applied
         // Sender
-        Assert.assertEquals(-100 * ChildChain.IGNIS.ONE_COIN - fee, ALICE.getChainBalanceDiff(ChildChain.IGNIS.getId()));
-        Assert.assertEquals(-100 * ChildChain.IGNIS.ONE_COIN - fee, ALICE.getChainUnconfirmedBalanceDiff(ChildChain.IGNIS.getId()));
+        Assert.assertEquals(-100 * IGNIS.ONE_COIN - fee, ALICE.getChainBalanceDiff(IGNIS.getId()));
+        Assert.assertEquals(-100 * IGNIS.ONE_COIN - fee, ALICE.getChainUnconfirmedBalanceDiff(IGNIS.getId()));
         // Recipient
-        Assert.assertEquals(100 * ChildChain.IGNIS.ONE_COIN, BOB.getChainBalanceDiff(ChildChain.IGNIS.getId()));
-        Assert.assertEquals(100 * ChildChain.IGNIS.ONE_COIN, BOB.getChainUnconfirmedBalanceDiff(ChildChain.IGNIS.getId()));
+        Assert.assertEquals(100 * IGNIS.ONE_COIN, BOB.getChainBalanceDiff(IGNIS.getId()));
+        Assert.assertEquals(100 * IGNIS.ONE_COIN, BOB.getChainUnconfirmedBalanceDiff(IGNIS.getId()));
     }
 
     @Test
     public void sendMoneyPhasedByTransactionHash() {
-        JSONObject response = getSignedBytes();
+        JO response = getSignedBytes();
         Logger.logDebugMessage("signedSendMessage: " + response);
         String fullHash = (String)response.get("fullHash");
         Assert.assertEquals(64, fullHash.length());
         String approvalTransactionBytes = (String)response.get("transactionBytes");
 
-        long fee = 3 * ChildChain.IGNIS.ONE_COIN;
-        response = new APICall.Builder("sendMoney").
-                param("secretPhrase", ALICE.getSecretPhrase()).
-                param("recipient", BOB.getStrId()).
-                param("amountNQT", 100 * ChildChain.IGNIS.ONE_COIN).
-                param("feeNQT", fee).
-                param("phased", "true").
-                param("phasingFinishHeight", baseHeight + 3).
-                param("phasingVotingModel", 4).
-                param("phasingLinkedTransaction", ChildChain.IGNIS.getId() + ":" + fullHash).
-                param("phasingQuorum", 1).
-                build().invoke();
+        long fee = 3 * IGNIS.ONE_COIN;
+        response = SendMoneyCall.create(IGNIS.getId()).
+                secretPhrase(ALICE.getSecretPhrase()).
+                recipient(BOB.getStrId()).
+                amountNQT(100 * IGNIS.ONE_COIN).
+                feeNQT(fee).
+                phased(true).
+                phasingFinishHeight(baseHeight + 3).
+                phasingVotingModel((byte) 4).
+                phasingLinkedTransaction(IGNIS.getId() + ":" + fullHash).
+                phasingQuorum(1).
+                callNoError();
         Logger.logDebugMessage("sendMoney: " + response);
 
         generateBlock();
         // Transaction is not applied yet
         // Sender
-        Assert.assertEquals(-fee, ALICE.getChainBalanceDiff(ChildChain.IGNIS.getId()));
-        Assert.assertEquals(-100 * ChildChain.IGNIS.ONE_COIN - fee, ALICE.getChainUnconfirmedBalanceDiff(ChildChain.IGNIS.getId()));
+        Assert.assertEquals(-fee, ALICE.getChainBalanceDiff(IGNIS.getId()));
+        Assert.assertEquals(-100 * IGNIS.ONE_COIN - fee, ALICE.getChainUnconfirmedBalanceDiff(IGNIS.getId()));
         // Recipient
-        Assert.assertEquals(0, BOB.getChainBalanceDiff(ChildChain.IGNIS.getId()));
-        Assert.assertEquals(0, BOB.getChainUnconfirmedBalanceDiff(ChildChain.IGNIS.getId()));
+        Assert.assertEquals(0, BOB.getChainBalanceDiff(IGNIS.getId()));
+        Assert.assertEquals(0, BOB.getChainUnconfirmedBalanceDiff(IGNIS.getId()));
 
-        response = new APICall.Builder("broadcastTransaction").
-                param("transactionBytes", approvalTransactionBytes).
-                build().invoke();
+        response = BroadcastTransactionCall.create().
+                transactionBytes(approvalTransactionBytes).
+                callNoError();
         Logger.logDebugMessage("broadcastTransaction: " + response);
         generateBlock();
 
         // Transaction is applied before finish height
         // Sender
-        Assert.assertEquals(-100 * ChildChain.IGNIS.ONE_COIN - fee, ALICE.getChainBalanceDiff(ChildChain.IGNIS.getId()));
-        Assert.assertEquals(-100 * ChildChain.IGNIS.ONE_COIN - fee, ALICE.getChainUnconfirmedBalanceDiff(ChildChain.IGNIS.getId()));
+        Assert.assertEquals(-100 * IGNIS.ONE_COIN - fee, ALICE.getChainBalanceDiff(IGNIS.getId()));
+        Assert.assertEquals(-100 * IGNIS.ONE_COIN - fee, ALICE.getChainUnconfirmedBalanceDiff(IGNIS.getId()));
         // Recipient
-        Assert.assertEquals(100 * ChildChain.IGNIS.ONE_COIN, BOB.getChainBalanceDiff(ChildChain.IGNIS.getId()));
-        Assert.assertEquals(100 * ChildChain.IGNIS.ONE_COIN, BOB.getChainUnconfirmedBalanceDiff(ChildChain.IGNIS.getId()));
+        Assert.assertEquals(100 * IGNIS.ONE_COIN, BOB.getChainBalanceDiff(IGNIS.getId()));
+        Assert.assertEquals(100 * IGNIS.ONE_COIN, BOB.getChainUnconfirmedBalanceDiff(IGNIS.getId()));
     }
 
     @Test
     public void sendMoneyPhasedByTransactionHash2of3() {
-        JSONObject response = getSignedBytes();
+        JO response = getSignedBytes();
         Logger.logDebugMessage("signedSendMessage: " + response);
         String fullHash1 = (String)response.get("fullHash");
         Assert.assertEquals(64, fullHash1.length());
@@ -193,296 +199,346 @@ public class TestApproveTransaction extends BlockchainTest {
         Assert.assertEquals(64, fullHash3.length());
         String approvalTransactionBytes3 = (String)response.get("transactionBytes");
 
-        String chainPrefix = ChildChain.IGNIS.getId() + ":";
-        long fee = 5 * ChildChain.IGNIS.ONE_COIN;
-        response = new APICall.Builder("sendMoney").
-                param("secretPhrase", ALICE.getSecretPhrase()).
-                param("recipient", BOB.getStrId()).
-                param("amountNQT", 100 * ChildChain.IGNIS.ONE_COIN).
-                param("feeNQT", fee).
-                param("phased", "true").
-                param("phasingFinishHeight", baseHeight + 2).
-                param("phasingVotingModel", 4).
-                param("phasingLinkedTransaction", new String[] { chainPrefix + fullHash1, chainPrefix + fullHash2,
+        String chainPrefix = IGNIS.getId() + ":";
+        long fee = 5 * IGNIS.ONE_COIN;
+        response = SendMoneyCall.create(IGNIS.getId()).
+                secretPhrase(ALICE.getSecretPhrase()).
+                recipient(BOB.getStrId()).
+                amountNQT(100 * IGNIS.ONE_COIN).
+                feeNQT(fee).
+                phased(true).
+                phasingFinishHeight(baseHeight + 2).
+                phasingVotingModel((byte) 4).
+                phasingLinkedTransaction(new String[] { chainPrefix + fullHash1, chainPrefix + fullHash2,
                         chainPrefix + fullHash3 }).
-                param("phasingQuorum", 2).
-                build().invoke();
+                phasingQuorum(2).
+                callNoError();
         Logger.logDebugMessage("sendMoney: " + response);
 
         generateBlock();
         // Transaction is not applied yet
         // Sender
-        Assert.assertEquals(-fee, ALICE.getChainBalanceDiff(ChildChain.IGNIS.getId()));
-        Assert.assertEquals(-100 * ChildChain.IGNIS.ONE_COIN - fee, ALICE.getChainUnconfirmedBalanceDiff(ChildChain.IGNIS.getId()));
+        Assert.assertEquals(-fee, ALICE.getChainBalanceDiff(IGNIS.getId()));
+        Assert.assertEquals(-100 * IGNIS.ONE_COIN - fee, ALICE.getChainUnconfirmedBalanceDiff(IGNIS.getId()));
         // Recipient
-        Assert.assertEquals(0, BOB.getChainBalanceDiff(ChildChain.IGNIS.getId()));
-        Assert.assertEquals(0, BOB.getChainUnconfirmedBalanceDiff(ChildChain.IGNIS.getId()));
+        Assert.assertEquals(0, BOB.getChainBalanceDiff(IGNIS.getId()));
+        Assert.assertEquals(0, BOB.getChainUnconfirmedBalanceDiff(IGNIS.getId()));
 
-        response = new APICall.Builder("broadcastTransaction").
-                param("transactionBytes", approvalTransactionBytes1).
-                build().invoke();
+        response = BroadcastTransactionCall.create().
+                transactionBytes(approvalTransactionBytes1).
+                callNoError();
         Logger.logDebugMessage("broadcastTransaction: " + response);
-        response = new APICall.Builder("broadcastTransaction").
-                param("transactionBytes", approvalTransactionBytes3).
-                build().invoke();
+        response = BroadcastTransactionCall.create().
+                transactionBytes(approvalTransactionBytes3).
+                callNoError();
         Logger.logDebugMessage("broadcastTransaction: " + response);
         generateBlock();
 
         // Transaction is applied since 2 out 3 hashes were provided
         // Sender
-        Assert.assertEquals(-100 * ChildChain.IGNIS.ONE_COIN - fee, ALICE.getChainBalanceDiff(ChildChain.IGNIS.getId()));
-        Assert.assertEquals(-100 * ChildChain.IGNIS.ONE_COIN - fee, ALICE.getChainUnconfirmedBalanceDiff(ChildChain.IGNIS.getId()));
+        Assert.assertEquals(-100 * IGNIS.ONE_COIN - fee, ALICE.getChainBalanceDiff(IGNIS.getId()));
+        Assert.assertEquals(-100 * IGNIS.ONE_COIN - fee, ALICE.getChainUnconfirmedBalanceDiff(IGNIS.getId()));
         // Recipient
-        Assert.assertEquals(100 * ChildChain.IGNIS.ONE_COIN, BOB.getChainBalanceDiff(ChildChain.IGNIS.getId()));
-        Assert.assertEquals(100 * ChildChain.IGNIS.ONE_COIN, BOB.getChainUnconfirmedBalanceDiff(ChildChain.IGNIS.getId()));
+        Assert.assertEquals(100 * IGNIS.ONE_COIN, BOB.getChainBalanceDiff(IGNIS.getId()));
+        Assert.assertEquals(100 * IGNIS.ONE_COIN, BOB.getChainUnconfirmedBalanceDiff(IGNIS.getId()));
     }
 
     @Test
     public void sendMoneyPhasedByTransactionHashNotApplied() {
-        long fee = 3 * ChildChain.IGNIS.ONE_COIN;
-        JSONObject response = new APICall.Builder("sendMoney").
-                param("secretPhrase", ALICE.getSecretPhrase()).
-                param("recipient", BOB.getStrId()).
-                param("amountNQT", 100 * ChildChain.IGNIS.ONE_COIN).
-                param("feeNQT", fee).
-                param("phased", "true").
-                param("phasingFinishHeight", baseHeight + 2).
-                param("phasingVotingModel", 4).
-                param("phasingLinkedTransaction", ChildChain.IGNIS.getId() + ":a13bbe67211fea8d59b2621f1e0118bb242dc5000d428a23a8bd47491a05d681"). // this hash does not match any transaction
-                param("phasingQuorum", 1).
-                build().invoke();
+        long fee = 3 * IGNIS.ONE_COIN;
+        JO response = SendMoneyCall.create(IGNIS.getId()).
+                secretPhrase(ALICE.getSecretPhrase()).
+                recipient(BOB.getStrId()).
+                amountNQT(100 * IGNIS.ONE_COIN).
+                feeNQT(fee).
+                phased(true).
+                phasingFinishHeight(baseHeight + 2).
+                phasingVotingModel((byte) 4).
+                phasingLinkedTransaction(IGNIS.getId() + ":a13bbe67211fea8d59b2621f1e0118bb242dc5000d428a23a8bd47491a05d681"). // this hash does not match any transaction
+                phasingQuorum(1).
+                callNoError();
         Logger.logDebugMessage("sendMoney: " + response);
 
         generateBlock();
         // Transaction is not applied yet
         // Sender
-        Assert.assertEquals(-fee, ALICE.getChainBalanceDiff(ChildChain.IGNIS.getId()));
-        Assert.assertEquals(-100 * ChildChain.IGNIS.ONE_COIN - fee, ALICE.getChainUnconfirmedBalanceDiff(ChildChain.IGNIS.getId()));
+        Assert.assertEquals(-fee, ALICE.getChainBalanceDiff(IGNIS.getId()));
+        Assert.assertEquals(-100 * IGNIS.ONE_COIN - fee, ALICE.getChainUnconfirmedBalanceDiff(IGNIS.getId()));
         // Recipient
-        Assert.assertEquals(0, BOB.getChainBalanceDiff(ChildChain.IGNIS.getId()));
-        Assert.assertEquals(0, BOB.getChainUnconfirmedBalanceDiff(ChildChain.IGNIS.getId()));
+        Assert.assertEquals(0, BOB.getChainBalanceDiff(IGNIS.getId()));
+        Assert.assertEquals(0, BOB.getChainUnconfirmedBalanceDiff(IGNIS.getId()));
 
         generateBlock();
         // Transaction is rejected since full hash does not match
         // Sender
-        Assert.assertEquals(-fee, ALICE.getChainBalanceDiff(ChildChain.IGNIS.getId()));
-        Assert.assertEquals(-fee, ALICE.getChainUnconfirmedBalanceDiff(ChildChain.IGNIS.getId()));
+        Assert.assertEquals(-fee, ALICE.getChainBalanceDiff(IGNIS.getId()));
+        Assert.assertEquals(-fee, ALICE.getChainUnconfirmedBalanceDiff(IGNIS.getId()));
         // Recipient
-        Assert.assertEquals(0, BOB.getChainBalanceDiff(ChildChain.IGNIS.getId()));
-        Assert.assertEquals(0, BOB.getChainUnconfirmedBalanceDiff(ChildChain.IGNIS.getId()));
+        Assert.assertEquals(0, BOB.getChainBalanceDiff(IGNIS.getId()));
+        Assert.assertEquals(0, BOB.getChainUnconfirmedBalanceDiff(IGNIS.getId()));
     }
 
     @Test
     public void setAliasPhasedByTransactionHashInvalid() {
-        JSONObject response = getSignedBytes();
+        JO response = getSignedBytes();
         Logger.logDebugMessage("signedSendMessage: " + response);
         String fullHash = (String)response.get("fullHash");
         Assert.assertEquals(64, fullHash.length());
         String approvalTransactionBytes = (String)response.get("transactionBytes");
 
-        long fee = 2 * ChildChain.IGNIS.ONE_COIN;
+        long fee = 2 * IGNIS.ONE_COIN;
         String alias = "alias" + System.currentTimeMillis();
-        response = new APICall.Builder("setAlias").
-                param("secretPhrase", ALICE.getSecretPhrase()).
-                param("aliasName", alias).
-                param("feeNQT", fee).
-                param("phased", "true").
-                param("phasingFinishHeight", baseHeight + 4).
-                param("phasingVotingModel", 4).
-                param("phasingLinkedTransaction", fullHash).
-                param("phasingQuorum", 1).
-                build().invoke();
+        response = SetAliasCall.create(IGNIS.getId()).
+                secretPhrase(ALICE.getSecretPhrase()).
+                aliasName(alias).
+                feeNQT(fee).
+                phased(true).
+                phasingFinishHeight(baseHeight + 4).
+                phasingVotingModel((byte) 4).
+                phasingLinkedTransaction(fullHash).
+                phasingQuorum(1).
+                call();
         Logger.logDebugMessage("setAlias: " + response);
 
         generateBlock();
-        response = new APICall.Builder("getAlias").
-                param("aliasName", alias).
-                build().invoke();
+        response = GetAliasCall.create().
+                aliasName(alias).
+                call();
         Logger.logDebugMessage("getAlias: " + response);
         Assert.assertEquals((long)5, response.get("errorCode"));
 
-        response = new APICall.Builder("broadcastTransaction").
-                param("transactionBytes", approvalTransactionBytes).
-                build().invoke();
+        response = BroadcastTransactionCall.create().
+                transactionBytes(approvalTransactionBytes).
+                callNoError();
         Logger.logDebugMessage("broadcastTransaction: " + response);
         generateBlock();
 
         // allocate the same alias immediately
-        response = new APICall.Builder("setAlias").
-                param("secretPhrase", BOB.getSecretPhrase()).
-                param("aliasName", alias).
-                param("feeNQT", fee).
-                build().invoke();
+        response = SetAliasCall.create(IGNIS.getId()).
+                secretPhrase(BOB.getSecretPhrase()).
+                aliasName(alias).
+                feeNQT(fee).
+                callNoError();
         Logger.logDebugMessage("setSameAlias: " + response);
         generateBlock();
         // phased setAlias transaction is applied but invalid
-        response = new APICall.Builder("getAlias").
-                param("aliasName", alias).
-                build().invoke();
+        response = GetAliasCall.create().
+                aliasName(alias).
+                callNoError();
         Logger.logDebugMessage("getAlias: " + response);
         Assert.assertEquals(BOB.getStrId(), response.get("account"));
         generateBlock();
         // phased setAlias transaction is applied but invalid
-        response = new APICall.Builder("getAlias").
-                param("aliasName", alias).
-                build().invoke();
+        response = GetAliasCall.create().
+                aliasName(alias).
+                callNoError();
         Logger.logDebugMessage("getAlias: " + response);
         Assert.assertEquals(BOB.getStrId(), response.get("account"));
     }
 
     @Test
     public void testInvalidHash() {
-        long amount = 100 * ChildChain.IGNIS.ONE_COIN;
+        long amount = 100 * IGNIS.ONE_COIN;
         String secret = "abc";
-        ACTestUtils.PhasingBuilder builder = new ACTestUtils.PhasingBuilder("sendMoney", ALICE);
-        builder.param("recipient", BOB.getStrId()).param("amountNQT", amount);
-        builder.votingModel(VoteWeighting.VotingModel.HASH).hashedSecret(secret, HashFunction.SHA256).quorum(1);
+        SendMoneyCall builder = SendMoneyCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .phased(true)
+                .phasingFinishHeight(Nxt.getBlockchain().getHeight() + 5)
+                .recipient(BOB.getStrId())
+                .amountNQT(amount)
+                .phasingVotingModel(VoteWeighting.VotingModel.HASH.getCode())
+                .phasingHashedSecretAlgorithm(HashFunction.SHA256.getId())
+                .phasingHashedSecret(Convert.toHexString(HashFunction.SHA256.hash(secret.getBytes())))
+                .phasingQuorum(1);
 
-        String fullHash = new JSONAssert(builder.build().invoke()).str("fullHash");
+        String fullHash = new JSONAssert(builder.call()).str("fullHash");
         generateBlock();
 
-        APICall.Builder approveBuilder = ACTestUtils.approveBuilder(fullHash, BOB, "wrong secret");
+        ApproveTransactionCall approveBuilder = ACTestUtils.approveBuilder(fullHash, BOB, "wrong secret");
 
-        JSONAssert jsonAssert = new JSONAssert(approveBuilder.build().invoke());
+        JSONAssert jsonAssert = new JSONAssert(approveBuilder.call());
         Assert.assertEquals(
-                String.format("Hashed secret(s) in phased transaction %s:%s do not match any of the revealed secrets", ChildChain.IGNIS.getId(), fullHash),
+                String.format("Hashed secret(s) in phased transaction %s:%s do not match any of the revealed secrets", IGNIS.getId(), fullHash),
                 jsonAssert.str("errorDescription"));
     }
 
     @Test
     public void testApproveTwoTransactionsWithOneSecret() {
-        long amount = 100 * ChildChain.IGNIS.ONE_COIN;
+        long amount = 100 * IGNIS.ONE_COIN;
         String secret = "abc";
-        ACTestUtils.PhasingBuilder builder = new ACTestUtils.PhasingBuilder("sendMoney", ALICE);
-        builder.param("recipient", BOB.getStrId()).param("amountNQT", amount);
-        builder.votingModel(VoteWeighting.VotingModel.HASH).hashedSecret(secret, HashFunction.SHA256).quorum(1);
+        SendMoneyCall builder = SendMoneyCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .phased(true)
+                .phasingFinishHeight(Nxt.getBlockchain().getHeight() + 5)
+                .recipient(BOB.getStrId())
+                .amountNQT(amount)
+                .phasingVotingModel(VoteWeighting.VotingModel.HASH.getCode())
+                .phasingHashedSecretAlgorithm(HashFunction.SHA256.getId())
+                .phasingHashedSecret(Convert.toHexString(HashFunction.SHA256.hash(secret.getBytes())))
+                .phasingQuorum(1);
 
-        String fullHash1 = new JSONAssert(builder.build().invoke()).str("fullHash");
+        String fullHash1 = new JSONAssert(builder.call()).str("fullHash");
         generateBlock();
 
-        String fullHash2 = new JSONAssert(builder.build().invoke()).str("fullHash");
+        String fullHash2 = new JSONAssert(builder.call()).str("fullHash");
         generateBlock();
 
-        APICall.Builder approveBuilder = ACTestUtils.approveBuilder(fullHash1, BOB, secret);
-        approveBuilder.param("phasedTransaction", new String[] { ChildChain.IGNIS.getId() + ":" + fullHash1,  ChildChain.IGNIS.getId() + ":" + fullHash2});
+        ApproveTransactionCall approveBuilder = ACTestUtils.approveBuilder(fullHash1, BOB, secret);
+        approveBuilder.phasedTransaction(IGNIS.getId() + ":" + fullHash1, IGNIS.getId() + ":" + fullHash2);
 
-        new JSONAssert(approveBuilder.build().invoke()).str("fullHash");
+        new JSONAssert(approveBuilder.call()).str("fullHash");
 
         generateBlock();
 
-        Assert.assertEquals(2 * amount - ChildChain.IGNIS.ONE_COIN, BOB.getChainBalanceDiff(ChildChain.IGNIS.getId()));
+        Assert.assertEquals(2 * amount - IGNIS.ONE_COIN, BOB.getChainBalanceDiff(IGNIS.getId()));
     }
 
     @Test
     public void testApproveTwoTransactionsWithTwoSecrets() {
-        long amount = 100 * ChildChain.IGNIS.ONE_COIN;
+        long amount = 100 * IGNIS.ONE_COIN;
         String secret1 = "abc111";
         String secret2 = "abc222";
-        ACTestUtils.PhasingBuilder builder = new ACTestUtils.PhasingBuilder("sendMoney", ALICE);
-        builder.param("recipient", BOB.getStrId()).param("amountNQT", amount);
-        builder.votingModel(VoteWeighting.VotingModel.HASH).hashedSecret(secret1, HashFunction.SHA256).quorum(1);
+        SendMoneyCall builder = SendMoneyCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .phased(true)
+                .phasingFinishHeight(Nxt.getBlockchain().getHeight() + 5)
+                .recipient(BOB.getStrId())
+                .amountNQT(amount)
+                .phasingVotingModel(VoteWeighting.VotingModel.HASH.getCode())
+                .phasingHashedSecretAlgorithm(HashFunction.SHA256.getId())
+                .phasingHashedSecret(Convert.toHexString(HashFunction.SHA256.hash(secret1.getBytes())))
+                .phasingQuorum(1);
 
-        String fullHash1 = new JSONAssert(builder.build().invoke()).str("fullHash");
+        String fullHash1 = new JSONAssert(builder.call()).str("fullHash");
         generateBlock();
 
-        builder.hashedSecret(secret2, HashFunction.SHA256);
+        builder.phasingHashedSecretAlgorithm(HashFunction.SHA256.getId());
+        builder.phasingHashedSecret(Convert.toHexString(HashFunction.SHA256.hash(secret2.getBytes())));
 
-        String fullHash2 = new JSONAssert(builder.build().invoke()).str("fullHash");
+        String fullHash2 = new JSONAssert(builder.call()).str("fullHash");
         generateBlock();
 
-        APICall.Builder approveBuilder = ACTestUtils.approveBuilder(fullHash1, BOB, "");
-        approveBuilder.param("phasedTransaction", new String[] { ChildChain.IGNIS.getId() + ":" + fullHash1,  ChildChain.IGNIS.getId() + ":" + fullHash2});
-        approveBuilder.param("revealedSecretText", new String[] {secret1, secret2});
+        ApproveTransactionCall approveBuilder = ACTestUtils.approveBuilder(fullHash1, BOB, "");
+        approveBuilder.phasedTransaction(IGNIS.getId() + ":" + fullHash1, IGNIS.getId() + ":" + fullHash2);
+        approveBuilder.revealedSecretText(secret1, secret2);
 
-        new JSONAssert(approveBuilder.build().invoke()).str("fullHash");
+        new JSONAssert(approveBuilder.call()).str("fullHash");
 
         generateBlock();
 
-        Assert.assertEquals(2 * amount - ChildChain.IGNIS.ONE_COIN, BOB.getChainBalanceDiff(ChildChain.IGNIS.getId()));
+        Assert.assertEquals(2 * amount - IGNIS.ONE_COIN, BOB.getChainBalanceDiff(IGNIS.getId()));
     }
 
     @Test
     public void testApproveTransactionsWithTwoSecretsWithoutFullhash() {
-        long amount = 100 * ChildChain.IGNIS.ONE_COIN;
+        long amount = 100 * IGNIS.ONE_COIN;
         String secret1 = "abc111";
         String secret2 = "abc222";
-        ACTestUtils.PhasingBuilder builder = new ACTestUtils.PhasingBuilder("sendMoney", ALICE);
-        builder.param("recipient", BOB.getStrId()).param("amountNQT", amount);
-        builder.votingModel(VoteWeighting.VotingModel.HASH).hashedSecret(secret1, HashFunction.SHA256).quorum(1);
-        new JSONAssert(builder.build().invoke()).str("fullHash");
+        SendMoneyCall builder = SendMoneyCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .phased(true)
+                .phasingFinishHeight(Nxt.getBlockchain().getHeight() + 5)
+                .recipient(BOB.getStrId())
+                .amountNQT(amount)
+                .phasingVotingModel(VoteWeighting.VotingModel.HASH.getCode())
+                .phasingHashedSecretAlgorithm(HashFunction.SHA256.getId())
+                .phasingHashedSecret(Convert.toHexString(HashFunction.SHA256.hash(secret1.getBytes())))
+                .phasingQuorum(1);
+        new JSONAssert(builder.call()).str("fullHash");
         generateBlock();
 
-        builder.hashedSecret(secret2, HashFunction.SHA256);
-        new JSONAssert(builder.build().invoke()).str("fullHash");
+        builder.phasingHashedSecretAlgorithm(HashFunction.SHA256.getId());
+        builder.phasingHashedSecret(Convert.toHexString(HashFunction.SHA256.hash(secret2.getBytes())));
+        new JSONAssert(builder.call()).str("fullHash");
         generateBlock();
 
         // Reveal the secrets but do not list the transactions
-        APICall.Builder approveBuilder = ACTestUtils.approveBuilder(null, BOB, "");
-        approveBuilder.param("revealedSecretText", new String[] {secret1, secret2});
+        ApproveTransactionCall approveBuilder = ACTestUtils.approveBuilder(null, BOB, "");
+        approveBuilder.revealedSecretText(secret1, secret2);
 
-        new JSONAssert(approveBuilder.build().invoke()).str("fullHash");
+        new JSONAssert(approveBuilder.call()).str("fullHash");
 
         generateBlock();
-        Assert.assertEquals(2 * amount - ChildChain.IGNIS.ONE_COIN, BOB.getChainBalanceDiff(ChildChain.IGNIS.getId()));
+        Assert.assertEquals(2 * amount - IGNIS.ONE_COIN, BOB.getChainBalanceDiff(IGNIS.getId()));
     }
 
     @Test
     public void testApproveUnusedSecret() {
-        long amount = 100 * ChildChain.IGNIS.ONE_COIN;
+        long amount = 100 * IGNIS.ONE_COIN;
         String secret1 = "abc111";
         String secretUnused = "abc222";
-        ACTestUtils.PhasingBuilder builder = new ACTestUtils.PhasingBuilder("sendMoney", ALICE);
-        builder.param("recipient", BOB.getStrId()).param("amountNQT", amount);
-        builder.votingModel(VoteWeighting.VotingModel.HASH).hashedSecret(secret1, HashFunction.SHA256).quorum(1);
+        SendMoneyCall builder = SendMoneyCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .phased(true)
+                .phasingFinishHeight(Nxt.getBlockchain().getHeight() + 5)
+                .recipient(BOB.getStrId())
+                .amountNQT(amount)
+                .phasingVotingModel(VoteWeighting.VotingModel.HASH.getCode())
+                .phasingHashedSecretAlgorithm(HashFunction.SHA256.getId())
+                .phasingHashedSecret(Convert.toHexString(HashFunction.SHA256.hash(secret1.getBytes())))
+                .phasingQuorum(1);
 
-        String fullHash1 = new JSONAssert(builder.build().invoke()).str("fullHash");
+        String fullHash1 = new JSONAssert(builder.call()).str("fullHash");
         generateBlock();
 
-        APICall.Builder approveBuilder = ACTestUtils.approveBuilder(fullHash1, BOB, "");
-        approveBuilder.param("revealedSecretText", new String[] {secret1, secretUnused});
+        ApproveTransactionCall approveBuilder = ACTestUtils.approveBuilder(fullHash1, BOB, "");
+        approveBuilder.revealedSecretText(secret1, secretUnused);
 
         Assert.assertEquals("Revealed secret with index 1 is not used",
-                new JSONAssert(approveBuilder.build().invoke()).str("errorDescription"));
+                new JSONAssert(approveBuilder.call()).str("errorDescription"));
     }
 
     @Test
     public void testInvalidHashInOneOfTheTransactions() {
-        long amount = 100 * ChildChain.IGNIS.ONE_COIN;
+        long amount = 100 * IGNIS.ONE_COIN;
         String secret = "abc";
         String wrongSecret = "wrong secret";
-        ACTestUtils.PhasingBuilder builder = new ACTestUtils.PhasingBuilder("sendMoney", ALICE);
-        builder.param("recipient", BOB.getStrId()).param("amountNQT", amount);
-        builder.votingModel(VoteWeighting.VotingModel.HASH).hashedSecret(secret, HashFunction.SHA256).quorum(1);
+        SendMoneyCall builder = SendMoneyCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .phased(true)
+                .phasingFinishHeight(Nxt.getBlockchain().getHeight() + 5)
+                .recipient(BOB.getStrId()).amountNQT(amount)
+                .phasingVotingModel(VoteWeighting.VotingModel.HASH.getCode())
+                .phasingHashedSecretAlgorithm(HashFunction.SHA256.getId())
+                .phasingHashedSecret(Convert.toHexString(HashFunction.SHA256.hash(secret.getBytes())))
+                .phasingQuorum(1);
 
-        String fullHash1 = new JSONAssert(builder.build().invoke()).str("fullHash");
+        String fullHash1 = new JSONAssert(builder.call()).str("fullHash");
         generateBlock();
 
-        builder.hashedSecret(wrongSecret, HashFunction.SHA256);
+        builder.phasingHashedSecretAlgorithm(HashFunction.SHA256.getId());
+        builder.phasingHashedSecret(Convert.toHexString(HashFunction.SHA256.hash(wrongSecret.getBytes())));
 
-        String fullHash2 = new JSONAssert(builder.build().invoke()).str("fullHash");
+        String fullHash2 = new JSONAssert(builder.call()).str("fullHash");
         generateBlock();
 
-        APICall.Builder approveBuilder = ACTestUtils.approveBuilder(fullHash1, BOB, secret);
-        approveBuilder.param("phasedTransaction", new String[] { ChildChain.IGNIS.getId() + ":" + fullHash1,  ChildChain.IGNIS.getId() + ":" + fullHash2});
+        ApproveTransactionCall approveBuilder = ACTestUtils.approveBuilder(fullHash1, BOB, secret);
+        approveBuilder.phasedTransaction(IGNIS.getId() + ":" + fullHash1, IGNIS.getId() + ":" + fullHash2);
 
-        JSONAssert jsonAssert = new JSONAssert(approveBuilder.build().invoke());
+        JSONAssert jsonAssert = new JSONAssert(approveBuilder.call());
         Assert.assertEquals(
-                String.format("Hashed secret(s) in phased transaction %s:%s do not match any of the revealed secrets", ChildChain.IGNIS.getId(), fullHash2),
+                String.format("Hashed secret(s) in phased transaction %s:%s do not match any of the revealed secrets", IGNIS.getId(), fullHash2),
                 jsonAssert.str("errorDescription"));
     }
 
-    static JSONObject getSignedBytes() {
-        JSONObject response = new APICall.Builder("sendMessage").
-                param("publicKey", CHUCK.getPublicKeyStr()).
-                param("recipient", ALICE.getStrId()).
-                param("message", "approval notice").
-                param("feeNQT", ChildChain.IGNIS.ONE_COIN).
-                build().invoke();
+    static JO getSignedBytes() {
+        JO response = SendMessageCall.create(IGNIS.getId()).
+                publicKey(CHUCK.getPublicKeyStr()).
+                recipient(ALICE.getStrId()).
+                message("approval notice").
+                feeNQT(IGNIS.ONE_COIN).
+                callNoError();
         Logger.logDebugMessage("sendMessage not broadcasted: " + response);
-        response = new APICall.Builder("signTransaction").
-                param("secretPhrase", CHUCK.getSecretPhrase()).
-                param("unsignedTransactionBytes", (String)response.get("unsignedTransactionBytes")).
-                build().invoke();
+        response = SignTransactionCall.create().
+                secretPhrase(CHUCK.getSecretPhrase()).
+                unsignedTransactionBytes((String)response.get("unsignedTransactionBytes")).
+                callNoError();
         return response;
     }
 }

@@ -50,12 +50,12 @@ public class ArdorAppBridgeInteractiveTest extends AbstractArdorAppBridgeTest {
         // Get a new account public key from the ledger and fund it
         byte[] ledgerPublicKey = app.getWalletPublicKeys(PATH_STR_0, false);
         long ledgerAccountId = Account.getId(ledgerPublicKey);
-        JO sendMoneyResponse1 = SendMoneyCall.create(2).recipient(ledgerAccountId).amountNQT(400000000).feeNQT(100000000).secretPhrase(ALICE.getSecretPhrase()).call();
+        JO sendMoneyResponse1 = SendMoneyCall.create(2).recipient(ledgerAccountId).amountNQT(400000000).feeNQT(100000000).secretPhrase(ALICE.getSecretPhrase()).callNoError();
         Logger.logInfoMessage(sendMoneyResponse1.toJSONString());
         generateBlock();
 
         // Create transaction bytes and sign them on the ledger
-        JO sendMoneyResponse2 = SendMoneyCall.create(2).recipient(BOB.getStrId()).amountNQT(200000000).feeNQT(100000000).publicKey(ledgerPublicKey).call();
+        JO sendMoneyResponse2 = SendMoneyCall.create(2).recipient(BOB.getStrId()).amountNQT(200000000).feeNQT(100000000).publicKey(ledgerPublicKey).callNoError();
         String unsignedBytesHex = sendMoneyResponse2.getString("unsignedTransactionBytes");
         Logger.logInfoMessage("Confirm transaction on ledger device");
         boolean isLoaded = app.loadWalletTransaction(unsignedBytesHex);
@@ -70,15 +70,15 @@ public class ArdorAppBridgeInteractiveTest extends AbstractArdorAppBridgeTest {
         int sigPos = 2 * SIGNATURE_POSITION;
         int sigLen = 2 * SIGNATURE_LENGTH;
         String signedBytesHex = unsignedBytesHex.substring(0, sigPos) + signatureHex + unsignedBytesHex.substring(sigPos + sigLen);
-        JO response = ParseTransactionCall.create().transactionBytes(signedBytesHex).call();
+        JO response = ParseTransactionCall.create().transactionBytes(signedBytesHex).callNoError();
         Assert.assertTrue(response.getBoolean("verify"));
 
         // Broadcast the transaction and check that it updated the ledger account balance
-        JO broadcastTransactionResponse = BroadcastTransactionCall.create().transactionBytes(signedBytesHex).call();
+        JO broadcastTransactionResponse = BroadcastTransactionCall.create().transactionBytes(signedBytesHex).callNoError();
         String fullHash = broadcastTransactionResponse.getString("fullHash");
         Assert.assertNotNull(fullHash);
         generateBlock();
-        JO getBalanceResponse = GetBalanceCall.create(2).account(ledgerAccountId).call();
+        JO getBalanceResponse = GetBalanceCall.create(2).account(ledgerAccountId).callNoError();
         Assert.assertEquals("100000000", getBalanceResponse.getString("balanceNQT"));
     }
 

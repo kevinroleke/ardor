@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class SetPhasingAssetControlCall extends CreateTransactionCallBuilder<SetPhasingAssetControlCall> {
+public class SetPhasingAssetControlCall extends CreateOneSideTransactionCallBuilder<SetPhasingAssetControlCall> {
     private SetPhasingAssetControlCall() {
         super(ApiSpec.setPhasingAssetControl);
     }

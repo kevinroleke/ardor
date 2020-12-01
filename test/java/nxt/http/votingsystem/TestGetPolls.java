@@ -17,33 +17,36 @@
 package nxt.http.votingsystem;
 
 import nxt.BlockchainTest;
-import nxt.http.APICall;
+import nxt.addons.JO;
+import nxt.http.callers.CreatePollCall;
+import nxt.http.callers.GetPollsCall;
 import nxt.util.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static nxt.blockchain.ChildChain.IGNIS;
+
 public class TestGetPolls extends BlockchainTest {
 
     @Test
     public void accountPollsIncrease() {
-        APICall apiCall = new APICall.Builder("getPolls")
-                .param("account", Long.toUnsignedString(DAVE.getId()))
-                .param("firstIndex", 0)
-                .param("lastIndex", 100)
-                .build();
+        GetPollsCall getPollsCall = GetPollsCall.create(IGNIS.getId())
+                .account(DAVE.getId())
+                .firstIndex(0)
+                .lastIndex(100);
 
-        JSONObject jsonResponse = apiCall.invoke();
+        JO jsonResponse = getPollsCall.callNoError();
         Logger.logMessage("getPollsResponse:" + jsonResponse.toJSONString());
         JSONArray polls = (JSONArray) jsonResponse.get("polls");
         int initialSize = polls.size();
 
-        APICall createPollApiCall = new TestCreatePoll.CreatePollBuilder().secretPhrase(DAVE.getSecretPhrase()).build();
-        String poll = TestCreatePoll.issueCreatePoll(createPollApiCall, false);
+        CreatePollCall createPollCall = TestCreatePoll.createPollBuilder().secretPhrase(DAVE.getSecretPhrase());
+        String poll = TestCreatePoll.issueCreatePoll(createPollCall, false);
         generateBlock();
 
-        jsonResponse = apiCall.invoke();
+        jsonResponse = getPollsCall.callNoError();
         Logger.logMessage("getPollsResponse:" + jsonResponse.toJSONString());
         polls = (JSONArray) jsonResponse.get("polls");
         int size = polls.size();

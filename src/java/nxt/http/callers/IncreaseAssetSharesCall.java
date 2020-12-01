@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class IncreaseAssetSharesCall extends CreateTransactionCallBuilder<IncreaseAssetSharesCall> {
+public class IncreaseAssetSharesCall extends CreateOneSideTransactionCallBuilder<IncreaseAssetSharesCall> {
     private IncreaseAssetSharesCall() {
         super(ApiSpec.increaseAssetShares);
     }

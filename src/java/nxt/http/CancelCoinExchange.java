@@ -21,11 +21,14 @@ import nxt.blockchain.Attachment;
 import nxt.blockchain.Chain;
 import nxt.blockchain.FxtChain;
 import nxt.ce.CoinExchange;
+import nxt.ce.CoinExchangeFxtTransactionType;
+import nxt.ce.CoinExchangeTransactionType;
 import nxt.ce.OrderCancelAttachment;
 import nxt.ce.OrderCancelFxtAttachment;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 
 import static nxt.http.JSONResponses.INCORRECT_CHAIN;
 import static nxt.http.JSONResponses.NOT_ENOUGH_FUNDS;
@@ -36,7 +39,8 @@ public final class CancelCoinExchange extends CreateTransaction {
     static final CancelCoinExchange instance = new CancelCoinExchange();
 
     private CancelCoinExchange() {
-        super(new APITag[] {APITag.CE, APITag.CREATE_TRANSACTION}, "order");
+        super(Arrays.asList(CoinExchangeFxtTransactionType.ORDER_CANCEL, CoinExchangeTransactionType.ORDER_CANCEL),
+                new APITag[] {APITag.CE, APITag.CREATE_TRANSACTION}, "order");
     }
 
     @Override

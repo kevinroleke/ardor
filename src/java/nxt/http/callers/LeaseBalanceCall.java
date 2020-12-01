@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class LeaseBalanceCall extends CreateTransactionCallBuilder<LeaseBalanceCall> {
+public class LeaseBalanceCall extends CreateTwoSidesTransactionCallBuilder<LeaseBalanceCall> {
     private LeaseBalanceCall() {
         super(ApiSpec.leaseBalance);
     }
@@ -10,7 +10,7 @@ public class LeaseBalanceCall extends CreateTransactionCallBuilder<LeaseBalanceC
         return new LeaseBalanceCall().param("chain", chain);
     }
 
-    public LeaseBalanceCall period(String period) {
+    public LeaseBalanceCall period(int period) {
         return param("period", period);
     }
 }

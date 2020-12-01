@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class TransferCurrencyCall extends CreateTransactionCallBuilder<TransferCurrencyCall> {
+public class TransferCurrencyCall extends CreateTwoSidesTransactionCallBuilder<TransferCurrencyCall> {
     private TransferCurrencyCall() {
         super(ApiSpec.transferCurrency);
     }

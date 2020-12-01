@@ -16,30 +16,28 @@
 package nxt.http.bundling;
 
 import nxt.BlockchainTest;
-import nxt.Constants;
 import nxt.Nxt;
 import nxt.Tester;
 import nxt.account.PaymentTransactionType;
+import nxt.addons.JA;
+import nxt.addons.JO;
 import nxt.blockchain.Chain;
 import nxt.blockchain.ChildChain;
 import nxt.blockchain.FxtChain;
-import nxt.http.APICall;
-import nxt.http.assetexchange.AssetExchangeTest;
+import nxt.http.callers.GetTransactionCall;
 import nxt.http.callers.SendMoneyCall;
-import nxt.util.Convert;
+import nxt.http.callers.StartBundlerCall;
+import nxt.http.callers.StopBundlerCall;
 import nxt.util.JSON;
 import nxt.util.JSONAssert;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Test;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+
+import static nxt.blockchain.ChildChain.IGNIS;
 
 public class BundlerTest extends BlockchainTest {
     @BeforeClass
@@ -47,29 +45,26 @@ public class BundlerTest extends BlockchainTest {
         initNxt(Collections.emptyMap());
         initBlockchainTest();
         for (Chain chain : ChildChain.getAll()) {
-            JSONObject response = new APICall.Builder("stopBundler").
+            JO response = StopBundlerCall.create(chain.getId()).
                     secretPhrase(FORGY.getSecretPhrase()).
-                    param("chain", chain.getId()).
-                    build().invoke();
-            Assert.assertEquals(Boolean.TRUE, response.get("stoppedBundler"));
+                    callNoError();
+            Assert.assertTrue(response.getBoolean("stoppedBundler"));
         }
     }
 
     @After
     public void destroy() {
         super.destroy();
-        new APICall.Builder("stopBundler").
-                param("chain", ChildChain.IGNIS.getId()).
-                build().invoke();
+        StopBundlerCall.create(IGNIS.getId()).callNoError();
     }
 
-    protected long startTwoRulesBundler(long publicRate, long personalBundlerOverpay) {
-        JSONArray rulesArray = new JSONArray();
-        JSONObject rule = new JSONObject();
+    protected void startTwoRulesBundler(long publicRate, long personalBundlerOverpay) {
+        JA rulesArray = new JA();
+        JO rule = new JO();
 
-        JSONObject filterJson = new JSONObject();
+        JO filterJson = new JO();
         filterJson.put("name", "PersonalBundler");
-        JSONArray filtersJson = new JSONArray();
+        JA filtersJson = new JA();
         filtersJson.add(filterJson);
 
         rule.put("filters", filtersJson);
@@ -78,18 +73,15 @@ public class BundlerTest extends BlockchainTest {
         rule.put("overpayFQTPerFXT", personalBundlerOverpay);
         rulesArray.add(rule);
 
-        rule = new JSONObject();
+        rule = new JO();
         rule.put("feeCalculatorName", "MIN_FEE");
         rule.put("minRateNQTPerFXT", Long.toUnsignedString(publicRate));
         rulesArray.add(rule);
 
-        JSONAssert result = new JSONAssert(new APICall.Builder("startBundler").
+        JSONAssert result = new JSONAssert(StartBundlerCall.create(IGNIS.getId()).
                 secretPhrase(BOB.getSecretPhrase()).
-                param("chain", ChildChain.IGNIS.getId()).
-                param("bundlingRulesJSON", JSON.toString(rulesArray)).
-                build().invoke());
+                bundlingRulesJSON(JSON.toString(rulesArray.toJSONArray())).call());
         result.str("totalFeesLimitFQT");
-        return publicRate;
     }
 
     protected long getMinFeeNQT(long rate) {
@@ -108,8 +100,7 @@ public class BundlerTest extends BlockchainTest {
     }
 
     protected boolean isBundled(String fullHash) {
-        JSONAssert result = new JSONAssert(new APICall.Builder("getTransaction").param("fullHash", fullHash).
-                build().invoke());
+        JSONAssert result = new JSONAssert(GetTransactionCall.create(IGNIS.getId()).fullHash(fullHash).call());
         Object errorDescription = result.getJson().get("errorDescription");
         if ("Unknown transaction".equals(errorDescription)) {
             return false;
@@ -117,14 +108,15 @@ public class BundlerTest extends BlockchainTest {
         return Nxt.getBlockchain().getHeight() == result.integer("height");
     }
 
+    @SuppressWarnings("SameParameterValue")
     protected String createTransaction(Tester sender, long fee, String message) {
-        SendMoneyCall builder = SendMoneyCall.create(ChildChain.IGNIS.getId()).secretPhrase(sender.getSecretPhrase()).
-                recipient(DAVE.getId()).amountNQT(10 * ChildChain.IGNIS.ONE_COIN).
+        SendMoneyCall builder = SendMoneyCall.create(IGNIS.getId()).secretPhrase(sender.getSecretPhrase()).
+                recipient(DAVE.getId()).amountNQT(10 * IGNIS.ONE_COIN).
                 deadline(30).feeNQT(fee);
         if (message != null) {
             builder.message(message);
         }
-        JSONAssert result = new JSONAssert(builder.build().invoke());
+        JSONAssert result = new JSONAssert(builder.call());
         return result.str("fullHash");
     }
 }

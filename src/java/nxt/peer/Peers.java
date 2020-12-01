@@ -65,6 +65,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public final class Peers {
 
@@ -814,8 +815,9 @@ public final class Peers {
                 synchronized(bundlerRates) {
                     if (!bundlerRates.isEmpty()) {
                         Logger.logDebugMessage("Broadcasting our bundler rates");
-                        List<BundlerRate> rates = new ArrayList<>();
-                        bundlerRates.values().forEach(rates::addAll);
+                        List<BundlerRate> rates = bundlerRates.values().stream().flatMap(List::stream)
+                                .limit(NetworkMessage.MAX_LIST_SIZE_PRE_2_3_3)
+                                .collect(Collectors.toCollection(ArrayList::new));
                         NetworkHandler.broadcastMessage(new NetworkMessage.BundlerRateMessage(rates));
                     }
                 }
@@ -849,7 +851,7 @@ public final class Peers {
                         && p.getAnnouncedAddress() != null
                         && p.shareAddress()
                         && !p.getAnnouncedAddress().equals(peer.getAnnouncedAddress()),
-                    NetworkMessage.MAX_LIST_SIZE);
+                    NetworkMessage.MAX_LIST_SIZE_PRE_2_3_3);
                 if (!peerList.isEmpty()) {
                     peer.sendMessage(new NetworkMessage.AddPeersMessage(peerList));
                 }
@@ -1209,6 +1211,9 @@ public final class Peers {
                 List<BundlerRate> entryRates = entryMap.getValue();
                 Iterator<BundlerRate> rit = entryRates.iterator();
                 while (rit.hasNext()) {
+                    if (rates.size() >= NetworkMessage.MAX_LIST_SIZE_PRE_2_3_3) {
+                        break;
+                    }
                     BundlerRate rate = rit.next();
                     if (rate.getTimestamp() < now - (BUNDLER_RATE_BROADCAST_INTERVAL + (15 * 60))) {
                         rit.remove();

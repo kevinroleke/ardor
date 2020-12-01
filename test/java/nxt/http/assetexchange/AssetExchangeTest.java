@@ -21,17 +21,17 @@ import nxt.Nxt;
 import nxt.RequireNonePermissionPolicyTestsCategory;
 import nxt.Tester;
 import nxt.account.HoldingType;
+import nxt.addons.JO;
 import nxt.blockchain.Chain;
 import nxt.blockchain.ChildChain;
 import nxt.http.APICall;
 import nxt.http.APICall.InvocationError;
+import nxt.http.callers.DividendPaymentCall;
 import nxt.http.client.IssueAssetBuilder;
 import nxt.http.client.IssueAssetBuilder.IssueAssetResult;
 import nxt.http.client.PlaceAssetOrderBuilder;
 import nxt.http.client.TransferAssetBuilder;
-import nxt.http.client.TransferAssetBuilder.TransferResult;
 import nxt.http.monetarysystem.TestCurrencyIssuance;
-import org.json.simple.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -50,39 +50,39 @@ public class AssetExchangeTest extends BlockchainTest {
         return result;
     }
 
-    static TransferResult transfer(String assetId, Tester from, Tester to, long quantityQNT) {
-        return transfer(assetId, from, to, quantityQNT, IGNIS.ONE_COIN);
+    static void transfer(String assetId, Tester from, Tester to, long quantityQNT) {
+        transfer(assetId, from, to, quantityQNT, IGNIS.ONE_COIN);
     }
 
-    public static TransferResult transfer(String assetId, Tester from, Tester to, long quantityQNT, long fee) {
-        TransferResult result = new TransferAssetBuilder(assetId, from, to)
+    public static String transfer(String assetId, Tester from, Tester to, long quantityQNT, long fee) {
+        String result = new TransferAssetBuilder(assetId, from, to)
                 .setQuantityQNT(quantityQNT)
-                .setFee(fee)
+                .feeNQT(fee)
                 .transfer();
         BlockchainTest.generateBlock();
         return result;
     }
 
-    static JSONObject payDividend(String assetId, Tester assetIssuer, int height, long amountNQTPerShare, Chain chain, byte holdingType, String holding) {
+    static JO payDividend(String assetId, Tester assetIssuer, int height, long amountNQTPerShare, Chain chain, byte holdingType, String holding) {
         APICall apiCall = payDividendCall(assetId, assetIssuer, height, amountNQTPerShare, chain, holdingType, holding);
-        JSONObject response = apiCall.invokeNoError();
+        JO response = apiCall.invokeNoError();
         BlockchainTest.generateBlock();
         return response;
     }
 
     private static APICall payDividendCall(String assetId, Tester assetIssuer, int height, long amountNQTPerShare, Chain chain, byte holdingType, String holding) {
-        return new APICall.Builder("dividendPayment")
-                .param("secretPhrase", assetIssuer.getSecretPhrase())
-                .param("asset", assetId)
-                .param("height", height)
-                .param("holdingType", holdingType)
-                .param("holding", holding)
-                .param("amountNQTPerShare", amountNQTPerShare)
-                .param("feeNQT", chain.ONE_COIN)
-                .chain(chain.getId())
+        return DividendPaymentCall.create(chain.getId())
+                .secretPhrase(assetIssuer.getSecretPhrase())
+                .asset(assetId)
+                .height(height)
+                .holdingType(holdingType)
+                .holding(holding)
+                .amountNQTPerShare(amountNQTPerShare)
+                .feeNQT(chain.ONE_COIN)
                 .build();
     }
 
+    @SuppressWarnings("SameParameterValue")
     static InvocationError failToPayDividend(String assetId, Tester assetIssuer, int height, long amountNQTPerShare, Chain chain, byte holdingType, String holding) {
         return payDividendCall(assetId, assetIssuer, height, amountNQTPerShare, chain, holdingType, holding).invokeWithError();
     }

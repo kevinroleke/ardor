@@ -19,8 +19,11 @@ import nxt.Constants;
 import nxt.Nxt;
 import nxt.blockchain.ChildChain;
 import nxt.blockchain.FxtTransaction;
-import nxt.http.APICall;
 import nxt.http.JSONData;
+import nxt.http.callers.AddBundlingRuleCall;
+import nxt.http.callers.GetFxtTransactionCall;
+import nxt.http.callers.GetTransactionCall;
+import nxt.http.callers.StartBundlerCall;
 import nxt.util.Convert;
 import nxt.util.JSONAssert;
 import nxt.util.Logger;
@@ -89,19 +92,16 @@ public class RulesTest extends BundlerTest {
     }
 
     private JSONAssert getTransaction(String fullHash) {
-        return new JSONAssert(new APICall.Builder("getTransaction").
-                param("fullHash", fullHash).build().invoke());
+        return new JSONAssert(GetTransactionCall.create(ChildChain.IGNIS.getId()).fullHash(fullHash).call());
     }
 
     @Test
     public void testProportionalFee() {
         long minRate = ChildChain.IGNIS.ONE_COIN;
-        JSONAssert result = new JSONAssert(new APICall.Builder("startBundler").
+        JSONAssert result = new JSONAssert(StartBundlerCall.create(ChildChain.IGNIS.getId()).
                 secretPhrase(BOB.getSecretPhrase()).
-                param("chain", ChildChain.IGNIS.getId()).
-                param("minRateNQTPerFXT", minRate).
-                param("feeCalculatorName", "PROPORTIONAL_FEE").
-                build().invoke());
+                minRateNQTPerFXT(minRate).
+                feeCalculatorName("PROPORTIONAL_FEE").call());
         result.str("totalFeesLimitFQT");
 
         long minFeeNQT = getMinFeeNQT(minRate);
@@ -111,8 +111,7 @@ public class RulesTest extends BundlerTest {
 
         result = getTransaction(fullHash);
 
-        result = new JSONAssert(new APICall.Builder("getFxtTransaction").param("transaction", result.str("fxtTransaction")).
-                build().invoke());
+        result = new JSONAssert(GetFxtTransactionCall.create().transaction(result.str("fxtTransaction")).call());
 
         long actualFee = Convert.parseUnsignedLong(result.str("feeNQT"));
         Assert.assertEquals(getMinFeeFQT() * FEE_MULTIPLIER, actualFee);
@@ -120,35 +119,29 @@ public class RulesTest extends BundlerTest {
 
     @Test
     public void testProportionalFeeZeroRate() {
-        JSONAssert result = new JSONAssert(new APICall.Builder("startBundler").
+        JSONAssert result = new JSONAssert(StartBundlerCall.create(ChildChain.IGNIS.getId()).
                 secretPhrase(BOB.getSecretPhrase()).
-                param("chain", ChildChain.IGNIS.getId()).
-                param("minRateNQTPerFXT", 0).
-                param("feeCalculatorName", "PROPORTIONAL_FEE").
-                build().invoke());
+                minRateNQTPerFXT(0).
+                feeCalculatorName("PROPORTIONAL_FEE").call());
         Assert.assertTrue(result.str("errorDescription").startsWith("Division by zero"));
     }
 
     @Test
     public void testAddBundlingRule() {
         long minRate = ChildChain.IGNIS.ONE_COIN;
-        JSONAssert result = new JSONAssert(new APICall.Builder("startBundler").
+        JSONAssert result = new JSONAssert(StartBundlerCall.create(ChildChain.IGNIS.getId()).
                 secretPhrase(BOB.getSecretPhrase()).
-                param("chain", ChildChain.IGNIS.getId()).
-                param("minRateNQTPerFXT", minRate * 2).
-                param("feeCalculatorName", "PROPORTIONAL_FEE").
-                build().invoke());
+                minRateNQTPerFXT(minRate * 2).
+                feeCalculatorName("PROPORTIONAL_FEE").call());
         result.str("totalFeesLimitFQT");
 
         long minFeeNQT = getMinFeeNQT(minRate);
         Assert.assertFalse(bundleTransaction(ALICE, minFeeNQT));
 
-        result = new JSONAssert(new APICall.Builder("addBundlingRule").
+        result = new JSONAssert(AddBundlingRuleCall.create(ChildChain.IGNIS.getId()).
                 secretPhrase(BOB.getSecretPhrase()).
-                param("chain", ChildChain.IGNIS.getId()).
-                param("minRateNQTPerFXT", minRate).
-                param("feeCalculatorName", "MIN_FEE").
-                build().invoke());
+                minRateNQTPerFXT(minRate).
+                feeCalculatorName("MIN_FEE").call());
         result.str("totalFeesLimitFQT");
         Assert.assertTrue(bundleTransaction(ALICE, minFeeNQT));
     }

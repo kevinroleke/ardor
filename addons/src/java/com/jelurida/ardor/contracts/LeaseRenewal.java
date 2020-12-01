@@ -123,7 +123,7 @@ public class LeaseRenewal extends AbstractContract {
             }
             LeaseBalanceCall leaseBalanceCall = LeaseBalanceCall.create(context.getParentChain().getId())
                     .recipient(lesseeAccount)
-                    .period("" + params.leasePeriod())
+                    .period(params.leasePeriod())
                     .secretPhrase(secretPhrase);
             context.createTransaction(leaseBalanceCall);
         }

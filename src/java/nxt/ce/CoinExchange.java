@@ -15,6 +15,7 @@
  */
 package nxt.ce;
 
+import nxt.Constants;
 import nxt.Nxt;
 import nxt.account.AccountLedger;
 import nxt.account.AccountLedger.LedgerEvent;
@@ -51,6 +52,9 @@ public final class CoinExchange {
     }
 
     private static final BigDecimal ONE_HALF = BigDecimal.valueOf(5L, 1);
+
+    //This is added to the exchanged amount probably to fix some rounding problem
+    public static final int AMOUNT_RESERVE = 1;
 
     private static final Listeners<Trade, Event> listeners = new Listeners<>();
 
@@ -447,7 +451,7 @@ public final class CoinExchange {
                     BigDecimal.valueOf(bidPriceNQT, chain.getDecimals()), MathContext.DECIMAL128)
                     .movePointRight(8).divideToIntegralValue(BigDecimal.ONE, MathContext.DECIMAL128).movePointLeft(8);
             this.amountNQT = Convert.unitRateToAmount(quantityQNT, exchangeChain.getDecimals(),
-                                        attachment.getPriceNQT(), chain.getDecimals()) + 1;
+                                        attachment.getPriceNQT(), chain.getDecimals()) + AMOUNT_RESERVE;
             this.dbKey = orderDbKeyFactory.newKey(this.id);
         }
 
@@ -492,7 +496,11 @@ public final class CoinExchange {
         }
 
         private void updateQuantity(long quantityQNT, long amountNQT) {
-            this.quantityQNT = (amountNQT != 0 ? quantityQNT : 0);
+            if (Nxt.getBlockchain().getHeight() >= Constants.AUTO_CANCEL_DUST_ORDER_BLOCK) {
+                this.quantityQNT = (amountNQT > AMOUNT_RESERVE ? quantityQNT : 0);
+            } else {
+                this.quantityQNT = (amountNQT != 0 ? quantityQNT : 0);
+            }
             this.amountNQT = amountNQT;
             if (this.quantityQNT > 0) {
                 orderTable.insert(this);

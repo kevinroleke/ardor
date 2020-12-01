@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetPollResultCall extends APICall.Builder<GetPollResultCall> {
+public class GetPollResultCall extends ChainSpecificCallBuilder<GetPollResultCall> {
     private GetPollResultCall() {
         super(ApiSpec.getPollResult);
     }
@@ -28,11 +26,11 @@ public class GetPollResultCall extends APICall.Builder<GetPollResultCall> {
         return unsignedLongParam("holding", holding);
     }
 
-    public GetPollResultCall minBalance(String minBalance) {
+    public GetPollResultCall minBalance(long minBalance) {
         return param("minBalance", minBalance);
     }
 
-    public GetPollResultCall votingModel(String votingModel) {
+    public GetPollResultCall votingModel(byte votingModel) {
         return param("votingModel", votingModel);
     }
 
@@ -44,7 +42,7 @@ public class GetPollResultCall extends APICall.Builder<GetPollResultCall> {
         return unsignedLongParam("poll", poll);
     }
 
-    public GetPollResultCall minBalanceModel(String minBalanceModel) {
+    public GetPollResultCall minBalanceModel(byte minBalanceModel) {
         return param("minBalanceModel", minBalanceModel);
     }
 

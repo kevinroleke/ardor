@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetExpectedAssetDeletesCall extends APICall.Builder<GetExpectedAssetDeletesCall> {
+public class GetExpectedAssetDeletesCall extends ChainSpecificCallBuilder<GetExpectedAssetDeletesCall> {
     private GetExpectedAssetDeletesCall() {
         super(ApiSpec.getExpectedAssetDeletes);
     }

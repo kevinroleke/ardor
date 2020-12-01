@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetBundlersCall extends APICall.Builder<GetBundlersCall> {
+public class GetBundlersCall extends ChainSpecificCallBuilder<GetBundlersCall> {
     private GetBundlersCall() {
         super(ApiSpec.getBundlers);
     }

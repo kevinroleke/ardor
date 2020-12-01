@@ -19,7 +19,6 @@ import nxt.addons.JA;
 import nxt.addons.JO;
 import nxt.blockchain.ChainTransactionId;
 import nxt.util.Convert;
-import org.json.simple.JSONObject;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -47,10 +46,6 @@ public class BlockResponseImpl implements BlockResponse {
     private List<TransactionResponse> parentTransactions;
     private List<ChainTransactionId> executedPhasedTransactionIds;
     private List<TransactionResponse> executedPhasedTransactions;
-
-    BlockResponseImpl(JSONObject response) {
-        this(new JO(response));
-    }
 
     BlockResponseImpl(JO blockJson) {
         blockId = blockJson.getEntityId("block");

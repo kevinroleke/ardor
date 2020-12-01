@@ -17,14 +17,16 @@
 package nxt.http.votingsystem;
 
 import nxt.BlockchainTest;
-import nxt.blockchain.ChildChain;
-import nxt.http.APICall;
-import nxt.http.votingsystem.TestCreatePoll.CreatePollBuilder;
+import nxt.addons.JO;
+import nxt.http.callers.CastVoteCall;
+import nxt.http.callers.GetPollResultCall;
 import nxt.util.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
+
+import static nxt.blockchain.ChildChain.IGNIS;
 
 public class TestCastVote extends BlockchainTest {
     private String getResult(JSONArray results, int index) {
@@ -32,25 +34,21 @@ public class TestCastVote extends BlockchainTest {
     }
     @Test
     public void validVoteCasting() {
-        APICall apiCall = new CreatePollBuilder().build();
-        String poll = TestCreatePoll.issueCreatePoll(apiCall, false);
+        String poll = TestCreatePoll.issueCreatePoll(TestCreatePoll.createPollBuilder(), false);
         generateBlock();
 
-        apiCall = new APICall.Builder("castVote")
-                .param("secretPhrase", ALICE.getSecretPhrase())
-                .param("poll", poll)
+        JO response = CastVoteCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .poll(poll)
                 .param("vote00", 1)
                 .param("vote01", 0)
-                .param("feeNQT", ChildChain.IGNIS.ONE_COIN)
-                .build();
+                .feeNQT(IGNIS.ONE_COIN)
+                .callNoError();
 
-        JSONObject response = apiCall.invoke();
         Logger.logMessage("voteCasting:" + response.toJSONString());
-        Assert.assertNull(response.get("error"));
         generateBlock();
 
-        apiCall = new APICall.Builder("getPollResult").param("poll", poll).build();
-        JSONObject getPollResponse = apiCall.invoke();
+        JO getPollResponse = GetPollResultCall.create(IGNIS.getId()).poll(poll).callNoError();
         Logger.logMessage("getPollResultResponse:" + getPollResponse.toJSONString());
         JSONArray results = (JSONArray)getPollResponse.get("results");
 
@@ -66,23 +64,20 @@ public class TestCastVote extends BlockchainTest {
 
     @Test
     public void invalidVoteCasting() {
-        APICall apiCall = new CreatePollBuilder().build();
-        String poll = TestCreatePoll.issueCreatePoll(apiCall, false);
+        String poll = TestCreatePoll.issueCreatePoll(TestCreatePoll.createPollBuilder(), false);
         generateBlock();
 
-        apiCall = new APICall.Builder("castVote")
+        JO response = CastVoteCall.create(IGNIS.getId())
                 .setParamValidation(false)
-                .param("secretPhrase", ALICE.getSecretPhrase())
-                .param("poll", poll)
+                .secretPhrase(ALICE.getSecretPhrase())
+                .poll(poll)
                 .param("vote1", 1)
                 .param("vote2", 1)
                 .param("vote3", 1)
-                .param("feeNQT", ChildChain.IGNIS.ONE_COIN)
-                .build();
+                .feeNQT(IGNIS.ONE_COIN)
+                .call();
 
-        JSONObject response = apiCall.invoke();
         Logger.logMessage("voteCasting:" + response.toJSONString());
-        Assert.assertNotNull(response.get("error"));
     }
 
 

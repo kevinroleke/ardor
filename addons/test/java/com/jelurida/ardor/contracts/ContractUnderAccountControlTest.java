@@ -16,8 +16,7 @@
 package com.jelurida.ardor.contracts;
 
 import nxt.addons.JO;
-import nxt.http.APICall;
-import nxt.http.accountControl.ACTestUtils;
+import nxt.http.callers.SetPhasingOnlyControlCall;
 import nxt.http.callers.UploadContractRunnerConfigurationCall;
 import nxt.util.JSONAssert;
 import nxt.voting.VoteWeighting;
@@ -41,9 +40,13 @@ public class ContractUnderAccountControlTest extends AbstractContractTest {
 
 
         // Set Alice under account control of Chuck
-        ACTestUtils.PhasingBuilder phasingbuilder = new ACTestUtils.PhasingBuilder(ALICE);
-        phasingbuilder.votingModel(VoteWeighting.VotingModel.ACCOUNT).whitelist(CHUCK).quorum(1);
-        new JSONAssert(phasingbuilder.build().invoke()).str("fullHash");
+        SetPhasingOnlyControlCall builder = SetPhasingOnlyControlCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .controlVotingModel(VoteWeighting.VotingModel.ACCOUNT.getCode())
+                .controlWhitelisted(CHUCK.getStrId())
+                .controlQuorum(1);
+        new JSONAssert(builder.callNoError()).str("fullHash");
         generateBlock();
 
         // Pay the contract and attach a message to trigger the contract execution
@@ -59,10 +62,9 @@ public class ContractUnderAccountControlTest extends AbstractContractTest {
         // The contract has submitted a transaction it is still unconfirmed
         // Now let's switch contract runner config and rerun the operation of the contract in validation mode
         byte[] bytes = readAllBytes("./addons/resources/contracts.validator.json");
-        APICall apiCall = UploadContractRunnerConfigurationCall.create()
+        JO response = UploadContractRunnerConfigurationCall.create()
                 .config(bytes)
-                .build();
-        JO response = new JO(apiCall.invoke());
+                .callNoError();
         Assert.assertTrue(response.getBoolean("configLoaded"));
 
         // The validator should run now.

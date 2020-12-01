@@ -20,6 +20,7 @@ import nxt.NxtException;
 import nxt.account.Account;
 import nxt.account.HoldingType;
 import nxt.ae.Asset;
+import nxt.ae.AssetExchangeTransactionType;
 import nxt.ae.DividendPaymentAttachment;
 import nxt.blockchain.Attachment;
 import nxt.blockchain.ChildChain;
@@ -32,7 +33,8 @@ public class DividendPayment extends CreateTransaction {
     static final DividendPayment instance = new DividendPayment();
 
     private DividendPayment() {
-        super(new APITag[] {APITag.AE, APITag.CREATE_TRANSACTION}, "holding", "holdingType", "asset", "height", "amountNQTPerShare");
+        super(AssetExchangeTransactionType.DIVIDEND_PAYMENT, new APITag[] {APITag.AE, APITag.CREATE_TRANSACTION},
+                "holding", "holdingType", "asset", "height", "amountNQTPerShare");
     }
 
     @Override

@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetHoldingShufflingsCall extends APICall.Builder<GetHoldingShufflingsCall> {
+public class GetHoldingShufflingsCall extends ChainSpecificCallBuilder<GetHoldingShufflingsCall> {
     private GetHoldingShufflingsCall() {
         super(ApiSpec.getHoldingShufflings);
     }

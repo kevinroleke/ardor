@@ -118,10 +118,10 @@ public final class DbShellServlet extends HttpServlet {
         if (API.disableAdminPassword) {
             body = form;
         } else {
-            if (API.adminPassword.isEmpty()) {
-                body = errorNoPasswordIsConfigured;
-            } else {
+            if (API.isAdminPasswordConfigured()) {
                 body = passwordForm;
+            } else {
+                body = errorNoPasswordIsConfigured;
             }
         }
 
@@ -144,9 +144,7 @@ public final class DbShellServlet extends HttpServlet {
 
         String body = null;
         if (!API.disableAdminPassword) {
-            if (API.adminPassword.isEmpty()) {
-                body = errorNoPasswordIsConfigured;
-            } else {
+            if (API.isAdminPasswordConfigured()) {
                 try {
                     API.verifyPassword(req);
                     if ("true".equals(req.getParameter("showShell"))) {
@@ -156,6 +154,8 @@ public final class DbShellServlet extends HttpServlet {
                     String desc = (String)((JSONObject)JSONValue.parse(JSON.toString(exc.getErrorResponse()))).get("errorDescription");
                     body = String.format(passwordFormTemplate, "<p style=\"color:red\">" + desc + "</p>");
                 }
+            } else {
+                body = errorNoPasswordIsConfigured;
             }
         }
 

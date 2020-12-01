@@ -35,13 +35,13 @@ public class TradingTest extends BlockchainTest {
     @Test
     public void coinExchangeTrading() {
         JO response = ExchangeCoinsCall.create(2).exchange(3).quantityQNT(100).priceNQTPerCoin(5000000).
-                feeRateNQTPerFXT(IGNIS.ONE_COIN).secretPhrase(ALICE.getSecretPhrase()).call();
+                feeRateNQTPerFXT(IGNIS.ONE_COIN).secretPhrase(ALICE.getSecretPhrase()).callNoError();
         System.out.println(response);
         response = ExchangeCoinsCall.create(2).exchange(3).quantityQNT(200).priceNQTPerCoin(4000000).
-                feeNQT(100000000).secretPhrase(ALICE.getSecretPhrase()).call();
+                feeNQT(100000000).secretPhrase(ALICE.getSecretPhrase()).callNoError();
         System.out.println(response);
         generateBlock();
-        List<JO> ordersJson = GetCoinExchangeOrdersCall.create(2).exchange(3).call().getJoList("orders");
+        List<JO> ordersJson = GetCoinExchangeOrdersCall.create(2).exchange(3).callNoError().getJoList("orders");
         List<CoinExchangeOrderResponse> orders = ordersJson.stream().map(CoinExchangeOrderResponse::create).collect(Collectors.toList());
         Assert.assertEquals(orders.size(), 2);
         CoinExchangeOrderResponse order1 = orders.get(0);

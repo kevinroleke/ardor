@@ -188,10 +188,10 @@ NRS.onSiteBuildDone().then(() => {
 				delete data.add_note_to_self;
 			}
 
-			data["_extra"] = {
+			data["_extra"] = Object.assign({}, data["_extra"], {
 				"message": data.message,
 				"note_to_self": data.note_to_self
-			};
+			});
 			var encrypted;
 			var uploadConfig = NRS.getFileUploadConfig("sendMessage", data);
 			if ($(uploadConfig.selector)[0].files[0]) {
@@ -439,7 +439,11 @@ NRS.onSiteBuildDone().then(() => {
 						return;
 					}
 					if (output.reload) {
-						window.location.reload(output.forceGet);
+						if (NRS.isAndroidWebView()) {
+							androidWebViewInterface.reload();
+						} else {
+							window.location.reload(output.forceGet);
+						}
 						return;
 					}
 				}
@@ -448,12 +452,13 @@ NRS.onSiteBuildDone().then(() => {
 			if (!data) {
 				data = NRS.getFormData($form);
 			}
+			data["_extra"] = data["_extra"] || {};
 			// In case the fee field is empty or calculate fee is pressed
 			// The feeCalculationEnabled variable distinguishes between the two cases and displays a message to the user
 			var feeCalculationEnabled = $modal.find(".btn-calculate-fee").length > 0 && !data.feeNXT && !NRS.isParentChain() && !$btn.hasClass("btn-calculate-fee");
 			if ($btn.hasClass("btn-calculate-fee") || feeCalculationEnabled) {
 				NRS.logConsole("Calculate fee request feeCalculationEnabled is " + feeCalculationEnabled);
-				data.calculateFee = true;
+				data["_extra"].calculateFee = true;
 				data.feeNQT = "-1";
 				data.feeRateNQTPerFXT = "-1";
 				delete data.feeNXT;
@@ -461,7 +466,7 @@ NRS.onSiteBuildDone().then(() => {
 					$form.find(".error_message").html($.t("fee_not_specified")).show();
 				}
 			} else {
-				delete data.calculateFee;
+				data["_extra"].calculateFee = false;
 				if (!data.feeNXT && NRS.isParentChain()) {
 					data.feeNXT = "0" ;
 				}
@@ -477,9 +482,7 @@ NRS.onSiteBuildDone().then(() => {
 						return warnAndUnlock($modal, $form, $btn, formErrorFunction, $.t("error_account_id"));
 					} else {
 						data.recipient = convertedAccountId;
-						data["_extra"] = {
-							"convertedAccount": true
-						};
+						data["_extra"].convertedAccount = true;
 					}
 				}
 			}
@@ -593,7 +596,7 @@ NRS.onSiteBuildDone().then(() => {
 			}
 
 			if ("secretPhrase" in data && !data.secretPhrase.length && !NRS.rememberPassword &&
-				!(data.calculateFee && NRS.accountInfo.publicKey) && !NRS.isPrivateKeyStoredOnHardware()) {
+				!(data["_extra"].calculateFee && NRS.accountInfo.publicKey) && !NRS.isPrivateKeyStoredOnHardware()) {
 				$("#" + $modal.attr('id').replace('_modal', '') + "_password").focus();
 				return warnAndUnlock($modal, $form, $btn, formErrorFunction, $.t("error_passphrase_required"));
 			}
@@ -680,13 +683,13 @@ NRS.onSiteBuildDone().then(() => {
 
 			NRS.processApprovalModel(data);
 
-			if (data.doNotBroadcast || data.calculateFee || data.isVoucher) {
+			if (data.doNotBroadcast || data["_extra"].calculateFee || data.isVoucher) {
 				data.broadcast = "false";
 				if (data.isVoucher && !data.secretPhrase) {
 					// TODO can we sign vouchers using the hardware wallet?
 					return warnAndUnlock($modal, $form, $btn, formErrorFunction, $.t("voucher_generator_secret_phrase"));
 				}
-				if (data.calculateFee) {
+				if (data["_extra"].calculateFee) {
 					if (NRS.accountInfo.publicKey) {
 						data.publicKey = NRS.accountInfo.publicKey;
 						delete data.secretPhrase;
@@ -711,7 +714,7 @@ NRS.onSiteBuildDone().then(() => {
 			var formFeeCalculationFunction = NRS["forms"][originalRequestType + "FeeCalculation"];
 			if (response.fullHash) {
 				NRS.unlockForm($modal, $btn);
-				if (data.calculateFee) {
+				if (data["_extra"].calculateFee) {
 					updateFee($modal, response.transactionJSON, formFeeCalculationFunction);
 					return;
 				}
@@ -754,7 +757,7 @@ NRS.onSiteBuildDone().then(() => {
 			} else if (response.errorCode) {
 				return warnAndUnlock($modal, $form, $btn, formErrorFunction, NRS.escapeRespStr(response.errorDescription));
 			} else {
-				if (data.calculateFee) {
+				if (data["_extra"].calculateFee) {
 					NRS.unlockForm($modal, $btn, false);
 					updateFee($modal, response.transactionJSON, formFeeCalculationFunction);
 					return;

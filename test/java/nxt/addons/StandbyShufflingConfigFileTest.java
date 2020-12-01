@@ -19,9 +19,9 @@ package nxt.addons;
 import nxt.BlockchainTest;
 import nxt.Constants;
 import nxt.account.HoldingType;
-import nxt.http.APICall;
 import nxt.http.callers.GetStandbyShufflersCall;
 import nxt.http.callers.StartStandbyShufflerCall;
+import nxt.http.callers.StopStandbyShufflerCall;
 import nxt.util.Logger;
 import org.junit.After;
 import org.junit.Assert;
@@ -50,7 +50,7 @@ public class StandbyShufflingConfigFileTest extends BlockchainTest {
 
     @After
     public void stopAll() {
-        JO response = new APICall.Builder<>("stopStandbyShuffler").call();
+        JO response = StopStandbyShufflerCall.create().callNoError();
         Logger.logDebugMessage("Stopped %d StandbyShufflers.", response.get("stopped"));
         Assert.assertNotNull(response.get("stopped"));
     }
@@ -61,31 +61,28 @@ public class StandbyShufflingConfigFileTest extends BlockchainTest {
 
         JO response = StartStandbyShufflerCall.create(IGNIS.getId())
                 .secretPhrase(ALICE.getSecretPhrase())
-                .param("holdingType", HoldingType.COIN.getCode())
-                .param("holding", IGNIS.getId())
+                .holdingType(HoldingType.COIN.getCode())
+                .holding(IGNIS.getId())
                 .feeRateNQTPerFXT(0)
-                .param("recipientPublicKeys", recipientPublicKey)
-                .call();
+                .recipientPublicKeys(recipientPublicKey)
+                .callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         Assert.assertTrue(response.getBoolean("started"));
 
         JO standbyShufflersJSON = GetStandbyShufflersCall.create(IGNIS.getId())
                 .unsignedLongParam("account", ALICE.getId())
                 .secretPhrase(ALICE.getSecretPhrase())
-                .param("holdingType", HoldingType.COIN.getCode())
-                .param("holding", IGNIS.getId())
-                .call();
+                .holdingType(HoldingType.COIN.getCode())
+                .holding(IGNIS.getId())
+                .callNoError();
 
-        Assert.assertNull(standbyShufflersJSON.get("errorCode"));
         JA standbyShufflers = standbyShufflersJSON.getArray("standbyShufflers");
         Assert.assertNotNull(standbyShufflers);
         Assert.assertEquals(1, standbyShufflers.size());
         JO standbyShuffler = standbyShufflers.get(0);
         Assert.assertNotNull(standbyShuffler);
 
-        response = new APICall.Builder<>("stopStandbyShuffler").call();
-        Assert.assertNull(response.get("errorCode"));
+        response = StopStandbyShufflerCall.create().callNoError();
         Assert.assertEquals(1, response.getInt("stopped"));
 
         standbyShuffler.put("secretPhrase", ALICE.getSecretPhrase());
@@ -94,11 +91,10 @@ public class StandbyShufflingConfigFileTest extends BlockchainTest {
         response = GetStandbyShufflersCall.create(IGNIS.getId())
                 .unsignedLongParam("account", ALICE.getId())
                 .secretPhrase(ALICE.getSecretPhrase())
-                .param("holdingType", HoldingType.COIN.getCode())
-                .param("holding", IGNIS.getId())
-                .call();
+                .holdingType(HoldingType.COIN.getCode())
+                .holding(IGNIS.getId())
+                .callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         standbyShufflers = response.getArray("standbyShufflers");
         Assert.assertNotNull(standbyShufflers);
         Assert.assertEquals(1, standbyShufflers.size());

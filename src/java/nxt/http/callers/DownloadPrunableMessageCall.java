@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class DownloadPrunableMessageCall extends APICall.Builder<DownloadPrunableMessageCall> {
+public class DownloadPrunableMessageCall extends ChainSpecificCallBuilder<DownloadPrunableMessageCall> {
     private DownloadPrunableMessageCall() {
         super(ApiSpec.downloadPrunableMessage);
     }

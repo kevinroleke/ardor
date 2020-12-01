@@ -66,7 +66,13 @@ public abstract class NetworkMessage {
     public static final int MAX_ARRAY_LENGTH = 48 * 1024;
 
     /** Maximum list size */
-    public static final int MAX_LIST_SIZE = 1500;
+    public static final int MAX_LIST_SIZE = 2500;
+
+    /**
+     * The max list size used in versions 2.3.2 and before.
+     * TODO remove this constant after the network has upgraded to 2.3.3
+     */
+    public static final int MAX_LIST_SIZE_PRE_2_3_3 = 1500;
 
     /** UTF-8 character set */
     private static final Charset UTF8;
@@ -855,6 +861,9 @@ public abstract class NetworkMessage {
          */
         public BundlerRateMessage(List<BundlerRate> rates) {
             super("BundlerRate");
+            if (rates.size() > MAX_LIST_SIZE) {
+                throw new RuntimeException("Rate count " + rates.size() + " exceeds the maximum of " + MAX_LIST_SIZE);
+            }
             rates.sort(Comparator.comparingLong(BundlerRate::getAccountId));
             this.rates = rates;
         }
@@ -1290,8 +1299,13 @@ public abstract class NetworkMessage {
                 String addr = peer.getAnnouncedAddress();
                 if (addr != null) {
                     byte[] addrBytes = addr.getBytes(UTF8);
+                    int encodedAddressLength = getEncodedArrayLength(addrBytes);
+                    if (getLength() + encodedAddressLength + 8 > NetworkHandler.MAX_MESSAGE_SIZE) {
+                        Logger.logDebugMessage("AddPeers message size exceeds " + NetworkHandler.MAX_MESSAGE_SIZE);
+                        return;
+                    }
                     announcedAddressesBytes.add(addrBytes);
-                    announcedAddressesLength += getEncodedArrayLength(addrBytes);
+                    announcedAddressesLength += encodedAddressLength;
                     services.add(((PeerImpl)peer).getServices());
                 }
             });
@@ -3128,10 +3142,18 @@ public abstract class NetworkMessage {
             super("TransactionsInventory");
             Set<ChainTransactionId> set = new HashSet<>();
             for (Transaction transaction : transactions) {
+                if (set.size() >= MAX_LIST_SIZE_PRE_2_3_3) {
+                    break;
+                }
                 set.add(ChainTransactionId.getChainTransactionId(transaction));
                 if (transaction.getType() == ChildBlockFxtTransactionType.INSTANCE) {
                     ChildBlockFxtTransaction childBlockFxtTransaction = (ChildBlockFxtTransaction)transaction;
-                    for (byte[] childTransactionHash : childBlockFxtTransaction.getChildTransactionFullHashes()) {
+                    byte[][] childTransactionFullHashes = childBlockFxtTransaction.getChildTransactionFullHashes();
+                    if (set.size() + childTransactionFullHashes.length >= MAX_LIST_SIZE_PRE_2_3_3) {
+                        set.remove(ChainTransactionId.getChainTransactionId(transaction));
+                        break;
+                    }
+                    for (byte[] childTransactionHash : childTransactionFullHashes) {
                         set.add(new ChainTransactionId(childBlockFxtTransaction.getChildChain().getId(), childTransactionHash));
                     }
                 }

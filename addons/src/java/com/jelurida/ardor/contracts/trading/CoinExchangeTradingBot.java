@@ -412,7 +412,7 @@ public class CoinExchangeTradingBot extends AbstractContract<Object, Object> {
 
             if (HoldingType.ASSET == json.getHoldingType()) {
                 final long assetId = Long.parseUnsignedLong(json.getName());
-                final JO assetJson = new JO(GetAssetCall.create().asset(assetId).build().invokeNoError());
+                final JO assetJson = GetAssetCall.create().asset(assetId).callNoError();
                 return new PairSymbol(assetJson.getString("name"), json.getApiName(), json.getHoldingType(), assetId, assetJson.getByte("decimals"));
             }
 
@@ -578,11 +578,10 @@ public class CoinExchangeTradingBot extends AbstractContract<Object, Object> {
         public List<ExchangeOrderResponse> getOrders(PairType pairType, OrderType orderType) {
             final PairSymbol base = orderType.getBase(pairType);
             final PairSymbol counter = orderType.getCounter(pairType);
-            JO response = new JO(GetCoinExchangeOrdersCall
+            JO response = GetCoinExchangeOrdersCall
                     .create((int) base.getHoldingId())
                     .exchange((int) counter.getHoldingId())
-                    .build()
-                    .invokeNoError());
+                    .callNoError();
             return response.getJoList("orders").stream()
                     .map(CoinExchangeOrderResponse::create)
                     .map(t -> new ExchangeOrderResponse(t.getQuantityQNT(), t.getBidNQTPerCoin(), counter.getDecimals(), base.getDecimals()))
@@ -833,12 +832,12 @@ public class CoinExchangeTradingBot extends AbstractContract<Object, Object> {
         public void cancelAllMyOrders(AbstractContractContext context, PairType pairType, String account) {
             final int chainId = pairType.getChainId();
             final long assetId = pairType.getAsset().getHoldingId();
-            final JSONObject bidsJson = GetAccountCurrentBidOrdersCall.create(chainId)
+            JO bidsJson = GetAccountCurrentBidOrdersCall.create(chainId)
                     .account(account)
                     .asset(assetId)
                     .firstIndex(0)
                     .lastIndex(-1)
-                    .build().invokeNoError();
+                    .callNoError();
             ((List<?>) bidsJson.get("bidOrders"))
                     .stream()
                     .map(JSONObject.class::cast)
@@ -846,12 +845,12 @@ public class CoinExchangeTradingBot extends AbstractContract<Object, Object> {
                     .map(String.class::cast)
                     .forEach(orderId -> context.createTransaction(CancelBidOrderCall.create(chainId).order(orderId)));
 
-            final JSONObject asksJson = GetAccountCurrentAskOrdersCall.create(chainId)
+            JO asksJson = GetAccountCurrentAskOrdersCall.create(chainId)
                     .account(account)
                     .asset(assetId)
                     .firstIndex(0)
                     .lastIndex(-1)
-                    .build().invokeNoError();
+                    .callNoError();
             ((List<?>) asksJson.get("askOrders"))
                     .stream()
                     .map(JSONObject.class::cast)
@@ -869,11 +868,11 @@ public class CoinExchangeTradingBot extends AbstractContract<Object, Object> {
                     ? GetBidOrdersCall.create((int) chain.getHoldingId())
                     .asset(asset.getHoldingId())
                     .firstIndex(0).lastIndex(-1)
-                    .build().invokeNoError().get("bidOrders")
+                    .callNoError().get("bidOrders")
                     : GetAskOrdersCall.create((int) chain.getHoldingId())
                     .asset(asset.getHoldingId())
                     .firstIndex(0).lastIndex(-1)
-                    .build().invokeNoError().get("askOrders"));
+                    .callNoError().get("askOrders"));
             final BiFunction<Long, Long, ExchangeOrderResponse> function = orderType.isBid()
                     ? (quantityQNT1, bidNQTPerCoin1) -> new ExchangeOrderResponse(quantityQNT1, bidNQTPerCoin1, asset.getDecimals(), chain.getDecimals())
                     : (quantityQNT, bidNQTPerCoin) -> new AssetAskOrderResponse(chain, asset, quantityQNT, bidNQTPerCoin);
@@ -886,7 +885,7 @@ public class CoinExchangeTradingBot extends AbstractContract<Object, Object> {
 
         @Override
         public BigDecimal getBalance(PairSymbol symbol, String account) {
-            final JSONObject json = GetAccountCall.create().account(account).includeAssets(true).build().invokeNoError();
+            JO json = GetAccountCall.create().account(account).includeAssets(true).callNoError();
             final long assetId = symbol.getHoldingId();
             return ((List<?>) json.getOrDefault("assetBalances", emptyList())).stream()
                     .map(JO::new)

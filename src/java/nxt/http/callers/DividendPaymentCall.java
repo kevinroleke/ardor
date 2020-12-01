@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class DividendPaymentCall extends CreateTransactionCallBuilder<DividendPaymentCall> {
+public class DividendPaymentCall extends CreateOneSideTransactionCallBuilder<DividendPaymentCall> {
     private DividendPaymentCall() {
         super(ApiSpec.dividendPayment);
     }

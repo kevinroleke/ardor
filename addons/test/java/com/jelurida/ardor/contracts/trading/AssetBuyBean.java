@@ -41,7 +41,7 @@ class AssetBuyBean extends AssetOrderBean {
                 .asset(asset)
                 .secretPhrase(BlockchainTest.DAVE.getSecretPhrase())
                 .feeNQT(IGNIS.ONE_COIN)
-                .build().invokeNoError();
+                .callNoError();
     }
 
 }

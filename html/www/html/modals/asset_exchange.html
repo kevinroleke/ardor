@@ -74,6 +74,10 @@
                         <input type="hidden" name="decimals" id="transfer_asset_decimals" value="" />
                         <input type="hidden" id="transfer_asset_action" value="" />
                     </div>
+                    <div class="form-group">
+                        <label data-i18n="asset_id">ASSET_ID</label>
+                        <p id="transfer_asset_id"></p>
+                    </div>
                     <div id="transfer_asset_recipient_container">
                         <div data-replace-with-modal-template="recipient_modal_template"></div>
                     </div>
@@ -83,6 +87,7 @@
                             <input type="number" name="quantity" id="transfer_asset_quantity" class="form-control" step="any" min="0" placeholder="Quantity" data-i18n="[placeholder]quantity" tabindex="3">
                             <span class="input-group-addon" id="transfer_asset_quantity_name"></span>
                         </div>
+                        <input type="text" id="transfer_asset_qnt" class="form-control" tabindex="-1" disabled>
                     </div>
                     <div data-replace-with-modal-template="add_message_modal_template"></div>
                     <div data-replace-with-modal-template="fee_calculation_modal_template"></div>

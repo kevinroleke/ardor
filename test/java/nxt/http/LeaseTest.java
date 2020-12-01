@@ -18,9 +18,11 @@ package nxt.http;
 
 import nxt.BlockchainTest;
 import nxt.Constants;
+import nxt.addons.JO;
 import nxt.blockchain.FxtChain;
+import nxt.http.callers.GetAccountCall;
+import nxt.http.callers.LeaseBalanceCall;
 import nxt.util.Logger;
-import org.json.simple.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,71 +32,69 @@ public class LeaseTest extends BlockchainTest {
     public void lease() {
         generateBlock(); // start from baseHeight + 1
         // #2 & #3 lease their balance to %1
-        JSONObject response = new APICall.Builder("leaseBalance").
-                param("secretPhrase", BOB.getSecretPhrase()).
-                param("recipient", ALICE.getStrId()).
-                param("period", "2").
-                param("feeNQT", Constants.ONE_FXT * 2).
-                param("chain", FxtChain.FXT.getName()).
-                build().invoke();
+        JO response = LeaseBalanceCall.create(FxtChain.FXT.getId()).
+                secretPhrase(BOB.getSecretPhrase()).
+                recipient(ALICE.getStrId()).
+                period(2).
+                feeNQT(Constants.ONE_FXT * 2).
+                callNoError();
         Logger.logDebugMessage("leaseBalance: " + response);
-        response = new APICall.Builder("leaseBalance").
-                param("secretPhrase", CHUCK.getSecretPhrase()).
-                param("recipient", ALICE.getStrId()).
-                param("period", "3").
-                param("feeNQT", Constants.ONE_FXT * 2).
-                param("chain", FxtChain.FXT.getName()).
-                build().invoke();
+        response = LeaseBalanceCall.create(FxtChain.FXT.getId()).
+                secretPhrase(CHUCK.getSecretPhrase()).
+                recipient(ALICE.getStrId()).
+                period(3).
+                feeNQT(Constants.ONE_FXT * 2).
+                callNoError();
         Logger.logDebugMessage("leaseBalance: " + response);
         generateBlock();
 
         // effective balance hasn't changed since lease is not in effect yet
-        JSONObject lesseeResponse = new APICall.Builder("getAccount").
-                param("account", ALICE.getRsAccount()).
-                param("includeEffectiveBalance", "true").
-                build().invoke();
+        JO lesseeResponse = GetAccountCall.create().
+                account(ALICE.getRsAccount()).
+                includeEffectiveBalance(true).
+                callNoError();
         Logger.logDebugMessage("getLesseeAccount: " + lesseeResponse);
         Assert.assertEquals(ALICE.getInitialFxtBalance() / Constants.ONE_FXT, lesseeResponse.get("effectiveBalanceFXT"));
 
         // lease is registered
-        JSONObject leasedResponse1 = new APICall.Builder("getAccount").
-                param("account", BOB.getRsAccount()).
-                build().invoke();
+        JO leasedResponse1 = GetAccountCall.create().
+                account(BOB.getRsAccount()).
+                callNoError();
         Logger.logDebugMessage("getLeasedAccount: " + leasedResponse1);
         Assert.assertEquals(ALICE.getRsAccount(), leasedResponse1.get("currentLesseeRS"));
-        Assert.assertEquals((long) (baseHeight + 1 + 1 + 1), leasedResponse1.get("currentLeasingHeightFrom"));
-        Assert.assertEquals((long) (baseHeight + 1 + 1 + 1 + 2), leasedResponse1.get("currentLeasingHeightTo"));
-        JSONObject leasedResponse2 = new APICall.Builder("getAccount").
-                param("account", CHUCK.getRsAccount()).
-                build().invoke();
+        Assert.assertEquals(baseHeight + 1 + 1 + 1, leasedResponse1.getLong("currentLeasingHeightFrom"));
+        Assert.assertEquals(baseHeight + 1 + 1 + 1 + 2, leasedResponse1.getLong("currentLeasingHeightTo"));
+        JO leasedResponse2 = GetAccountCall.create().
+                account(CHUCK.getRsAccount()).
+                callNoError();
         Logger.logDebugMessage("getLeasedAccount: " + leasedResponse1);
         Assert.assertEquals(ALICE.getRsAccount(), leasedResponse2.get("currentLesseeRS"));
-        Assert.assertEquals((long) (baseHeight + 1 + 1 + 1), leasedResponse2.get("currentLeasingHeightFrom"));
-        Assert.assertEquals((long) (baseHeight + 1 + 1 + 1 + 3), leasedResponse2.get("currentLeasingHeightTo"));
+        Assert.assertEquals(baseHeight + 1 + 1 + 1, leasedResponse2.getLong("currentLeasingHeightFrom"));
+        Assert.assertEquals(baseHeight + 1 + 1 + 1 + 3, leasedResponse2.getLong("currentLeasingHeightTo"));
         generateBlock();
 
 
-        lesseeResponse = new APICall.Builder("getAccount").
-                param("account", ALICE.getRsAccount()).
-                param("includeEffectiveBalance", "true").
-                build().invoke();
+        lesseeResponse = GetAccountCall.create().
+                account(ALICE.getRsAccount()).
+                includeEffectiveBalance(true).
+                callNoError();
         Logger.logDebugMessage("getLesseeAccount: " + lesseeResponse);
         Assert.assertEquals((ALICE.getInitialFxtBalance() + BOB.getInitialFxtBalance() + CHUCK.getInitialFxtBalance()) / Constants.ONE_FXT - 4,
                 lesseeResponse.get("effectiveBalanceFXT"));
         generateBlock();
         generateBlock();
-        lesseeResponse = new APICall.Builder("getAccount").
-                param("account", ALICE.getRsAccount()).
-                param("includeEffectiveBalance", "true").
-                build().invoke();
+        lesseeResponse = GetAccountCall.create().
+                account(ALICE.getRsAccount()).
+                includeEffectiveBalance(true).
+                callNoError();
         Logger.logDebugMessage("getLesseeAccount: " + lesseeResponse);
         Assert.assertEquals((ALICE.getInitialFxtBalance() + CHUCK.getInitialFxtBalance()) / Constants.ONE_FXT - 2 /* fees */,
                 lesseeResponse.get("effectiveBalanceFXT"));
         generateBlock();
-        lesseeResponse = new APICall.Builder("getAccount").
-                param("account", ALICE.getRsAccount()).
-                param("includeEffectiveBalance", "true").
-                build().invoke();
+        lesseeResponse = GetAccountCall.create().
+                account(ALICE.getRsAccount()).
+                includeEffectiveBalance(true).
+                callNoError();
         Logger.logDebugMessage("getLesseeAccount: " + lesseeResponse);
         Assert.assertEquals((ALICE.getInitialFxtBalance()) / Constants.ONE_FXT,
                 lesseeResponse.get("effectiveBalanceFXT"));

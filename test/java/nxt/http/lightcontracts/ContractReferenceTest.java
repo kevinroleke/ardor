@@ -19,7 +19,8 @@ package nxt.http.lightcontracts;
 import com.jelurida.ardor.contracts.HelloWorld;
 import nxt.BlockchainTest;
 import nxt.blockchain.ChildChain;
-import nxt.http.APICall;
+import nxt.http.callers.SetContractReferenceCall;
+import nxt.http.callers.UploadTaggedDataCall;
 import nxt.util.JSONAssert;
 import org.junit.Assert;
 import org.junit.Test;
@@ -45,15 +46,17 @@ public class ContractReferenceTest extends BlockchainTest {
     }
 
     private JSONAssert deployContract(String contractName, String params) {
-        JSONAssert result = new JSONAssert(new APICall.Builder("uploadTaggedData").secretPhrase(ALICE.getSecretPhrase()).
+        JSONAssert result = new JSONAssert(UploadTaggedDataCall.create(ChildChain.IGNIS.getId()).
+                secretPhrase(ALICE.getSecretPhrase()).
                 feeNQT(ChildChain.IGNIS.ONE_COIN * 5).
-                param("name", contractName).
-                param("data", "Not real contract").build().invoke());
+                name(contractName).
+                data("Not real contract").call());
 
-        return new JSONAssert(new APICall.Builder("setContractReference").secretPhrase(ALICE.getSecretPhrase()).
+        return new JSONAssert(SetContractReferenceCall.create(ChildChain.IGNIS.getId()).
+                secretPhrase(ALICE.getSecretPhrase()).
                 feeNQT(ChildChain.IGNIS.ONE_COIN * 5).
-                param("contractName", contractName).
-                param("contractParams", params).
-                param("contract", ChildChain.IGNIS.getId() + ":" + result.fullHash()).build().invoke());
+                contractName(contractName).
+                contractParams(params).
+                contract(ChildChain.IGNIS.getId() + ":" + result.fullHash()).call());
     }
 }

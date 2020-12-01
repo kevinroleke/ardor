@@ -26,8 +26,10 @@ FILES="changelogs conf html lib testlib resource contrib"
 FILES="${FILES} ardor.exe ardorservice.exe"
 FILES="${FILES} 3RD-PARTY-LICENSES.txt LICENSE.txt"
 FILES="${FILES} DEVELOPERS-GUIDE.md OPERATORS-GUIDE.md README.md README.txt USERS-GUIDE.md"
-FILES="${FILES} mint.bat mint.sh run.bat run.sh run-desktop.sh start.sh stop.sh compact.sh compact.bat sign.sh sign.bat passphraseRecovery.sh passphraseRecovery.bat contractManager.sh contractManager.bat pem.to.pkcs12.keystore.certbot.hook.sh"
-FILES="${FILES} ardor.policy ardordesktop.policy contractManager.policy Ardor_Wallet.url Dockerfile"
+FILES="${FILES} mint.bat mint.sh run.bat run.sh run-desktop.sh start.sh stop.sh compact.sh compact.bat sign.sh sign.bat"
+FILES="${FILES} passphraseRecovery.sh passphraseRecovery.bat contractManager.sh contractManager.bat pem.to.pkcs12.keystore.certbot.hook.sh"
+FILES="${FILES} run-taxreport.sh run-taxreport.bat"
+FILES="${FILES} ardor.policy ardordesktop.policy contractManager.policy Ardor_Wallet.url"
 
 echo compile
 ./compile.sh

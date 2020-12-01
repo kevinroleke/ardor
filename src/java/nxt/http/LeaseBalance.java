@@ -19,6 +19,7 @@ package nxt.http;
 import nxt.Constants;
 import nxt.NxtException;
 import nxt.account.Account;
+import nxt.account.AccountControlFxtTransactionType;
 import nxt.account.EffectiveBalanceLeasingAttachment;
 import nxt.blockchain.Attachment;
 import org.json.simple.JSONObject;
@@ -31,7 +32,9 @@ public final class LeaseBalance extends CreateTransaction {
     static final LeaseBalance instance = new LeaseBalance();
 
     private LeaseBalance() {
-        super(new APITag[] {APITag.FORGING, APITag.ACCOUNT_CONTROL, APITag.CREATE_TRANSACTION}, "period", "recipient");
+        super(AccountControlFxtTransactionType.EFFECTIVE_BALANCE_LEASING,
+                new APITag[] {APITag.FORGING, APITag.ACCOUNT_CONTROL, APITag.CREATE_TRANSACTION},
+                "period", "recipient");
     }
 
     @Override

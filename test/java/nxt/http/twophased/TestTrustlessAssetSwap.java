@@ -19,53 +19,58 @@ package nxt.http.twophased;
 import nxt.BlockchainTest;
 import nxt.Tester;
 import nxt.account.Account;
-import nxt.blockchain.ChildChain;
-import nxt.http.APICall;
+import nxt.addons.JO;
+import nxt.http.callers.BroadcastTransactionCall;
+import nxt.http.callers.GetTransactionCall;
+import nxt.http.callers.IssueAssetCall;
+import nxt.http.callers.SignTransactionCall;
+import nxt.http.callers.TransferAssetCall;
 import nxt.util.Convert;
-import org.json.simple.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
+
+import static nxt.blockchain.ChildChain.IGNIS;
 
 public class TestTrustlessAssetSwap extends BlockchainTest {
 
     @Test
     public void assetSwap() {
         // Alice and Bob each has its own asset
-        JSONObject aliceAsset = new APICall.Builder("issueAsset").
-                param("secretPhrase", ALICE.getSecretPhrase()).
-                param("name", "AliceAsset").
-                param("description", "AliceAssetDescription").
-                param("quantityQNT", 1000).
-                param("decimals", 0).
-                param("feeNQT", 1000 * ChildChain.IGNIS.ONE_COIN).
-                build().invoke();
+        JO aliceAsset = IssueAssetCall.create(IGNIS.getId()).
+                secretPhrase(ALICE.getSecretPhrase()).
+                name("AliceAsset").
+                description("AliceAssetDescription").
+                quantityQNT(1000).
+                decimals(0).
+                feeNQT(1000 * IGNIS.ONE_COIN).
+                callNoError();
         generateBlock();
-        JSONObject bobAsset = new APICall.Builder("issueAsset").
-                param("secretPhrase", BOB.getSecretPhrase()).
-                param("name", "BobAsset").
-                param("description", "BobAssetDescription").
-                param("quantityQNT", 1000).
-                param("decimals", 0).
-                param("feeNQT", 2000 * ChildChain.IGNIS.ONE_COIN).
-                build().invoke();
+        JO bobAsset = IssueAssetCall.create(IGNIS.getId()).
+                secretPhrase(BOB.getSecretPhrase()).
+                name("BobAsset").
+                description("BobAssetDescription").
+                quantityQNT(1000).
+                decimals(0).
+                feeNQT(2000 * IGNIS.ONE_COIN).
+                callNoError();
         generateBlock();
 
         // Alice prepares and signs a transaction #1, an asset transfer to Bob.
         // She does not broadcast it, but sends to Bob the unsigned bytes, the
         // full transaction hash, and the signature hash.
         String aliceAssetId = Tester.responseToStringId(aliceAsset);
-        JSONObject aliceUnsignedTransfer = new APICall.Builder("transferAsset").
-                param("publicKey", ALICE.getPublicKeyStr()).
-                param("recipient", BOB.getStrId()).
-                param("asset", aliceAssetId).
-                param("quantityQNT", 100).
-                param("feeNQT", ChildChain.IGNIS.ONE_COIN).
-                build().invoke();
+        JO aliceUnsignedTransfer = TransferAssetCall.create(IGNIS.getId()).
+                publicKey(ALICE.getPublicKeyStr()).
+                recipient(BOB.getStrId()).
+                asset(aliceAssetId).
+                quantityQNT(100).
+                feeNQT(IGNIS.ONE_COIN).
+                callNoError();
 
-        JSONObject aliceSignedTransfer = new APICall.Builder("signTransaction").
-                param("secretPhrase", ALICE.getSecretPhrase()).
-                param("unsignedTransactionBytes", (String)aliceUnsignedTransfer.get("unsignedTransactionBytes")).
-                build().invoke();
+        JO aliceSignedTransfer = SignTransactionCall.create().
+                secretPhrase(ALICE.getSecretPhrase()).
+                unsignedTransactionBytes(aliceUnsignedTransfer.getString("unsignedTransactionBytes")).
+                callNoError();
 
         String aliceTransferFullHash = (String)aliceSignedTransfer.get("fullHash");
         Assert.assertEquals(64, aliceTransferFullHash.length());
@@ -74,30 +79,30 @@ public class TestTrustlessAssetSwap extends BlockchainTest {
         // Bob submits transaction #2, an asset transfer to Alice, making it phased using a by-transaction voting model
         // with a quorum of 1 and just the full hash of #1 in the phasing transaction full hashes list.
         String bobAssetId = Tester.responseToStringId(bobAsset);
-        JSONObject bobTransfer = new APICall.Builder("transferAsset").
-                param("secretPhrase", BOB.getSecretPhrase()).
-                param("recipient", ALICE.getStrId()).
-                param("asset", bobAssetId).
-                param("quantityQNT", 200).
-                param("feeNQT", 3 * ChildChain.IGNIS.ONE_COIN).
-                param("phased", "true").
-                param("phasingFinishHeight", baseHeight + 5).
-                param("phasingVotingModel", 4).
-                param("phasingLinkedTransaction", ChildChain.IGNIS.getId() + ":" + aliceTransferFullHash).
-                param("phasingQuorum", 1).
-                build().invoke();
+        JO bobTransfer = TransferAssetCall.create(IGNIS.getId()).
+                secretPhrase(BOB.getSecretPhrase()).
+                recipient(ALICE.getStrId()).
+                asset(bobAssetId).
+                quantityQNT(200).
+                feeNQT(3 * IGNIS.ONE_COIN).
+                phased(true).
+                phasingFinishHeight(baseHeight + 5).
+                phasingVotingModel((byte) 4).
+                phasingLinkedTransaction(IGNIS.getId() + ":" + aliceTransferFullHash).
+                phasingQuorum(1).
+                callNoError();
         generateBlock();
 
         // Alice sees Bob's transaction #2 in the blockchain, waits to make sure it is confirmed irreversibly.
-        JSONObject bobTransferValidation = new APICall.Builder("getTransaction").
-                param("fullHash", (String) bobTransfer.get("fullHash")).
-                build().invoke();
+        JO bobTransferValidation = GetTransactionCall.create().
+                fullHash(bobTransfer.getString("fullHash")).
+                callNoError();
         Assert.assertEquals(bobTransfer.get("fullHash"), bobTransferValidation.get("fullHash"));
 
         // She then submits her transaction #1.
-        new APICall.Builder("broadcastTransaction").
-                param("transactionBytes", aliceTransferTransactionBytes).
-                build().invoke();
+        BroadcastTransactionCall.create().
+                transactionBytes(aliceTransferTransactionBytes).
+                callNoError();
         generateBlock();
 
         // Both transactions have executed

@@ -17,71 +17,71 @@ package nxt.http.bundling;
 
 import nxt.Nxt;
 import nxt.Tester;
-import nxt.blockchain.ChildChain;
-import nxt.http.APICall;
+import nxt.http.callers.DgsDeliveryCall;
+import nxt.http.callers.DgsFeedbackCall;
+import nxt.http.callers.DgsListingCall;
+import nxt.http.callers.DgsPurchaseCall;
+import nxt.http.callers.StartBundlerCall;
 import nxt.util.JSONAssert;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Collections;
 
+import static nxt.blockchain.ChildChain.IGNIS;
+
 public class PurchaseBundlerTest extends BundlerTest {
     @Test
     public void testPurchaseAndFeedback() {
         startPurchaseBundler(ALICE);
 
-        long price = ChildChain.IGNIS.ONE_COIN;
-        JSONAssert result = new JSONAssert(new APICall.Builder("dgsListing")
+        long price = IGNIS.ONE_COIN;
+        JSONAssert result = new JSONAssert(DgsListingCall.create(IGNIS.getId())
                 .secretPhrase(ALICE.getSecretPhrase())
                 .feeNQT(0)
-                .param("name", "TestDGS")
-                .param("quantity", "10")
-                .param("priceNQT", price).build().invoke());
+                .name("TestDGS")
+                .quantity(10)
+                .priceNQT(price).call());
         String goodsId = result.id();
 
         bundleTransactions(Collections.singletonList(result.fullHash()));
 
         generateBlock();
 
-        result = new JSONAssert(new APICall.Builder("dgsPurchase")
+        result = new JSONAssert(DgsPurchaseCall.create(IGNIS.getId())
                 .secretPhrase(CHUCK.getSecretPhrase())
                 .feeNQT(0)
-                .param("goods", goodsId)
-                .param("priceNQT", price)
-                .param("quantity", 1)
-                .param("deliveryDeadlineTimestamp", Nxt.getEpochTime() + 100)
-                .build().invoke());
+                .goods(goodsId)
+                .priceNQT(price)
+                .quantity(1)
+                .deliveryDeadlineTimestamp(Nxt.getEpochTime() + 100).call());
         String purchaseId = result.id();
         generateBlock();
         Assert.assertTrue(isBundled(result.fullHash()));
 
-        result = new JSONAssert(new APICall.Builder("dgsDelivery")
+        result = new JSONAssert(DgsDeliveryCall.create(IGNIS.getId())
                 .secretPhrase(ALICE.getSecretPhrase())
                 .feeNQT(0)
-                .param("purchase", purchaseId)
-                .param("goodsToEncrypt", "a")
-                .build().invoke());
+                .purchase(purchaseId)
+                .goodsToEncrypt("a").call());
         bundleTransactions(Collections.singletonList(result.fullHash()));
         generateBlock();
 
-        result = new JSONAssert(new APICall.Builder("dgsFeedback")
+        result = new JSONAssert(DgsFeedbackCall.create(IGNIS.getId())
                 .secretPhrase(CHUCK.getSecretPhrase())
                 .feeNQT(0)
-                .param("purchase", purchaseId)
-                .param("message", "my feedback 123")
-                .build().invoke());
+                .purchase(purchaseId)
+                .message("my feedback 123").call());
         generateBlock();
         Assert.assertTrue(isBundled(result.fullHash()));
     }
 
     private void startPurchaseBundler(Tester seller) {
-        JSONAssert result = new JSONAssert(new APICall.Builder("startBundler").
+        JSONAssert result = new JSONAssert(StartBundlerCall.create(IGNIS.getId()).
                 secretPhrase(BOB.getSecretPhrase()).
-                param("chain", ChildChain.IGNIS.getId()).
-                param("filter", "PurchaseBundler:" + seller.getStrId()).
-                param("minRateNQTPerFXT", 0).
-                param("feeCalculatorName", "MIN_FEE").
-                build().invoke());
+                filter("PurchaseBundler:" + seller.getStrId()).
+                minRateNQTPerFXT(0).
+                feeCalculatorName("MIN_FEE").call());
         result.str("totalFeesLimitFQT");
     }
 

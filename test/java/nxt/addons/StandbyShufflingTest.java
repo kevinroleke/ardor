@@ -23,10 +23,10 @@ import nxt.account.Account;
 import nxt.account.HoldingType;
 import nxt.crypto.KeyDerivation;
 import nxt.crypto.PublicKeyDerivationInfo;
-import nxt.http.APICall;
 import nxt.http.callers.GetShufflersCall;
 import nxt.http.callers.GetStandbyShufflersCall;
 import nxt.http.callers.StartStandbyShufflerCall;
+import nxt.http.callers.StopShufflerCall;
 import nxt.http.callers.StopStandbyShufflerCall;
 import nxt.http.shuffling.ShufflingUtil;
 import nxt.shuffling.ShufflingParticipantHome;
@@ -106,10 +106,10 @@ public class StandbyShufflingTest extends BlockchainTest {
 
     @After
     public void stopAll() {
-        JO response = new APICall.Builder<>("stopStandbyShuffler").call();
+        JO response = StopStandbyShufflerCall.create().callNoError();
         Logger.logDebugMessage("Stopped %d StandbyShufflers.", response.get("stopped"));
         Assert.assertNotNull(response.get("stopped"));
-        response = new APICall.Builder<>("stopShuffler").call();
+        response = StopShufflerCall.create().callNoError();
         Assert.assertTrue(response.getBoolean("stoppedAllShufflers"));
         Logger.logDebugMessage("Stopped all Shufflers.");
     }
@@ -124,9 +124,8 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .holding(IGNIS.getId())
                 .feeRateNQTPerFXT(0)
                 .param("recipientPublicKeys", recipients)
-                .call();
+                .callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         Assert.assertTrue(response.getBoolean("started"));
         JO standbyShuffler = response.getJo("standbyShuffler");
         Assert.assertNotNull(standbyShuffler);
@@ -151,10 +150,9 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .feeRateNQTPerFXT(0)
                 .serializedMasterPublicKey(BIP32_SERIALIZED_MASTER_PUBLIC_KEY)
                 .startFromChildIndex(BIP32_TEST_FIRST_CHILD)
-                .call();
+                .callNoError();
         Logger.logInfoMessage("response %s", response.toJSONString());
 
-        Assert.assertNull(response.get("errorCode"));
         Assert.assertTrue(response.getBoolean("started"));
         JO standbyShuffler = response.getJo("standbyShuffler");
         Assert.assertNotNull(standbyShuffler);
@@ -182,9 +180,8 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .holding("4348103880042995903")
                 .feeRateNQTPerFXT(0)
                 .param("recipientPublicKeys", recipients)
-                .call();
+                .callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         Assert.assertTrue(response.getBoolean("started"));
         JO standbyShuffler = response.getJo("standbyShuffler");
         Assert.assertNotNull(standbyShuffler);
@@ -209,9 +206,8 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .feeRateNQTPerFXT(0)
                 .serializedMasterPublicKey(BIP32_SERIALIZED_MASTER_PUBLIC_KEY)
                 .startFromChildIndex(BIP32_TEST_FIRST_CHILD)
-                .call();
+                .callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         Assert.assertTrue(response.getBoolean("started"));
         JO standbyShuffler = response.getJo("standbyShuffler");
         Assert.assertNotNull(standbyShuffler);
@@ -239,9 +235,8 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .holding(1)
                 .feeRateNQTPerFXT(0)
                 .param("recipientPublicKeys", recipients)
-                .call();
+                .callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         Assert.assertTrue(response.getBoolean("started"));
         JO standbyShuffler = response.getJo("standbyShuffler");
         Assert.assertNotNull(standbyShuffler);
@@ -266,9 +261,8 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .feeRateNQTPerFXT(0)
                 .serializedMasterPublicKey(BIP32_SERIALIZED_MASTER_PUBLIC_KEY)
                 .startFromChildIndex(BIP32_TEST_FIRST_CHILD)
-                .call();
+                .callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         Assert.assertTrue(response.getBoolean("started"));
         JO standbyShuffler = response.getJo("standbyShuffler");
         Assert.assertNotNull(standbyShuffler);
@@ -529,9 +523,8 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .holding(IGNIS.getId())
                 .feeRateNQTPerFXT(0)
                 .param("recipientPublicKeys", recipients)
-                .call();
+                .callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         Assert.assertTrue(response.getBoolean("started"));
 
         response = StopStandbyShufflerCall.create(IGNIS.getId())
@@ -539,9 +532,8 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .secretPhrase(ALICE.getSecretPhrase())
                 .holdingType(HoldingType.COIN.getCode())
                 .holding(IGNIS.getId())
-                .call();
+                .callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         Assert.assertEquals(1, response.getInt("stopped"));
 
         JA standbyShufflers = getAllStandbyShufflers();
@@ -557,9 +549,8 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .feeRateNQTPerFXT(0)
                 .serializedMasterPublicKey(BIP32_SERIALIZED_MASTER_PUBLIC_KEY)
                 .startFromChildIndex(BIP32_TEST_FIRST_CHILD)
-                .call();
+                .callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         Assert.assertTrue(response.getBoolean("started"));
 
         response = StopStandbyShufflerCall.create(IGNIS.getId())
@@ -567,9 +558,8 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .secretPhrase(ALICE.getSecretPhrase())
                 .holdingType(HoldingType.COIN.getCode())
                 .holding(IGNIS.getId())
-                .call();
+                .callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         Assert.assertEquals(1, response.getInt("stopped"));
 
         JA standbyShufflers = getAllStandbyShufflers();
@@ -586,9 +576,8 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .holding(IGNIS.getId())
                 .feeRateNQTPerFXT(0)
                 .param("recipientPublicKeys", recipients)
-                .call();
+                .callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         Assert.assertTrue(response.getBoolean("started"));
 
         response = GetStandbyShufflersCall.create(IGNIS.getId())
@@ -596,9 +585,8 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .secretPhrase(ALICE.getSecretPhrase())
                 .holdingType(HoldingType.COIN.getCode())
                 .holding(IGNIS.getId())
-                .call();
+                .callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         JA standbyShufflers = response.getArray("standbyShufflers");
         Assert.assertNotNull(standbyShufflers);
         Assert.assertEquals(1, standbyShufflers.size());
@@ -625,9 +613,8 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .feeRateNQTPerFXT(0)
                 .serializedMasterPublicKey(BIP32_SERIALIZED_MASTER_PUBLIC_KEY)
                 .startFromChildIndex(BIP32_TEST_FIRST_CHILD)
-                .call();
+                .callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         Assert.assertTrue(response.getBoolean("started"));
 
         response = GetStandbyShufflersCall.create(IGNIS.getId())
@@ -635,9 +622,8 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .secretPhrase(ALICE.getSecretPhrase())
                 .holdingType(HoldingType.COIN.getCode())
                 .holding(IGNIS.getId())
-                .call();
+                .callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         JA standbyShufflers = response.getArray("standbyShufflers");
         Assert.assertNotNull(standbyShufflers);
         Assert.assertEquals(1, standbyShufflers.size());
@@ -666,9 +652,8 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .holding(IGNIS.getId())
                 .feeRateNQTPerFXT(0)
                 .param("recipientPublicKeys", recipients)
-                .call();
+                .callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         Assert.assertTrue(response.getBoolean("started"));
 
         response = StartStandbyShufflerCall.create(IGNIS.getId())
@@ -677,9 +662,8 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .holding(4348103880042995903L)
                 .feeRateNQTPerFXT(0)
                 .param("recipientPublicKeys", recipients)
-                .call();
+                .callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         Assert.assertTrue(response.getBoolean("started"));
 
         response = StartStandbyShufflerCall.create(IGNIS.getId())
@@ -688,17 +672,15 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .holding(1)
                 .feeRateNQTPerFXT(0)
                 .param("recipientPublicKeys", recipients)
-                .call();
+                .callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         Assert.assertTrue(response.getBoolean("started"));
 
         response = GetStandbyShufflersCall.create(IGNIS.getId())
                 .unsignedLongParam("account", ALICE.getId())
                 .secretPhrase(ALICE.getSecretPhrase())
-                .call();
+                .callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         JA standbyShufflers = response.getArray("standbyShufflers");
         Assert.assertNotNull(standbyShufflers);
         Assert.assertEquals(2, standbyShufflers.size());
@@ -715,9 +697,8 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .feeRateNQTPerFXT(0)
                 .serializedMasterPublicKey(BIP32_SERIALIZED_MASTER_PUBLIC_KEY)
                 .startFromChildIndex(BIP32_TEST_FIRST_CHILD)
-                .call();
+                .callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         Assert.assertTrue(response.getBoolean("started"));
 
         response = StartStandbyShufflerCall.create(IGNIS.getId())
@@ -726,9 +707,8 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .holding("4348103880042995903")
                 .feeRateNQTPerFXT(0)
                 .param("recipientPublicKeys", allRecipientsPublicKeys())
-                .call();
+                .callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         Assert.assertTrue(response.getBoolean("started"));
 
         response = StartStandbyShufflerCall.create(IGNIS.getId())
@@ -738,17 +718,15 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .feeRateNQTPerFXT(0)
                 .serializedMasterPublicKey(BIP32_SERIALIZED_MASTER_PUBLIC_KEY)
                 .startFromChildIndex(BIP32_TEST_FIRST_CHILD)
-                .call();
+                .callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         Assert.assertTrue(response.getBoolean("started"));
 
         response = GetStandbyShufflersCall.create(IGNIS.getId())
                 .unsignedLongParam("account", ALICE.getId())
                 .secretPhrase(ALICE.getSecretPhrase())
-                .call();
+                .callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         JA standbyShufflers = response.getArray("standbyShufflers");
         Assert.assertNotNull(standbyShufflers);
         Assert.assertEquals(2, standbyShufflers.size());
@@ -766,9 +744,8 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .holding(IGNIS.getId())
                 .feeRateNQTPerFXT(0)
                 .param("recipientPublicKeys", recipients)
-                .call();
+                .callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         Assert.assertTrue(response.getBoolean("started"));
 
         response = StartStandbyShufflerCall.create(IGNIS.getId())
@@ -777,14 +754,12 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .holding(1)
                 .feeRateNQTPerFXT(0)
                 .param("recipientPublicKeys", recipients)
-                .call();
+                .callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         Assert.assertTrue(response.getBoolean("started"));
 
-        response = GetStandbyShufflersCall.create(IGNIS.getId()).call();
+        response = GetStandbyShufflersCall.create(IGNIS.getId()).callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         JA standbyShufflers = response.getArray("standbyShufflers");
         Assert.assertNotNull(standbyShufflers);
         Assert.assertEquals(2, standbyShufflers.size());
@@ -806,9 +781,8 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .holding(IGNIS.getId())
                 .feeRateNQTPerFXT(0)
                 .param("recipientPublicKeys", recipients)
-                .call();
+                .callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         Assert.assertTrue(response.getBoolean("started"));
 
         response = StartStandbyShufflerCall.create(IGNIS.getId())
@@ -818,14 +792,12 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .feeRateNQTPerFXT(0)
                 .serializedMasterPublicKey(BIP32_SERIALIZED_MASTER_PUBLIC_KEY)
                 .startFromChildIndex(BIP32_TEST_FIRST_CHILD)
-                .call();
+                .callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         Assert.assertTrue(response.getBoolean("started"));
 
-        response = GetStandbyShufflersCall.create(IGNIS.getId()).call();
+        response = GetStandbyShufflersCall.create(IGNIS.getId()).callNoError();
 
-        Assert.assertNull(response.get("errorCode"));
         JA standbyShufflers = response.getArray("standbyShufflers");
         Assert.assertNotNull(standbyShufflers);
         Assert.assertEquals(2, standbyShufflers.size());
@@ -845,8 +817,7 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .holding(IGNIS.getId())
                 .feeRateNQTPerFXT(0)
                 .param("recipientPublicKeys", Collections.singletonList(RECIPIENT1.getPublicKeyStr()))
-                .call();
-        Assert.assertNull(response.get("errorCode"));
+                .callNoError();
         Assert.assertTrue(response.getBoolean("started"));
 
         response = StartStandbyShufflerCall.create(BITSWIFT.getId())
@@ -855,15 +826,13 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .holding(BITSWIFT.getId())
                 .feeRateNQTPerFXT(0)
                 .param("recipientPublicKeys", Collections.singletonList(RECIPIENT2.getPublicKeyStr()))
-                .call();
-        Assert.assertNull(response.get("errorCode"));
+                .callNoError();
         Assert.assertTrue(response.getBoolean("started"));
 
         JA standbyShufflers = getAllStandbyShufflers();
         Assert.assertEquals(2, standbyShufflers.size());
 
-        response = GetStandbyShufflersCall.create(BITSWIFT.getId()).call();
-        Assert.assertNull(response.get("errorCode"));
+        response = GetStandbyShufflersCall.create(BITSWIFT.getId()).callNoError();
         standbyShufflers = response.getArray("standbyShufflers");
         Assert.assertNotNull(standbyShufflers);
         Assert.assertEquals(1, standbyShufflers.size());
@@ -877,8 +846,7 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .holding(IGNIS.getId())
                 .feeRateNQTPerFXT(0)
                 .param("recipientPublicKeys", Collections.singletonList(RECIPIENT1.getPublicKeyStr()))
-                .call();
-        Assert.assertNull(response.get("errorCode"));
+                .callNoError();
         Assert.assertTrue(response.getBoolean("started"));
 
         response = StartStandbyShufflerCall.create(BITSWIFT.getId())
@@ -888,15 +856,13 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .feeRateNQTPerFXT(0)
                 .serializedMasterPublicKey(BIP32_SERIALIZED_MASTER_PUBLIC_KEY)
                 .startFromChildIndex(BIP32_TEST_FIRST_CHILD)
-                .call();
-        Assert.assertNull(response.get("errorCode"));
+                .callNoError();
         Assert.assertTrue(response.getBoolean("started"));
 
         JA standbyShufflers = getAllStandbyShufflers();
         Assert.assertEquals(2, standbyShufflers.size());
 
-        response = GetStandbyShufflersCall.create(BITSWIFT.getId()).call();
-        Assert.assertNull(response.get("errorCode"));
+        response = GetStandbyShufflersCall.create(BITSWIFT.getId()).callNoError();
         standbyShufflers = response.getArray("standbyShufflers");
         Assert.assertNotNull(standbyShufflers);
         Assert.assertEquals(1, standbyShufflers.size());
@@ -910,8 +876,7 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .holding(IGNIS.getId())
                 .feeRateNQTPerFXT(IGNIS.ONE_COIN)
                 .param("recipientPublicKeys", Collections.singletonList(RECIPIENT1.getPublicKeyStr()))
-                .call();
-        Assert.assertNull(response.get("errorCode"));
+                .callNoError();
         Assert.assertTrue(response.getBoolean("started"));
 
         JO shufflingCreate = ShufflingUtil.create(BOB, 3);
@@ -927,7 +892,7 @@ public class StandbyShufflingTest extends BlockchainTest {
 
         response = GetShufflersCall.create()
                 .shufflingFullHash(shufflingFullHash)
-                .call();
+                .callNoError();
         JA shufflers = response.getArray("shufflers");
         Assert.assertEquals(1, shufflers.size());
         JO shuffler = shufflers.get(0);
@@ -946,8 +911,7 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .feeRateNQTPerFXT(IGNIS.ONE_COIN)
                 .serializedMasterPublicKey(BIP32_SERIALIZED_MASTER_PUBLIC_KEY)
                 .startFromChildIndex(BIP32_TEST_FIRST_CHILD)
-                .call();
-        Assert.assertNull(response.get("errorCode"));
+                .callNoError();
         Assert.assertTrue(response.getBoolean("started"));
 
         JO shufflingCreate = ShufflingUtil.create(BOB, 3);
@@ -963,7 +927,7 @@ public class StandbyShufflingTest extends BlockchainTest {
 
         response = GetShufflersCall.create()
                 .shufflingFullHash(shufflingFullHash)
-                .call();
+                .callNoError();
         JA shufflers = response.getArray("shufflers");
         Assert.assertEquals(1, shufflers.size());
         JO shuffler = shufflers.get(0);
@@ -983,7 +947,7 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .holding(IGNIS.getId())
                 .feeRateNQTPerFXT(IGNIS.ONE_COIN)
                 .param("recipientPublicKeys", Collections.singletonList(RECIPIENT1.getPublicKeyStr()))
-                .call();
+                .callNoError();
 
         StartStandbyShufflerCall.create(IGNIS.getId())
                 .secretPhrase(BOB.getSecretPhrase())
@@ -991,7 +955,7 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .holding(IGNIS.getId())
                 .feeRateNQTPerFXT(IGNIS.ONE_COIN)
                 .param("recipientPublicKeys", Arrays.asList(RECIPIENT2.getPublicKeyStr(), RECIPIENT3.getPublicKeyStr()))
-                .call();
+                .callNoError();
 
         JO shufflingCreate = ShufflingUtil.create(CHUCK, 3); // shuffling creation tx
         String shufflingFullHash = shufflingCreate.getString("fullHash");
@@ -1031,7 +995,7 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .holding(IGNIS.getId())
                 .feeRateNQTPerFXT(IGNIS.ONE_COIN)
                 .param("recipientPublicKeys", Collections.singletonList(RECIPIENT1.getPublicKeyStr()))
-                .call();
+                .callNoError();
 
         StartStandbyShufflerCall.create(IGNIS.getId())
                 .secretPhrase(BOB.getSecretPhrase())
@@ -1040,7 +1004,7 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .feeRateNQTPerFXT(IGNIS.ONE_COIN)
                 .serializedMasterPublicKey(BIP32_SERIALIZED_MASTER_PUBLIC_KEY)
                 .startFromChildIndex(BIP32_TEST_FIRST_CHILD)
-                .call();
+                .callNoError();
 
         JO shufflingCreate = ShufflingUtil.create(CHUCK, 3); // shuffling creation tx
         String shufflingFullHash = shufflingCreate.getString("fullHash");
@@ -1079,7 +1043,7 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .holding(IGNIS.getId())
                 .feeRateNQTPerFXT(IGNIS.ONE_COIN)
                 .param("recipientPublicKeys", Collections.singletonList(RECIPIENT1.getPublicKeyStr()))
-                .call();
+                .callNoError();
 
         JA standbyShufflers = getAllStandbyShufflers();
         Assert.assertEquals(1, standbyShufflers.size());
@@ -1119,7 +1083,7 @@ public class StandbyShufflingTest extends BlockchainTest {
                 .feeRateNQTPerFXT(IGNIS.ONE_COIN)
                 .serializedMasterPublicKey(BIP32_SERIALIZED_MASTER_PUBLIC_KEY)
                 .startFromChildIndex(BIP32_TEST_FIRST_CHILD)
-                .call();
+                .callNoError();
 
         JA standbyShufflers = getAllStandbyShufflers();
         Assert.assertEquals(1, standbyShufflers.size());
@@ -1158,9 +1122,8 @@ public class StandbyShufflingTest extends BlockchainTest {
     }
 
     private JA getAllStandbyShufflers() {
-        JO response = new APICall.Builder<>("getStandbyShufflers").chain("").call();
+        JO response = GetStandbyShufflersCall.create().chain("").callNoError();
         Logger.logInfoMessage("getStandbyShufflersResponse: " + response.toJSONString());
-        Assert.assertNull(response.get("errorCode"));
         JA standbyShufflers = response.getArray("standbyShufflers");
         Assert.assertNotNull(standbyShufflers);
         return standbyShufflers;

@@ -17,7 +17,6 @@
 package nxt.voting;
 
 import nxt.Constants;
-import nxt.Nxt;
 import nxt.NxtException;
 import nxt.account.Account;
 import nxt.account.AccountLedger;
@@ -29,13 +28,14 @@ import nxt.blockchain.ChildTransactionType;
 import nxt.blockchain.Fee;
 import nxt.blockchain.Transaction;
 import nxt.blockchain.TransactionType;
-import nxt.util.Convert;
 import org.json.simple.JSONObject;
 
 import java.nio.ByteBuffer;
 import java.util.Map;
 
-import static nxt.voting.VoteWeighting.VotingModel.*;
+import static nxt.voting.VoteWeighting.VotingModel.HASH;
+import static nxt.voting.VoteWeighting.VotingModel.NONE;
+import static nxt.voting.VoteWeighting.VotingModel.TRANSACTION;
 
 public abstract class AccountControlTransactionType extends ChildTransactionType {
 
@@ -119,8 +119,7 @@ public abstract class AccountControlTransactionType extends ChildTransactionType
                     throw new NxtException.NotValidException("Invalid child chain id " + entry.getKey());
                 }
                 long fees = entry.getValue() == null ? -1 : entry.getValue();
-                long minFees = Nxt.getBlockchain().getHeight() >= Constants.MISSING_TX_SENDER_BLOCK ? 0 : 1;
-                if (fees < minFees || fees > Constants.MAX_BALANCE_NQT) {
+                if (fees < 0 || fees > Constants.MAX_BALANCE_NQT) {
                     throw new NxtException.NotValidException(String.format("Invalid max fees %f for chain %s", ((double) fees) / childChain.ONE_COIN,
                             childChain.getName()));
                 }

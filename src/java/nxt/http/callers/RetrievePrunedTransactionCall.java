@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class RetrievePrunedTransactionCall extends APICall.Builder<RetrievePrunedTransactionCall> {
+public class RetrievePrunedTransactionCall extends ChainSpecificCallBuilder<RetrievePrunedTransactionCall> {
     private RetrievePrunedTransactionCall() {
         super(ApiSpec.retrievePrunedTransaction);
     }

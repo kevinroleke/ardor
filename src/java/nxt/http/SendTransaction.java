@@ -45,7 +45,7 @@ import java.util.List;
  * <p>
  * {@link SendTransaction} accepts the following parameters:<br>
  * transactionJSON - JSON representation of the signed transaction<br>
- * transactionBytes - row bytes composing the signed transaction bytes excluding the prunable appendages<br>
+ * transactionBytes - raw bytes composing the signed transaction bytes excluding the prunable appendages<br>
  * prunableAttachmentJSON - JSON representation of the prunable appendages<br>
  * <p>
  * Clients can submit either the signed transactionJSON or the signed transactionBytes but not both.<br>

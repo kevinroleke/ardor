@@ -450,7 +450,7 @@ NRS.onSiteBuildDone().then(() => {
 			$("#messages_decrypt_modal").modal("show");
 		});
 
-		NRS.forms.decryptMessages = function($modal) {
+		NRS.forms.decryptMessages = async function($modal) {
 			var data = NRS.getFormData($modal.find("form:first"));
 			let privateKey = NRS.getPrivateKey(data.secretPhrase);
 			var success = false;
@@ -470,7 +470,7 @@ NRS.onSiteBuildDone().then(() => {
 						}
 					}
 				}
-				success = NRS.decryptAllMessages(messagesToDecrypt, privateKey, data.sharedKey);
+				success = await NRS.decryptAllMessages(messagesToDecrypt, privateKey, data.sharedKey);
 			} catch (err) {
 				if (err.errorCode && err.errorCode <= 2) {
 					return {

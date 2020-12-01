@@ -21,17 +21,18 @@ import nxt.Constants;
 import nxt.Nxt;
 import nxt.RequireNonePermissionPolicyTestsCategory;
 import nxt.account.Account;
+import nxt.addons.JO;
 import nxt.blockchain.ChildChain;
 import nxt.blockchain.Fee;
 import nxt.crypto.Crypto;
 import nxt.crypto.EncryptedData;
+import nxt.http.callers.GetAccountCall;
 import nxt.http.callers.ReadMessageCall;
 import nxt.http.callers.SendMessageCall;
 import nxt.messaging.MessagingTransactionType.MessageEvent;
 import nxt.util.Convert;
 import nxt.util.JSONAssert;
 import nxt.util.Logger;
-import org.json.simple.JSONObject;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,44 +53,44 @@ public class SendMessageTest extends BlockchainTest {
 
     @Test
     public void sendMessage() {
-        JSONObject response = new APICall.Builder("sendMessage").
-                param("secretPhrase", ALICE.getSecretPhrase()).
-                param("recipient", BOB.getStrId()).
-                param("message", "hello world").
-                param("feeNQT", IGNIS.ONE_COIN).
-                build().invoke();
+        JO response = SendMessageCall.create(IGNIS.getId()).
+                secretPhrase(ALICE.getSecretPhrase()).
+                recipient(BOB.getStrId()).
+                message("hello world").
+                feeNQT(IGNIS.ONE_COIN).
+                callNoError();
         Logger.logDebugMessage("sendMessage: " + response);
-        String transaction = (String) response.get("fullHash");
-        JSONObject attachment = (JSONObject) ((JSONObject) response.get("transactionJSON")).get("attachment");
+        String transaction = response.getString("fullHash");
+        JO attachment = response.getJo("transactionJSON").getJo("attachment");
         Assert.assertEquals("hello world", attachment.get("message"));
         generateBlock();
-        response = new APICall.Builder("readMessage").
-                param("secretPhrase", BOB.getSecretPhrase()).
-                param("transactionFullHash", transaction).
-                build().invoke();
+        response = ReadMessageCall.create().
+                secretPhrase(BOB.getSecretPhrase()).
+                transactionFullHash(transaction).
+                callNoError();
         Logger.logDebugMessage("readMessage: " + response);
         Assert.assertEquals("hello world", response.get("message"));
     }
 
     @Test
     public void sendEncryptedMessage() {
-        JSONObject response = new APICall.Builder("sendMessage").
-                param("secretPhrase", ALICE.getSecretPhrase()).
-                param("recipient", BOB.getStrId()).
-                param("messageToEncrypt", "hello world").
-                param("feeNQT", IGNIS.ONE_COIN).
-                build().invoke();
+        JO response = SendMessageCall.create(IGNIS.getId()).
+                secretPhrase(ALICE.getSecretPhrase()).
+                recipient(BOB.getStrId()).
+                messageToEncrypt("hello world").
+                feeNQT(IGNIS.ONE_COIN).
+                callNoError();
         Logger.logDebugMessage("sendMessage: " + response);
-        String transaction = (String) response.get("fullHash");
-        JSONObject attachment = (JSONObject) ((JSONObject) response.get("transactionJSON")).get("attachment");
-        JSONObject encryptedMessage = (JSONObject) attachment.get("encryptedMessage");
-        Assert.assertNotEquals(64, ((String) encryptedMessage.get("data")).length());
-        Assert.assertNotEquals(32, ((String) encryptedMessage.get("nonce")).length());
+        String transaction = response.getString("fullHash");
+        JO attachment = response.getJo("transactionJSON").getJo("attachment");
+        JO encryptedMessage = attachment.getJo("encryptedMessage");
+        Assert.assertNotEquals(64, encryptedMessage.getString("data").length());
+        Assert.assertNotEquals(32, encryptedMessage.getString("nonce").length());
         generateBlock();
-        response = new APICall.Builder("readMessage").
-                param("secretPhrase", BOB.getSecretPhrase()).
-                param("transactionFullHash", transaction).
-                build().invoke();
+        response = ReadMessageCall.create().
+                secretPhrase(BOB.getSecretPhrase()).
+                transactionFullHash(transaction).
+                callNoError();
         Logger.logDebugMessage("readMessage: " + response);
         Assert.assertEquals("hello world", response.get("decryptedMessage"));
     }
@@ -97,47 +98,47 @@ public class SendMessageTest extends BlockchainTest {
     @Test
     public void sendClientEncryptedMessage() {
         EncryptedData encryptedData = BOB.getAccount().encryptTo(ALICE.getPrivateKey(), Convert.toBytes("hello world"), true);
-        JSONObject response = new APICall.Builder("sendMessage").
-                param("secretPhrase", ALICE.getSecretPhrase()).
-                param("recipient", BOB.getStrId()).
-                param("encryptedMessageData", Convert.toHexString(encryptedData.getData())).
-                param("encryptedMessageNonce", Convert.toHexString(encryptedData.getNonce())).
-                param("feeNQT", IGNIS.ONE_COIN).
-                build().invoke();
+        JO response = SendMessageCall.create(IGNIS.getId()).
+                secretPhrase(ALICE.getSecretPhrase()).
+                recipient(BOB.getStrId()).
+                encryptedMessageData(encryptedData.getData()).
+                encryptedMessageNonce(encryptedData.getNonce()).
+                feeNQT(IGNIS.ONE_COIN).
+                callNoError();
         Logger.logDebugMessage("sendMessage: " + response);
-        String transaction = (String) response.get("fullHash");
-        JSONObject attachment = (JSONObject) ((JSONObject) response.get("transactionJSON")).get("attachment");
-        JSONObject encryptedMessage = (JSONObject) attachment.get("encryptedMessage");
-        Assert.assertNotEquals(64, ((String) encryptedMessage.get("data")).length());
-        Assert.assertNotEquals(32, ((String) encryptedMessage.get("nonce")).length());
+        String transaction = response.getString("fullHash");
+        JO attachment = response.getJo("transactionJSON").getJo("attachment");
+        JO encryptedMessage = attachment.getJo("encryptedMessage");
+        Assert.assertNotEquals(64, encryptedMessage.getString("data").length());
+        Assert.assertNotEquals(32, encryptedMessage.getString("nonce").length());
         generateBlock();
-        response = new APICall.Builder("readMessage").
-                param("secretPhrase", BOB.getSecretPhrase()).
-                param("transactionFullHash", transaction).
-                build().invoke();
+        response = ReadMessageCall.create().
+                secretPhrase(BOB.getSecretPhrase()).
+                transactionFullHash(transaction).
+                callNoError();
         Logger.logDebugMessage("readMessage: " + response);
         Assert.assertEquals("hello world", response.get("decryptedMessage"));
     }
 
     @Test
     public void sendEncryptedMessageToSelf() {
-        JSONObject response = new APICall.Builder("sendMessage").
-                param("secretPhrase", ALICE.getSecretPhrase()).
-                param("recipient", BOB.getStrId()).
-                param("messageToEncryptToSelf", "hello world").
-                param("feeNQT", IGNIS.ONE_COIN).
-                build().invoke();
+        JO response = SendMessageCall.create(IGNIS.getId()).
+                secretPhrase(ALICE.getSecretPhrase()).
+                recipient(BOB.getStrId()).
+                messageToEncryptToSelf("hello world").
+                feeNQT(IGNIS.ONE_COIN).
+                callNoError();
         Logger.logDebugMessage("sendMessage: " + response);
-        String transaction = (String) response.get("fullHash");
-        JSONObject attachment = (JSONObject) ((JSONObject) response.get("transactionJSON")).get("attachment");
-        JSONObject encryptedMessage = (JSONObject) attachment.get("encryptToSelfMessage");
-        Assert.assertNotEquals(64, ((String) encryptedMessage.get("data")).length());
-        Assert.assertNotEquals(32, ((String) encryptedMessage.get("nonce")).length());
+        String transaction = response.getString("fullHash");
+        JO attachment = response.getJo("transactionJSON").getJo("attachment");
+        JO encryptedMessage = attachment.getJo("encryptToSelfMessage");
+        Assert.assertNotEquals(64, encryptedMessage.getString("data").length());
+        Assert.assertNotEquals(32, encryptedMessage.getString("nonce").length());
         generateBlock();
-        response = new APICall.Builder("readMessage").
-                param("secretPhrase", ALICE.getSecretPhrase()).
-                param("transactionFullHash", transaction).
-                build().invoke();
+        response = ReadMessageCall.create().
+                secretPhrase(ALICE.getSecretPhrase()).
+                transactionFullHash(transaction).
+                callNoError();
         Logger.logDebugMessage("readMessage: " + response);
         Assert.assertEquals("hello world", response.get("decryptedMessageToSelf"));
     }
@@ -145,24 +146,24 @@ public class SendMessageTest extends BlockchainTest {
     @Test
     public void sendClientEncryptedMessageToSelf() {
         EncryptedData encryptedData = ALICE.getAccount().encryptTo(ALICE.getPrivateKey(), Convert.toBytes("hello world"),  true);
-        JSONObject response = new APICall.Builder("sendMessage").
-                param("secretPhrase", ALICE.getSecretPhrase()).
-                param("recipient", BOB.getStrId()).
-                param("encryptToSelfMessageData", Convert.toHexString(encryptedData.getData())).
-                param("encryptToSelfMessageNonce", Convert.toHexString(encryptedData.getNonce())).
-                param("feeNQT", IGNIS.ONE_COIN).
-                build().invoke();
+        JO response = SendMessageCall.create(IGNIS.getId()).
+                secretPhrase(ALICE.getSecretPhrase()).
+                recipient(BOB.getStrId()).
+                encryptToSelfMessageData(encryptedData.getData()).
+                encryptToSelfMessageNonce(encryptedData.getNonce()).
+                feeNQT(IGNIS.ONE_COIN).
+                callNoError();
         Logger.logDebugMessage("sendMessage: " + response);
-        String transaction = (String) response.get("fullHash");
-        JSONObject attachment = (JSONObject) ((JSONObject) response.get("transactionJSON")).get("attachment");
-        JSONObject encryptedMessage = (JSONObject) attachment.get("encryptToSelfMessage");
-        Assert.assertEquals(64 + 32 /* data + hash */, ((String) encryptedMessage.get("data")).length());
-        Assert.assertEquals(64, ((String) encryptedMessage.get("nonce")).length());
+        String transaction = response.getString("fullHash");
+        JO attachment = response.getJo("transactionJSON").getJo("attachment");
+        JO encryptedMessage = attachment.getJo("encryptToSelfMessage");
+        Assert.assertEquals(64 + 32 /* data + hash */, encryptedMessage.getString("data").length());
+        Assert.assertEquals(64, encryptedMessage.getString("nonce").length());
         generateBlock();
-        response = new APICall.Builder("readMessage").
-                param("secretPhrase", ALICE.getSecretPhrase()).
-                param("transactionFullHash", transaction).
-                build().invoke();
+        response = ReadMessageCall.create().
+                secretPhrase(ALICE.getSecretPhrase()).
+                transactionFullHash(transaction).
+                callNoError();
         Logger.logDebugMessage("readMessage: " + response);
         Assert.assertEquals("hello world", response.get("decryptedMessageToSelf"));
     }
@@ -175,24 +176,24 @@ public class SendMessageTest extends BlockchainTest {
         long id = Account.getId(publicKey);
         String rsAccount = Convert.rsAccount(id);
 
-        JSONObject response = new APICall.Builder("getAccount").
-                param("account", rsAccount).
-                build().invoke();
+        JO response = GetAccountCall.create().
+                account(rsAccount).
+                call();
         Logger.logDebugMessage("getAccount: " + response);
-        Assert.assertEquals((long) 5, response.get("errorCode"));
+        Assert.assertEquals(5, response.getLong("errorCode"));
 
-        response = new APICall.Builder("sendMessage").
-                param("secretPhrase", ALICE.getSecretPhrase()).
-                param("recipient", rsAccount).
-                param("recipientPublicKey", publicKeyStr).
-                param("feeNQT", IGNIS.ONE_COIN).
-                build().invokeNoError();
+        response = SendMessageCall.create(IGNIS.getId()).
+                secretPhrase(ALICE.getSecretPhrase()).
+                recipient(rsAccount).
+                recipientPublicKey(publicKeyStr).
+                feeNQT(IGNIS.ONE_COIN).
+                callNoError();
         Logger.logDebugMessage("sendMessage: " + response);
         generateBlock();
 
-        response = new APICall.Builder("getAccount").
-                param("account", rsAccount).
-                build().invokeNoError();
+        response = GetAccountCall.create().
+                account(rsAccount).
+                callNoError();
         Logger.logDebugMessage("getAccount: " + response);
         Assert.assertEquals(publicKeyStr, response.get("publicKey"));
     }
@@ -201,16 +202,16 @@ public class SendMessageTest extends BlockchainTest {
     @Test
     public void sendFromNotExistingToExistingAccount() {
         Assert.assertFalse(Account.hasAccount(Account.getId(Crypto.getPublicKey(NON_EXISTENT_ACCOUNT_PRIVATE_KEY)), Nxt.getBlockchain().getHeight()));
-        APICall.Builder builder = new APICall.Builder("sendMessage").
-                param("secretPhrase", NON_EXISTENT_ACCOUNT_SECRET).
-                param("message", "hello world").
-                param("recipient", ALICE.getRsAccount()).
+        SendMessageCall builder = SendMessageCall.create(IGNIS.getId()).
+                secretPhrase(NON_EXISTENT_ACCOUNT_SECRET).
+                message("hello world").
+                recipient(ALICE.getRsAccount()).
                 feeNQT(ChildChain.IGNIS.ONE_COIN);
-        JSONAssert result = new JSONAssert(builder.build().invoke());
+        JSONAssert result = new JSONAssert(builder.call());
         Assert.assertEquals("Not enough funds", result.str("errorDescription"));
 
         builder.feeNQT(0);
-        result = new JSONAssert(builder.build().invoke());
+        result = new JSONAssert(builder.call());
         Logger.logDebugMessage("response" + result.getJson());
         Assert.assertEquals(Fee.NEW_ACCOUNT_FEE + Constants.ONE_FXT / 100, Convert.parseLong(result.getJson().get("minimumFeeFQT")));
         bundleTransactions(Collections.singletonList(result.fullHash()));
@@ -222,16 +223,16 @@ public class SendMessageTest extends BlockchainTest {
     @Test
     public void sendFromNotExistingAccountToSelf() {
         Assert.assertFalse(Account.hasAccount(Account.getId(Crypto.getPublicKey(NON_EXISTENT_ACCOUNT_PRIVATE_KEY)), Nxt.getBlockchain().getHeight()));
-        APICall.Builder builder = new APICall.Builder("sendMessage").
-                param("secretPhrase", NON_EXISTENT_ACCOUNT_SECRET).
-                param("message", "hello world").
-                param("recipient", Account.getId(Crypto.getPublicKey(NON_EXISTENT_ACCOUNT_PRIVATE_KEY))).
+        SendMessageCall builder = SendMessageCall.create(IGNIS.getId()).
+                secretPhrase(NON_EXISTENT_ACCOUNT_SECRET).
+                message("hello world").
+                recipient(Account.getId(Crypto.getPublicKey(NON_EXISTENT_ACCOUNT_PRIVATE_KEY))).
                 feeNQT(ChildChain.IGNIS.ONE_COIN);
-        JSONAssert result = new JSONAssert(builder.build().invoke());
+        JSONAssert result = new JSONAssert(builder.call());
         Assert.assertEquals("Not enough funds", result.str("errorDescription"));
 
         builder.feeNQT(0);
-        result = new JSONAssert(builder.build().invoke());
+        result = new JSONAssert(builder.call());
         Logger.logDebugMessage("response" + result.getJson());
         Assert.assertEquals(Fee.NEW_ACCOUNT_FEE + Constants.ONE_FXT / 100, Convert.parseLong(result.getJson().get("minimumFeeFQT")));
         bundleTransactions(Collections.singletonList(result.fullHash()));
@@ -244,16 +245,16 @@ public class SendMessageTest extends BlockchainTest {
     public void sendFromNotExistingToNotExistingAccount() {
         Assert.assertFalse(Account.hasAccount(Account.getId(Crypto.getPublicKey(NON_EXISTENT_ACCOUNT_PRIVATE_KEY)), Nxt.getBlockchain().getHeight()));
         Assert.assertFalse(Account.hasAccount(Account.getId(Crypto.getPublicKey(ANOTHER_ACCOUNT_PRIVATE_KEY)), Nxt.getBlockchain().getHeight()));
-        APICall.Builder builder = new APICall.Builder("sendMessage").
-                param("secretPhrase", NON_EXISTENT_ACCOUNT_SECRET).
-                param("message", "hello world").
-                param("recipient", Account.getId(Crypto.getPublicKey(ANOTHER_ACCOUNT_PRIVATE_KEY))).
+        SendMessageCall builder = SendMessageCall.create(IGNIS.getId()).
+                secretPhrase(NON_EXISTENT_ACCOUNT_SECRET).
+                message("hello world").
+                recipient(Account.getId(Crypto.getPublicKey(ANOTHER_ACCOUNT_PRIVATE_KEY))).
                 feeNQT(ChildChain.IGNIS.ONE_COIN);
-        JSONAssert result = new JSONAssert(builder.build().invoke());
+        JSONAssert result = new JSONAssert(builder.call());
         Assert.assertEquals("Not enough funds", result.str("errorDescription"));
 
         builder.feeNQT(0);
-        result = new JSONAssert(builder.build().invoke());
+        result = new JSONAssert(builder.call());
         Logger.logDebugMessage("response" + result.getJson());
         Assert.assertEquals(2 * Fee.NEW_ACCOUNT_FEE + Constants.ONE_FXT / 100, Convert.parseLong(result.getJson().get("minimumFeeFQT")));
         bundleTransactions(Collections.singletonList(result.fullHash()));
@@ -269,7 +270,7 @@ public class SendMessageTest extends BlockchainTest {
                 .recipient(BOB.getStrId())
                 .message("hello world")
                 .feeNQT(IGNIS.ONE_COIN)
-                .build().invokeNoError();
+                .callNoError();
         generateBlock();
 
         MessageEvent actual = messageListenerRule.getEvents().get(0);
@@ -287,7 +288,7 @@ public class SendMessageTest extends BlockchainTest {
                 .secretPhrase(ALICE.getSecretPhrase())
                 .recipient(BOB.getStrId())
                 .feeNQT(IGNIS.ONE_COIN)
-                .build().invokeNoError();
+                .callNoError();
         generateBlock();
 
         MessageEvent actual = messageListenerRule.getEvents().get(0);
@@ -304,16 +305,16 @@ public class SendMessageTest extends BlockchainTest {
                 .messageFile(Convert.toBytes("test message oymkbhnv"));
 
         Assert.assertEquals("Expected auto-detected text", true,
-                getMessageIsText(sendMessageCall.build().invokeNoError(), false));
+                getMessageIsText(sendMessageCall.callNoError(), false));
 
         sendMessageCall.messageIsText(false);
-        Assert.assertEquals(false, getMessageIsText(sendMessageCall.build().invokeNoError(), false));
+        Assert.assertEquals(false, getMessageIsText(sendMessageCall.callNoError(), false));
 
         sendMessageCall = createSendMessageCall()
                 .messageFile(new byte[]{0, 0, 0, 1, 0, 4, 0, 127, 0, -127});
 
         Assert.assertEquals("Expected auto-detected non-text", false,
-                getMessageIsText(sendMessageCall.build().invokeNoError(), false));
+                getMessageIsText(sendMessageCall.callNoError(), false));
 
         sendMessageCall.messageIsText(true);
         Assert.assertEquals("Incorrect \"messageFile\" does not contain UTF-8 text",
@@ -326,16 +327,16 @@ public class SendMessageTest extends BlockchainTest {
                 .messageToEncryptFile(Convert.toBytes("test message rewio834"));
 
         Assert.assertEquals("Expected auto-detected text", true,
-                getMessageIsText(sendMessageCall.build().invokeNoError(), true));
+                getMessageIsText(sendMessageCall.callNoError(), true));
 
         sendMessageCall.messageToEncryptIsText(false);
-        Assert.assertEquals(false, getMessageIsText(sendMessageCall.build().invokeNoError(), true));
+        Assert.assertEquals(false, getMessageIsText(sendMessageCall.callNoError(), true));
 
         sendMessageCall = createSendMessageCall()
                 .messageToEncryptFile(new byte[]{0, 0, 0, 1, 0, 4, 0, 127, 0, -127});
 
         Assert.assertEquals("Expected auto-detected non-text", false,
-                getMessageIsText(sendMessageCall.build().invokeNoError(), true));
+                getMessageIsText(sendMessageCall.callNoError(), true));
 
         sendMessageCall.messageToEncryptIsText(true);
         Assert.assertEquals("Incorrect \"messageToEncryptFile\" does not contain UTF-8 text",
@@ -355,13 +356,13 @@ public class SendMessageTest extends BlockchainTest {
                 .encryptToSelfMessageNonce(encryptedData.getNonce())
                 .encryptToSelfMessageFile(encryptedData.getData())
                 .compressMessageToEncryptToSelf("false")
-                .build().invokeNoError()).fullHash();
+                .callNoError()).fullHash();
 
         generateBlock();
 
         JSONAssert result = new JSONAssert(ReadMessageCall.create(IGNIS.getId())
                 .secretPhrase(ALICE.getSecretPhrase())
-                .transactionFullHash(fullHash).build().invokeNoError());
+                .transactionFullHash(fullHash).callNoError());
 
         Assert.assertEquals(message, result.str("decryptedMessage"));
         Assert.assertEquals(messageToSelf, result.str("decryptedMessageToSelf"));
@@ -374,7 +375,7 @@ public class SendMessageTest extends BlockchainTest {
                 .feeNQT(IGNIS.ONE_COIN);
     }
 
-    private Boolean getMessageIsText(JSONObject result, boolean isEncrypted) {
+    private Boolean getMessageIsText(JO result, boolean isEncrypted) {
         JSONAssert jsonAssert = new JSONAssert(result)
                 .subObj("transactionJSON")
                 .subObj("attachment");

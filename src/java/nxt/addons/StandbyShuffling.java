@@ -75,7 +75,8 @@ public final class StandbyShuffling implements AddOn {
     public static class StartStandbyShuffler extends BaseAPIRequestHandler {
         public StartStandbyShuffler() {
             super("secretPhrase", "holdingType", "holding", "minAmount", "maxAmount", "minParticipants",
-                    "feeRateNQTPerFXT", "recipientPublicKeys", "serializedMasterPublicKey", "startFromChildIndex");
+                    "feeRateNQTPerFXT", "recipientPublicKeys", "recipientPublicKeys", "recipientPublicKeys",
+                    "serializedMasterPublicKey", "startFromChildIndex");
         }
 
         @Override
@@ -200,7 +201,8 @@ public final class StandbyShuffling implements AddOn {
 
     public static class GetStandbyShufflers extends BaseAPIRequestHandler {
         public GetStandbyShufflers() {
-            super("secretPhrase", "holdingType", "holding", "account", "includeHoldingInfo", "adminPassword");
+            super("secretPhrase", "holdingType", "holding", "account", "includeHoldingInfo", "adminPassword",
+                    "includeAll");
         }
 
         @Override
@@ -209,13 +211,14 @@ public final class StandbyShuffling implements AddOn {
             byte[] privateKey = ParameterParser.getPrivateKey(req, false);
             long accountId = ParameterParser.getAccountId(req, false);
             boolean includeHoldingInfo = "true".equalsIgnoreCase(req.getParameter("includeHoldingInfo"));
+            boolean includeAll = "true".equalsIgnoreCase(req.getParameter("includeAll"));
 
-            if (privateKey == null) {
+            if (privateKey == null || includeAll) {
                 API.verifyPassword(req);
             }
 
             List<StandbyShuffler> standbyShufflers;
-            if (privateKey != null || accountId != 0) {
+            if (!includeAll && (privateKey != null || accountId != 0)) {
                 if (privateKey != null) {
                     if (accountId != 0) {
                         if (Account.getId(Crypto.getPublicKey(privateKey)) != accountId) {

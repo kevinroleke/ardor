@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetAccountPhasedTransactionCountCall extends APICall.Builder<GetAccountPhasedTransactionCountCall> {
+public class GetAccountPhasedTransactionCountCall extends ChainSpecificCallBuilder<GetAccountPhasedTransactionCountCall> {
     private GetAccountPhasedTransactionCountCall() {
         super(ApiSpec.getAccountPhasedTransactionCount);
     }

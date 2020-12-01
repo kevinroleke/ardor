@@ -17,24 +17,32 @@
 package nxt.http;
 
 import nxt.BlockchainTest;
-import nxt.blockchain.ChildChain;
+import nxt.addons.JO;
 import nxt.blockchain.FxtChain;
+import nxt.blockchain.TransactionProcessorImpl;
+import nxt.blockchain.TransactionProcessorTest;
+import nxt.http.callers.BroadcastTransactionCall;
+import nxt.http.callers.GetTransactionCall;
+import nxt.http.callers.SendMoneyCall;
+import nxt.http.callers.SignTransactionCall;
+import nxt.util.JSONAssert;
 import nxt.util.Logger;
-import org.json.simple.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
+
+import static nxt.blockchain.ChildChain.AEUR;
+import static nxt.blockchain.ChildChain.IGNIS;
 
 public class SendMoneyTest extends BlockchainTest {
 
     @Test
     public void sendMoney() {
-        JSONObject response = new APICall.Builder("sendMoney").
-                param("chain", "" + FxtChain.FXT.getId()).
-                param("secretPhrase", ALICE.getSecretPhrase()).
-                param("recipient", BOB.getStrId()).
-                param("amountNQT", 100 * FxtChain.FXT.ONE_COIN).
-                param("feeNQT", FxtChain.FXT.ONE_COIN * 10).
-                build().invoke();
+        JO response = SendMoneyCall.create(FxtChain.FXT.getId()).
+                secretPhrase(ALICE.getSecretPhrase()).
+                recipient(BOB.getStrId()).
+                amountNQT(100 * FxtChain.FXT.ONE_COIN).
+                feeNQT(FxtChain.FXT.ONE_COIN * 10).
+                callNoError();
         Logger.logDebugMessage("sendMoney: " + response);
         // Forger
         Assert.assertEquals(0, FORGY.getFxtBalanceDiff());
@@ -59,34 +67,31 @@ public class SendMoneyTest extends BlockchainTest {
 
     @Test
     public void sendTooMuchMoney() {
-        JSONObject response = new APICall.Builder("sendMoney").
-                param("chain", "" + FxtChain.FXT.getId()).
-                param("secretPhrase", ALICE.getSecretPhrase()).
-                param("recipient", BOB.getStrId()).
-                param("amountNQT", ALICE.getInitialFxtBalance()).
-                param("feeNQT", 10 * FxtChain.FXT.ONE_COIN).
-                build().invoke();
+        JO response = SendMoneyCall.create(FxtChain.FXT.getId()).
+                secretPhrase(ALICE.getSecretPhrase()).
+                recipient(BOB.getStrId()).
+                amountNQT(ALICE.getInitialFxtBalance()).
+                feeNQT(10 * FxtChain.FXT.ONE_COIN).
+                call();
         Logger.logDebugMessage("sendMoney: " + response);
-        Assert.assertEquals((long)6, response.get("errorCode"));
+        Assert.assertEquals(6, response.getLong("errorCode"));
     }
 
     @Test
     public void sendAndReturn() {
-        JSONObject response = new APICall.Builder("sendMoney").
-                param("chain", "" + FxtChain.FXT.getId()).
-                param("secretPhrase", ALICE.getSecretPhrase()).
-                param("recipient", BOB.getStrId()).
-                param("amountNQT", 100 * FxtChain.FXT.ONE_COIN).
-                param("feeNQT", 10 * FxtChain.FXT.ONE_COIN).
-                build().invoke();
+        JO response = SendMoneyCall.create(FxtChain.FXT.getId()).
+                secretPhrase(ALICE.getSecretPhrase()).
+                recipient(BOB.getStrId()).
+                amountNQT(100 * FxtChain.FXT.ONE_COIN).
+                feeNQT(10 * FxtChain.FXT.ONE_COIN).
+                callNoError();
         Logger.logDebugMessage("sendMoney1: " + response);
-        response = new APICall.Builder("sendMoney").
-                param("chain", "" + FxtChain.FXT.getId()).
-                param("secretPhrase", BOB.getSecretPhrase()).
-                param("recipient", ALICE.getStrId()).
-                param("amountNQT", 100 * FxtChain.FXT.ONE_COIN).
-                param("feeNQT", 10 * FxtChain.FXT.ONE_COIN).
-                build().invoke();
+        response = SendMoneyCall.create(FxtChain.FXT.getId()).
+                secretPhrase(BOB.getSecretPhrase()).
+                recipient(ALICE.getStrId()).
+                amountNQT(100 * FxtChain.FXT.ONE_COIN).
+                feeNQT(10 * FxtChain.FXT.ONE_COIN).
+                callNoError();
         Logger.logDebugMessage("sendMoney2: " + response);
         // Forger
         Assert.assertEquals(0, FORGY.getFxtBalanceDiff());
@@ -111,13 +116,12 @@ public class SendMoneyTest extends BlockchainTest {
 
     @Test
     public void signAndBroadcastBytes() {
-        JSONObject response = new APICall.Builder("sendMoney").
-                param("chain", "" + FxtChain.FXT.getId()).
-                param("publicKey", ALICE.getPublicKeyStr()).
-                param("recipient", BOB.getStrId()).
-                param("amountNQT", 100 * FxtChain.FXT.ONE_COIN).
-                param("feeNQT", 10 * FxtChain.FXT.ONE_COIN).
-                build().invoke();
+        JO response = SendMoneyCall.create(FxtChain.FXT.getId()).
+                publicKey(ALICE.getPublicKeyStr()).
+                recipient(BOB.getStrId()).
+                amountNQT(100 * FxtChain.FXT.ONE_COIN).
+                feeNQT(10 * FxtChain.FXT.ONE_COIN).
+                callNoError();
         Logger.logDebugMessage("sendMoney: " + response);
         generateBlock();
         // No change transaction not broadcast
@@ -126,15 +130,15 @@ public class SendMoneyTest extends BlockchainTest {
         Assert.assertEquals(0, BOB.getFxtBalanceDiff());
         Assert.assertEquals(0, BOB.getFxtUnconfirmedBalanceDiff());
 
-        response = new APICall.Builder("signTransaction").
-                param("secretPhrase", ALICE.getSecretPhrase()).
-                param("unsignedTransactionBytes", (String)response.get("unsignedTransactionBytes")).
-                build().invoke();
+        response = SignTransactionCall.create().
+                secretPhrase(ALICE.getSecretPhrase()).
+                unsignedTransactionBytes(response.getString("unsignedTransactionBytes")).
+                callNoError();
         Logger.logDebugMessage("signTransaction: " + response);
 
-        response = new APICall.Builder("broadcastTransaction").
-                param("transactionBytes", (String)response.get("transactionBytes")).
-                build().invoke();
+        response = BroadcastTransactionCall.create().
+                transactionBytes(response.getString("transactionBytes")).
+                callNoError();
         Logger.logDebugMessage("broadcastTransaction: " + response);
         generateBlock();
 
@@ -148,13 +152,12 @@ public class SendMoneyTest extends BlockchainTest {
 
     @Test
     public void signAndBroadcastJSON() {
-        JSONObject response = new APICall.Builder("sendMoney").
-                param("chain", "" + FxtChain.FXT.getId()).
-                param("publicKey", ALICE.getPublicKeyStr()).
-                param("recipient", BOB.getStrId()).
-                param("amountNQT", 100 * FxtChain.FXT.ONE_COIN).
-                param("feeNQT", 10 * FxtChain.FXT.ONE_COIN).
-                build().invoke();
+        JO response = SendMoneyCall.create(FxtChain.FXT.getId()).
+                publicKey(ALICE.getPublicKeyStr()).
+                recipient(BOB.getStrId()).
+                amountNQT(100 * FxtChain.FXT.ONE_COIN).
+                feeNQT(10 * FxtChain.FXT.ONE_COIN).
+                callNoError();
         Logger.logDebugMessage("sendMoney: " + response);
         generateBlock();
         // No change transaction not broadcast
@@ -163,15 +166,15 @@ public class SendMoneyTest extends BlockchainTest {
         Assert.assertEquals(0, BOB.getFxtBalanceDiff());
         Assert.assertEquals(0, BOB.getFxtUnconfirmedBalanceDiff());
 
-        response = new APICall.Builder("signTransaction").
-                param("secretPhrase", ALICE.getSecretPhrase()).
-                param("unsignedTransactionJSON", response.get("transactionJSON").toString()).
-                build().invoke();
+        response = SignTransactionCall.create().
+                secretPhrase(ALICE.getSecretPhrase()).
+                unsignedTransactionJSON(response.getString("transactionJSON")).
+                callNoError();
         Logger.logDebugMessage("signTransaction: " + response);
 
-        response = new APICall.Builder("broadcastTransaction").
-                param("transactionBytes", (String)response.get("transactionBytes")).
-                build().invoke();
+        response = BroadcastTransactionCall.create().
+                transactionBytes(response.getString("transactionBytes")).
+                callNoError();
         Logger.logDebugMessage("broadcastTransaction: " + response);
         generateBlock();
 
@@ -181,5 +184,42 @@ public class SendMoneyTest extends BlockchainTest {
         // Recipient
         Assert.assertEquals(100 * FxtChain.FXT.ONE_COIN, BOB.getFxtBalanceDiff());
         Assert.assertEquals(100 * FxtChain.FXT.ONE_COIN, BOB.getFxtUnconfirmedBalanceDiff());
+    }
+
+    @Test
+    public void testReferencedTransactionBundling() {
+        generateBlock();
+
+        //submitted and bundled but not confirmed
+        JSONAssert referenced = new JSONAssert(SendMoneyCall.create(AEUR.getId()).
+                secretPhrase(BOB.getSecretPhrase()).
+                recipient(ALICE.getStrId()).
+                amountNQT(100 * AEUR.ONE_COIN).
+                feeNQT(AEUR.ONE_COIN).
+                build().invoke());
+
+        Assert.assertEquals(Boolean.TRUE, GetTransactionCall.create(AEUR.getId()).fullHash(referenced.fullHash()).
+                build().invokeNoError().get("isBundled"));
+
+        JSONAssert response = new JSONAssert(SendMoneyCall.create(IGNIS.getId()).
+                secretPhrase(ALICE.getSecretPhrase()).
+                recipient(BOB.getStrId()).
+                amountNQT(100 * IGNIS.ONE_COIN).
+                referencedTransaction(AEUR.getId() + ":" + referenced.fullHash()).
+                feeNQT(IGNIS.ONE_COIN).
+                build().invoke());
+
+        //not bundled because the referenced is not confirmed
+        Assert.assertEquals(Boolean.FALSE, GetTransactionCall.create(AEUR.getId()).fullHash(response.fullHash()).
+                build().invokeNoError().get("isBundled"));
+
+        generateBlock();
+
+        TransactionProcessorTest.processWaitingTransactions();
+        //processWaitingTransactions adds the waiting transactions to the unconfirmed pool so it runs the bundling
+
+        //should be bundled now
+        Assert.assertEquals(Boolean.TRUE, GetTransactionCall.create(AEUR.getId()).fullHash(response.fullHash()).
+                build().invokeNoError().get("isBundled"));
     }
 }

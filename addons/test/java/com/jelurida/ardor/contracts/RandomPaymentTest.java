@@ -22,7 +22,6 @@ import nxt.blockchain.ChainTransactionId;
 import nxt.blockchain.ChildTransaction;
 import nxt.blockchain.FxtChain;
 import nxt.blockchain.FxtTransaction;
-import nxt.http.APICall;
 import nxt.http.callers.ApproveTransactionCall;
 import nxt.http.callers.GetBlockchainStatusCall;
 import nxt.http.callers.GetExecutedTransactionsCall;
@@ -61,12 +60,10 @@ public class RandomPaymentTest extends AbstractContractTest {
         ChildTransaction childTransaction = testAndGetLastChildTransaction(2, 0, 0, predicate, 4000000L, ALICE, BOB, triggerFullHash);
 
         // Now let's rerun the operation of the contract
-        APICall apiCall = new APICall.Builder("triggerContractByTransaction").
-                param("chain", IGNIS.getId()).
-                param("triggerFullHash", triggerFullHash).
-                build();
-        JO response = new JO(apiCall.invoke());
-        JA transactions = new JA(response.get("transactions"));
+        JO response = TriggerContractByTransactionCall.create(IGNIS.getId()).
+                triggerFullHash(triggerFullHash).
+                callNoError();
+        JA transactions = response.getArray("transactions");
         JO transaction = transactions.get(0);
         JO transactionJson = transaction.getJo("transactionJSON");
         long amountNQT = transactionJson.getLong("amountNQT");
@@ -74,13 +71,11 @@ public class RandomPaymentTest extends AbstractContractTest {
         Assert.assertEquals(4000000, transactionJson.getLong("feeNQT"));
 
         // Now let's validate the operation of the contract
-        apiCall = new APICall.Builder("triggerContractByTransaction").
-                param("chain", childTransaction.getChain().getId()).
-                param("triggerFullHash", Convert.toHexString(childTransaction.getFullHash())).
-                param("apply", "true").
-                param("validate", "true").
-                build();
-        response = new JO(apiCall.invoke());
+        response = TriggerContractByTransactionCall.create(childTransaction.getChain().getId()).
+                triggerFullHash(Convert.toHexString(childTransaction.getFullHash())).
+                apply(true).
+                validate(true).
+                call();
         Assert.assertTrue(((String) response.get("errorDescription")).startsWith("Cannot approve transaction, validatorSecretPhrase not specified"));
 
         // Pay some Ardor to the contract
@@ -109,7 +104,7 @@ public class RandomPaymentTest extends AbstractContractTest {
 
         // Now let's do it again using the GetExecutedTransactions API for the sake of example
         ChainTransactionId contractResultTransactionId = null;
-        JO getBlockchainStatusCall = GetBlockchainStatusCall.create().call();
+        JO getBlockchainStatusCall = GetBlockchainStatusCall.create().callNoError();
         List<TransactionResponse> childTransactions = GetExecutedTransactionsCall.create(IGNIS.getId()).type(0).subtype(0).height(getBlockchainStatusCall.getInt("numberOfBlocks") - 1).getTransactions();
         for (TransactionResponse childTransaction : childTransactions) {
             Assert.assertEquals(2, childTransaction.getChainId());
@@ -135,7 +130,7 @@ public class RandomPaymentTest extends AbstractContractTest {
         boolean isExceptionThrown = true;
         try {
             TriggerContractByTransactionCall.create(contractResultTransactionId.getChainId()).
-                    triggerFullHash(Convert.toHexString(contractResultTransactionId.getFullHash())).apply("true").validate(true).getCreatedTransactions();
+                    triggerFullHash(Convert.toHexString(contractResultTransactionId.getFullHash())).apply(true).validate(true).getCreatedTransactions();
             isExceptionThrown = false;
         } catch (IllegalStateException e) {
             JO response = JO.parse(e.getMessage());
@@ -157,7 +152,7 @@ public class RandomPaymentTest extends AbstractContractTest {
         isExceptionThrown = true;
         try {
             TriggerContractByTransactionCall.create(fxtTransaction.getChain().getId()).
-                    triggerFullHash(Convert.toHexString(fxtTransaction.getFullHash())).apply("true").validate(true).getCreatedTransactions();
+                    triggerFullHash(Convert.toHexString(fxtTransaction.getFullHash())).apply(true).validate(true).getCreatedTransactions();
             isExceptionThrown = false;
         } catch (IllegalStateException e) {
             JO response = JO.parse(e.getMessage());
@@ -183,7 +178,7 @@ public class RandomPaymentTest extends AbstractContractTest {
 
         // The blockchain rescan will cause the contract to resubmit the transaction but it will become duplicate of the existing transaction
         // and will not be broadcast to the blockchain again.
-        ScanCall.create().height(1).call();
+        ScanCall.create().height(1).callNoError();
 
         // After the scan we should see the same transaction as before the scan
         testAndGetLastChildTransaction(2, 0, 0, a -> a >= 0 && a < 200 * IGNIS.ONE_COIN, 4000000L, ALICE, BOB, triggerFullHash);
@@ -243,7 +238,7 @@ public class RandomPaymentTest extends AbstractContractTest {
         JO messageJson = new JO();
         messageJson.put("contract", contractName);
         String message = messageJson.toJSONString();
-        JO response = SendMessageCall.create(2).messageIsPrunable(true).message(message).recipient(ALICE.getId()).secretPhrase(BOB.getSecretPhrase()).feeNQT(IGNIS.ONE_COIN).call();
+        JO response = SendMessageCall.create(2).messageIsPrunable(true).message(message).recipient(ALICE.getId()).secretPhrase(BOB.getSecretPhrase()).feeNQT(IGNIS.ONE_COIN).callNoError();
         Logger.logInfoMessage(response.toJSONString());
         generateBlock();
 
@@ -283,7 +278,7 @@ public class RandomPaymentTest extends AbstractContractTest {
                 phasedTransaction("2:" + triggerFullHash, "2:" + Convert.toHexString(childTransaction.getFullHash())).
                 revealedSecret(TOP_SECRET).revealedSecretIsText(true).
                 feeNQT(approvalFeeNQT).
-                secretPhrase(CHUCK.getSecretPhrase()).call();
+                secretPhrase(CHUCK.getSecretPhrase()).callNoError();
         Logger.logInfoMessage(response.toJSONString());
         generateBlock();
         Assert.assertEquals(-amountNQT + 100 * IGNIS.ONE_COIN, ALICE.getChainBalanceDiff(2) - aliceBalanceDiff);
@@ -319,7 +314,7 @@ public class RandomPaymentTest extends AbstractContractTest {
                 phasedTransaction("2:" + Convert.toHexString(childTransaction.getFullHash())).
                 revealedSecret(TOP_SECRET).revealedSecretIsText(true).
                 feeNQT(approvalFeeNQT).
-                secretPhrase(CHUCK.getSecretPhrase()).call();
+                secretPhrase(CHUCK.getSecretPhrase()).callNoError();
         Logger.logInfoMessage(response.toJSONString());
         generateBlock();
 

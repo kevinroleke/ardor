@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class ReadMessageCall extends APICall.Builder<ReadMessageCall> {
+public class ReadMessageCall extends ChainSpecificCallBuilder<ReadMessageCall> {
     private ReadMessageCall() {
         super(ApiSpec.readMessage);
     }

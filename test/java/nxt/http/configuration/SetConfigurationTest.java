@@ -63,7 +63,7 @@ public class SetConfigurationTest extends BlockchainTest {
         removedValue.put("property", "key2");
         removedValue.put("value", "");
         configChanges.add(removedValue);
-        SetConfigurationCall.create().propertiesJSON(configChanges.toJSONArray().toJSONString()).build().invokeNoError();
+        SetConfigurationCall.create().propertiesJSON(configChanges.toJSONArray().toJSONString()).callNoError();
 
         properties.clear();
         FileReader fileReader = new FileReader(nxtProperties);

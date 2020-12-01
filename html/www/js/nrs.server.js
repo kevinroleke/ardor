@@ -30,7 +30,6 @@
             ["phasingMinBalanceNXT", "phasingMinBalance"],
             ["controlQuorumNXT", "controlQuorum"],
             ["controlMinBalanceNXT", "controlMinBalance"],
-            ["controlMaxFeesNXT", "controlMaxFees"],
             ["minBalanceNXT", "minBalance"],
             ["shufflingAmountNXT", "amount"],
             ["standbyShufflerMinAmountNXT", "minAmount"],
@@ -59,7 +58,9 @@
             ["maxAmountQNTf", "standbyshuffler_ms_decimals"]
         ];
 
-        const FEE_FIELDS = ["controlMaxFees"];
+        const MAX_FEE_FIELDS = [
+            ["controlMaxFeesNXT", "controlMaxFees"]
+        ];
 
         let sessionPrivateKey;
         NRS.requestId = 0;
@@ -72,10 +73,10 @@
             return (NRS.isPassphraseAtRisk() || data.doNotSign || data.isVoucher || NRS.isPrivateKeyStoredOnHardware()) && !NRS.isSubmitPassphrase(requestType);
         }
 
-        function isResponseReadyForSigning(response, data, requestType) {
-            return response.unsignedTransactionBytes && !data.doNotSign &&
+        function isResponseReadyForSigning(response, doNotSign, calculateFee, requestType) {
+            return response.unsignedTransactionBytes && !doNotSign &&
                 !response.errorCode && !response.error &&
-                !response.bundlerRateNQTPerFXT && !data.calculateFee && requestType !== "getTransactionBytes";
+                !response.bundlerRateNQTPerFXT && !calculateFee && requestType !== "getTransactionBytes";
         }
 
         function performDataConversion(data) {
@@ -112,16 +113,14 @@
                 }
 
                 // Add chain id to fee field
-                for (let i = 0; i < FEE_FIELDS.length; i++) {
-                    field = FEE_FIELDS[i];
+                for (let i = 0; i < MAX_FEE_FIELDS.length; i++) {
+                    field = MAX_FEE_FIELDS[i][0];
+                    let nqtField = MAX_FEE_FIELDS[i][1];
                     if (!data[field]) {
                         continue;
                     }
-                    if (data[field] == "0") {
-                        delete data[field];
-                    } else {
-                        data[field] = NRS.getActiveChainId() + ":" + data[field];
-                    }
+                    data[nqtField] = NRS.getActiveChainId() + ":" + NRS.convertToNQT(data[field]);
+                    delete data[field];
                 }
                 return {};
             } catch (err) {
@@ -326,6 +325,14 @@
                 extra = data["_extra"];
                 delete data["_extra"];
             }
+            for (const key in data) {
+                if (!data.hasOwnProperty(key)) {
+                    continue;
+                }
+                if (data[key] === "" || data[key] === undefined) {
+                    delete data[key];
+                }
+            }
 
             // Means it is a page request, not a global request. Currently we do not use this information here.
             let plusCharacter = requestType.indexOf("+");
@@ -498,7 +505,9 @@
                     NRS.addToConsole(this.url, this.type, this.data, response);
                 }
                 addAddressData(data);
-                if ((privateKey !== undefined && privateKey !== "" || NRS.isHardwareTokenSigningEnabled()) && isResponseReadyForSigning(response, data, requestType)) {
+                if ((privateKey !== undefined && privateKey !== "" || NRS.isHardwareTokenSigningEnabled()) 
+                    && isResponseReadyForSigning(response, data.doNotSign, extra.calculateFee, requestType)) {
+
                     let unsignedTransactionBytes = response.unsignedTransactionBytes;
                     let signingPromise = NRS.getSigningPromise(unsignedTransactionBytes, privateKey);
                     signingPromise.then(async function (signature) {
@@ -529,7 +538,7 @@
                         }
                         callback(response, data);
                     } else {
-                        if (response.broadcasted == false && !data.calculateFee) {
+                        if (response.broadcasted == false && !extra.calculateFee) {
                             addMissingData(data);
                             if (file && NRS.isFileReaderSupported()) {
                                 data.filebytes = await NRS.readFileAsync(file);
@@ -2123,17 +2132,24 @@
                 case "dividendPayment":
                     data.height = transactionJSON.attachment.height;
                     break;
+                case "exchangeCoins":
+                    if (transactionJSON.chain == '1' && transactionJSON.attachment.chain != '1') {
+                        data.isParentChainTransaction = '1';
+                    }
+                    break;
             }
             return data;
         }
 
-        NRS.broadcastTransactionBytes = function (transactionBytes, callback, originalResponse, originalData, prunableAttachment) {
+        function sendBroadcastRequest(requestType, transactionBytes, callback, originalResponse, originalData, prunableAttachment) {
             let data = {
                 "transactionBytes": transactionBytes,
-                "prunableAttachmentJSON": JSON.stringify(prunableAttachment),
-                "adminPassword": NRS.getAdminPassword()
+                "prunableAttachmentJSON": JSON.stringify(prunableAttachment)
             };
-            let requestType = NRS.state && NRS.state.apiProxy ? "sendTransaction" : "broadcastTransaction";
+
+            if (requestType == "sendTransaction") {
+                data["adminPassword"] = NRS.getAdminPassword();
+            }
 
             let fetchParams = {
                 method: "POST",
@@ -2203,6 +2219,22 @@
                     "errorDescription": error
                 }, {});
             });
+        };
+
+        NRS.broadcastTransactionBytes = function (transactionBytes, callback, originalResponse, originalData, prunableAttachment) {
+            if (NRS.state && NRS.state.apiProxy) {
+                function sendTransactionCallback(response, data) {
+                    if (response.errorCode) {
+                        callback(response, data);
+                    } else {
+                        sendBroadcastRequest("broadcastTransaction", transactionBytes, callback, originalResponse, originalData, prunableAttachment);
+                    }
+                };
+                sendBroadcastRequest("sendTransaction", transactionBytes, sendTransactionCallback, originalResponse, originalData, prunableAttachment);
+            } else {
+                sendBroadcastRequest("broadcastTransaction", transactionBytes, callback, originalResponse, originalData, prunableAttachment);
+            }
+
         };
 
         NRS.generateQRCode = function (target, qrCodeData, minType, cellSize) {

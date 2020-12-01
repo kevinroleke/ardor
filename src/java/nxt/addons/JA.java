@@ -92,6 +92,17 @@ public class JA extends AbstractList {
         return ja.get(i);
     }
 
+    public String getString(int i) {
+        Object o = ja.get(i);
+        if (o == null) {
+            return null;
+        }
+        if (!(o instanceof String)) {
+            return o.toString();
+        }
+        return (String)o;
+    }
+
     public JA getArray(int i) {
         Object o = ja.get(i);
         if (o == null) {
@@ -101,6 +112,11 @@ public class JA extends AbstractList {
             return (JA)o;
         }
         return new JA((JSONArray) o);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void setString(int i, String value) {
+        ja.set(i, value);
     }
 
     /**

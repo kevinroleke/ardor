@@ -22,6 +22,7 @@ import nxt.account.Account;
 import nxt.blockchain.Attachment;
 import nxt.ms.CurrencyIssuanceAttachment;
 import nxt.ms.CurrencyType;
+import nxt.ms.MonetarySystemTransactionType;
 import nxt.util.Convert;
 import org.json.simple.JSONStreamAware;
 
@@ -87,7 +88,7 @@ public final class IssueCurrency extends CreateTransaction {
     static final IssueCurrency instance = new IssueCurrency();
 
     private IssueCurrency() {
-        super(new APITag[] {APITag.MS, APITag.CREATE_TRANSACTION},
+        super(MonetarySystemTransactionType.CURRENCY_ISSUANCE, new APITag[] {APITag.MS, APITag.CREATE_TRANSACTION},
                 "name", "code", "description", "type",
                 "initialSupplyQNT", "reserveSupplyQNT", "maxSupplyQNT",
                 "issuanceHeight", "minReservePerUnitNQT",

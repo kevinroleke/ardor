@@ -20,6 +20,7 @@ import nxt.NxtException;
 import nxt.account.Account;
 import nxt.blockchain.Attachment;
 import nxt.shuffling.ShufflingHome;
+import nxt.shuffling.ShufflingTransactionType;
 import nxt.shuffling.ShufflingVerificationAttachment;
 import org.json.simple.JSONStreamAware;
 
@@ -31,7 +32,8 @@ public final class ShufflingVerify extends CreateTransaction {
     static final ShufflingVerify instance = new ShufflingVerify();
 
     private ShufflingVerify() {
-        super(new APITag[] {APITag.SHUFFLING, APITag.CREATE_TRANSACTION}, "shufflingFullHash", "shufflingStateHash");
+        super(ShufflingTransactionType.SHUFFLING_VERIFICATION,
+                new APITag[] {APITag.SHUFFLING, APITag.CREATE_TRANSACTION}, "shufflingFullHash", "shufflingStateHash");
     }
 
     @Override

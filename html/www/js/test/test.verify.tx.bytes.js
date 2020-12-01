@@ -335,4 +335,13 @@ QUnit.module("verifyTransactionBytes", function () {
         body.set('filename', '');
         await fetchAndVerify(assert, fetchParams);
     });
+
+    QUnit.test('exchangeCoins.buy.ARDR', async assert => {
+        let {fetchParams, body} =  createFetchParams('exchangeCoins');
+        body.set('exchange', '1');
+        body.set('quantityQNT', '1000000000');
+        body.set('priceNQTPerCoin', '100000000');
+        body.set('isParentChainTransaction', '1');
+        await fetchAndVerify(assert, fetchParams);
+    });
 });

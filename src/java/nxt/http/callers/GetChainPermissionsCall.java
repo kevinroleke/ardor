@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetChainPermissionsCall extends APICall.Builder<GetChainPermissionsCall> {
+public class GetChainPermissionsCall extends ChainSpecificCallBuilder<GetChainPermissionsCall> {
     private GetChainPermissionsCall() {
         super(ApiSpec.getChainPermissions);
     }

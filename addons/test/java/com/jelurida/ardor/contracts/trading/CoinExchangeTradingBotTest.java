@@ -310,14 +310,14 @@ public class CoinExchangeTradingBotTest extends AbstractContractTest {
     }
 
     private void assertAssetNoTrades(long assetId) {
-        final JSONObject json = GetTradesCall.create(IGNIS.getId()).asset(assetId).firstIndex(0).lastIndex(-1).build().invokeNoError();
+        JO json = GetTradesCall.create(IGNIS.getId()).asset(assetId).firstIndex(0).lastIndex(-1).callNoError();
         assertEquals(emptyList(), json.get("trades"));
     }
 
     private static List<AssetOrderBean> getAssetExchangeBidOrders(long asset) {
         JSONArray array = (JSONArray) GetBidOrdersCall.create(IGNIS.getId())
                 .asset(asset)
-                .build().invokeNoError()
+                .callNoError()
                 .get("bidOrders");
         return ((List<?>) array).stream().map(o -> AssetBuyBean.fromJSONObject((JSONObject) o)).collect(Collectors.toList());
     }
@@ -325,7 +325,7 @@ public class CoinExchangeTradingBotTest extends AbstractContractTest {
     private static List<AssetOrderBean> getAssetExchangeAskOrders(long asset) {
         JSONArray array = (JSONArray) GetAskOrdersCall.create(IGNIS.getId())
                 .asset(asset)
-                .build().invokeNoError()
+                .callNoError()
                 .get("askOrders");
         final List<AssetOrderBean> result = ((List<?>) array).stream().map(o -> AssetSellBean.fromJSONObject((JSONObject) o)).collect(toList());
         Collections.reverse(result);
@@ -337,11 +337,9 @@ public class CoinExchangeTradingBotTest extends AbstractContractTest {
     }
 
     private List<OrderBean> getExchangeOrders(Chain fromChain, Chain toChain) {
-        JSONObject response = GetCoinExchangeOrdersCall.create(fromChain.getId())
+        JO responseJo = GetCoinExchangeOrdersCall.create(fromChain.getId())
                 .exchange(toChain.getId())
-                .build()
-                .invokeNoError();
-        JO responseJo = new JO(response);
+                .callNoError();
         System.out.println(responseJo);
         List<OrderBean> orders = responseJo.getJoList("orders").stream()
                 .map(CoinExchangeOrderResponse::create)
@@ -488,7 +486,7 @@ public class CoinExchangeTradingBotTest extends AbstractContractTest {
                 .priceNQTPerCoin(180 * IGNIS.ONE_COIN / 100)
                 .secretPhrase(ALICE.getSecretPhrase()) // our contract runner
                 .feeNQT(IGNIS.ONE_COIN)
-                .build().invokeNoError();
+                .callNoError();
 
         generateBlock();
         generateBlock();
@@ -544,11 +542,11 @@ public class CoinExchangeTradingBotTest extends AbstractContractTest {
         int chain = fromChain.getId();
         int exchange = toChain.getId();
         JO response;
-        response = GetCoinExchangeTradesCall.create(chain).exchange(exchange).call();
+        response = GetCoinExchangeTradesCall.create(chain).exchange(exchange).callNoError();
         List<CoinExchangeTradeResponse> trades = response.getJoList("trades").stream().map(CoinExchangeTradeResponse::create).collect(toList());
         assertEquals(0, trades.size());
 
-        response = GetCoinExchangeTradesCall.create(exchange).exchange(chain).call();
+        response = GetCoinExchangeTradesCall.create(exchange).exchange(chain).callNoError();
         trades = response.getJoList("trades").stream().map(CoinExchangeTradeResponse::create).collect(toList());
         assertEquals(0, trades.size());
     }
@@ -586,7 +584,7 @@ public class CoinExchangeTradingBotTest extends AbstractContractTest {
                 .recipient(5873880488492319831L)
                 .quantityQNT(1_000 * 100_000_000L)
                 .feeNQT(IGNIS.ONE_COIN)
-                .build().invokeNoError();
+                .callNoError();
         generateBlock();
 
         return assetId;

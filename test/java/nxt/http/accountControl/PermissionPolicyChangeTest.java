@@ -19,12 +19,12 @@ import nxt.BlockchainTest;
 import nxt.Constants;
 import nxt.RequireNonePermissionPolicyTestsCategory;
 import nxt.Tester;
+import nxt.addons.JO;
 import nxt.blockchain.ChildChain;
 import nxt.blockchain.chaincontrol.PermissionPolicyType;
 import nxt.http.APICall;
 import nxt.http.callers.SendMoneyCall;
 import nxt.util.Logger;
-import org.json.simple.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -37,13 +37,12 @@ public class PermissionPolicyChangeTest extends BlockchainTest {
         ChildChain childChain = ChildChain.AEUR;
         Tester UNPERMISSIONED = new Tester("unpermissioned tester passphrase");
         Assert.assertEquals(childChain.getPermissionPolicy().getName(), PermissionPolicyType.NONE.name());
-        JSONObject response = SendMoneyCall.create(childChain.getId())
+        JO response = SendMoneyCall.create(childChain.getId())
                 .secretPhrase(RIKER.getSecretPhrase())
                 .recipient(UNPERMISSIONED.getId())
-                .param("amountNQT", childChain.ONE_COIN)
-                .param("feeNQT", childChain.ONE_COIN)
-                .build()
-                .invokeNoError();
+                .amountNQT(childChain.ONE_COIN)
+                .feeNQT(childChain.ONE_COIN)
+                .callNoError();
         Logger.logDebugMessage(response.toString());
         for (int i = 0; i < Constants.PERMISSIONED_AEUR_BLOCK; i++) {
             generateBlock();
@@ -52,8 +51,8 @@ public class PermissionPolicyChangeTest extends BlockchainTest {
         APICall.InvocationError error = SendMoneyCall.create(childChain.getId())
                 .secretPhrase(RIKER.getSecretPhrase())
                 .recipient(UNPERMISSIONED.getId())
-                .param("amountNQT", childChain.ONE_COIN)
-                .param("feeNQT", childChain.ONE_COIN)
+                .amountNQT(childChain.ONE_COIN)
+                .feeNQT(childChain.ONE_COIN)
                 .build()
                 .invokeWithError();
         Assert.assertEquals("User " + UNPERMISSIONED.getRsAccount() + " needs permission CHAIN_USER", error.getErrorDescription());

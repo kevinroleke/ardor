@@ -19,6 +19,7 @@ package nxt.http;
 import nxt.NxtException;
 import nxt.account.Account;
 import nxt.ae.Asset;
+import nxt.ae.AssetExchangeTransactionType;
 import nxt.ae.BidOrderPlacementAttachment;
 import nxt.blockchain.Attachment;
 import nxt.blockchain.ChildChain;
@@ -35,7 +36,8 @@ public final class PlaceBidOrder extends CreateTransaction {
     static final PlaceBidOrder instance = new PlaceBidOrder();
 
     private PlaceBidOrder() {
-        super(new APITag[] {APITag.AE, APITag.CREATE_TRANSACTION}, "asset", "quantityQNT", "priceNQTPerShare");
+        super(AssetExchangeTransactionType.BID_ORDER_PLACEMENT, new APITag[] {APITag.AE, APITag.CREATE_TRANSACTION},
+                "asset", "quantityQNT", "priceNQTPerShare");
     }
 
     @Override

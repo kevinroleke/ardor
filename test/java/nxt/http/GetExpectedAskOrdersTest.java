@@ -23,7 +23,6 @@ import nxt.http.callers.GetExpectedAskOrdersCall;
 import nxt.http.callers.IssueAssetCall;
 import nxt.http.callers.PlaceAskOrderCall;
 import nxt.http.callers.PlaceBidOrderCall;
-import org.json.simple.JSONObject;
 import org.junit.Test;
 
 import java.util.Map;
@@ -51,7 +50,7 @@ public class GetExpectedAskOrdersTest extends BlockchainTest {
         generateBlock();
         String expectedOrder = placeAskOrder(assetId);
 
-        final JSONObject result = getExpectedAskOrdersCall().asset(assetId).build().invokeNoError();
+        JO result = getExpectedAskOrdersCall().asset(assetId).callNoError();
 
         assertContainsOrder("expectedOrder", expectedOrder, result);
         assertExcludesOrder("confirmedOrder", confirmedOrder, result);
@@ -64,7 +63,7 @@ public class GetExpectedAskOrdersTest extends BlockchainTest {
 
         String order = placeAskOrder(assetId);
 
-        final JSONObject result = getExpectedAskOrdersCall().asset(assetId).build().invokeNoError();
+        JO result = getExpectedAskOrdersCall().asset(assetId).callNoError();
 
         assertContainsOrder("expectedOrder", order, result);
     }
@@ -77,7 +76,7 @@ public class GetExpectedAskOrdersTest extends BlockchainTest {
         String askOrder = placeAskOrder(assetId);
         String bidOrder = placeBidOrder(assetId);
 
-        final JSONObject result = getExpectedAskOrdersCall().asset(assetId).build().invokeNoError();
+        JO result = getExpectedAskOrdersCall().asset(assetId).callNoError();
 
         assertContainsOrder("askOrder", askOrder, result);
         assertExcludesOrder("bidOrder", bidOrder, result);
@@ -93,7 +92,7 @@ public class GetExpectedAskOrdersTest extends BlockchainTest {
         String orderAnother = placeAskOrder(assetAnother);
 
 
-        final JSONObject result = getExpectedAskOrdersCall().asset(asset).build().invokeNoError();
+        JO result = getExpectedAskOrdersCall().asset(asset).callNoError();
 
         assertContainsOrder("order from asset", order, result);
         assertExcludesOrder("order from another asset", orderAnother, result);
@@ -103,57 +102,54 @@ public class GetExpectedAskOrdersTest extends BlockchainTest {
         return GetExpectedAskOrdersCall.create(chain.getId());
     }
 
-    Map<String, JO> getOrders(JSONObject response) {
-        return new JO(response)
+    Map<String, JO> getOrders(JO response) {
+        return response
                 .getJoList("askOrders")
                 .stream()
                 .collect(Collectors.toMap(j -> j.getString("orderFullHash"), Function.identity()));
 
     }
 
-    private void assertContainsOrder(String comment, String orderHash, JSONObject actual) {
+    private void assertContainsOrder(String comment, String orderHash, JO actual) {
         final Set<String> actualOrderHashes = getOrders(actual).keySet();
         assertTrue(comment + " is missing. Expected hash " + orderHash + ", actual hashes: " + actualOrderHashes, actualOrderHashes.contains(orderHash));
     }
 
-    private void assertExcludesOrder(String comment, String orderHash, JSONObject actual) {
+    private void assertExcludesOrder(String comment, String orderHash, JO actual) {
         final Set<String> actualOrderHashes = getOrders(actual).keySet();
         assertFalse(comment + " is present. Expected hash " + orderHash + " to be not present, actual hashes: " + actualOrderHashes, actualOrderHashes.contains(orderHash));
     }
 
     private String placeAskOrder(long assetId) {
-        return new JO(PlaceAskOrderCall.create(chain.getId())
+        return PlaceAskOrderCall.create(chain.getId())
                 .asset(assetId)
                 .secretPhrase(tester.getSecretPhrase())
                 .priceNQTPerShare(2)
                 .quantityQNT(1)
                 .feeNQT(chain.ONE_COIN)
-                .build()
-                .invokeNoError())
+                .callNoError()
                 .getString("fullHash");
     }
 
     private String placeBidOrder(long assetId) {
-        return new JO(PlaceBidOrderCall.create(chain.getId())
+        return PlaceBidOrderCall.create(chain.getId())
                 .asset(assetId)
                 .secretPhrase(tester.getSecretPhrase())
                 .priceNQTPerShare(1)
                 .quantityQNT(1)
                 .feeNQT(chain.ONE_COIN)
-                .build()
-                .invokeNoError())
+                .callNoError()
                 .getString("fullHash");
     }
 
     private long createAsset() {
-        final JSONObject callResult = IssueAssetCall.create(chain.getId())
+        JO callResult = IssueAssetCall.create(chain.getId())
                 .name("Asks" + ++assetNumber)
                 .decimals(0)
                 .quantityQNT(100000)
                 .secretPhrase(tester.getSecretPhrase())
                 .feeNQT(10 * chain.ONE_COIN)
-                .build()
-                .invokeNoError();
+                .callNoError();
         final long result = Long.parseUnsignedLong(Tester.responseToStringId(callResult));
         generateBlock();
         return result;

@@ -420,6 +420,8 @@ public class AccountLedger {
     public enum LedgerEvent {
         // Block and Transaction
             BLOCK_GENERATED(1, false),
+            FORGING_BACK_FEES(69, false),
+            SHUFFLING_PENALTY_FORGER_AWARD(70, false),
             REJECT_PHASED_TRANSACTION(2, true),
             TRANSACTION_FEE(3, true),
             CHILD_BLOCK(4, true),

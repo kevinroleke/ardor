@@ -21,35 +21,38 @@ import nxt.http.callers.SendMoneyCall;
 import nxt.util.Logger;
 import org.junit.Test;
 
-import static nxt.blockchain.ChildChain.IGNIS;
-
 public class ChildToParentExchangeTest extends AbstractContractTest {
 
     private static final long ONE_COIN = 100000000L;
 
     @Test
-    public void amountTooLow() {
+    public void noCoinOrders() {
         JO setupParams = new JO();
         setupParams.put("maxAmountNXT", 20);
         ContractTestHelper.deployContract(ChildToParentExchange.class, setupParams);
 
-        // Pay the contract account without message
-        ContractTestHelper.bobPaysContract(null, IGNIS);
-
-        // Wait for the transaction to confirm 6 times
-        generateBlock();
-        generateBlock();
-        generateBlock();
-        generateBlock();
-        generateBlock();
-        generateBlock();
+        // Pay the contract and attach a message to trigger the contract execution
+        JO messageJson = new JO();
+        messageJson.put("contract", ChildToParentExchange.class.getSimpleName());
+        String message = messageJson.toJSONString();
+        JO response = SendMoneyCall.create(2)
+                .amountNQT(10 * ONE_COIN).feeNQT(2000000L)
+                .messageIsPrunable(true)
+                .message(message)
+                .recipient(ALICE.getRsAccount())
+                .secretPhrase(BOB.getSecretPhrase())
+                .callNoError();
+        Logger.logInfoMessage(response.toJSONString());
 
         // Contract should submit transaction now
         generateBlock();
 
+        // Transaction submitted by the contract should confirm now
+        generateBlock();
+
         // Since there are no coin orders the amount of IGNIS is returned
         testAndGetLastChildTransaction(2, 0, 0,
-                a -> a == 9998000000L, 2000000L,
+                a -> a == 996000000L, 4000000L,
                 ALICE, BOB, null);
     }
 
@@ -64,9 +67,15 @@ public class ChildToParentExchangeTest extends AbstractContractTest {
         JO messageJson = new JO();
         messageJson.put("contract", ChildToParentExchange.class.getSimpleName());
         String message = messageJson.toJSONString();
-        JO response = SendMoneyCall.create(2).amountNQT(50 * ONE_COIN).feeNQT(1000000L).messageIsPrunable(true).message(message).recipient(ALICE.getRsAccount()).secretPhrase(BOB.getSecretPhrase()).call();
+        JO response = SendMoneyCall.create(2)
+                .amountNQT(50 * ONE_COIN)
+                .feeNQT(1000000L)
+                .messageIsPrunable(true)
+                .message(message)
+                .recipient(ALICE.getRsAccount())
+                .secretPhrase(BOB.getSecretPhrase())
+                .callNoError();
         Logger.logInfoMessage(response.toJSONString());
-
         generateBlock();
 
         // Contract submits transaction
@@ -86,7 +95,14 @@ public class ChildToParentExchangeTest extends AbstractContractTest {
         JO messageJson = new JO();
         messageJson.put("contract", ChildToParentExchange.class.getSimpleName());
         String message = messageJson.toJSONString();
-        JO response = SendMoneyCall.create(2).amountNQT(250 * ONE_COIN).feeNQT(1000000L).messageIsPrunable(true).message(message).recipient(ALICE.getRsAccount()).secretPhrase(BOB.getSecretPhrase()).call();
+        JO response = SendMoneyCall.create(2)
+                .amountNQT(250 * ONE_COIN)
+                .feeNQT(1000000L)
+                .messageIsPrunable(true)
+                .message(message)
+                .recipient(ALICE.getRsAccount())
+                .secretPhrase(BOB.getSecretPhrase())
+                .callNoError();
         Logger.logInfoMessage(response.toJSONString());
 
         generateBlock();
@@ -100,17 +116,42 @@ public class ChildToParentExchangeTest extends AbstractContractTest {
 
     private void submitCoinExchangeTestData() {
         // Generate exchanges from Ardor to Ignis
-        JO response = ExchangeCoinsCall.create(1).exchange(2).quantityQNT(100 * ONE_COIN).priceNQTPerCoin((long)(0.1 * ONE_COIN)).secretPhrase(CHUCK.getSecretPhrase()).call();
+        JO response = ExchangeCoinsCall.create(1)
+                .exchange(2)
+                .quantityQNT(100 * ONE_COIN)
+                .priceNQTPerCoin((long) (0.1 * ONE_COIN))
+                .secretPhrase(CHUCK.getSecretPhrase())
+                .callNoError();
         Logger.logInfoMessage(response.toJSONString());
-        response = ExchangeCoinsCall.create(1).exchange(2).quantityQNT(125 * ONE_COIN).priceNQTPerCoin((long)(0.08 * ONE_COIN)).secretPhrase(CHUCK.getSecretPhrase()).call();
+        response = ExchangeCoinsCall.create(1)
+                .exchange(2)
+                .quantityQNT(125 * ONE_COIN)
+                .priceNQTPerCoin((long) (0.08 * ONE_COIN))
+                .secretPhrase(CHUCK.getSecretPhrase())
+                .callNoError();
         Logger.logInfoMessage(response.toJSONString());
-        response = ExchangeCoinsCall.create(1).exchange(2).quantityQNT(200 * ONE_COIN).priceNQTPerCoin((long)(0.05 * ONE_COIN)).secretPhrase(CHUCK.getSecretPhrase()).call();
+        response = ExchangeCoinsCall.create(1)
+                .exchange(2)
+                .quantityQNT(200 * ONE_COIN)
+                .priceNQTPerCoin((long) (0.05 * ONE_COIN))
+                .secretPhrase(CHUCK.getSecretPhrase())
+                .callNoError();
         Logger.logInfoMessage(response.toJSONString());
 
         // Generate exchanges from Ignis to Ardor
-        response = ExchangeCoinsCall.create(2).exchange(1).quantityQNT(100 * ONE_COIN).priceNQTPerCoin(8 * ONE_COIN).secretPhrase(CHUCK.getSecretPhrase()).call();
+        response = ExchangeCoinsCall.create(2)
+                .exchange(1)
+                .quantityQNT(100 * ONE_COIN)
+                .priceNQTPerCoin(8 * ONE_COIN)
+                .secretPhrase(CHUCK.getSecretPhrase())
+                .callNoError();
         Logger.logInfoMessage(response.toJSONString());
-        response = ExchangeCoinsCall.create(2).exchange(1).quantityQNT(100 * ONE_COIN).priceNQTPerCoin(5 * ONE_COIN).secretPhrase(CHUCK.getSecretPhrase()).call();
+        response = ExchangeCoinsCall.create(2)
+                .exchange(1)
+                .quantityQNT(100 * ONE_COIN)
+                .priceNQTPerCoin(5 * ONE_COIN)
+                .secretPhrase(CHUCK.getSecretPhrase())
+                .callNoError();
         Logger.logInfoMessage(response.toJSONString());
 
         generateBlock();

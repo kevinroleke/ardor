@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetAliasesCall extends APICall.Builder<GetAliasesCall> {
+public class GetAliasesCall extends ChainSpecificCallBuilder<GetAliasesCall> {
     private GetAliasesCall() {
         super(ApiSpec.getAliases);
     }

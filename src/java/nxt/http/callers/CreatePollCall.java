@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class CreatePollCall extends CreateTransactionCallBuilder<CreatePollCall> {
+public class CreatePollCall extends CreateOneSideTransactionCallBuilder<CreatePollCall> {
     private CreatePollCall() {
         super(ApiSpec.createPoll);
     }
@@ -10,11 +10,11 @@ public class CreatePollCall extends CreateTransactionCallBuilder<CreatePollCall>
         return new CreatePollCall().param("chain", chain);
     }
 
-    public CreatePollCall minRangeValue(String minRangeValue) {
+    public CreatePollCall minRangeValue(byte minRangeValue) {
         return param("minRangeValue", minRangeValue);
     }
 
-    public CreatePollCall votingModel(String votingModel) {
+    public CreatePollCall votingModel(byte votingModel) {
         return param("votingModel", votingModel);
     }
 
@@ -30,15 +30,15 @@ public class CreatePollCall extends CreateTransactionCallBuilder<CreatePollCall>
         return unsignedLongParam("holding", holding);
     }
 
-    public CreatePollCall minNumberOfOptions(String minNumberOfOptions) {
+    public CreatePollCall minNumberOfOptions(byte minNumberOfOptions) {
         return param("minNumberOfOptions", minNumberOfOptions);
     }
 
-    public CreatePollCall minBalance(String minBalance) {
+    public CreatePollCall minBalance(long minBalance) {
         return param("minBalance", minBalance);
     }
 
-    public CreatePollCall finishHeight(String finishHeight) {
+    public CreatePollCall finishHeight(int finishHeight) {
         return param("finishHeight", finishHeight);
     }
 
@@ -46,7 +46,7 @@ public class CreatePollCall extends CreateTransactionCallBuilder<CreatePollCall>
         return param("name", name);
     }
 
-    public CreatePollCall maxNumberOfOptions(String maxNumberOfOptions) {
+    public CreatePollCall maxNumberOfOptions(byte maxNumberOfOptions) {
         return param("maxNumberOfOptions", maxNumberOfOptions);
     }
 
@@ -54,7 +54,7 @@ public class CreatePollCall extends CreateTransactionCallBuilder<CreatePollCall>
         return param("option01", option01);
     }
 
-    public CreatePollCall minBalanceModel(String minBalanceModel) {
+    public CreatePollCall minBalanceModel(byte minBalanceModel) {
         return param("minBalanceModel", minBalanceModel);
     }
 
@@ -66,7 +66,7 @@ public class CreatePollCall extends CreateTransactionCallBuilder<CreatePollCall>
         return param("option00", option00);
     }
 
-    public CreatePollCall maxRangeValue(String maxRangeValue) {
+    public CreatePollCall maxRangeValue(byte maxRangeValue) {
         return param("maxRangeValue", maxRangeValue);
     }
 }

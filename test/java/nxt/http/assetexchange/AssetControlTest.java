@@ -20,13 +20,24 @@ import nxt.BlockchainTest;
 import nxt.Nxt;
 import nxt.RequireNonePermissionPolicyTestsCategory;
 import nxt.account.HoldingType;
+import nxt.addons.JO;
 import nxt.blockchain.ChildChain;
 import nxt.http.APICall;
+import nxt.http.PhasingParamsBuilder;
+import nxt.http.PhasingParamsHelper;
 import nxt.http.accountControl.ACTestUtils;
+import nxt.http.callers.CreateOneSideTransactionCallBuilder;
+import nxt.http.callers.DividendPaymentCall;
+import nxt.http.callers.GetPhasingAssetControlCall;
+import nxt.http.callers.SetPhasingAssetControlCall;
+import nxt.http.callers.SetPhasingOnlyControlCall;
+import nxt.http.callers.ShufflingCreateCall;
+import nxt.http.callers.TransferAssetCall;
 import nxt.http.client.IssueAssetBuilder;
 import nxt.http.client.TransferAssetBuilder;
 import nxt.http.twophased.TestPropertyVoting;
 import nxt.util.JSONAssert;
+import nxt.voting.VoteWeighting;
 import nxt.voting.VoteWeighting.VotingModel;
 import org.junit.Assert;
 import org.junit.Test;
@@ -34,28 +45,31 @@ import org.junit.experimental.categories.Category;
 
 import java.math.BigDecimal;
 
+import static nxt.blockchain.ChildChain.IGNIS;
+
 public class AssetControlTest extends BlockchainTest {
     @Test
     public void testSetAndGet() {
         String assetId = AssetExchangeTest.issueAsset(ALICE, "AssetC").getAssetIdString();
 
-        ACTestUtils.PhasingBuilder builder = new ACTestUtils.PhasingBuilder("setPhasingAssetControl", BOB);
-        builder.votingModel(VotingModel.ACCOUNT).whitelist(CHUCK).quorum(1);
-        builder.param("asset", assetId);
+        SetPhasingAssetControlCall builder = SetPhasingAssetControlCall.create(IGNIS.getId())
+                .secretPhrase(BOB.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .controlVotingModel(VotingModel.ACCOUNT.getCode())
+                .controlWhitelisted(CHUCK.getStrId())
+                .controlQuorum(1)
+                .asset(assetId);
 
-        JSONAssert jsonAssert = new JSONAssert(builder.build().invoke());
+        JSONAssert jsonAssert = new JSONAssert(builder.call());
 
         Assert.assertEquals("Asset control can only be set by the asset issuer", jsonAssert.str("errorDescription"));
 
         builder.secretPhrase(ALICE.getSecretPhrase());
-        new JSONAssert(builder.build().invoke()).str("fullHash");
+        new JSONAssert(builder.call()).str("fullHash");
 
         generateBlock();
 
-        APICall.Builder queryBuilder = new APICall.Builder("getPhasingAssetControl")
-                .param("asset", assetId);
-
-        JSONAssert controlParams = new JSONAssert(queryBuilder.build().invoke()).subObj("controlParams");
+        JSONAssert controlParams = new JSONAssert(GetPhasingAssetControlCall.create().asset(assetId).call()).subObj("controlParams");
         Assert.assertEquals(VotingModel.ACCOUNT.getCode(), ((Long) controlParams.integer("phasingVotingModel")).byteValue());
     }
 
@@ -63,11 +77,15 @@ public class AssetControlTest extends BlockchainTest {
     public void testSimpleTransfer() {
         String assetId = AssetExchangeTest.issueAsset(ALICE, "AssetC").getAssetIdString();
 
-        ACTestUtils.PhasingBuilder builder = new ACTestUtils.PhasingBuilder("setPhasingAssetControl", ALICE);
-        builder.votingModel(VotingModel.ACCOUNT).whitelist(CHUCK).quorum(1);
-        builder.param("asset", assetId);
+        SetPhasingAssetControlCall builder = SetPhasingAssetControlCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .controlVotingModel(VotingModel.ACCOUNT.getCode())
+                .controlWhitelisted(CHUCK.getStrId())
+                .controlQuorum(1)
+                .asset(assetId);
 
-        new JSONAssert(builder.build().invoke()).str("fullHash");
+        new JSONAssert(builder.call()).str("fullHash");
 
         generateBlock();
 
@@ -78,13 +96,18 @@ public class AssetControlTest extends BlockchainTest {
                 .getErrorDescription();
         Assert.assertEquals("Non-phased transaction when phasing asset control is enabled", errorDescription);
 
-        APICall apiCall = new ACTestUtils.PhasingBuilder("transferAsset", ALICE)
-                .votingModel(VotingModel.ACCOUNT).whitelist(CHUCK).quorum(1)
-                .param("recipient", BOB.getRsAccount())
-                .param("asset", assetId)
-                .param("quantityQNT", amount)
-                .build();
-        String fullHash = new JSONAssert(apiCall.invoke()).str("fullHash");
+        TransferAssetCall transferAssetCall = TransferAssetCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .phased(true)
+                .phasingFinishHeight(Nxt.getBlockchain().getHeight() + 5)
+                .phasingVotingModel(VotingModel.ACCOUNT.getCode())
+                .phasingWhitelisted(CHUCK.getStrId())
+                .phasingQuorum(1)
+                .recipient(BOB.getRsAccount())
+                .asset(assetId)
+                .quantityQNT(amount);
+        String fullHash = new JSONAssert(transferAssetCall.call()).str("fullHash");
 
         generateBlock();
 
@@ -99,18 +122,26 @@ public class AssetControlTest extends BlockchainTest {
     public void testSimpleAssetAndAccountControl() {
         String assetId = AssetExchangeTest.issueAsset(ALICE, "AssetC").getAssetIdString();
 
-        ACTestUtils.PhasingBuilder builder = new ACTestUtils.PhasingBuilder("setPhasingAssetControl", ALICE);
-        builder.votingModel(VotingModel.ACCOUNT).whitelist(CHUCK).quorum(1);
-        builder.param("asset", assetId);
+        SetPhasingAssetControlCall builder = SetPhasingAssetControlCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .controlVotingModel(VotingModel.ACCOUNT.getCode())
+                .controlWhitelisted(CHUCK.getStrId())
+                .controlQuorum(1)
+                .asset(assetId);
 
-        new JSONAssert(builder.build().invoke()).str("fullHash");
+        new JSONAssert(builder.call()).str("fullHash");
 
         generateBlock();
 
         //also set account control on alice
-        builder = new ACTestUtils.PhasingBuilder(ALICE);
-        builder.votingModel(VotingModel.ACCOUNT).whitelist(DAVE).quorum(1);
-        new JSONAssert(builder.build().invoke()).str("fullHash");
+        SetPhasingOnlyControlCall setPhasingOnlyControlCall = SetPhasingOnlyControlCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .controlVotingModel(VoteWeighting.VotingModel.ACCOUNT.getCode())
+                .controlWhitelisted(DAVE.getStrId())
+                .controlQuorum(1);
+        new JSONAssert(setPhasingOnlyControlCall.call()).str("fullHash");
 
         generateBlock();
 
@@ -118,16 +149,25 @@ public class AssetControlTest extends BlockchainTest {
         //both the asset and the account controls
         int amount = 100 * 10000;
 
-        APICall apiCall = new ACTestUtils.PhasingBuilder("transferAsset", ALICE)
-                .votingModel(VotingModel.COMPOSITE).phasingParam("Expression", "ACC & ASC").quorum(1)
-                .startSubPoll("ASC").votingModel(VotingModel.ACCOUNT).whitelist(CHUCK).quorum(1)
-                .startSubPoll("ACC").votingModel(VotingModel.ACCOUNT).whitelist(DAVE).quorum(1)
-                .param("recipient", BOB.getRsAccount())
-                .param("asset", assetId)
-                .param("quantityQNT", amount)
+        PhasingParamsBuilder phasingParamsBuilder = PhasingParamsBuilder.create()
+                .phasingVotingModel(VotingModel.COMPOSITE.getCode())
+                .phasingExpression("ACC & ASC")
+                .phasingQuorum(1)
+                .setSubPoll("ACC", PhasingParamsHelper.accountSubpoll(DAVE))
+                .setSubPoll("ASC", PhasingParamsHelper.accountSubpoll(CHUCK));
+
+        JO response = TransferAssetCall.create(ChildChain.IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .phased(true)
+                .phasingFinishHeight(Nxt.getBlockchain().getHeight() + 5)
+                .phasingParams(phasingParamsBuilder.toJSONString())
                 .feeNQT(ChildChain.IGNIS.ONE_COIN * 5)
-                .build();
-        String fullHash = new JSONAssert(apiCall.invoke()).str("fullHash");
+                .recipient(BOB.getRsAccount())
+                .asset(assetId)
+                .quantityQNT(amount)
+                .callNoError();
+
+        String fullHash = new JSONAssert(response).str("fullHash");
 
         generateBlock();
 
@@ -146,37 +186,41 @@ public class AssetControlTest extends BlockchainTest {
 
         String assetId = AssetExchangeTest.issueAsset(ALICE, "AssetC").getAssetIdString();
 
-        ACTestUtils.PhasingBuilder control = createByPropertyPhasingBuilder(propertyName, propertyValue, assetId);
+        SetPhasingAssetControlCall control = createByPropertyPhasingBuilder(propertyName, propertyValue, assetId);
 
-        new JSONAssert(control.build().invoke()).str("fullHash");
+        new JSONAssert(control.call()).str("fullHash");
 
         generateBlock();
 
-        TestPropertyVoting.createSetPropertyBuilder(CHUCK, ALICE, propertyName, propertyValue).build().invokeNoError();
+        TestPropertyVoting.createSetPropertyBuilder(CHUCK, ALICE, propertyName, propertyValue).callNoError();
 
-        TestPropertyVoting.createSetPropertyBuilder(CHUCK, BOB, propertyName, propertyValue).build().invokeNoError();
+        TestPropertyVoting.createSetPropertyBuilder(CHUCK, BOB, propertyName, propertyValue).callNoError();
 
         generateBlock();
 
         int amount = 100 * 10000;
-        ACTestUtils.PhasingBuilder builder = new ACTestUtils.PhasingBuilder("transferAsset", ALICE)
-                .votingModel(VotingModel.PROPERTY).quorum(1)
-                .phasingParam("SenderPropertySetter", CHUCK.getStrId())
-                .phasingParam("SenderPropertyName", propertyName)
-                .phasingParam("SenderPropertyValue", propertyValue);
+        TransferAssetCall transferAssetCall = TransferAssetCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .phased(true)
+                .phasingFinishHeight(Nxt.getBlockchain().getHeight() + 5)
+                .phasingVotingModel(VotingModel.PROPERTY.getCode())
+                .phasingQuorum(1)
+                .phasingSenderPropertySetter(CHUCK.getStrId())
+                .phasingSenderPropertyName(propertyName)
+                .phasingSenderPropertyValue(propertyValue)
+                .recipient(BOB.getRsAccount())
+                .asset(assetId)
+                .quantityQNT(amount);
 
-        builder.param("recipient", BOB.getRsAccount())
-                .param("asset", assetId)
-                .param("quantityQNT", amount);
-
-        Assert.assertTrue( new JSONAssert(builder.build().invoke()).str("errorDescription").
+        Assert.assertTrue( new JSONAssert(transferAssetCall.call()).str("errorDescription").
                 startsWith("Phasing parameters do not match phasing asset control."));
 
-        builder.phasingParam("RecipientPropertySetter", CHUCK.getStrId())
-                .phasingParam("RecipientPropertyName", propertyName)
-                .phasingParam("RecipientPropertyValue", propertyValue);
+        transferAssetCall.phasingRecipientPropertySetter(CHUCK.getStrId());
+        transferAssetCall.phasingRecipientPropertyName(propertyName);
+        transferAssetCall.phasingRecipientPropertyValue(propertyValue);
 
-        new JSONAssert(builder.build().invoke()).str("fullHash");
+        new JSONAssert(transferAssetCall.call()).str("fullHash");
 
         generateBlock();
 
@@ -192,41 +236,38 @@ public class AssetControlTest extends BlockchainTest {
 
         String controlledAssetId = AssetExchangeTest.issueAsset(ALICE, "AssetC").getAssetIdString();
 
-        ACTestUtils.PhasingBuilder control = createByPropertyPhasingBuilder(propertyName, propertyValue, controlledAssetId);
+        SetPhasingAssetControlCall control = createByPropertyPhasingBuilder(propertyName, propertyValue, controlledAssetId);
 
-        new JSONAssert(control.build().invoke()).str("fullHash");
+        new JSONAssert(control.call()).str("fullHash");
 
         generateBlock();
 
         String dividendAssetId = AssetExchangeTest.issueAsset(ALICE, "AssetD").getAssetIdString();
 
-        APICall.Builder propBuilder = TestPropertyVoting.createSetPropertyBuilder(CHUCK, ALICE, propertyName, propertyValue);
-        propBuilder.build().invoke();
-
-        propBuilder = TestPropertyVoting.createSetPropertyBuilder(CHUCK, BOB, propertyName, propertyValue);
-        propBuilder.build().invoke();
-
+        TestPropertyVoting.createSetPropertyBuilder(CHUCK, ALICE, propertyName, propertyValue).callNoError();
+        TestPropertyVoting.createSetPropertyBuilder(CHUCK, BOB, propertyName, propertyValue).callNoError();
         generateBlock();
 
         int amount = 100 * 10000;
 
-        ACTestUtils.PhasingBuilder builder = new ACTestUtils.PhasingBuilder("transferAsset", ALICE);
-        builder.param("recipient", BOB.getRsAccount())
-                .param("asset", controlledAssetId)
-                .param("quantityQNT", amount);
-        setupByPropertyPhasing(propertyName, propertyValue, builder);
+        TransferAssetCall transferAssetCall = TransferAssetCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .phased(true)
+                .phasingFinishHeight(Nxt.getBlockchain().getHeight() + 5)
+                .recipient(BOB.getRsAccount())
+                .asset(controlledAssetId)
+                .quantityQNT(amount);
+        setupByPropertyPhasing(propertyName, propertyValue, transferAssetCall);
 
-        new JSONAssert(builder.build().invoke()).str("fullHash");
+        new JSONAssert(transferAssetCall.call()).str("fullHash");
 
         generateBlock();
 
         Assert.assertEquals(amount, BOB.getAssetQuantityDiff(Long.parseUnsignedLong(controlledAssetId)));
 
-        propBuilder = TestPropertyVoting.createSetPropertyBuilder(CHUCK, ALICE, propertyName, propertyValue2);
-        propBuilder.build().invoke();
-
-        propBuilder = TestPropertyVoting.createSetPropertyBuilder(CHUCK, BOB, propertyName, propertyValue2);
-        propBuilder.build().invoke();
+        TestPropertyVoting.createSetPropertyBuilder(CHUCK, ALICE, propertyName, propertyValue2).callNoError();
+        TestPropertyVoting.createSetPropertyBuilder(CHUCK, BOB, propertyName, propertyValue2).callNoError();
 
         //asset control is not enforced on the asset for which a dividend is payed, but on the asset with which it is payed (if any)
         new JSONAssert(AssetExchangeTest.payDividend(controlledAssetId, ALICE, Nxt.getBlockchain().getHeight(), 1,
@@ -239,7 +280,7 @@ public class AssetControlTest extends BlockchainTest {
 
         control = createByPropertyPhasingBuilder(propertyName, propertyValue, dividendAssetId);
 
-        new JSONAssert(control.build().invoke()).str("fullHash");
+        new JSONAssert(control.call()).str("fullHash");
 
         generateBlocks(10);
 
@@ -248,19 +289,22 @@ public class AssetControlTest extends BlockchainTest {
 
         Assert.assertEquals("Non-phased transaction when phasing asset control is enabled", payment.getErrorDescription());
 
-        propBuilder = TestPropertyVoting.createSetPropertyBuilder(CHUCK, ALICE, propertyName, propertyValue);
-        propBuilder.build().invoke();
+        TestPropertyVoting.createSetPropertyBuilder(CHUCK, ALICE, propertyName, propertyValue).callNoError();
 
-        builder = new ACTestUtils.PhasingBuilder("dividendPayment", ALICE);
+        DividendPaymentCall builder = DividendPaymentCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .phased(true)
+                .phasingFinishHeight(Nxt.getBlockchain().getHeight() + 5)
+                .asset(controlledAssetId)
+                .height(Nxt.getBlockchain().getHeight())
+                .holdingType(HoldingType.ASSET.getCode())
+                .holding(dividendAssetId)
+                .amountNQTPerShare(1);
         setupByPropertyPhasing(propertyName, propertyValue, builder);
-        builder.param("asset", controlledAssetId)
-                .param("height", Nxt.getBlockchain().getHeight())
-                .param("holdingType", HoldingType.ASSET.getCode())
-                .param("holding", dividendAssetId)
-                .param("amountNQTPerShare", 1);
 
         Assert.assertEquals("Dividend payment with asset under by-recipient property control is not supported",
-                new JSONAssert(builder.build().invoke()).str("errorDescription"));
+                new JSONAssert(builder.call()).str("errorDescription"));
     }
 
     @Category(RequireNonePermissionPolicyTestsCategory.class)
@@ -271,31 +315,38 @@ public class AssetControlTest extends BlockchainTest {
 
         String controlledAssetId = AssetExchangeTest.issueAsset(ALICE, "AssetC").getAssetIdString();
 
-        ACTestUtils.PhasingBuilder control = createByPropertyPhasingBuilder(propertyName, propertyValue, controlledAssetId);
+        SetPhasingAssetControlCall control = createByPropertyPhasingBuilder(propertyName, propertyValue, controlledAssetId);
 
-        new JSONAssert(control.build().invoke()).str("fullHash");
+        new JSONAssert(control.call()).str("fullHash");
 
         generateBlock();
 
         int amount = 100 * 10000;
 
-        ACTestUtils.PhasingBuilder builder = new ACTestUtils.PhasingBuilder("transferAsset", ALICE);
-        setupByPropertyPhasing(propertyName, propertyValue, builder);
-        builder.param("recipient", BOB.getRsAccount())
-                .param("asset", controlledAssetId)
-                .param("quantityQNT", amount);
-        new JSONAssert(builder.build().invoke()).str("fullHash");
+        TransferAssetCall transferAssetCall = TransferAssetCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .phased(true)
+                .phasingFinishHeight(Nxt.getBlockchain().getHeight() + 5)
+                .recipient(BOB.getRsAccount())
+                .asset(controlledAssetId)
+                .quantityQNT(amount);
+        setupByPropertyPhasing(propertyName, propertyValue, transferAssetCall);
+        new JSONAssert(transferAssetCall.call()).str("fullHash");
 
-        builder = new ACTestUtils.PhasingBuilder("shufflingCreate", ALICE);
+        ShufflingCreateCall builder = ShufflingCreateCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .phased(true)
+                .phasingFinishHeight(Nxt.getBlockchain().getHeight() + 5)
+                .amount(10*1000)
+                .holding(controlledAssetId)
+                .holdingType(HoldingType.ASSET.getCode())
+                .participantCount((byte) 3)
+                .registrationPeriod(10);
         setupByPropertyPhasing(propertyName, propertyValue, builder);
-
-        builder.param("amount", String.valueOf(10*1000)).
-                param("holding", controlledAssetId).
-                param("holdingType", String.valueOf(HoldingType.ASSET.getCode())).
-                param("participantCount", String.valueOf(3)).
-                param("registrationPeriod", 10);
         Assert.assertEquals("Shuffling of asset under asset control is not supported",
-                new JSONAssert(builder.build().invoke()).str("errorDescription"));
+                new JSONAssert(builder.call()).str("errorDescription"));
     }
 
     @Test
@@ -304,56 +355,76 @@ public class AssetControlTest extends BlockchainTest {
         String propertyValue = "valX";
 
         String controlledAssetId = AssetExchangeTest.issueAsset(ALICE, "AssetC").getAssetIdString();
-        AssetExchangeTest.transfer(controlledAssetId, ALICE, BOB, 10*10000).getFullHash();
+        AssetExchangeTest.transfer(controlledAssetId, ALICE, BOB, 10*10000);
 
-        ACTestUtils.PhasingBuilder control = createByPropertyPhasingBuilder(propertyName, propertyValue, controlledAssetId);
+        SetPhasingAssetControlCall control = createByPropertyPhasingBuilder(propertyName, propertyValue, controlledAssetId);
 
         Assert.assertEquals("Adding asset control requires the asset issuer to own all asset units",
-                new JSONAssert(control.build().invoke()).str("errorDescription"));
+                new JSONAssert(control.call()).str("errorDescription"));
     }
 
     @Test
     public void testRemoveControl() {
         String propertyName = "propac2";
         String propertyValue = "valX";
-        ACTestUtils.PhasingBuilder control;
+        SetPhasingAssetControlCall control;
 
         String controlledAssetId = AssetExchangeTest.issueAsset(ALICE, "AssetC").getAssetIdString();
-        control = new ACTestUtils.PhasingBuilder("setPhasingAssetControl", ALICE).votingModel(VotingModel.NONE);
-        control.param("asset", controlledAssetId);
+        control = SetPhasingAssetControlCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .controlVotingModel(VotingModel.NONE.getCode())
+                .asset(controlledAssetId);
 
         Assert.assertEquals("Phasing asset control is not currently enabled",
-                new JSONAssert(control.build().invoke()).str("errorDescription"));
+                new JSONAssert(control.call()).str("errorDescription"));
 
         setupByPropertyPhasing(propertyName, propertyValue, control);
-        new JSONAssert(control.build().invoke()).str("fullHash");
+        new JSONAssert(control.call()).str("fullHash");
         generateBlock();
 
         //remove the asset control
-        control = new ACTestUtils.PhasingBuilder("setPhasingAssetControl", ALICE).votingModel(VotingModel.NONE);
-        control.param("asset", controlledAssetId);
-        new JSONAssert(control.build().invoke()).str("fullHash");
+        control = SetPhasingAssetControlCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .controlVotingModel(VotingModel.NONE.getCode())
+                .asset(controlledAssetId);
+        new JSONAssert(control.call()).str("fullHash");
         generateBlock();
 
-        AssetExchangeTest.transfer(controlledAssetId, ALICE, BOB, 10*10000).getFullHash();
+        AssetExchangeTest.transfer(controlledAssetId, ALICE, BOB, 10*10000);
 
     }
 
-    private ACTestUtils.PhasingBuilder createByPropertyPhasingBuilder(String propertyName, String propertyValue, String assetId) {
-        ACTestUtils.PhasingBuilder control = new ACTestUtils.PhasingBuilder("setPhasingAssetControl", ALICE);
+    private SetPhasingAssetControlCall createByPropertyPhasingBuilder(String propertyName, String propertyValue, String assetId) {
+        SetPhasingAssetControlCall control = SetPhasingAssetControlCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN);
         setupByPropertyPhasing(propertyName, propertyValue, control);
-        control.param("asset", assetId);
+        control.asset(assetId);
         return control;
     }
 
-    private void setupByPropertyPhasing(String propertyName, String propertyValue, ACTestUtils.PhasingBuilder builder) {
-        builder.votingModel(VotingModel.PROPERTY).quorum(1);
-        builder.phasingParam("SenderPropertySetter", CHUCK.getStrId());
-        builder.phasingParam("SenderPropertyName", propertyName);
-        builder.phasingParam("SenderPropertyValue", propertyValue);
-        builder.phasingParam("RecipientPropertySetter", CHUCK.getStrId());
-        builder.phasingParam("RecipientPropertyName", propertyName);
-        builder.phasingParam("RecipientPropertyValue", propertyValue);
+    private void setupByPropertyPhasing(String propertyName, String propertyValue, CreateOneSideTransactionCallBuilder<?> builder) {
+        builder.phasingVotingModel(VotingModel.PROPERTY.getCode());
+        builder.phasingQuorum(1);
+        builder.phasingSenderPropertySetter(CHUCK.getStrId());
+        builder.phasingSenderPropertyName(propertyName);
+        builder.phasingSenderPropertyValue(propertyValue);
+        builder.phasingRecipientPropertySetter(CHUCK.getStrId());
+        builder.phasingRecipientPropertyName(propertyName);
+        builder.phasingRecipientPropertyValue(propertyValue);
+    }
+
+    private void setupByPropertyPhasing(String propertyName, String propertyValue, SetPhasingAssetControlCall builder) {
+        builder.controlVotingModel(VotingModel.PROPERTY.getCode())
+                .controlQuorum(1)
+                .controlSenderPropertySetter(CHUCK.getStrId())
+                .controlSenderPropertyName(propertyName)
+                .controlSenderPropertyValue(propertyValue)
+                .controlRecipientPropertySetter(CHUCK.getStrId())
+                .controlRecipientPropertyName(propertyName)
+                .controlRecipientPropertyValue(propertyValue);
     }
 
 }

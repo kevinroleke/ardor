@@ -150,8 +150,7 @@ public class TaxReportAddOn implements AddOn {
                         .height(height)
                         .validate(false)
                         .adminPassword(adminPassword)
-                        .build()
-                        .invokeNoError();
+                        .callNoError();
             }
 
             private int dateToHeight(ZonedDateTime date) {

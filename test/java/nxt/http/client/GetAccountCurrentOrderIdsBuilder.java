@@ -15,17 +15,18 @@
 
 package nxt.http.client;
 
-import nxt.http.APICall;
+import nxt.addons.JO;
+import nxt.http.callers.GetAccountCurrentAskOrderIdsCall;
+import nxt.http.callers.GetAccountCurrentBidOrderIdsCall;
 import nxt.util.JSONAssert;
-import org.json.simple.JSONObject;
 
 import java.util.List;
+
+import static nxt.blockchain.ChildChain.IGNIS;
 
 public class GetAccountCurrentOrderIdsBuilder {
     private final long accountId;
     private long assetId = 0;
-    private int firstIndex = 0;
-    private int lastIndex = Integer.MAX_VALUE;
 
     public GetAccountCurrentOrderIdsBuilder(long accountId) {
         this.accountId = accountId;
@@ -40,31 +41,20 @@ public class GetAccountCurrentOrderIdsBuilder {
         return this;
     }
 
-    public GetAccountCurrentOrderIdsBuilder setFirstIndex(int firstIndex) {
-        this.firstIndex = firstIndex;
-        return this;
-    }
-
-    public GetAccountCurrentOrderIdsBuilder setLastIndex(int lastIndex) {
-        this.lastIndex = lastIndex;
-        return this;
-    }
-
     public List<String> getAskOrders() {
-        return getOrders("getAccountCurrentAskOrderIds", "askOrderIds");
+        JO result = GetAccountCurrentAskOrderIdsCall.create(IGNIS.getId())
+                .account(accountId)
+                .asset(assetId)
+                .callNoError();
+        return new JSONAssert(result).array("askOrderIds", String.class);
     }
 
     public List<String> getBidOrders() {
-        return getOrders("getAccountCurrentBidOrderIds", "bidOrderIds");
+        JO result = GetAccountCurrentBidOrderIdsCall.create(IGNIS.getId())
+                .account(accountId)
+                .asset(assetId)
+                .callNoError();
+        return new JSONAssert(result).array("bidOrderIds", String.class);
     }
 
-    private List<String> getOrders(String requestType, String resultKey) {
-        JSONObject result = new APICall.Builder(requestType)
-                .param("account", Long.toUnsignedString(accountId))
-                .param("asset", Long.toUnsignedString(assetId))
-                .param("firstIndex", firstIndex)
-                .param("lastIndex", lastIndex)
-                .build().invokeNoError();
-        return new JSONAssert(result).array(resultKey, String.class);
-    }
 }

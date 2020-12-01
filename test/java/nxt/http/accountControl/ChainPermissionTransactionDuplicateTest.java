@@ -128,7 +128,7 @@ public class ChainPermissionTransactionDuplicateTest extends BlockchainWithChild
                     .recipient(thainAdmin.getStrId())
                     .permission(permissionType.name())
                     .feeNQT(IGNIS.ONE_COIN)
-                    .build().invokeNoError();
+                    .callNoError();
         }
 
         private void removePermission(Tester endUser, PermissionType permission) {
@@ -137,7 +137,7 @@ public class ChainPermissionTransactionDuplicateTest extends BlockchainWithChild
                     .recipient(endUser.getId())
                     .permission(permission.name())
                     .feeNQT(IGNIS.ONE_COIN)
-                    .build().invokeNoError();
+                    .callNoError();
         }
 
         void removeChainUserPermission(TesterWrapper endUser) {

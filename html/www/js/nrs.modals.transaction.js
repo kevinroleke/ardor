@@ -187,18 +187,13 @@ NRS.onSiteBuildDone().then(() => {
                 var async = false;
                 var $transactionRawData = $("#transaction_raw_data");
                 $transactionRawData.html(JSON.stringify(transaction, null, 4));
-                NRS.sendRequest("getTransactionBytes", { "fullHash": transaction.fullHash }, (response) => {
-                    if (response.confirmations) {
-                        $("#transaction_bytes").text(response.transactionBytes);
-                    } else {
-                        $("#transaction_bytes").text(response.unsignedTransactionBytes);
-                    }
-                    if (response.prunableAttachmentJSON) {
-                        $("#transaction_prunable_attachment").html(JSON.stringify(response.prunableAttachmentJSON, null, 4));
-                    } else {
-                        $("#transaction_prunable_attachment").html($.t("none"));
-                    }
-                })
+                let txBytesResponse = await NRS.sendRequestAndWait("getTransactionBytes", { "fullHash": transaction.fullHash });
+                $("#transaction_bytes").text(txBytesResponse.transactionBytes);
+                if (txBytesResponse.prunableAttachmentJSON) {
+                    $("#transaction_prunable_attachment").html(JSON.stringify(txBytesResponse.prunableAttachmentJSON, null, 4));
+                } else {
+                    $("#transaction_prunable_attachment").html($.t("none"));
+                }
                 hljs.highlightBlock($transactionRawData[0]);
                 var transactionDetails = $.extend({}, transaction);
                 delete transactionDetails.attachment;

@@ -19,6 +19,7 @@ package nxt.http;
 import nxt.Constants;
 import nxt.NxtException;
 import nxt.account.Account;
+import nxt.ae.AssetExchangeTransactionType;
 import nxt.ae.AssetIssuanceAttachment;
 import nxt.blockchain.Attachment;
 import nxt.util.Convert;
@@ -39,7 +40,8 @@ public final class IssueAsset extends CreateTransaction {
     static final IssueAsset instance = new IssueAsset();
 
     private IssueAsset() {
-        super(new APITag[] {APITag.AE, APITag.CREATE_TRANSACTION}, "name", "description", "quantityQNT", "decimals");
+        super(AssetExchangeTransactionType.ASSET_ISSUANCE, new APITag[] {APITag.AE, APITag.CREATE_TRANSACTION},
+                "name", "description", "quantityQNT", "decimals");
     }
 
     @Override

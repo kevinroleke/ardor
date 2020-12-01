@@ -18,24 +18,22 @@ package nxt.http.votingsystem;
 
 import nxt.BlockchainTest;
 import nxt.Nxt;
-import nxt.blockchain.ChildChain;
-import nxt.http.APICall;
+import nxt.addons.JO;
+import nxt.http.callers.CreatePollCall;
+import nxt.http.callers.GetPollCall;
 import nxt.util.Convert;
 import nxt.util.Logger;
 import nxt.voting.VoteWeighting;
-import org.json.simple.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static nxt.blockchain.ChildChain.IGNIS;
+
 public class TestCreatePoll extends BlockchainTest {
 
-    static String issueCreatePoll(APICall apiCall, boolean shouldFail) {
-        JSONObject createPollResponse = apiCall.invoke();
+    static String issueCreatePoll(CreatePollCall createPollCall, boolean shouldFail) {
+        JO createPollResponse = shouldFail ? createPollCall.call() : createPollCall.callNoError();
         Logger.logMessage("createPollResponse: " + createPollResponse.toJSONString());
-
-        if(!shouldFail) {
-            Assert.assertNull(createPollResponse.get("errorCode"));
-        }
 
         generateBlock();
 
@@ -44,9 +42,7 @@ public class TestCreatePoll extends BlockchainTest {
 
             if(!shouldFail && fullHash == null) Assert.fail();
             String pollId = Long.toUnsignedString(Convert.fullHashToId(fullHash));
-            apiCall = new APICall.Builder("getPoll").param("poll", pollId).build();
-
-            JSONObject getPollResponse = apiCall.invoke();
+            JO getPollResponse = GetPollCall.create(IGNIS.getId()).poll(pollId).callNoError();
             Logger.logMessage("getPollResponse:" + getPollResponse.toJSONString());
             Assert.assertEquals(pollId, getPollResponse.get("poll"));
             return pollId;
@@ -56,70 +52,40 @@ public class TestCreatePoll extends BlockchainTest {
         }
     }
 
+    public static CreatePollCall createPollBuilder() {
+        return CreatePollCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(10 * IGNIS.ONE_COIN)
+                .name("Test1")
+                .description("The most cool Beatles guy?")
+                .finishHeight(Nxt.getBlockchain().getHeight() + 100)
+                .votingModel(VoteWeighting.VotingModel.ACCOUNT.getCode())
+                .minNumberOfOptions((byte)1)
+                .maxNumberOfOptions((byte)2)
+                .minRangeValue((byte)0)
+                .maxRangeValue((byte)1)
+                .minBalance(10 * IGNIS.ONE_COIN)
+                .minBalanceModel(VoteWeighting.MinBalanceModel.COIN.getCode())
+                .param("option00", "Ringo")
+                .param("option01", "Paul")
+                .param("option02", "John");
+    }
+
     @Test
     public void createValidPoll() {
-        APICall apiCall = new CreatePollBuilder().build();
-        issueCreatePoll(apiCall, false);
+        issueCreatePoll(createPollBuilder(), false);
         generateBlock();
 
-        apiCall = new CreatePollBuilder().votingModel(VoteWeighting.VotingModel.COIN.getCode()).build();
-        issueCreatePoll(apiCall, false);
+        issueCreatePoll(createPollBuilder().votingModel(VoteWeighting.VotingModel.COIN.getCode()), false);
         generateBlock();
     }
 
     @Test
     public void createInvalidPoll() {
-        APICall apiCall = new CreatePollBuilder().minBalance(-ChildChain.IGNIS.ONE_COIN).build();
-        issueCreatePoll(apiCall, true);
+        issueCreatePoll(createPollBuilder().minBalance(-IGNIS.ONE_COIN), true);
         generateBlock();
 
-        apiCall = new CreatePollBuilder().minBalance(0).build();
-        issueCreatePoll(apiCall, true);
+        issueCreatePoll(createPollBuilder().minBalance(0), true);
         generateBlock();
-    }
-
-    public static class CreatePollBuilder extends APICall.Builder {
-
-        public CreatePollBuilder() {
-            super("createPoll");
-            secretPhrase(ALICE.getSecretPhrase());
-            feeNQT(10 * ChildChain.IGNIS.ONE_COIN);
-            param("name", "Test1");
-            param("description", "The most cool Beatles guy?");
-            param("finishHeight", Nxt.getBlockchain().getHeight() + 100);
-            param("votingModel", VoteWeighting.VotingModel.ACCOUNT.getCode());
-            param("minNumberOfOptions", 1);
-            param("maxNumberOfOptions", 2);
-            param("minRangeValue", 0);
-            param("maxRangeValue", 1);
-            param("minBalance", 10 * ChildChain.IGNIS.ONE_COIN);
-            param("minBalanceModel", VoteWeighting.MinBalanceModel.COIN.getCode());
-            param("option00", "Ringo");
-            param("option01", "Paul");
-            param("option02", "John");
-        }
-
-        public CreatePollBuilder votingModel(byte votingModel) {
-            param("votingModel", votingModel);
-            return this;
-        }
-
-        public CreatePollBuilder minBalance(long minBalance) {
-            param("minBalance", minBalance);
-            return this;
-        }
-
-        public CreatePollBuilder minBalance(long minBalance, byte minBalanceModel) {
-            param("minBalance", minBalance);
-            param("minBalanceModel", minBalanceModel);
-            return this;
-        }
-
-        public CreatePollBuilder minBalance(long minBalance, byte minBalanceModel, long holdingId) {
-            param("minBalance", minBalance);
-            param("minBalanceModel", minBalanceModel);
-            param("holdingId", holdingId);
-            return this;
-        }
     }
 }

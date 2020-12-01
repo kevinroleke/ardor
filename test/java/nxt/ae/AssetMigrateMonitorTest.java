@@ -22,7 +22,7 @@ import nxt.Tester;
 import nxt.blockchain.ChildChain;
 import nxt.dbschema.Db;
 import nxt.http.assetexchange.AssetExchangeTest;
-import nxt.http.client.SetAssetPropertyBuilder;
+import nxt.http.callers.SetAssetPropertyCall;
 import nxt.http.client.TransferAssetBuilder;
 import org.junit.Assert;
 import org.junit.Before;
@@ -80,9 +80,13 @@ public class AssetMigrateMonitorTest extends BlockchainTest {
     }
 
     private void setAssetMigrationAssetProperty(Asset asset, int height) {
-        String property = Asset.ASSET_MIGRATE_HEIGHT_PROPERTY + Long.toUnsignedString(asset.getId());
-        String value = Integer.toString(height);
-        new SetAssetPropertyBuilder(assetOwner, asset.getId(), property, value).invokeNoError();
+        SetAssetPropertyCall.create(ChildChain.IGNIS.getId())
+                .secretPhrase(assetOwner.getSecretPhrase())
+                .asset(asset.getId())
+                .feeNQT(3 * ChildChain.IGNIS.ONE_COIN)
+                .property(Asset.ASSET_MIGRATE_HEIGHT_PROPERTY + Long.toUnsignedString(asset.getId()))
+                .value(Integer.toString(height))
+                .callNoError();
     }
 
     @Test

@@ -118,6 +118,10 @@ public class JO extends AbstractMap {
         return new JO((JSONObject)o);
     }
 
+    public static JO valueOf(JO o) {
+        return o;
+    }
+
     public static JO parse(String s) {
         try {
             return new JO(JSONValue.parseWithException(s));

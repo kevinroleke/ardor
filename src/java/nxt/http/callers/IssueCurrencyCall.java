@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class IssueCurrencyCall extends CreateTransactionCallBuilder<IssueCurrencyCall> {
+public class IssueCurrencyCall extends CreateOneSideTransactionCallBuilder<IssueCurrencyCall> {
     private IssueCurrencyCall() {
         super(ApiSpec.issueCurrency);
     }
@@ -14,7 +14,7 @@ public class IssueCurrencyCall extends CreateTransactionCallBuilder<IssueCurrenc
         return param("code", code);
     }
 
-    public IssueCurrencyCall minDifficulty(String minDifficulty) {
+    public IssueCurrencyCall minDifficulty(byte minDifficulty) {
         return param("minDifficulty", minDifficulty);
     }
 
@@ -34,7 +34,7 @@ public class IssueCurrencyCall extends CreateTransactionCallBuilder<IssueCurrenc
         return param("initialSupplyQNT", initialSupplyQNT);
     }
 
-    public IssueCurrencyCall issuanceHeight(boolean issuanceHeight) {
+    public IssueCurrencyCall issuanceHeight(int issuanceHeight) {
         return param("issuanceHeight", issuanceHeight);
     }
 
@@ -46,7 +46,7 @@ public class IssueCurrencyCall extends CreateTransactionCallBuilder<IssueCurrenc
         return param("maxSupplyQNT", maxSupplyQNT);
     }
 
-    public IssueCurrencyCall maxDifficulty(String maxDifficulty) {
+    public IssueCurrencyCall maxDifficulty(byte maxDifficulty) {
         return param("maxDifficulty", maxDifficulty);
     }
 
@@ -62,7 +62,7 @@ public class IssueCurrencyCall extends CreateTransactionCallBuilder<IssueCurrenc
         return param("name", name);
     }
 
-    public IssueCurrencyCall algorithm(String algorithm) {
+    public IssueCurrencyCall algorithm(byte algorithm) {
         return param("algorithm", algorithm);
     }
 }

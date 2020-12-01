@@ -329,7 +329,12 @@ var NRS = (function(NRS, $, undefined) {
 						customLoginWarningDiv.hide();
 					}
 
-					NRS.initializePlugins();
+                    if (NRS.canInitializePlugins()) {
+                    	NRS.logConsole("Initializing plugins");
+						NRS.initializePlugins();
+					} else {
+						NRS.logConsole("Plugins are not supported using this configuration");
+					}
 					NRS.printEnvInfo();
 					NRS.spinner.stop();
 					console.log("getState response processed");
@@ -467,19 +472,21 @@ var NRS = (function(NRS, $, undefined) {
 	};
 
 	var _firstTimeAfterLoginRun = false;
-	var _prevLastProxyBlock = "0";
 
 	NRS.getLastBlock = function() {
 		return NRS.state.apiProxy ? NRS.lastProxyBlock : NRS.state.lastBlock;
 	};
 
-	NRS.handleBlockchainStatus = function(response, callback) {
+	NRS.handleBlockchainStatus = function(response, previousLastBlock, callback) {
 		var firstTime = !("stateInitialized" in NRS);
-		var previousLastBlock = (firstTime ? "0" : NRS.state.lastBlock);
 
 		NRS.state = response;
 		NRS.stateInitialized = true;
-		var lastBlock = NRS.state.lastBlock;
+		//Last block known to the local server. Will be before the actual last blockchain block if currently
+		// downloading the blockchain. Used to update the downloading status
+		var lastDownloadedBlock = NRS.state.lastBlock;
+
+		//The actual blockchain height. May be after the lastDownloadedBlock if got from the proxy
 		var height = response.apiProxy ? NRS.lastProxyBlockHeight : NRS.state.numberOfBlocks - 1;
 
 		NRS.serverConnect = true;
@@ -487,7 +494,7 @@ var NRS = (function(NRS, $, undefined) {
 		$("#sidebar_block_link").html(NRS.getBlockLink(height));
 		if (firstTime) {
 			$("#nrs_version").html(NRS.state.version).removeClass("loading_dots");
-			NRS.getBlock(lastBlock, NRS.handleInitialBlocks);
+			NRS.getBlock(lastDownloadedBlock, NRS.handleInitialBlocks);
 			NRS.updateTimeToNextBlock();
 		} else if (NRS.state.isScanning) {
 			//do nothing but reset NRS.state so that when isScanning is done, everything is reset.
@@ -497,17 +504,17 @@ var NRS = (function(NRS, $, undefined) {
 			isScanning = false;
 			NRS.blocks = [];
 			NRS.tempBlocks = [];
-			NRS.getBlock(lastBlock, NRS.handleInitialBlocks);
+			NRS.getBlock(lastDownloadedBlock, NRS.handleInitialBlocks);
 			if (NRS.account) {
 				NRS.getInitialTransactions();
 				NRS.getAccountInfo();
 			}
-		} else if (previousLastBlock != lastBlock) {
+		} else if (previousLastBlock != NRS.getLastBlock()) {
 			NRS.tempBlocks = [];
 			if (NRS.account) {
 				NRS.getAccountInfo();
 			}
-			NRS.getBlock(lastBlock, NRS.handleNewBlocks);
+			NRS.getBlock(lastDownloadedBlock, NRS.handleNewBlocks);
 			if (NRS.account) {
 				NRS.getNewTransactions();
 				NRS.updateApprovalRequests();
@@ -553,6 +560,9 @@ var NRS = (function(NRS, $, undefined) {
 		if (response.errorCode) {
 			NRS.connectionError(response.errorDescription, response.errorCode);
 		} else {
+			var firstTime = !("stateInitialized" in NRS);
+			var previousLastBlock = (firstTime ? "0" : NRS.getLastBlock());
+
 			if (response.apiProxy) {
 				//set the state here or else NRS.sendRequest doesn't work properly
 				NRS.state = response;
@@ -562,19 +572,18 @@ var NRS = (function(NRS, $, undefined) {
 				if (proxyBlocksResponse.errorCode) {
 					NRS.connectionError(proxyBlocksResponse.errorDescription, proxyBlocksResponse.errorCode);
 				} else {
-					_prevLastProxyBlock = NRS.lastProxyBlock;
 					var prevHeight = NRS.lastProxyBlockHeight;
 					NRS.lastProxyBlock = proxyBlocksResponse.blocks[0].block;
 					NRS.lastProxyBlockHeight = proxyBlocksResponse.blocks[0].height;
 					NRS.lastBlockHeight = NRS.lastProxyBlockHeight;
 					NRS.incoming.updateDashboardBlocks(NRS.lastProxyBlockHeight - prevHeight);
 					NRS.updateDashboardLastBlock(proxyBlocksResponse.blocks[0]);
-					NRS.handleBlockchainStatus(response, callback);
+					NRS.handleBlockchainStatus(response, previousLastBlock, callback);
 					NRS.updateDashboardMessage();
 				}
 				NRS.updateConfirmationsIndicator();
 			} else {
-				NRS.handleBlockchainStatus(response, callback);
+				NRS.handleBlockchainStatus(response, previousLastBlock, callback);
 			}
 			var clientOptions = $(".client_options");
 			if (NRS.isShowClientOptionsLink()) {

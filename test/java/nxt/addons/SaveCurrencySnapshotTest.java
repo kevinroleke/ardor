@@ -48,7 +48,7 @@ public class SaveCurrencySnapshotTest extends BlockchainTest {
 
     @Before
     public void setUp() {
-        currencyOwner = TestCurrencyIssuance.Builder.creator;
+        currencyOwner = TestCurrencyIssuance.CREATOR;
         new SaveCurrencySnapshot().init();
     }
 
@@ -81,7 +81,7 @@ public class SaveCurrencySnapshotTest extends BlockchainTest {
         deleteFileRule.addFile(expectedFile);
         assertTrue(expectedFile.exists());
 
-        String expectedJson = String.format("{\"%s\":%s}", currencyOwner.getStrId(), TestCurrencyIssuance.Builder.initialSupplyQNT);
+        String expectedJson = String.format("{\"%s\":%s}", currencyOwner.getStrId(), TestCurrencyIssuance.INITIAL_SUPPLY_QNT);
         assertEquals(expectedJson, FileUtils.readFile(expectedFile));
     }
 

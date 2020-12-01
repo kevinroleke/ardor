@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class DgsListingCall extends CreateTransactionCallBuilder<DgsListingCall> {
+public class DgsListingCall extends CreateOneSideTransactionCallBuilder<DgsListingCall> {
     private DgsListingCall() {
         super(ApiSpec.dgsListing);
     }
@@ -14,7 +14,7 @@ public class DgsListingCall extends CreateTransactionCallBuilder<DgsListingCall>
         return param("priceNQT", priceNQT);
     }
 
-    public DgsListingCall quantity(String quantity) {
+    public DgsListingCall quantity(int quantity) {
         return param("quantity", quantity);
     }
 

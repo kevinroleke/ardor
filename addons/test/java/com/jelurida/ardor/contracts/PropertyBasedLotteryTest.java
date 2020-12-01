@@ -17,7 +17,8 @@ package com.jelurida.ardor.contracts;
 
 import nxt.addons.JA;
 import nxt.addons.JO;
-import nxt.http.APICall;
+import nxt.http.callers.GetAccountPropertiesCall;
+import nxt.http.callers.SetAccountPropertyCall;
 import nxt.util.Logger;
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,37 +33,31 @@ public class PropertyBasedLotteryTest extends AbstractContractTest {
     public void lotteryTest() {
         String contractName = ContractTestHelper.deployContract(PropertyBasedLottery.class);
         String propertyKey = "lottery1";
-        APICall apiCall = new APICall.Builder("setAccountProperty").
+        JO response = SetAccountPropertyCall.create(IGNIS.getId()).
                 secretPhrase(ALICE.getSecretPhrase()).
-                param("chain", IGNIS.getId()).
-                param("recipient", BOB.getRsAccount()).
-                param("property", propertyKey).
-                param("value", "").
+                recipient(BOB.getRsAccount()).
+                property(propertyKey).
+                value("").
                 feeNQT(IGNIS.ONE_COIN).
-                build();
-        JO response = new JO(apiCall.invoke());
+                callNoError();
         Logger.logDebugMessage("setAccountProperty: " + response);
 
-        apiCall = new APICall.Builder("setAccountProperty").
+        response = SetAccountPropertyCall.create(IGNIS.getId()).
                 secretPhrase(ALICE.getSecretPhrase()).
-                param("chain", IGNIS.getId()).
-                param("recipient", CHUCK.getRsAccount()).
-                param("property", propertyKey).
-                param("value", "").
+                recipient(CHUCK.getRsAccount()).
+                property(propertyKey).
+                value("").
                 feeNQT(IGNIS.ONE_COIN).
-                build();
-        response = new JO(apiCall.invoke());
+                callNoError();
         Logger.logDebugMessage("setAccountProperty: " + response);
 
-        apiCall = new APICall.Builder("setAccountProperty").
+        response = SetAccountPropertyCall.create(IGNIS.getId()).
                 secretPhrase(ALICE.getSecretPhrase()).
-                param("chain", IGNIS.getId()).
-                param("recipient", DAVE.getRsAccount()).
-                param("property", propertyKey).
-                param("value", "").
+                recipient(DAVE.getRsAccount()).
+                property(propertyKey).
+                value("").
                 feeNQT(IGNIS.ONE_COIN).
-                build();
-        response = new JO(apiCall.invoke());
+                callNoError();
         Logger.logDebugMessage("setAccountProperty: " + response);
         generateBlock();
 
@@ -76,11 +71,10 @@ public class PropertyBasedLotteryTest extends AbstractContractTest {
         ContractTestHelper.messageTriggerContract(message, ALICE.getSecretPhrase());
         generateBlock(); // And now the reward transaction is processed
 
-        apiCall = new APICall.Builder("getAccountProperties").
-                param("setter", ALICE.getRsAccount()).
-                param("property", propertyKey).
-                build();
-        response = new JO(apiCall.invoke());
+        response = GetAccountPropertiesCall.create().
+                setter(ALICE.getRsAccount()).
+                property(propertyKey).
+                callNoError();
         List<JO> properties = new JA(response.get("properties")).objects();
         int h1 = getHeight() - 1;
         int winners = 0;
@@ -99,11 +93,10 @@ public class PropertyBasedLotteryTest extends AbstractContractTest {
         ContractTestHelper.messageTriggerContract(message, ALICE.getSecretPhrase());
         generateBlock(); // And now the reward transaction is processed
 
-        apiCall = new APICall.Builder("getAccountProperties").
-                param("setter", ALICE.getRsAccount()).
-                param("property", propertyKey).
-                build();
-        response = new JO(apiCall.invoke());
+        response = GetAccountPropertiesCall.create().
+                setter(ALICE.getRsAccount()).
+                property(propertyKey).
+                callNoError();
         properties = new JA(response.get("properties")).objects();
         winners = 0;
         losers = 0;

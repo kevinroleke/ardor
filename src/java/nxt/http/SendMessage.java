@@ -17,8 +17,8 @@
 package nxt.http;
 
 import nxt.NxtException;
-import nxt.account.Account;
 import nxt.messaging.MessageAttachment;
+import nxt.messaging.MessagingTransactionType;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,7 +28,8 @@ public final class SendMessage extends CreateTransaction {
     static final SendMessage instance = new SendMessage();
 
     private SendMessage() {
-        super(new APITag[] {APITag.MESSAGES, APITag.CREATE_TRANSACTION}, "recipient");
+        super(MessagingTransactionType.ARBITRARY_MESSAGE, new APITag[] {APITag.MESSAGES, APITag.CREATE_TRANSACTION},
+                "recipient");
     }
 
     @Override

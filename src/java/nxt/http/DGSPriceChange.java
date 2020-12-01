@@ -20,6 +20,7 @@ import nxt.NxtException;
 import nxt.account.Account;
 import nxt.blockchain.Attachment;
 import nxt.dgs.DigitalGoodsHome;
+import nxt.dgs.DigitalGoodsTransactionType;
 import nxt.dgs.PriceChangeAttachment;
 import org.json.simple.JSONStreamAware;
 
@@ -32,7 +33,7 @@ public final class DGSPriceChange extends CreateTransaction {
     static final DGSPriceChange instance = new DGSPriceChange();
 
     private DGSPriceChange() {
-        super(new APITag[] {APITag.DGS, APITag.CREATE_TRANSACTION},
+        super(DigitalGoodsTransactionType.PRICE_CHANGE, new APITag[] {APITag.DGS, APITag.CREATE_TRANSACTION},
                 "goods", "priceNQT");
     }
 

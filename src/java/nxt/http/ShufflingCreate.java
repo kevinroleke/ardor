@@ -23,6 +23,7 @@ import nxt.account.HoldingType;
 import nxt.blockchain.Attachment;
 import nxt.blockchain.ChildChain;
 import nxt.shuffling.ShufflingCreationAttachment;
+import nxt.shuffling.ShufflingTransactionType;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,7 +33,7 @@ public final class ShufflingCreate extends CreateTransaction {
     static final ShufflingCreate instance = new ShufflingCreate();
 
     private ShufflingCreate() {
-        super(new APITag[] {APITag.SHUFFLING, APITag.CREATE_TRANSACTION},
+        super(ShufflingTransactionType.SHUFFLING_CREATION, new APITag[] {APITag.SHUFFLING, APITag.CREATE_TRANSACTION},
                 "holding", "holdingType", "amount", "participantCount", "registrationPeriod");
     }
 

@@ -18,12 +18,12 @@ package nxt.http.assetexchange;
 
 import nxt.BlockchainTest;
 import nxt.Tester;
+import nxt.addons.JO;
 import nxt.blockchain.ChildChain;
-import nxt.http.APICall;
+import nxt.http.callers.DeleteAssetPropertyCall;
+import nxt.http.callers.SetAssetPropertyCall;
 import nxt.http.client.GetAssetPropertiesBuilder;
-import nxt.http.client.SetAssetPropertyBuilder;
 import nxt.util.JSONAssert;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.junit.Assert;
 import org.junit.ComparisonFailure;
@@ -42,15 +42,20 @@ public class AssetPropertiesTest extends BlockchainTest {
     public void testDeleteProperty() {
         long assetId = AssetExchangeTest.issueAsset(ALICE, "AssetC").getAssetId();
 
-        new SetAssetPropertyBuilder(ALICE, assetId, "prop1", "value1").invokeNoError();
+        SetAssetPropertyCall.create(ChildChain.IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .asset(assetId)
+                .feeNQT(3 * ChildChain.IGNIS.ONE_COIN)
+                .property("prop1")
+                .value("value1").callNoError();
 
         generateBlock();
 
-        createDeletePropertyBuilder(ALICE, assetId, "prop1").build().invokeNoError();
+        createDeletePropertyBuilder(ALICE, assetId, "prop1").callNoError();
 
         generateBlock();
 
-        JSONObject actual = new GetAssetPropertiesBuilder(assetId).invokeNoError();
+        JO actual = new GetAssetPropertiesBuilder(assetId).callNoError();
 
         List<JSONObject> properties = new JSONAssert(actual).array("properties", JSONObject.class);
         Assert.assertEquals(0, properties.size());
@@ -60,17 +65,22 @@ public class AssetPropertiesTest extends BlockchainTest {
     public void testDeletePropertyOtherAccount() {
         long assetId = AssetExchangeTest.issueAsset(ALICE, "AssetC").getAssetId();
 
-        new SetAssetPropertyBuilder(BOB, assetId, "prop", "value1").invokeNoError();
+        SetAssetPropertyCall.create(ChildChain.IGNIS.getId())
+                .secretPhrase(BOB.getSecretPhrase())
+                .asset(assetId)
+                .feeNQT(3 * ChildChain.IGNIS.ONE_COIN)
+                .property("prop")
+                .value("value1").callNoError();
 
         generateBlock();
 
         createDeletePropertyBuilder(ALICE, assetId, "prop")
-                .param("setter", BOB.getStrId())
-                .build().invokeNoError();
+                .setter(BOB.getStrId())
+                .callNoError();
 
         generateBlock();
 
-        JSONObject actual = new GetAssetPropertiesBuilder(assetId).invokeNoError();
+        JO actual = new GetAssetPropertiesBuilder(assetId).callNoError();
 
         List<JSONObject> properties = new JSONAssert(actual).array("properties", JSONObject.class);
         Assert.assertEquals(0, properties.size());
@@ -80,30 +90,35 @@ public class AssetPropertiesTest extends BlockchainTest {
     public void testDeletePropertyOtherAccountRejected() {
         long assetId = AssetExchangeTest.issueAsset(ALICE, "AssetC").getAssetId();
 
-        new SetAssetPropertyBuilder(ALICE, assetId, "some prop", "value1").invokeNoError();
+        SetAssetPropertyCall.create(ChildChain.IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .asset(assetId)
+                .feeNQT(3 * ChildChain.IGNIS.ONE_COIN)
+                .property("some prop")
+                .value("value1").callNoError();
 
         generateBlock();
 
-        JSONObject deleteResult = createDeletePropertyBuilder(BOB, assetId, "some prop")
-                .param("setter", ALICE.getStrId())
-                .build().invoke();
+        JO deleteResult = createDeletePropertyBuilder(BOB, assetId, "some prop")
+                .setter(ALICE.getStrId())
+                .call();
 
         String errorDescription = new JSONAssert(deleteResult).str("errorDescription");
         Assert.assertEquals("Incorrect \"property\" (cannot be deleted by this account)", errorDescription);
 
         generateBlock();
-        JSONObject properties = new GetAssetPropertiesBuilder(assetId).invokeNoError();
+        JO properties = new GetAssetPropertiesBuilder(assetId).callNoError();
 
         assertOnlyProperty("some prop", "value1", properties);
-        assertPropertySetter(ALICE, (JSONObject)((JSONArray)properties.get("properties")).get(0));
+        assertPropertySetter(ALICE, properties.getArray("properties").get(0));
     }
 
-    private APICall.Builder createDeletePropertyBuilder(Tester requester, long assetId, String property) {
-        return new APICall.Builder("deleteAssetProperty").
-                param("secretPhrase", requester.getSecretPhrase()).
-                param("asset", Long.toUnsignedString(assetId)).
-                param("feeNQT", 3 * ChildChain.IGNIS.ONE_COIN).
-                param("property", property);
+    private DeleteAssetPropertyCall createDeletePropertyBuilder(Tester requester, long assetId, String property) {
+        return DeleteAssetPropertyCall.create(ChildChain.IGNIS.getId()).
+                secretPhrase(requester.getSecretPhrase()).
+                asset(assetId).
+                feeNQT(3 * ChildChain.IGNIS.ONE_COIN).
+                property(property);
     }
 
     @Test
@@ -115,12 +130,22 @@ public class AssetPropertiesTest extends BlockchainTest {
     public void testSetGetPropertyMultipleAccounts() {
         long assetId = AssetExchangeTest.issueAsset(ALICE, "AssetC").getAssetId();
 
-        new SetAssetPropertyBuilder(ALICE, assetId, "prop1", "some value").invokeNoError();
-        new SetAssetPropertyBuilder(BOB, assetId, "prop1", "some other value").invokeNoError();
+        SetAssetPropertyCall.create(ChildChain.IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .asset(assetId)
+                .feeNQT(3 * ChildChain.IGNIS.ONE_COIN)
+                .property("prop1")
+                .value("some value").callNoError();
+        SetAssetPropertyCall.create(ChildChain.IGNIS.getId())
+                .secretPhrase(BOB.getSecretPhrase())
+                .asset(assetId)
+                .feeNQT(3 * ChildChain.IGNIS.ONE_COIN)
+                .property("prop1")
+                .value("some other value").callNoError();
 
         generateBlock();
 
-        JSONObject actual = new GetAssetPropertiesBuilder(assetId).invokeNoError();
+        JO actual = new GetAssetPropertiesBuilder(assetId).callNoError();
 
         assertContainsProperty(ALICE, "prop1", "some value", actual);
         assertContainsProperty(BOB, "prop1", "some other value", actual);
@@ -130,23 +155,34 @@ public class AssetPropertiesTest extends BlockchainTest {
     public void testSetGetPropertyOfSingleAccount() {
         long assetId = AssetExchangeTest.issueAsset(ALICE, "AssetC").getAssetId();
 
-        new SetAssetPropertyBuilder(ALICE, assetId, "prop1", "some value").invokeNoError();
-        new SetAssetPropertyBuilder(BOB, assetId, "prop1", "some other value").invokeNoError();
+        SetAssetPropertyCall.create(ChildChain.IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .asset(assetId)
+                .feeNQT(3 * ChildChain.IGNIS.ONE_COIN)
+                .property("prop1")
+                .value("some value").callNoError();
+        SetAssetPropertyCall.create(ChildChain.IGNIS.getId())
+                .secretPhrase(BOB.getSecretPhrase())
+                .asset(assetId)
+                .feeNQT(3 * ChildChain.IGNIS.ONE_COIN)
+                .property("prop1")
+                .value("some other value").callNoError();
 
         generateBlock();
 
-        JSONObject actual = new GetAssetPropertiesBuilder(assetId).setter(ALICE).invokeNoError();
+        JO actual = new GetAssetPropertiesBuilder(assetId).setter(ALICE).callNoError();
 
         assertOnlyProperty("prop1", "some value", actual);
         assertPropertySetter(ALICE, actual);
     }
 
-    private void assertContainsProperty(Tester expectedSetter, String expectedName, String expectedValue, JSONObject response) {
+    @SuppressWarnings("SameParameterValue")
+    private void assertContainsProperty(Tester expectedSetter, String expectedName, String expectedValue, JO response) {
         List<JSONObject> properties = new JSONAssert(response).array("properties", JSONObject.class);
         for (JSONObject actualProperty : properties) {
             try {
                 assertPropertyNameValue(expectedName, expectedValue, actualProperty);
-                assertPropertySetter(expectedSetter, actualProperty);
+                assertPropertySetter(expectedSetter, new JO(actualProperty));
                 return;
             } catch (ComparisonFailure ignored) {
             }
@@ -161,17 +197,22 @@ public class AssetPropertiesTest extends BlockchainTest {
     private void testSetGetProperty(String value) {
         long assetId = AssetExchangeTest.issueAsset(ALICE, "AssetC").getAssetId();
 
-        new SetAssetPropertyBuilder(ALICE, assetId, "prop", value).invokeNoError();
+        SetAssetPropertyCall.create(ChildChain.IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .asset(assetId)
+                .feeNQT(3 * ChildChain.IGNIS.ONE_COIN)
+                .property("prop")
+                .value(value).callNoError();
 
         generateBlock();
 
-        JSONObject actual = new GetAssetPropertiesBuilder(assetId).invokeNoError();
+        JO actual = new GetAssetPropertiesBuilder(assetId).callNoError();
 
         assertOnlyProperty("prop", value, actual);
-        assertPropertySetter(ALICE, (JSONObject)((JSONArray)actual.get("properties")).get(0));
+        assertPropertySetter(ALICE, actual.getArray("properties").get(0));
     }
 
-    private void assertOnlyProperty(String expectedName, String expectedValue, JSONObject response) {
+    private void assertOnlyProperty(String expectedName, String expectedValue, JO response) {
         List<JSONObject> properties = new JSONAssert(response).array("properties", JSONObject.class);
         JSONObject actualProperty = properties.get(0);
         assertPropertyNameValue(expectedName, expectedValue, actualProperty);
@@ -183,7 +224,7 @@ public class AssetPropertiesTest extends BlockchainTest {
         Assert.assertEquals(expectedValue, actualProperty.get("value"));
     }
 
-    private static void assertPropertySetter(Tester expectedSetter, JSONObject json) {
+    private static void assertPropertySetter(Tester expectedSetter, JO json) {
         Assert.assertEquals(Long.toUnsignedString(expectedSetter.getId()), json.get("setter"));
     }
 }

@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class ShufflingRegisterCall extends CreateTransactionCallBuilder<ShufflingRegisterCall> {
+public class ShufflingRegisterCall extends CreateOneSideTransactionCallBuilder<ShufflingRegisterCall> {
     private ShufflingRegisterCall() {
         super(ApiSpec.shufflingRegister);
     }

@@ -19,6 +19,7 @@ package nxt.http;
 import nxt.NxtException;
 import nxt.account.Account;
 import nxt.blockchain.chaincontrol.AddPermissionAttachment;
+import nxt.blockchain.chaincontrol.ChildChainControlTransactionType;
 import nxt.blockchain.chaincontrol.PermissionType;
 import org.json.simple.JSONStreamAware;
 
@@ -28,7 +29,8 @@ public final class AddAccountPermission extends CreateTransaction {
     static final AddAccountPermission instance = new AddAccountPermission();
 
     private AddAccountPermission() {
-        super(new APITag[] {APITag.CHILD_CHAIN_CONTROL, APITag.CREATE_TRANSACTION}, "recipient", "permission");
+        super(ChildChainControlTransactionType.ADD_PERMISSION,
+                new APITag[] {APITag.CHILD_CHAIN_CONTROL, APITag.CREATE_TRANSACTION}, "recipient", "permission");
     }
 
     @Override

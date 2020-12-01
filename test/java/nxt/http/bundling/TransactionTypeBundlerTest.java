@@ -19,8 +19,10 @@ import nxt.BlockchainTest;
 import nxt.RequireNonePermissionPolicyTestsCategory;
 import nxt.Tester;
 import nxt.addons.JO;
-import nxt.blockchain.ChildChain;
-import nxt.http.APICall;
+import nxt.http.callers.ShufflingProcessCall;
+import nxt.http.callers.ShufflingRegisterCall;
+import nxt.http.callers.ShufflingVerifyCall;
+import nxt.http.callers.StartBundlerCall;
 import nxt.http.shuffling.ShufflingUtil;
 import nxt.shuffling.ShufflingStage;
 import nxt.util.JSONAssert;
@@ -28,6 +30,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import static nxt.blockchain.ChildChain.IGNIS;
 import static nxt.http.shuffling.ShufflingUtil.ALICE_RECIPIENT;
 import static nxt.http.shuffling.ShufflingUtil.BOB_RECIPIENT;
 import static nxt.http.shuffling.ShufflingUtil.CHUCK_RECIPIENT;
@@ -99,40 +102,35 @@ public class TransactionTypeBundlerTest extends BlockchainTest {
     }
 
     private static void register(Tester tester, String shufflingFullHash) {
-        new JSONAssert(new APICall.Builder("shufflingRegister").
+        new JSONAssert(ShufflingRegisterCall.create(IGNIS.getId()).
                 secretPhrase(tester.getSecretPhrase()).
-                param("shufflingFullHash", shufflingFullHash).
-                feeNQT(0).
-                build().invoke()).fullHash();
+                shufflingFullHash(shufflingFullHash).
+                feeNQT(0).call()).fullHash();
     }
 
 
     private static void process(String shufflingFullHash, Tester tester, Tester recipient) {
-        new JSONAssert(new APICall.Builder("shufflingProcess").
-                param("shufflingFullHash", shufflingFullHash).
-                param("secretPhrase", tester.getSecretPhrase()).
-                param("recipientSecretPhrase", recipient.getSecretPhrase()).
-                feeNQT(0).
-                build().invoke()).fullHash();
+        new JSONAssert(ShufflingProcessCall.create(IGNIS.getId()).
+                shufflingFullHash(shufflingFullHash).
+                secretPhrase(tester.getSecretPhrase()).
+                recipientSecretPhrase(recipient.getSecretPhrase()).
+                feeNQT(0).call()).fullHash();
     }
 
     private static void verify(String shufflingFullHash, Tester tester, String shufflingStateHash) {
-        new JSONAssert(new APICall.Builder("shufflingVerify").
-                param("shufflingFullHash", shufflingFullHash).
-                param("secretPhrase", tester.getSecretPhrase()).
-                param("shufflingStateHash", shufflingStateHash).
-                feeNQT(0).
-                build().invoke());
+        new JSONAssert(ShufflingVerifyCall.create(IGNIS.getId()).
+                shufflingFullHash(shufflingFullHash).
+                secretPhrase(tester.getSecretPhrase()).
+                shufflingStateHash(shufflingStateHash).
+                feeNQT(0).call());
     }
 
     private void startShufflingBundler(String types) {
-        JSONAssert result = new JSONAssert(new APICall.Builder("startBundler").
+        JSONAssert result = new JSONAssert(StartBundlerCall.create(IGNIS.getId()).
                 secretPhrase(BOB.getSecretPhrase()).
-                param("chain", ChildChain.IGNIS.getId()).
-                param("filter", "TransactionTypeBundler:" + types).
-                param("minRateNQTPerFXT", 0).
-                param("feeCalculatorName", "MIN_FEE").
-                build().invoke());
+                filter("TransactionTypeBundler:" + types).
+                minRateNQTPerFXT(0).
+                feeCalculatorName("MIN_FEE").call());
         result.str("totalFeesLimitFQT");
     }
 }

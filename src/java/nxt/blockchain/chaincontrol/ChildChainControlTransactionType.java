@@ -86,7 +86,7 @@ public abstract class ChildChainControlTransactionType extends ChildTransactionT
                 || isDuplicate(ADD_PERMISSION, recipientIdString, duplicates, true);
     }
 
-    static final ChildChainControlTransactionType ADD_PERMISSION = new ChildChainControlTransactionType() {
+    public static final ChildChainControlTransactionType ADD_PERMISSION = new ChildChainControlTransactionType() {
         @Override
         protected void validateAttachment(ChildTransactionImpl transaction) throws NxtException.ValidationException {
             PermissionType permissionType = ((AddPermissionAttachment) transaction.getAttachment()).getPermissionType();
@@ -135,7 +135,7 @@ public abstract class ChildChainControlTransactionType extends ChildTransactionT
         }
     };
 
-    static final ChildChainControlTransactionType REMOVE_PERMISSION = new ChildChainControlTransactionType() {
+    public static final ChildChainControlTransactionType REMOVE_PERMISSION = new ChildChainControlTransactionType() {
         @Override
         protected void validateAttachment(ChildTransactionImpl transaction) throws NxtException.ValidationException {
             PermissionType permissionType = ((RemovePermissionAttachment) transaction.getAttachment()).getPermissionType();

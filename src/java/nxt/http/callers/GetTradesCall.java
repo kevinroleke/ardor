@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetTradesCall extends APICall.Builder<GetTradesCall> {
+public class GetTradesCall extends ChainSpecificCallBuilder<GetTradesCall> {
     private GetTradesCall() {
         super(ApiSpec.getTrades);
     }

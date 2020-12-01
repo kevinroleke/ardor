@@ -20,6 +20,7 @@ import nxt.NxtException;
 import nxt.account.Account;
 import nxt.shuffling.ShufflingCancellationAttachment;
 import nxt.shuffling.ShufflingHome;
+import nxt.shuffling.ShufflingTransactionType;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,7 +30,9 @@ public final class ShufflingCancel extends CreateTransaction {
     static final ShufflingCancel instance = new ShufflingCancel();
 
     private ShufflingCancel() {
-        super(new APITag[] {APITag.SHUFFLING, APITag.CREATE_TRANSACTION}, "shufflingFullHash", "cancellingAccount", "shufflingStateHash");
+        super(ShufflingTransactionType.SHUFFLING_CANCELLATION,
+                new APITag[] {APITag.SHUFFLING, APITag.CREATE_TRANSACTION},
+                "shufflingFullHash", "cancellingAccount", "shufflingStateHash");
     }
 
     @Override

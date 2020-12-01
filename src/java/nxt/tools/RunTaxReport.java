@@ -96,7 +96,7 @@ public class RunTaxReport {
             toDateDate = now;
         }
         do {
-            final BlockResponse blockResponse = BlockResponse.create(GetBlockCall.create().build().invokeNoError());
+            final BlockResponse blockResponse = BlockResponse.create(GetBlockCall.create().callNoError());
             final ZonedDateTime lastBlockDate = asDate(blockResponse.getTimestamp());
 
             if (lastBlockDate.isBefore(toDateDate)) {

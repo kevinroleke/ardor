@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class SetPhasingOnlyControlCall extends CreateTransactionCallBuilder<SetPhasingOnlyControlCall> {
+public class SetPhasingOnlyControlCall extends CreateOneSideTransactionCallBuilder<SetPhasingOnlyControlCall> {
     private SetPhasingOnlyControlCall() {
         super(ApiSpec.setPhasingOnlyControl);
     }
@@ -32,7 +32,7 @@ public class SetPhasingOnlyControlCall extends CreateTransactionCallBuilder<SetP
         return param("controlParams", controlParams);
     }
 
-    public SetPhasingOnlyControlCall controlMinDuration(String controlMinDuration) {
+    public SetPhasingOnlyControlCall controlMinDuration(int controlMinDuration) {
         return param("controlMinDuration", controlMinDuration);
     }
 
@@ -70,7 +70,7 @@ public class SetPhasingOnlyControlCall extends CreateTransactionCallBuilder<SetP
         return param("controlVotingModel", controlVotingModel);
     }
 
-    public SetPhasingOnlyControlCall controlMaxDuration(String controlMaxDuration) {
+    public SetPhasingOnlyControlCall controlMaxDuration(int controlMaxDuration) {
         return param("controlMaxDuration", controlMaxDuration);
     }
 

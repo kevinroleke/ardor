@@ -20,6 +20,7 @@ import nxt.Constants;
 import nxt.NxtException;
 import nxt.account.Account;
 import nxt.ae.Asset;
+import nxt.ae.AssetExchangeTransactionType;
 import nxt.ae.AssetPropertyAttachment;
 import nxt.blockchain.Attachment;
 import nxt.util.Convert;
@@ -35,7 +36,8 @@ public final class SetAssetProperty extends CreateTransaction {
     static final SetAssetProperty instance = new SetAssetProperty();
 
     private SetAssetProperty() {
-        super(new APITag[]{APITag.AE, APITag.CREATE_TRANSACTION}, "asset", "property", "value");
+        super(AssetExchangeTransactionType.ASSET_PROPERTY_SET, new APITag[]{APITag.AE, APITag.CREATE_TRANSACTION},
+                "asset", "property", "value");
     }
 
     @Override

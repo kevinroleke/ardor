@@ -20,19 +20,23 @@ import nxt.NxtException;
 import nxt.account.Account;
 import nxt.account.PaymentAttachment;
 import nxt.account.PaymentFxtAttachment;
+import nxt.account.PaymentFxtTransactionType;
+import nxt.account.PaymentTransactionType;
 import nxt.blockchain.Attachment;
 import nxt.blockchain.Chain;
 import nxt.blockchain.ChildChain;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 
 public final class SendMoney extends CreateTransaction {
 
     static final SendMoney instance = new SendMoney();
 
     private SendMoney() {
-        super(new APITag[] {APITag.ACCOUNTS, APITag.CREATE_TRANSACTION}, "recipient", "amountNQT");
+        super(Arrays.asList(PaymentFxtTransactionType.ORDINARY, PaymentTransactionType.ORDINARY),
+                new APITag[] {APITag.ACCOUNTS, APITag.CREATE_TRANSACTION}, "recipient", "amountNQT");
     }
 
     @Override

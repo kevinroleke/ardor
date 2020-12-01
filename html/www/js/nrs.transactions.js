@@ -76,21 +76,13 @@ NRS.onSiteBuildDone().then(() => {
 
 		NRS.updateTimeToNextBlock = async function() {
 			let response = await NRS.sendRequestAndWait("getNextBlockGenerators", { "limit": 10 });
-			if (response && response.generators) {
+			if (response && Array.isArray(response.generators)) {
 				let lastBlockTime = response.timestamp;
-				let generator;
-				for (let i=0; response.generators.length; i++) {
-					generator = response.generators[i];
-					let timeToNextBlock = NRS.getEstimatedNextBlockTime(generator.deadline, lastBlockTime);
-					if (timeToNextBlock >= 0) {
-						break;
-					}
-					NRS.logConsole(`Generator ${generator.accountRS} missed his turn`);
-				}
+				let generator = getNextGenerator(response, lastBlockTime);
 				if (nextBlockTimer) {
 					clearInterval(nextBlockTimer);
 				}
-				if (generator === undefined) {
+				if (generator === null) {
 					NRS.logConsole("Cannot update time to next block");
 					return;
 				}
@@ -114,6 +106,17 @@ NRS.onSiteBuildDone().then(() => {
 			}
 		}
 
+		function getNextGenerator(response, lastBlockTime) {
+			for (let generator of response.generators) {
+				let timeToNextBlock = NRS.getEstimatedNextBlockTime(generator.deadline, lastBlockTime);
+				if (timeToNextBlock >= 0) {
+					return generator;
+				}
+				NRS.logConsole(`Generator ${generator.accountRS} missed his turn`);
+			}
+			return null;
+		}
+
 		/**
 		 * Load unconfirmed transactions from the server, prepare them for presentation and update the various data structures
 		 * @param callback the callback to invoke
@@ -121,19 +124,33 @@ NRS.onSiteBuildDone().then(() => {
 		NRS.loadUnconfirmedTransactions = function(callback) {
 			NRS.sendRequest("getUnconfirmedTransactions", {
 				"account": NRS.account,
+				"includeWaitingTransactions": "true",
 				"firstIndex": 0,
 				"lastIndex": NRS.itemsPerPage
 			}, function(response) {
-				if (response.unconfirmedTransactions && response.unconfirmedTransactions.length) {
+				let returnedTransactions = response.unconfirmedTransactions;
+
+				//add to the returned transactions any waiting transactions which were previously unconfirmed and
+				// consequently we can assume they are still valid. Even if a transaction becomes invalid it will
+				// removed from the waiting transactions during the next execution of processWaitingTransactions
+				if (response.waitingTransactions && response.waitingTransactions.length) {
+					for (let i = 0; i < response.waitingTransactions.length; i++) {
+						if (unconfirmedTransactionIds.indexOf(response.waitingTransactions[i].fullHash) >= 0) {
+							returnedTransactions.push(response.waitingTransactions[i]);
+							//NRS.logConsole("Showing waiting transaction " + response.waitingTransactions[i].fullHash);
+						}
+					}
+				}
+				if (returnedTransactions && returnedTransactions.length) {
 					var transactions = [];
 					var transactionIds = [];
 
-					response.unconfirmedTransactions.sort(function(x, y) {
+					returnedTransactions.sort(function(x, y) {
 						return y.timestamp - x.timestamp;
 					});
 
-					for (var i = 0; i < response.unconfirmedTransactions.length; i++) {
-						var transaction = response.unconfirmedTransactions[i];
+					for (let i = 0; i < returnedTransactions.length; i++) {
+						var transaction = returnedTransactions[i];
 						transaction.confirmed = false;
 						transaction.unconfirmed = true;
 						transaction.confirmations = "/";
@@ -764,6 +781,7 @@ NRS.onSiteBuildDone().then(() => {
 			if (entry.isTransactionEvent) {
 				linkClass = "show_transaction_modal_action";
 				dataToken = "data-fullhash='" + NRS.escapeRespStr(entry.eventHash) + "'";
+				dataToken += " data-chain='" + NRS.escapeRespStr(entry.chain) + "'";
 			} else {
 				linkClass = "show_block_modal_action";
 				dataToken = "data-id='1' data-block='" + NRS.escapeRespStr(entry.event)+ "'";
@@ -952,6 +970,7 @@ NRS.onSiteBuildDone().then(() => {
 		 */
 		NRS.pages.dashboard = function() {
 			NRS.loadUnconfirmedTransactions(function(ucTransactions) {
+
 				var rows = "";
 				var ucNumber = 0;
 				if (ucTransactions) {

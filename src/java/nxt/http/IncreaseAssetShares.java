@@ -19,6 +19,7 @@ package nxt.http;
 import nxt.NxtException;
 import nxt.account.Account;
 import nxt.ae.Asset;
+import nxt.ae.AssetExchangeTransactionType;
 import nxt.ae.AssetIncreaseAttachment;
 import nxt.blockchain.Attachment;
 import org.json.simple.JSONStreamAware;
@@ -30,7 +31,8 @@ public final class IncreaseAssetShares extends CreateTransaction {
     static final IncreaseAssetShares instance = new IncreaseAssetShares();
 
     private IncreaseAssetShares() {
-        super(new APITag[] {APITag.AE, APITag.CREATE_TRANSACTION}, "asset", "quantityQNT");
+        super(AssetExchangeTransactionType.ASSET_INCREASE, new APITag[] {APITag.AE, APITag.CREATE_TRANSACTION},
+                "asset", "quantityQNT");
     }
 
     @Override

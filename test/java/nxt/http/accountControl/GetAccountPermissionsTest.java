@@ -103,7 +103,7 @@ public class GetAccountPermissionsTest extends BlockchainWithChildChainControlTe
         for (String account : defaultAdminAccounts) {
             JO actual = GetAccountPermissionsCall.create(IGNIS.getId())
                     .account(account)
-                    .call();
+                    .callNoError();
             assertEquals(
                     "Actual result: " + actual.toJSONString(),
                     array(userPermission(MASTER_ADMIN, account, 0, -1)),
@@ -113,7 +113,7 @@ public class GetAccountPermissionsTest extends BlockchainWithChildChainControlTe
 
     @Test
     public void testGetPreDefinedAccountPermissionsAfterPopOff() {
-        blockchainProcessor.popOffTo(0);
+        popOffTo(0);
 
         testGetPreDefinedAccountPermissions();
     }
@@ -139,7 +139,7 @@ public class GetAccountPermissionsTest extends BlockchainWithChildChainControlTe
     private JO getAccountPermissions(ChildChain chain) {
         return GetAccountPermissionsCall.create(chain.getId())
                 .account(ALICE.getId())
-                .call();
+                .callNoError();
     }
 
     private static JA array(JO... objects) {

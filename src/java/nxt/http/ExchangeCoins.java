@@ -20,6 +20,8 @@ import nxt.account.Account;
 import nxt.blockchain.Attachment;
 import nxt.blockchain.Chain;
 import nxt.blockchain.FxtChain;
+import nxt.ce.CoinExchangeFxtTransactionType;
+import nxt.ce.CoinExchangeTransactionType;
 import nxt.ce.OrderIssueAttachment;
 import nxt.ce.OrderIssueFxtAttachment;
 import nxt.util.Convert;
@@ -28,6 +30,7 @@ import org.json.simple.JSONStreamAware;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.Arrays;
 
 import static nxt.http.JSONResponses.NOT_ENOUGH_FUNDS;
 import static nxt.http.JSONResponses.NO_COST_ORDER;
@@ -37,7 +40,8 @@ public final class ExchangeCoins extends CreateTransaction {
     static final ExchangeCoins instance = new ExchangeCoins();
 
     private ExchangeCoins() {
-        super(new APITag[] {APITag.CE, APITag.CREATE_TRANSACTION}, "exchange", "quantityQNT", "priceNQTPerCoin");
+        super(Arrays.asList(CoinExchangeFxtTransactionType.ORDER_ISSUE, CoinExchangeTransactionType.ORDER_ISSUE),
+                new APITag[] {APITag.CE, APITag.CREATE_TRANSACTION}, "exchange", "quantityQNT", "priceNQTPerCoin");
     }
 
     @Override

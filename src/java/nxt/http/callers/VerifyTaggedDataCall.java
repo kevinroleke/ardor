@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class VerifyTaggedDataCall extends APICall.Builder<VerifyTaggedDataCall> {
+public class VerifyTaggedDataCall extends ChainSpecificCallBuilder<VerifyTaggedDataCall> {
     private VerifyTaggedDataCall() {
         super(ApiSpec.verifyTaggedData);
     }

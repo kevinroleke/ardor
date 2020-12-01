@@ -20,6 +20,7 @@ import nxt.NxtException;
 import nxt.account.Account;
 import nxt.ae.Asset;
 import nxt.ae.AssetDeleteAttachment;
+import nxt.ae.AssetExchangeTransactionType;
 import nxt.blockchain.Attachment;
 import org.json.simple.JSONStreamAware;
 
@@ -32,7 +33,8 @@ public final class DeleteAssetShares extends CreateTransaction {
     static final DeleteAssetShares instance = new DeleteAssetShares();
 
     private DeleteAssetShares() {
-        super(new APITag[] {APITag.AE, APITag.CREATE_TRANSACTION}, "asset", "quantityQNT");
+        super(AssetExchangeTransactionType.ASSET_DELETE, new APITag[] {APITag.AE, APITag.CREATE_TRANSACTION},
+                "asset", "quantityQNT");
     }
 
     @Override

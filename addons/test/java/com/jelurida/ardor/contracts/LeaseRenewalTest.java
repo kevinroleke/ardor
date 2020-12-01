@@ -15,9 +15,9 @@
 
 package com.jelurida.ardor.contracts;
 
-import nxt.http.APICall;
 import nxt.addons.JA;
 import nxt.addons.JO;
+import nxt.http.callers.GetAccountCall;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,18 +30,13 @@ public class LeaseRenewalTest extends AbstractContractTest {
         setupParams.put("leaseRenewalWarningPeriod", 2);
         ContractTestHelper.deployContract(LeaseRenewal.class, setupParams);
 
-        // Contract should submit lease transactions now
-        generateBlock();
-        // Wait the leasing delay for our stake to mature 2+1 blocks
-        generateBlock();
-        generateBlock();
-        generateBlock();
+        generateBlockWithDescription("Contract should submit lease transactions now");
+        generateBlocksWithDescription(3, "Wait the leasing delay for our stake to mature 2+1 blocks");
 
-        APICall apiCall = new APICall.Builder("getAccount").
-                param("account", ALICE.getRsAccount()).
-                param("includeLessors", "true").
-                build();
-        JO response = apiCall.getJsonResponse();
+        JO response = GetAccountCall.create().
+                account(ALICE.getRsAccount()).
+                includeLessors(true).
+                callNoError();
         JA lessorsInfo = response.getArray("lessorsInfo");
         Assert.assertEquals(3, lessorsInfo.size());
         for (JO lessor : lessorsInfo.objects()) {
@@ -50,15 +45,12 @@ public class LeaseRenewalTest extends AbstractContractTest {
         }
 
         // Now wait for the lease to progress
-        generateBlock(); // Renew lease
-        generateBlock(); // Process the new leasing transactions
-        generateBlock();
-        generateBlock();
-        apiCall = new APICall.Builder("getAccount").
-                param("account", ALICE.getRsAccount()).
-                param("includeLessors", "true").
-                build();
-        response = apiCall.getJsonResponse();
+        generateBlockWithDescription("Renew lease"); //
+        generateBlocksWithDescription(3, "Process the new leasing transactions");
+        response = GetAccountCall.create().
+                account(ALICE.getRsAccount()).
+                includeLessors(true).
+                callNoError();
         lessorsInfo = response.getArray("lessorsInfo");
         Assert.assertEquals(3, lessorsInfo.size());
         for (JO lessor : lessorsInfo.objects()) {

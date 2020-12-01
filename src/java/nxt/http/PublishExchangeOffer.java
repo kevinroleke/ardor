@@ -22,6 +22,7 @@ import nxt.account.Account;
 import nxt.blockchain.Attachment;
 import nxt.ms.Currency;
 import nxt.ms.CurrencyType;
+import nxt.ms.MonetarySystemTransactionType;
 import nxt.ms.PublishExchangeOfferAttachment;
 import org.json.simple.JSONStreamAware;
 
@@ -62,7 +63,8 @@ public final class PublishExchangeOffer extends CreateTransaction {
     static final PublishExchangeOffer instance = new PublishExchangeOffer();
 
     private PublishExchangeOffer() {
-        super(new APITag[] {APITag.MS, APITag.CREATE_TRANSACTION}, "currency", "buyRateNQTPerUnit", "sellRateNQTPerUnit",
+        super(MonetarySystemTransactionType.PUBLISH_EXCHANGE_OFFER, new APITag[] {APITag.MS, APITag.CREATE_TRANSACTION},
+                "currency", "buyRateNQTPerUnit", "sellRateNQTPerUnit",
                 "totalBuyLimitQNT", "totalSellLimitQNT", "initialBuySupplyQNT", "initialSellSupplyQNT", "expirationHeight");
     }
 

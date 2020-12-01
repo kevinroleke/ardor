@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class StopStandbyShufflerCall extends APICall.Builder<StopStandbyShufflerCall> {
+public class StopStandbyShufflerCall extends ChainSpecificCallBuilder<StopStandbyShufflerCall> {
     private StopStandbyShufflerCall() {
         super(ApiSpec.stopStandbyShuffler);
     }

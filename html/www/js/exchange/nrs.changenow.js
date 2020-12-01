@@ -309,6 +309,22 @@ NRS.onSiteBuildDone().then(() => {
                     return;
                 }
                 $("#changenow_send_modal #m_send_amount_sell_deposit_address").html(response.payinAddress);
+                $depositMessage = $("#changenow_send_modal #m_send_amount_sell_deposit_message");
+                if (response.payinExtraId) {
+                    $depositMessage.closest(".row").show();
+                    $depositMessage.html(response.payinExtraId);
+                    let params = {
+                        exchange: $.t("changenow"),
+                        message_name: $.t("exchange_default_message_name")
+                    }
+                    if (response.payinExtraIdName) {
+                        params.message_name = response.payinExtraIdName;
+                    }
+                    $("#changenow_send_modal label[for=m_send_amount_sell_deposit_message]").html($.t("deposit_message", params));
+                    $("#changenow_send_modal #m_send_amount_sell_deposit_message_warning").html($.t("exchange_deposit_message_warning", params));
+                } else {
+                    $depositMessage.closest(".row").hide();
+                }
                 NRS.generateQRCode("#changenow_send_modal #m_send_amount_sell_qr_code", response.payinAddress);
                 $("#changenow_send_amount_next").hide();
                 $("#changenow_send_amount_done").show();

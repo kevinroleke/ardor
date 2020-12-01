@@ -17,6 +17,7 @@
 package nxt.http;
 
 import nxt.BlockchainTest;
+import nxt.addons.JO;
 import nxt.blockchain.Chain;
 import nxt.blockchain.ChildChain;
 import nxt.blockchain.FxtChain;
@@ -33,8 +34,8 @@ public class GetConstantsTest extends BlockchainTest {
 
     @Test
     public void testGetConstantsChainProperties() {
-        JSONObject actual = GetConstantsCall.create().build().invokeNoError();
-        JSONObject chainProperties = (JSONObject) actual.get("chainProperties");
+        JO actual = GetConstantsCall.create().callNoError();
+        JO chainProperties = actual.getJo("chainProperties");
         assertEquals(expectedChainProperties(FxtChain.FXT), chainProperties.get("1"));
         assertEquals(expectedChildChainProperties(ChildChain.IGNIS), chainProperties.get("2"));
         assertEquals(expectedChildChainProperties(ChildChain.AEUR), chainProperties.get("3"));

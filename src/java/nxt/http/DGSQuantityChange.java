@@ -21,6 +21,7 @@ import nxt.NxtException;
 import nxt.account.Account;
 import nxt.blockchain.Attachment;
 import nxt.dgs.DigitalGoodsHome;
+import nxt.dgs.DigitalGoodsTransactionType;
 import nxt.dgs.QuantityChangeAttachment;
 import nxt.util.Convert;
 import org.json.simple.JSONStreamAware;
@@ -36,7 +37,7 @@ public final class DGSQuantityChange extends CreateTransaction {
     static final DGSQuantityChange instance = new DGSQuantityChange();
 
     private DGSQuantityChange() {
-        super(new APITag[] {APITag.DGS, APITag.CREATE_TRANSACTION},
+        super(DigitalGoodsTransactionType.QUANTITY_CHANGE, new APITag[] {APITag.DGS, APITag.CREATE_TRANSACTION},
                 "goods", "deltaQuantity");
     }
 

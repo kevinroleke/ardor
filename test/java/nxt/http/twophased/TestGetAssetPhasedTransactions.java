@@ -17,35 +17,36 @@
 package nxt.http.twophased;
 
 import nxt.BlockchainTest;
-import nxt.Tester;
-import nxt.blockchain.ChildChain;
+import nxt.addons.JA;
+import nxt.addons.JO;
 import nxt.http.APICall;
-import nxt.util.Convert;
+import nxt.http.callers.GetAssetPhasedTransactionsCall;
+import nxt.http.callers.IssueAssetCall;
+import nxt.http.callers.SearchAssetsCall;
 import nxt.util.Logger;
 import nxt.voting.VoteWeighting;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Base64;
+import static nxt.blockchain.ChildChain.IGNIS;
 
 public class TestGetAssetPhasedTransactions extends BlockchainTest {
 
     static APICall phasedTransactionsApiCall(String asset) {
-        return new APICall.Builder("getAssetPhasedTransactions")
-                .param("asset", asset)
-                .param("firstIndex", 0)
-                .param("lastIndex", 10)
+        return GetAssetPhasedTransactionsCall.create(IGNIS.getId())
+                .asset(asset)
+                .firstIndex(0)
+                .lastIndex(10)
                 .build();
     }
 
     private APICall byAssetApiCall(String asset) {
-        return new TestCreateTwoPhased.TwoPhasedMoneyTransferBuilder()
-                .votingModel(VoteWeighting.VotingModel.ASSET.getCode())
-                .holding(Convert.parseUnsignedLong(asset))
-                .minBalance(1, VoteWeighting.MinBalanceModel.ASSET.getCode())
-                .fee(21 * ChildChain.IGNIS.ONE_COIN)
+        return TestCreateTwoPhased.createSendMoneyBuilder()
+                .phasingVotingModel(VoteWeighting.VotingModel.ASSET.getCode())
+                .phasingHolding(asset)
+                .phasingMinBalance(1)
+                .phasingMinBalanceModel(VoteWeighting.MinBalanceModel.ASSET.getCode())
+                .feeNQT(21 * IGNIS.ONE_COIN)
                 .build();
     }
 
@@ -53,11 +54,11 @@ public class TestGetAssetPhasedTransactions extends BlockchainTest {
     @Test
     public void simpleTransactionLookup() {
         String asset = issueTestAsset();
-        JSONObject transactionJSON = TestCreateTwoPhased.issueCreateTwoPhased(byAssetApiCall(asset), false);
+        JO transactionJSON = TestCreateTwoPhased.issueCreateTwoPhased(byAssetApiCall(asset), false);
 
-        JSONObject response = phasedTransactionsApiCall(asset).invoke();
+        JO response = phasedTransactionsApiCall(asset).getJsonResponse();
         Logger.logMessage("getAssetPhasedTransactionsResponse:" + response.toJSONString());
-        JSONArray transactionsJson = (JSONArray) response.get("transactions");
+        JA transactionsJson = response.getArray("transactions");
         Assert.assertTrue(TwoPhasedSuite.searchForTransactionId(transactionsJson, (String) transactionJSON.get("fullHash")));
     }
 
@@ -69,15 +70,15 @@ public class TestGetAssetPhasedTransactions extends BlockchainTest {
             TestCreateTwoPhased.issueCreateTwoPhased(byAssetApiCall(asset), false);
         }
 
-        JSONObject response = phasedTransactionsApiCall(asset).invoke();
+        JO response = phasedTransactionsApiCall(asset).getJsonResponse();
         Logger.logMessage("getAssetPhasedTransactionsResponse:" + response.toJSONString());
-        JSONArray transactionsJson = (JSONArray) response.get("transactions");
+        JA transactionsJson = response.getArray("transactions");
 
         //sorting check
         int prevHeight = Integer.MAX_VALUE;
         for (Object transactionsJsonObj : transactionsJson) {
-            JSONObject transactionObject = (JSONObject) transactionsJsonObj;
-            int height = ((Long) transactionObject.get("height")).intValue();
+            JO transactionObject = (JO) transactionsJsonObj;
+            int height = transactionObject.getInt("height");
             Assert.assertTrue(height <= prevHeight);
             prevHeight = height;
         }
@@ -85,24 +86,19 @@ public class TestGetAssetPhasedTransactions extends BlockchainTest {
 
     private String issueTestAsset() {
         String name = "lz1cdqGYD";
-        APICall apiCall = new APICall.Builder("issueAsset")
-                .param("secretPhrase", RIKER.getSecretPhrase())
-                .param("name", name)
-                .param("description", "asset testing")
-                .param("quantityQNT", 10000000)
-                .param("decimals", 4)
-                .param("feeNQT", 1000 * ChildChain.IGNIS.ONE_COIN)
-                .param("deadline", 1440)
-                .build();
-        JSONObject response;
-        apiCall.invoke();
+        IssueAssetCall.create(IGNIS.getId())
+                .secretPhrase(RIKER.getSecretPhrase())
+                .name(name)
+                .description("asset testing")
+                .quantityQNT(10000000)
+                .decimals(4)
+                .feeNQT(1000 * IGNIS.ONE_COIN)
+                .deadline(1440)
+                .callNoError();
         BlockchainTest.generateBlock();
 
-        apiCall = new APICall.Builder("searchAssets")
-                .param("query", name)
-                .build();
-        response = apiCall.invoke();
-        JSONArray assets = (JSONArray) response.get("assets");
-        return (String) ((JSONObject)assets.get(0)).get("asset");
+        JO response = SearchAssetsCall.create().query(name).callNoError();
+        JA assets = response.getArray("assets");
+        return assets.get(0).getString("asset");
     }
 }

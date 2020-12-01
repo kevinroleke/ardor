@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class DgsFeedbackCall extends CreateTransactionCallBuilder<DgsFeedbackCall> {
+public class DgsFeedbackCall extends CreateTwoSidesTransactionCallBuilder<DgsFeedbackCall> {
     private DgsFeedbackCall() {
         super(ApiSpec.dgsFeedback);
     }

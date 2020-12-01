@@ -1,6 +1,6 @@
 {
   "name": "ardor",
-  "version": "2.3.14",
+  "version": "2.3.17",
   "description": "Client API library for the Ardor Blockchain",
   "main": "nrs.node.bridge.js",
   "repository": {

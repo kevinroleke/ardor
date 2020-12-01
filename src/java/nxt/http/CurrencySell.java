@@ -22,6 +22,7 @@ import nxt.blockchain.Attachment;
 import nxt.blockchain.ChildChain;
 import nxt.ms.Currency;
 import nxt.ms.ExchangeSellAttachment;
+import nxt.ms.MonetarySystemTransactionType;
 import nxt.util.Convert;
 import org.json.simple.JSONStreamAware;
 
@@ -52,7 +53,8 @@ public final class CurrencySell extends CreateTransaction {
     static final CurrencySell instance = new CurrencySell();
 
     private CurrencySell() {
-        super(new APITag[] {APITag.MS, APITag.CREATE_TRANSACTION}, "currency", "rateNQTPerUnit", "unitsQNT");
+        super(MonetarySystemTransactionType.EXCHANGE_SELL, new APITag[] {APITag.MS, APITag.CREATE_TRANSACTION},
+                "currency", "rateNQTPerUnit", "unitsQNT");
     }
 
     @Override

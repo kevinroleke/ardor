@@ -74,12 +74,11 @@ NRS.onSiteBuildDone().then(() => {
             return $.extend({}, addon_defaults, addon);
         });
 
-        NRS.setup.node_processes_config = function () {
+        NRS.pages.node_processes_config = function() {
             // check which add-ons are enabled (using constants) to filter view
             addons.forEach(function (addon) {
                 addon.showUI = NRS.constants.REQUEST_TYPES['save' + addon.requestType + 'Encrypted'] !== undefined;
             });
-            setupCompleteCallbacks();
 
             // override hidden passphrase input when logged with passphrase remembered
             $genericSaveModal.find(".secret_phrase").show();
@@ -88,9 +87,7 @@ NRS.onSiteBuildDone().then(() => {
             if (!NRS.isFileReaderSupported()) {
                 $uploadFileBtn.hide();
             }
-        };
 
-        NRS.pages.node_processes_config = function() {
             NRS.preparePage();
             NRS.simpleview.get('node_processes_config_page', {
                 addons: addons,
@@ -107,7 +104,7 @@ NRS.onSiteBuildDone().then(() => {
             var $invoker = $(event.relatedTarget);
             var addon = addons[$invoker.data("addon")];
             $genericSaveModal.data("addon", addon);
-            $genericSaveModal.find(".modal-title").text($.t("save") + ": " + $.t(addon.friendlyName));
+            $genericSaveModal.find(".modal-title").text($.t("set") + ": " + $.t(addon.friendlyName));
             $genericSaveModal.find(".callout-info").hide();
             accountSecrets = {};
             $("#save_node_process_config_request_type").val("save" + addon.requestType + "Encrypted");
@@ -153,7 +150,8 @@ NRS.onSiteBuildDone().then(() => {
         /**
          * On each change of the data textarea we update the set and state of account passphrases remaining.
          */
-        $saveNodeProcessPayload.on('change', function () {
+        function onUpdatedSaveNodeProcessPayload() {
+            clearTimeout(payloadChangedTimer);
             var addon = $genericSaveModal.data("addon");
 
             // remove pending accounts (we want to keep already entered secrets)
@@ -176,7 +174,14 @@ NRS.onSiteBuildDone().then(() => {
                     accountSecrets[account] = null;
                 }
             });
-            updatePassphrasesStatus();
+            updatePassphrasesStatus(payloadAccounts.length === 0);
+        }
+
+        let payloadChangedTimer = null;
+        $saveNodeProcessPayload.on('change', onUpdatedSaveNodeProcessPayload);
+        $saveNodeProcessPayload.on('input', () => {
+            clearTimeout(payloadChangedTimer);
+            setTimeout(onUpdatedSaveNodeProcessPayload, 5000);
         });
 
         function genericAccountExtractor(addon) {
@@ -207,7 +212,7 @@ NRS.onSiteBuildDone().then(() => {
          *
          * @returns {boolean} do we have all required passphrases?
          */
-        function updatePassphrasesStatus() {
+        function updatePassphrasesStatus(isEmptyAccountList) {
             // retrieve list of remaining passphrases required
             var pendingAccounts = Object.getOwnPropertyNames(accountSecrets).filter(function (account) {
                 return accountSecrets[account] === null;
@@ -215,14 +220,19 @@ NRS.onSiteBuildDone().then(() => {
                 return NRS.convertNumericToRSAccountFormat(account);
             });
 
-            if (pendingAccounts.length === 0) {
-                // if empty, then hide passphrases panel, show encryption passphrase panel and enable "Save" button
+            if (!!isEmptyAccountList) {
+                // no accounts, empty configuration
+                $genericSaveModal.find(".passphrasesPanel").addClass("hidden");
+                $genericSaveModal.find(".encryptionPanel").addClass("hidden");
+                $genericSaveModal.find(".modal-footer button.btn-primary").prop("disabled", true);
+            } else if (pendingAccounts.length === 0) {
+                // if empty, then hide passphrases panel, show encryption passphrase panel and enable "Set" button
                 $genericSaveModal.find(".passphrasesPanel").addClass("hidden");
                 $genericSaveModal.find(".encryptionPanel").removeClass("hidden");
                 $genericSaveModal.find(".modal-footer button.btn-primary").prop("disabled", false);
                 return true;
             } else {
-                // if not empty, then show passphrases panel, update content list, hide encryption passphrase panel and disable "Save" button
+                // if not empty, then show passphrases panel, update content list, hide encryption passphrase panel and disable "Set" button
                 $genericSaveModal.find(".passphrasesPanel").removeClass("hidden").find("ul").empty().append(
                     pendingAccounts.map(function (accountRS) {
                         return $('<li>').text(accountRS);
@@ -302,6 +312,7 @@ NRS.onSiteBuildDone().then(() => {
                 return `<dt>${account.accountRS}<span class='forgetForgingAccount' data-index='${index}'>x</span></dt>
                     <dd>Effective balance: ${account.effectiveBalance === null ? '...' : account.effectiveBalance}</dd>`;
             });
+            $forgingSaveModal.find(".modal-footer button.btn-primary").prop("disabled", forgingAccounts.length === 0);
             $forgingAccountsList.html(html);
         }
 
@@ -392,12 +403,6 @@ NRS.onSiteBuildDone().then(() => {
             var data = NRS.getFormData($modal.find("form:first"));
             delete data.secretPhrase;
 
-            if (forgingAccounts.length === 0 && $('#m_save_forging_encrypted_password').val() !== "") {
-                return {
-                    "error": $.t("save_forging_empty_list_filled_input")
-                };
-            }
-
             if (!data.encryptionPassword || data.encryptionPassword.length < 10) {
                 return {
                     "error": $.t("configuration_password_short")
@@ -462,21 +467,40 @@ NRS.onSiteBuildDone().then(() => {
         NRS.forms.startFundingMonitorsEncrypted = genericStartEncrypted;
         NRS.forms.startContractRunnerEncrypted = genericStartEncrypted;
 
+        /************************************** Delete modal **************************************/
+
+        $("#m_delete_node_process_config_modal").on("show.bs.modal", function(event) {
+            let addon = addons[$(event.relatedTarget).data("addon")];
+            $(this).find(".modal-title").text($.t("delete") + ": " + $.t(addon.friendlyName));
+            $("#delete_node_process_config_request_type").val("delete" + addon.requestType + "Encrypted");
+        });
+
+        function genericDeleteEncrypted() {
+            return {
+                requestType: 'save' + $('#delete_node_process_config_request_type').val().substr(6),
+                data: {adminPassword: NRS.getAdminPassword()}
+            };
+        }
+
+        NRS.forms.deleteStandbyShufflingEncrypted = genericDeleteEncrypted;
+        NRS.forms.deleteBundlingEncrypted = genericDeleteEncrypted;
+        NRS.forms.deleteForgingEncrypted = genericDeleteEncrypted;
+        NRS.forms.deleteFundingMonitorsEncrypted = genericDeleteEncrypted;
+        NRS.forms.deleteContractRunnerEncrypted = genericDeleteEncrypted;
+
         /************************************** Complete callbacks **************************************/
 
         function genericSaveEncryptedComplete(processName) {
             return function() {
-                $.growl($.t("process_file_saved", {process: processName}));
+                $.growl($.t("process_file_saved", {process: $.t(processName)}));
             };
         }
 
-        function setupCompleteCallbacks() {
-            NRS.forms.saveStandbyShufflingEncryptedComplete = genericSaveEncryptedComplete($.t("standby_shuffling"));
-            NRS.forms.saveBundlingEncryptedComplete = genericSaveEncryptedComplete($.t("bundlers"));
-            NRS.forms.saveForgingEncryptedComplete = genericSaveEncryptedComplete($.t("forging"));
-            NRS.forms.saveFundingMonitorsEncryptedComplete = genericSaveEncryptedComplete($.t("funding_monitors"));
-            NRS.forms.saveContractRunnerEncryptedComplete = genericSaveEncryptedComplete($.t("contract_runner"));
-        }
+        NRS.forms.saveStandbyShufflingEncryptedComplete = genericSaveEncryptedComplete("standby_shuffling");
+        NRS.forms.saveBundlingEncryptedComplete = genericSaveEncryptedComplete("bundlers");
+        NRS.forms.saveForgingEncryptedComplete = genericSaveEncryptedComplete("forging");
+        NRS.forms.saveFundingMonitorsEncryptedComplete = genericSaveEncryptedComplete("funding_monitors");
+        NRS.forms.saveContractRunnerEncryptedComplete = genericSaveEncryptedComplete("contract_runner");
 
         NRS.forms.startStandbyShufflingEncryptedComplete = function (response) {
             if (Array.isArray(response.standbyShufflers)) {
@@ -510,6 +534,18 @@ NRS.onSiteBuildDone().then(() => {
                 $.growl($.t("contract_runner_configuration_load_error"), {type: "danger"});
             }
         };
+
+        function genericDeleteEncryptedComplete(response) {
+            if (response.filesize === -1) {
+                $.growl($.t('encrypted_config_deleted'));
+            }
+        }
+
+        NRS.forms.deleteStandbyShufflingEncryptedComplete = genericDeleteEncryptedComplete;
+        NRS.forms.deleteBundlingEncryptedComplete = genericDeleteEncryptedComplete;
+        NRS.forms.deleteForgingEncryptedComplete = genericDeleteEncryptedComplete;
+        NRS.forms.deleteFundingMonitorsEncryptedComplete = genericDeleteEncryptedComplete;
+        NRS.forms.deleteContractRunnerEncryptedComplete = genericDeleteEncryptedComplete;
 
         return NRS;
     }(NRS || {}, jQuery));

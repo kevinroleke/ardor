@@ -20,6 +20,7 @@ import nxt.NxtException;
 import nxt.account.Account;
 import nxt.blockchain.Attachment;
 import nxt.dgs.DigitalGoodsHome;
+import nxt.dgs.DigitalGoodsTransactionType;
 import nxt.dgs.FeedbackAttachment;
 import org.json.simple.JSONStreamAware;
 
@@ -33,7 +34,7 @@ public final class DGSFeedback extends CreateTransaction {
     static final DGSFeedback instance = new DGSFeedback();
 
     private DGSFeedback() {
-        super(new APITag[] {APITag.DGS, APITag.CREATE_TRANSACTION},
+        super(DigitalGoodsTransactionType.FEEDBACK, new APITag[] {APITag.DGS, APITag.CREATE_TRANSACTION},
                 "purchase");
     }
 

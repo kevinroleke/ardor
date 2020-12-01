@@ -19,68 +19,73 @@ package nxt.http.monetarysystem;
 import nxt.AccountCurrencyBalance;
 import nxt.BlockchainTest;
 import nxt.Tester;
-import nxt.blockchain.ChildChain;
+import nxt.addons.JA;
+import nxt.addons.JO;
 import nxt.http.APICall;
+import nxt.http.callers.CurrencyBuyCall;
+import nxt.http.callers.CurrencySellCall;
+import nxt.http.callers.GetAllExchangesCall;
+import nxt.http.callers.GetBuyOffersCall;
+import nxt.http.callers.GetSellOffersCall;
+import nxt.http.callers.PublishExchangeOfferCall;
+import nxt.http.callers.TransferCurrencyCall;
 import nxt.ms.CurrencyType;
 import nxt.util.Convert;
 import nxt.util.Logger;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
+
+import static nxt.blockchain.ChildChain.IGNIS;
 
 public class TestCurrencyExchange extends BlockchainTest {
 
     @Test
     public void buyCurrency() {
-        APICall apiCall1 = new TestCurrencyIssuance.Builder().type(CurrencyType.EXCHANGEABLE.getCode()).build();
+        APICall apiCall1 = TestCurrencyIssuance.builder().type(CurrencyType.EXCHANGEABLE.getCode()).build();
         String currencyId = TestCurrencyIssuance.issueCurrencyApi(apiCall1);
-        AccountCurrencyBalance initialSellerBalance = new AccountCurrencyBalance(ALICE.getPrivateKey(), currencyId, ChildChain.IGNIS);
-        AccountCurrencyBalance initialBuyerBalance = new AccountCurrencyBalance(BOB.getPrivateKey(), currencyId, ChildChain.IGNIS);
+        AccountCurrencyBalance initialSellerBalance = new AccountCurrencyBalance(ALICE.getPrivateKey(), currencyId, IGNIS);
+        AccountCurrencyBalance initialBuyerBalance = new AccountCurrencyBalance(BOB.getPrivateKey(), currencyId, IGNIS);
 
         Assert.assertEquals(100000, initialSellerBalance.getCurrencyUnits());
         Assert.assertEquals(100000, initialSellerBalance.getUnconfirmedCurrencyUnits());
 
-        JSONObject publishExchangeOfferResponse = publishExchangeOffer(currencyId);
+        JO publishExchangeOfferResponse = publishExchangeOffer(currencyId);
 
         generateBlock();
 
-        APICall apiCall = new APICall.Builder("getBuyOffers").param("currency", currencyId).build();
-        JSONObject getAllOffersResponse = apiCall.invoke();
+        JO getAllOffersResponse = GetBuyOffersCall.create().currency(currencyId).callNoError();
         Logger.logDebugMessage("getAllOffersResponse:" + getAllOffersResponse.toJSONString());
-        JSONArray offer = (JSONArray)getAllOffersResponse.get("offers");
-        Assert.assertEquals(Tester.responseToStringId(publishExchangeOfferResponse), ((JSONObject)offer.get(0)).get("offer"));
+        JA offer = getAllOffersResponse.getArray("offers");
+        Assert.assertEquals(Tester.responseToStringId(publishExchangeOfferResponse), offer.get(0).get("offer"));
 
         // The buy offer reduces the unconfirmed balance but does not change the confirmed balance
         // The sell offer reduces the unconfirmed currency units and confirmed units
-        AccountCurrencyBalance afterOfferSellerBalance = new AccountCurrencyBalance(ALICE.getPrivateKey(), currencyId, ChildChain.IGNIS);
-        Assert.assertEquals(new AccountCurrencyBalance(-1000*95 - ChildChain.IGNIS.ONE_COIN, -ChildChain.IGNIS.ONE_COIN, -500, 0),
+        AccountCurrencyBalance afterOfferSellerBalance = new AccountCurrencyBalance(ALICE.getPrivateKey(), currencyId, IGNIS);
+        Assert.assertEquals(new AccountCurrencyBalance(-1000*95 - IGNIS.ONE_COIN, -IGNIS.ONE_COIN, -500, 0),
                 afterOfferSellerBalance.diff(initialSellerBalance));
 
         // buy at rate higher than sell offer results in selling at sell offer
-        apiCall = new APICall.Builder("currencyBuy").
-                secretPhrase(BOB.getSecretPhrase()).feeNQT(ChildChain.IGNIS.ONE_COIN).
-                param("currency", currencyId).
-                param("rateNQTPerUnit", "" + 106).
-                param("unitsQNT", "200").
-                build();
-        JSONObject currencyExchangeResponse = apiCall.invoke();
+        JO currencyExchangeResponse = CurrencyBuyCall.create(IGNIS.getId()).
+                secretPhrase(BOB.getSecretPhrase()).feeNQT(IGNIS.ONE_COIN).
+                currency(currencyId).
+                rateNQTPerUnit(106).
+                unitsQNT(200).
+                callNoError();
         Logger.logDebugMessage("currencyExchangeResponse:" + currencyExchangeResponse);
         generateBlock();
 
-        AccountCurrencyBalance afterBuySellerBalance = new AccountCurrencyBalance(ALICE.getPrivateKey(), currencyId, ChildChain.IGNIS);
+        AccountCurrencyBalance afterBuySellerBalance = new AccountCurrencyBalance(ALICE.getPrivateKey(), currencyId, IGNIS);
         Assert.assertEquals(new AccountCurrencyBalance(2000, 200 * 105, 0, -200),
                 afterBuySellerBalance.diff(afterOfferSellerBalance));
 
-        AccountCurrencyBalance afterBuyBuyerBalance = new AccountCurrencyBalance(BOB.getPrivateKey(), currencyId, ChildChain.IGNIS);
-        Assert.assertEquals(new AccountCurrencyBalance(-200*105 - ChildChain.IGNIS.ONE_COIN, -200*105 - ChildChain.IGNIS.ONE_COIN, 200, 200),
+        AccountCurrencyBalance afterBuyBuyerBalance = new AccountCurrencyBalance(BOB.getPrivateKey(), currencyId, IGNIS);
+        Assert.assertEquals(new AccountCurrencyBalance(-200*105 - IGNIS.ONE_COIN, -200*105 - IGNIS.ONE_COIN, 200, 200),
                 afterBuyBuyerBalance.diff(initialBuyerBalance));
 
-        apiCall = new APICall.Builder("getAllExchanges").build();
-        JSONObject getAllExchangesResponse = apiCall.invoke();
+        JO getAllExchangesResponse = GetAllExchangesCall.create().callNoError();
         Logger.logDebugMessage("getAllExchangesResponse: " + getAllExchangesResponse);
-        JSONArray exchanges = (JSONArray)getAllExchangesResponse.get("exchanges");
-        JSONObject exchange = (JSONObject) exchanges.get(0);
+        JA exchanges = getAllExchangesResponse.getArray("exchanges");
+        JO exchange = exchanges.get(0);
         Assert.assertEquals("105", exchange.get("rateNQTPerUnit"));
         Assert.assertEquals("200", exchange.get("unitsQNT"));
         Assert.assertEquals(currencyId, exchange.get("currency"));
@@ -90,73 +95,71 @@ public class TestCurrencyExchange extends BlockchainTest {
 
     @Test
     public void sellCurrency() {
-        APICall apiCall1 = new TestCurrencyIssuance.Builder().type(CurrencyType.EXCHANGEABLE.getCode()).build();
+        APICall apiCall1 = TestCurrencyIssuance.builder().type(CurrencyType.EXCHANGEABLE.getCode()).build();
         String currencyId = TestCurrencyIssuance.issueCurrencyApi(apiCall1);
-        AccountCurrencyBalance initialBuyerBalance = new AccountCurrencyBalance(ALICE.getPrivateKey(), currencyId, ChildChain.IGNIS);
-        AccountCurrencyBalance initialSellerBalance = new AccountCurrencyBalance(BOB.getPrivateKey(), currencyId, ChildChain.IGNIS);
+        AccountCurrencyBalance initialBuyerBalance = new AccountCurrencyBalance(ALICE.getPrivateKey(), currencyId, IGNIS);
+        AccountCurrencyBalance initialSellerBalance = new AccountCurrencyBalance(BOB.getPrivateKey(), currencyId, IGNIS);
 
         Assert.assertEquals(100000, initialBuyerBalance.getCurrencyUnits());
         Assert.assertEquals(100000, initialBuyerBalance.getUnconfirmedCurrencyUnits());
 
-        JSONObject publishExchangeOfferResponse = publishExchangeOffer(currencyId);
+        JO publishExchangeOfferResponse = publishExchangeOffer(currencyId);
 
         generateBlock();
 
-        APICall apiCall = new APICall.Builder("getSellOffers").param("currency", currencyId).build();
-        JSONObject getAllOffersResponse = apiCall.invoke();
+        JO getAllOffersResponse = GetSellOffersCall.create().currency(currencyId).callNoError();
         Logger.logDebugMessage("getAllOffersResponse:" + getAllOffersResponse.toJSONString());
-        JSONArray offer = (JSONArray)getAllOffersResponse.get("offers");
-        Assert.assertEquals(Tester.responseToStringId(publishExchangeOfferResponse), ((JSONObject)offer.get(0)).get("offer"));
+        JA offer = getAllOffersResponse.getArray("offers");
+        Assert.assertEquals(Tester.responseToStringId(publishExchangeOfferResponse), offer.get(0).get("offer"));
 
         // The buy offer reduces the unconfirmed balance but does not change the confirmed balance
         // The sell offer reduces the unconfirmed currency units and confirmed units
-        AccountCurrencyBalance afterOfferBuyerBalance = new AccountCurrencyBalance(ALICE.getPrivateKey(), currencyId, ChildChain.IGNIS);
-        Assert.assertEquals(new AccountCurrencyBalance(-1000 * 95 - ChildChain.IGNIS.ONE_COIN, -ChildChain.IGNIS.ONE_COIN, -500, 0),
+        AccountCurrencyBalance afterOfferBuyerBalance = new AccountCurrencyBalance(ALICE.getPrivateKey(), currencyId, IGNIS);
+        Assert.assertEquals(new AccountCurrencyBalance(-1000 * 95 - IGNIS.ONE_COIN, -IGNIS.ONE_COIN, -500, 0),
                 afterOfferBuyerBalance.diff(initialBuyerBalance));
 
         // We now transfer 2000 units to the 2nd account so that this account can sell them for NXT
-        apiCall = new APICall.Builder("transferCurrency").
-                secretPhrase(ALICE.getSecretPhrase()).feeNQT(ChildChain.IGNIS.ONE_COIN).
-                param("currency", currencyId).
-                param("recipient", Long.toUnsignedString(initialSellerBalance.getAccountId())).
-                param("unitsQNT", "2000").
-                build();
-        apiCall.invoke();
+        TransferCurrencyCall.create(IGNIS.getId()).
+                secretPhrase(ALICE.getSecretPhrase()).
+                feeNQT(IGNIS.ONE_COIN).
+                currency(currencyId).
+                recipient(initialSellerBalance.getAccountId()).
+                unitsQNT(2000).
+                callNoError();
         generateBlock();
 
-        AccountCurrencyBalance afterTransferBuyerBalance = new AccountCurrencyBalance(ALICE.getPrivateKey(), currencyId, ChildChain.IGNIS);
-        Assert.assertEquals(new AccountCurrencyBalance(-ChildChain.IGNIS.ONE_COIN, -ChildChain.IGNIS.ONE_COIN, -2000, -2000),
+        AccountCurrencyBalance afterTransferBuyerBalance = new AccountCurrencyBalance(ALICE.getPrivateKey(), currencyId, IGNIS);
+        Assert.assertEquals(new AccountCurrencyBalance(-IGNIS.ONE_COIN, -IGNIS.ONE_COIN, -2000, -2000),
                 afterTransferBuyerBalance.diff(afterOfferBuyerBalance));
 
-        AccountCurrencyBalance afterTransferSellerBalance = new AccountCurrencyBalance(BOB.getPrivateKey(), currencyId, ChildChain.IGNIS);
+        AccountCurrencyBalance afterTransferSellerBalance = new AccountCurrencyBalance(BOB.getPrivateKey(), currencyId, IGNIS);
         Assert.assertEquals(new AccountCurrencyBalance(0, 0, 2000, 2000),
                 afterTransferSellerBalance.diff(initialSellerBalance));
 
         // sell at rate lower than buy offer results in selling at buy offer rate (95)
-        apiCall = new APICall.Builder("currencySell").
-                secretPhrase(BOB.getSecretPhrase()).feeNQT(ChildChain.IGNIS.ONE_COIN).
-                param("currency", currencyId).
-                param("rateNQTPerUnit", "" + 90).
-                param("unitsQNT", "200").
-                build();
-        JSONObject currencyExchangeResponse = apiCall.invoke();
+        JO currencyExchangeResponse = CurrencySellCall.create(IGNIS.getId()).
+                secretPhrase(BOB.getSecretPhrase()).
+                feeNQT(IGNIS.ONE_COIN).
+                currency(currencyId).
+                rateNQTPerUnit(90).
+                unitsQNT(200).
+                callNoError();
         Logger.logDebugMessage("currencyExchangeResponse:" + currencyExchangeResponse);
         generateBlock();
 
         // the seller receives 200*95=19000 for 200 units
-        AccountCurrencyBalance afterBuyBuyerBalance = new AccountCurrencyBalance(ALICE.getPrivateKey(), currencyId, ChildChain.IGNIS);
+        AccountCurrencyBalance afterBuyBuyerBalance = new AccountCurrencyBalance(ALICE.getPrivateKey(), currencyId, IGNIS);
         Assert.assertEquals(new AccountCurrencyBalance(0, -19000, 0, 200),
                 afterBuyBuyerBalance.diff(afterTransferBuyerBalance));
 
-        AccountCurrencyBalance afterBuySellerBalance = new AccountCurrencyBalance(BOB.getPrivateKey(), currencyId, ChildChain.IGNIS);
-        Assert.assertEquals(new AccountCurrencyBalance(19000- ChildChain.IGNIS.ONE_COIN, 19000- ChildChain.IGNIS.ONE_COIN, -200, -200),
+        AccountCurrencyBalance afterBuySellerBalance = new AccountCurrencyBalance(BOB.getPrivateKey(), currencyId, IGNIS);
+        Assert.assertEquals(new AccountCurrencyBalance(19000- IGNIS.ONE_COIN, 19000- IGNIS.ONE_COIN, -200, -200),
                 afterBuySellerBalance.diff(afterTransferSellerBalance));
 
-        apiCall = new APICall.Builder("getAllExchanges").build();
-        JSONObject getAllExchangesResponse = apiCall.invoke();
+        JO getAllExchangesResponse = GetAllExchangesCall.create().callNoError();
         Logger.logDebugMessage("getAllExchangesResponse: " + getAllExchangesResponse);
-        JSONArray exchanges = (JSONArray)getAllExchangesResponse.get("exchanges");
-        JSONObject exchange = (JSONObject) exchanges.get(0);
+        JA exchanges = getAllExchangesResponse.getArray("exchanges");
+        JO exchange = exchanges.get(0);
         Assert.assertEquals("95", exchange.get("rateNQTPerUnit"));
         Assert.assertEquals("200", exchange.get("unitsQNT"));
         Assert.assertEquals(currencyId, exchange.get("currency"));
@@ -164,24 +167,22 @@ public class TestCurrencyExchange extends BlockchainTest {
         Assert.assertEquals(initialBuyerBalance.getAccountId(), Convert.parseUnsignedLong((String)exchange.get("buyer")));
     }
 
-    private JSONObject publishExchangeOffer(String currencyId) {
-        APICall apiCall = new APICall.Builder("publishExchangeOffer").
-                secretPhrase(ALICE.getSecretPhrase()).feeNQT(ChildChain.IGNIS.ONE_COIN).
-                param("deadline", "1440").
-                param("currency", currencyId).
-                param("buyRateNQTPerUnit", "" + 95). // buy currency for NXT
-                param("sellRateNQTPerUnit", "" + 105). // sell currency for NXT
-                param("totalBuyLimitQNT", "10000").
-                param("totalSellLimitQNT", "5000").
-                param("initialBuySupplyQNT", "1000").
-                param("initialSellSupplyQNT", "500").
-                param("expirationHeight", "" + Integer.MAX_VALUE).
-                build();
+    private JO publishExchangeOffer(String currencyId) {
+        JO publishExchangeOfferResponse = PublishExchangeOfferCall.create(IGNIS.getId()).
+                secretPhrase(ALICE.getSecretPhrase()).
+                feeNQT(IGNIS.ONE_COIN).
+                deadline(1440).
+                currency(currencyId).
+                buyRateNQTPerUnit(95). // buy currency for NXT
+                sellRateNQTPerUnit(105). // sell currency for NXT
+                totalBuyLimitQNT(10000).
+                totalSellLimitQNT(5000).
+                initialBuySupplyQNT(1000).
+                initialSellSupplyQNT(500).
+                expirationHeight(Integer.MAX_VALUE).
+                call();
 
-        JSONObject publishExchangeOfferResponse = apiCall.invoke();
         Logger.logDebugMessage("publishExchangeOfferResponse: " + publishExchangeOfferResponse.toJSONString());
         return publishExchangeOfferResponse;
     }
-
-
 }

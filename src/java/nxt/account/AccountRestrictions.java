@@ -16,7 +16,6 @@
 
 package nxt.account;
 
-import nxt.Constants;
 import nxt.Nxt;
 import nxt.NxtException;
 import nxt.NxtException.AccountControlException;
@@ -329,14 +328,7 @@ public final class AccountRestrictions {
 
     public static void checkTransaction(ChildTransaction transaction) throws NxtException.NotCurrentlyValidException {
         Account senderAccount = Account.getAccount(transaction.getSenderId());
-        if (senderAccount == null) {
-            if (Nxt.getBlockchain().getHeight() >= Constants.MISSING_TX_SENDER_BLOCK) {
-                return;
-            } else {
-                throw new NxtException.NotCurrentlyValidException("Account " + Convert.rsAccount(transaction.getSenderId()) + " does not exist yet");
-            }
-        }
-        if (senderAccount.getControls().contains(Account.ControlType.PHASING_ONLY)) {
+        if (senderAccount != null && senderAccount.getControls().contains(Account.ControlType.PHASING_ONLY)) {
             PhasingOnly phasingOnly = PhasingOnly.get(transaction.getSenderId());
             phasingOnly.checkTransaction(transaction);
         }

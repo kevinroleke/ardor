@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetAliasCountCall extends APICall.Builder<GetAliasCountCall> {
+public class GetAliasCountCall extends ChainSpecificCallBuilder<GetAliasCountCall> {
     private GetAliasCountCall() {
         super(ApiSpec.getAliasCount);
     }

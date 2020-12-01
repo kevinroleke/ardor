@@ -34,7 +34,7 @@ public class SecretSharingApiTest extends BlockchainTest {
     @Test
     public void useApis2of3() {
         // Generate the pieces
-        JO splitResponse = SplitSecretCall.create().secret(ALICE.getSecretPhrase()).totalPieces(3).minimumPieces(2).call();
+        JO splitResponse = SplitSecretCall.create().secret(ALICE.getSecretPhrase()).totalPieces(3).minimumPieces(2).callNoError();
         List<String> pieces = splitResponse.getArray("pieces").values();
         combine2of3(ALICE.getSecretPhrase(), pieces, "secret");
     }
@@ -44,7 +44,7 @@ public class SecretSharingApiTest extends BlockchainTest {
         for(BIP39Test.TestVector testVector : BIP39Test.testVectors) {
             if (testVector.getEntropy().compareTo(BigInteger.ZERO) != 0) {
                 String secretPhrase = String.join(" ", testVector.getMnemonic());
-                JO splitResponse = SplitSecretCall.create().secret(secretPhrase).totalPieces(3).minimumPieces(2).call();
+                JO splitResponse = SplitSecretCall.create().secret(secretPhrase).totalPieces(3).minimumPieces(2).callNoError();
 
                 List<String> pieces = splitResponse.getArray("pieces").values();
                 combine2of3(secretPhrase, pieces, "secret");
@@ -55,7 +55,7 @@ public class SecretSharingApiTest extends BlockchainTest {
     @Test
     public void useApis2of3PrivateKey() {
         // Generate the pieces
-        JO splitResponse = SplitSecretCall.create().privateKey(BOB.getPrivateKey()).totalPieces(3).minimumPieces(2).call();
+        JO splitResponse = SplitSecretCall.create().privateKey(BOB.getPrivateKey()).totalPieces(3).minimumPieces(2).callNoError();
         String hexPrivateKey = Convert.toHexString(BOB.getPrivateKey());
         List<String> pieces = splitResponse.getArray("pieces").values();
         combine2of3(hexPrivateKey, pieces, "privateKey");
@@ -63,25 +63,25 @@ public class SecretSharingApiTest extends BlockchainTest {
 
     private void combine2of3(String secretPhrase, List<String> pieces, String responseField) {
         // Select pieces and combine
-        JO combineResponse = CombineSecretCall.create().pieces(pieces.get(0), pieces.get(1)).call();
+        JO combineResponse = CombineSecretCall.create().pieces(pieces.get(0), pieces.get(1)).callNoError();
         Assert.assertEquals(secretPhrase, combineResponse.getString(responseField));
 
         // Select other pieces and combine
-        combineResponse = CombineSecretCall.create().pieces(pieces.get(0), pieces.get(2)).call();
+        combineResponse = CombineSecretCall.create().pieces(pieces.get(0), pieces.get(2)).callNoError();
         Assert.assertEquals(secretPhrase, combineResponse.getString(responseField));
-        combineResponse = CombineSecretCall.create().pieces(pieces.get(1), pieces.get(2)).call();
+        combineResponse = CombineSecretCall.create().pieces(pieces.get(1), pieces.get(2)).callNoError();
         Assert.assertEquals(secretPhrase, combineResponse.getString(responseField));
     }
 
     @Test
     public void useApis3of5() {
         // Generate the pieces
-        JO splitResponse = SplitSecretCall.create().secret(CHUCK.getSecretPhrase()).totalPieces(5).minimumPieces(3).call();
+        JO splitResponse = SplitSecretCall.create().secret(CHUCK.getSecretPhrase()).totalPieces(5).minimumPieces(3).callNoError();
 
         // Select pieces and combine
         List<String> pieces = splitResponse.getArray("pieces").values();
         Logger.logInfoMessage(pieces.toString());
-        JO combineResponse = CombineSecretCall.create().pieces(pieces.get(1), pieces.get(3), pieces.get(4)).call();
+        JO combineResponse = CombineSecretCall.create().pieces(pieces.get(1), pieces.get(3), pieces.get(4)).callNoError();
         Assert.assertEquals(CHUCK.getSecretPhrase(), combineResponse.getString("secret"));
     }
 
@@ -92,12 +92,12 @@ public class SecretSharingApiTest extends BlockchainTest {
                 String secretPhrase = String.join(" ", testVector.getMnemonic());
 
                 // Generate the pieces
-                JO splitResponse = SplitSecretCall.create().secret(secretPhrase).totalPieces(5).minimumPieces(3).call();
+                JO splitResponse = SplitSecretCall.create().secret(secretPhrase).totalPieces(5).minimumPieces(3).callNoError();
 
                 // Select pieces and combine
                 List<String> pieces = splitResponse.getArray("pieces").values();
                 Logger.logInfoMessage(pieces.toString());
-                JO combineResponse = CombineSecretCall.create().pieces(pieces.get(1), pieces.get(3), pieces.get(4)).call();
+                JO combineResponse = CombineSecretCall.create().pieces(pieces.get(1), pieces.get(3), pieces.get(4)).callNoError();
                 Assert.assertEquals(secretPhrase, combineResponse.getString("secret"));
             }
         }
@@ -106,19 +106,19 @@ public class SecretSharingApiTest extends BlockchainTest {
     @Test
     public void useApis3of5PrivateKey() {
         // Generate the pieces
-        JO splitResponse = SplitSecretCall.create().privateKey(CHUCK.getPrivateKey()).totalPieces(5).minimumPieces(3).call();
+        JO splitResponse = SplitSecretCall.create().privateKey(CHUCK.getPrivateKey()).totalPieces(5).minimumPieces(3).callNoError();
 
         // Select pieces and combine
         List<String> pieces = splitResponse.getArray("pieces").values();
         Logger.logInfoMessage(pieces.toString());
-        JO combineResponse = CombineSecretCall.create().pieces(pieces.get(1), pieces.get(3), pieces.get(4)).call();
+        JO combineResponse = CombineSecretCall.create().pieces(pieces.get(1), pieces.get(3), pieces.get(4)).callNoError();
         Assert.assertEquals(Convert.toHexString(CHUCK.getPrivateKey()), combineResponse.getString("privateKey"));
     }
 
     @Test
     public void missingPieces() {
         // Generate the pieces
-        JO splitResponse = SplitSecretCall.create().secret(ALICE.getSecretPhrase()).totalPieces(3).minimumPieces(2).call();
+        JO splitResponse = SplitSecretCall.create().secret(ALICE.getSecretPhrase()).totalPieces(3).minimumPieces(2).callNoError();
 
         // Select pieces and combine
         List<String> pieces = splitResponse.getArray("pieces").values();
@@ -129,11 +129,11 @@ public class SecretSharingApiTest extends BlockchainTest {
     @Test
     public void wrongPieces() {
         // Generate the pieces
-        JO splitResponse = SplitSecretCall.create().secret(CHUCK.getSecretPhrase()).totalPieces(3).minimumPieces(2).call();
+        JO splitResponse = SplitSecretCall.create().secret(CHUCK.getSecretPhrase()).totalPieces(3).minimumPieces(2).callNoError();
 
         // Select pieces and combine correctly
         List<String> pieces = splitResponse.getArray("pieces").values();
-        JO combineResponse = CombineSecretCall.create().pieces(pieces.get(0), pieces.get(1)).call();
+        JO combineResponse = CombineSecretCall.create().pieces(pieces.get(0), pieces.get(1)).callNoError();
         Assert.assertEquals(CHUCK.getSecretPhrase(), combineResponse.getString("secret"));
 
         // Now corrupt one of the pieces and see that the reproduced secret is wrong
@@ -149,7 +149,7 @@ public class SecretSharingApiTest extends BlockchainTest {
     @Test
     public void submitSecretPhrasePiece() {
         JO sendMoneyResponse = SendMoneyCall.create(2).recipient(BlockchainTest.BOB.getRsAccount()).amountNQT(123456789).feeNQT(1000000).
-                sharedPiece("1:9999:3:2:0:3:626cef7a2bfe67d3ecc2168c32e8a460db5c2c71adaed3b9").sharedPieceAccount(ALICE.getRsAccount()).call();
+                sharedPiece("1:9999:3:2:0:3:626cef7a2bfe67d3ecc2168c32e8a460db5c2c71adaed3b9").sharedPieceAccount(ALICE.getRsAccount()).callNoError();
         Assert.assertEquals("true", sendMoneyResponse.getString("broadcasted"));
     }
 
@@ -161,7 +161,7 @@ public class SecretSharingApiTest extends BlockchainTest {
     @Test
     public void submitPrivateKeyPiece() {
         JO sendMoneyResponse = SendMoneyCall.create(2).recipient(BlockchainTest.ALICE.getRsAccount()).amountNQT(123456789).feeNQT(1000000).
-                sharedPiece("3:1539292261:3:2:0:2:00a1d4415680c2d34ee9bf1644f1f474138667995199828c15ebd6281108060a21").sharedPieceAccount(BOB.getRsAccount()).call();
+                sharedPiece("3:1539292261:3:2:0:2:00a1d4415680c2d34ee9bf1644f1f474138667995199828c15ebd6281108060a21").sharedPieceAccount(BOB.getRsAccount()).callNoError();
         Assert.assertEquals("true", sendMoneyResponse.getString("broadcasted"));
     }
 
@@ -176,7 +176,7 @@ public class SecretSharingApiTest extends BlockchainTest {
                 sharedPiece("0:-1797511508:5:3:0:1:00994e4109d68fba8ed92c1b65b7c50963d4480f623de5d5d1f230eb199ac37c088f3bc3",
                         "0:-1797511508:5:3:0:2:01135524eff764421052eb34520b6f009588ad5bb3f707443dacccab51b430283513ee4a",
                         "0:-1797511508:5:3:0:5:042599fb5a1d4876b15b8e1705864273d5395e7f05f3e2bd163c5a2b4cf34adade2c0e33").
-                sharedPieceAccount(CHUCK.getRsAccount()).call();
+                sharedPieceAccount(CHUCK.getRsAccount()).callNoError();
         Assert.assertEquals("true", sendMoneyResponse.getString("broadcasted"));
     }
 
@@ -191,7 +191,7 @@ public class SecretSharingApiTest extends BlockchainTest {
                 sharedPiece("3:1904865159:5:3:0:2:00d5b5c5340ddd65f4de8fb69ddcd316963d994e6156bbf55f695f5afe22dfa4",
                         "3:1904865159:5:3:0:3:01080e4754f642942f0f5213543454d1e26a2f1280b9c35499d372e5d1216da8",
                         "3:1904865159:5:3:0:4:0149c465f7e9d5fa03dce350bc1fce696512f62c45595596683b7c986afe16ea").
-                sharedPieceAccount(CHUCK.getRsAccount()).call();
+                sharedPieceAccount(CHUCK.getRsAccount()).callNoError();
         Assert.assertEquals("true", sendMoneyResponse.getString("broadcasted"));
     }
 }

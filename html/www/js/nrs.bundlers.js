@@ -109,7 +109,8 @@ NRS.onSiteBuildDone().then(() => {
             var params = {
                 "adminPassword": NRS.getAdminPassword(),
                 "firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-                "lastIndex": NRS.pageNumber * NRS.itemsPerPage
+                "lastIndex": NRS.pageNumber * NRS.itemsPerPage,
+                "minBundlerBalanceFXT": 1
             };
             if (NRS.isParentChain()) {
                 // For Ardor show bundlers from all chains and disable the start button

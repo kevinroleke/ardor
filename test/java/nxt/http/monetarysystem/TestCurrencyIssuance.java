@@ -18,14 +18,39 @@ package nxt.http.monetarysystem;
 
 import nxt.BlockchainTest;
 import nxt.Tester;
-import nxt.blockchain.ChildChain;
+import nxt.addons.JO;
 import nxt.http.APICall;
+import nxt.http.callers.GetCurrencyCall;
+import nxt.http.callers.IssueCurrencyCall;
 import nxt.ms.CurrencyType;
-import org.json.simple.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static nxt.blockchain.ChildChain.IGNIS;
+
 public class TestCurrencyIssuance extends BlockchainTest {
+
+    public static final Tester CREATOR = ALICE;
+    public static final int INITIAL_SUPPLY_QNT = 100000;
+    private static final int[] FEE_STEPS = new int[] { 0, 0, 0, 25000, 1000, 40};
+
+    public static IssueCurrencyCall builder() {
+        return builder("Test1", "TSXXX", "Test Currency 1");
+    }
+
+    public static IssueCurrencyCall builder(String name, String code, String description) {
+        return IssueCurrencyCall.create(IGNIS.getId())
+                .secretPhrase(CREATOR.getSecretPhrase())
+                .name(name)
+                .code(code)
+                .description(description)
+                .type(CurrencyType.EXCHANGEABLE.getCode())
+                .maxSupplyQNT(100000)
+                .initialSupplyQNT(INITIAL_SUPPLY_QNT)
+                .issuanceHeight(0)
+                .algorithm((byte)0)
+                .feeNQT(FEE_STEPS[code.length()] * IGNIS.ONE_COIN);
+    }
 
     @Test
     public void issueCurrency() {
@@ -34,104 +59,33 @@ public class TestCurrencyIssuance extends BlockchainTest {
 
     @Test
     public void issueCurrencyNoBroadcast() {
-        JSONObject issueCurrencyResponse = new Builder().param("broadcast", false).secretPhrase(null).param("publicKey", ALICE.getPublicKey()).build().invoke();
-        Assert.assertNull(issueCurrencyResponse.get("errorCode"));
+        JO issueCurrencyResponse = builder().broadcast(false).secretPhrase(null).publicKey(ALICE.getPublicKey()).callNoError();
     }
 
     public String issueCurrencyImpl() {
-        APICall apiCall = new Builder().build();
+        APICall apiCall = builder().build();
         return issueCurrencyApi(apiCall);
     }
 
     @Test
     public void issueMultipleCurrencies() {
-        APICall apiCall = new Builder().naming("axcc", "AXCC", "Currency A").build();
+        APICall apiCall = builder("axcc", "AXCC", "Currency A").build();
         issueCurrencyApi(apiCall);
-        apiCall = new Builder().naming("bXbx", "BXBX", "Currency B").feeNQT(1000 * ChildChain.IGNIS.ONE_COIN).build();
+        apiCall = builder("bXbx", "BXBX", "Currency B").feeNQT(1000 * IGNIS.ONE_COIN).build();
         issueCurrencyApi(apiCall);
-        apiCall = new Builder().naming("ccXcc", "CCCXC", "Currency C").feeNQT(40 * ChildChain.IGNIS.ONE_COIN).build();
+        apiCall = builder("ccXcc", "CCCXC", "Currency C").feeNQT(40 * IGNIS.ONE_COIN).build();
         issueCurrencyApi(apiCall);
-        apiCall = new APICall.Builder("getCurrency").param("code", "BXBX").build();
-        JSONObject response = apiCall.invoke();
+        JO response = GetCurrencyCall.create(IGNIS.getId()).code("BXBX").callNoError();
         Assert.assertEquals("bXbx", response.get("name"));
     }
 
     static String issueCurrencyApi(APICall apiCall) {
-        JSONObject issueCurrencyResponse = apiCall.invoke();
+        JO issueCurrencyResponse = apiCall.getJsonResponse();
         String currencyId = Tester.responseToStringId(issueCurrencyResponse);
         generateBlock();
 
-        apiCall = new APICall.Builder("getCurrency").param("currency", currencyId).build();
-        JSONObject getCurrencyResponse = apiCall.invoke();
+        JO getCurrencyResponse = GetCurrencyCall.create(IGNIS.getId()).currency(currencyId).callNoError();
         Assert.assertEquals(currencyId, getCurrencyResponse.get("currency"));
         return currencyId;
-    }
-
-    public static class Builder extends APICall.Builder {
-
-        private static int[] FEE_STEPS = new int[] { 0, 0, 0, 25000, 1000, 40};
-        public static final Tester creator = ALICE;
-        public static final int initialSupplyQNT = 100000;
-
-        public Builder() {
-            super("issueCurrency");
-            secretPhrase(creator.getSecretPhrase());
-            chain(ChildChain.IGNIS.getId());
-            param("name", "Test1");
-            param("code", "TSXXX");
-            param("description", "Test Currency 1");
-            param("type", CurrencyType.EXCHANGEABLE.getCode());
-            param("maxSupplyQNT", 100000);
-            param("initialSupplyQNT", initialSupplyQNT);
-            param("issuanceHeight", 0);
-            param("algorithm", (byte)0);
-            feeNQT(40 * ChildChain.IGNIS.ONE_COIN);
-        }
-
-        public Builder naming(String name, String code, String description) {
-            param("name", name);
-            param("code", code).
-            param("description", description);
-            feeNQT(FEE_STEPS[code.length()] * ChildChain.IGNIS.ONE_COIN);
-            return this;
-        }
-
-        public Builder type(int type) {
-            param("type", type);
-            return this;
-        }
-
-        public Builder maxSupply(long maxSupply) {
-            param("maxSupplyQNT", maxSupply);
-            return this;
-        }
-
-        public Builder reserveSupply(long reserveSupply) {
-            param("reserveSupplyQNT", reserveSupply);
-            return this;
-        }
-
-        public Builder initialSupply(long initialSupply) {
-            param("initialSupplyQNT", initialSupply);
-            return this;
-        }
-
-        public Builder issuanceHeight(int issuanceHeight) {
-            param("issuanceHeight", issuanceHeight);
-            return this;
-        }
-
-        public Builder minReservePerUnitNQT(long minReservePerUnitNQT) {
-            param("minReservePerUnitNQT", minReservePerUnitNQT);
-            return this;
-        }
-
-        public Builder minting(byte minDifficulty, byte maxDifficulty, byte algorithm) {
-            param("minDifficulty", minDifficulty);
-            param("maxDifficulty", maxDifficulty);
-            param("algorithm", algorithm);
-            return this;
-        }
-
     }
 }

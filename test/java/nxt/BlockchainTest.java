@@ -17,6 +17,7 @@
 package nxt;
 
 import nxt.account.Account;
+import nxt.addons.JO;
 import nxt.blockchain.BlockchainProcessor;
 import nxt.blockchain.Chain;
 import nxt.blockchain.ChildChain;
@@ -25,7 +26,9 @@ import nxt.blockchain.TransactionProcessorImpl;
 import nxt.blockchain.chaincontrol.PermissionTestUtil;
 import nxt.crypto.Crypto;
 import nxt.dbschema.Db;
-import nxt.http.APICall;
+import nxt.http.callers.BundleTransactionsCall;
+import nxt.http.callers.SendMoneyCall;
+import nxt.http.callers.StartBundlerCall;
 import nxt.util.Convert;
 import nxt.util.JSONAssert;
 import nxt.util.Logger;
@@ -138,7 +141,7 @@ public abstract class BlockchainTest extends AbstractBlockchainTest {
 
     protected static void initBlockchainTest() {
         AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
-            Nxt.setTime(new Time.CounterTime(Nxt.getEpochTime()));
+            Nxt.setTime(new Time.CounterTime(Convert.toEpochTime(System.currentTimeMillis())));
 
             giveChainPermissions(forgerSecretPhrase, aliceSecretPhrase, bobSecretPhrase2, chuckSecretPhrase,
                     daveSecretPhrase, rikerSecretPhrase);
@@ -171,20 +174,17 @@ public abstract class BlockchainTest extends AbstractBlockchainTest {
         if (Nxt.getBlockchain().getHeight() == 0) {
             Nxt.getTransactionProcessor().clearUnconfirmedTransactions();
 
-            APICall.Builder sendFxtBuilder = new APICall.Builder("sendMoney").secretPhrase(rikerSecretPhrase).
-                    param("chain", "" + FxtChain.FXT.getId()).
-                    param("amountNQT", 100_000 * FxtChain.FXT.ONE_COIN).
-                    param("feeNQT", FxtChain.FXT.ONE_COIN * 11);
+            SendMoneyCall sendFxtBuilder = SendMoneyCall.create(FxtChain.FXT.getId()).secretPhrase(rikerSecretPhrase).
+                    amountNQT(100_000 * FxtChain.FXT.ONE_COIN).
+                    feeNQT(FxtChain.FXT.ONE_COIN * 11);
 
-            APICall.Builder sendIgnisBuilder = new APICall.Builder("sendMoney").secretPhrase(rikerSecretPhrase).
-                    param("chain", "" + ChildChain.IGNIS.getId()).
-                    param("amountNQT", 100_000 * ChildChain.IGNIS.ONE_COIN).
-                    param("feeNQT", ChildChain.IGNIS.ONE_COIN * 11);
+            SendMoneyCall sendIgnisBuilder = SendMoneyCall.create(ChildChain.IGNIS.getId()).secretPhrase(rikerSecretPhrase).
+                    amountNQT(100_000 * ChildChain.IGNIS.ONE_COIN).
+                    feeNQT(ChildChain.IGNIS.ONE_COIN * 11);
 
-            APICall.Builder sendAeurBuilder = new APICall.Builder("sendMoney").secretPhrase(rikerSecretPhrase).
-                    param("chain", "" + ChildChain.AEUR.getId()).
-                    param("amountNQT", 100_000 * ChildChain.AEUR.ONE_COIN).
-                    param("feeNQT", ChildChain.AEUR.ONE_COIN * 11);
+            SendMoneyCall sendAeurBuilder = SendMoneyCall.create(ChildChain.AEUR.getId()).secretPhrase(rikerSecretPhrase).
+                    amountNQT(100_000 * ChildChain.AEUR.ONE_COIN).
+                    feeNQT(ChildChain.AEUR.ONE_COIN * 11);
 
             List<String> ignisTransactionsToBundle = new ArrayList<>();
             List<String> aeurTransactionsToBundle = new ArrayList<>();
@@ -193,13 +193,13 @@ public abstract class BlockchainTest extends AbstractBlockchainTest {
                 String publicKeyStr = Convert.toHexString(publicKey);
                 String id = Long.toUnsignedString(Account.getId(publicKey));
 
-                sendFxtBuilder.param("recipient", id);
-                new JSONAssert(sendFxtBuilder.build().invokeNoError()).str("fullHash");
+                sendFxtBuilder.recipient(id);
+                new JSONAssert(sendFxtBuilder.callNoError()).str("fullHash");
 
-                sendIgnisBuilder.param("recipient", id).param("recipientPublicKey", publicKeyStr);
-                ignisTransactionsToBundle.add(new JSONAssert(sendIgnisBuilder.build().invoke()).str("fullHash"));
-                sendAeurBuilder.param("recipient", id);
-                aeurTransactionsToBundle.add(new JSONAssert(sendAeurBuilder.build().invoke()).str("fullHash"));
+                sendIgnisBuilder.recipient(id).recipientPublicKey(publicKeyStr);
+                ignisTransactionsToBundle.add(new JSONAssert(sendIgnisBuilder.call()).str("fullHash"));
+                sendAeurBuilder.recipient(id);
+                aeurTransactionsToBundle.add(new JSONAssert(sendAeurBuilder.call()).str("fullHash"));
             }
 
             bundleTransactions(ignisTransactionsToBundle);
@@ -215,23 +215,23 @@ public abstract class BlockchainTest extends AbstractBlockchainTest {
     }
 
     protected static void bundleTransactions(List<String> transactionsToBundle) {
-        APICall.Builder builder = new APICall.Builder("bundleTransactions").secretPhrase(rikerSecretPhrase).
-                param("chain", "" + FxtChain.FXT.getId()).
-                param("transactionFullHash", transactionsToBundle.toArray(new String[0]));
+        JO response = BundleTransactionsCall.create(FxtChain.FXT.getId()).
+                secretPhrase(rikerSecretPhrase).
+                transactionFullHash(transactionsToBundle.toArray(new String[0])).
+                callNoError();
 
-        new JSONAssert(builder.build().invoke()).str("fullHash");
+        new JSONAssert(response).str("fullHash");
     }
 
     private static void startBundlers() {
         for (Chain chain : ChildChain.getAll()) {
             long factor = Convert.decimalMultiplier(FxtChain.getChain(1).getDecimals() - chain.getDecimals());
-            new APICall.Builder("startBundler").
+            StartBundlerCall.create(chain.getId()).
                     secretPhrase(FORGY.getSecretPhrase()).
-                    param("chain", chain.getId()).
-                    param("minRateNQTPerFXT", chain.ONE_COIN / factor / 10). // Make it low to allow more transactions
-                    param("totalFeesLimitFQT", 20000 * chain.ONE_COIN * factor). // Forgy has only 24K Ignis
-                    param("overpayFQTPerFXT", 0).
-                    build().invokeNoError();
+                    minRateNQTPerFXT(chain.ONE_COIN / factor / 10). // Make it low to allow more transactions
+                    totalFeesLimitFQT(20000 * chain.ONE_COIN * factor). // Forgy has only 24K Ignis
+                    overpayFQTPerFXT(0).
+                    callNoError();
         }
     }
 
@@ -239,13 +239,17 @@ public abstract class BlockchainTest extends AbstractBlockchainTest {
     public void destroy() {
         AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
             TransactionProcessorImpl.getInstance().clearUnconfirmedTransactions();
-            blockchainProcessor.popOffTo(baseHeight);
+            popOffTo(baseHeight);
             return null;
         });
     }
 
     public static void generateBlock() {
         generateBlock(forgerSecretPhrase);
+    }
+
+    public static void generateBlockWithDescription(String blockDescription) {
+        generateBlock(forgerSecretPhrase, blockDescription);
     }
 
     public static void generateBlockAndSleep() {
@@ -261,7 +265,11 @@ public abstract class BlockchainTest extends AbstractBlockchainTest {
     }
 
     private static void generateBlock(String forgerSecretPhrase) {
-        Logger.logDebugMessage("vvvvvvvvvvvvvvvvv    generateBlock()    vvvvvvvvvvvvvvvvv");
+        generateBlock(forgerSecretPhrase, "");
+    }
+
+    private static void generateBlock(String forgerSecretPhrase, String blockDescription) {
+        Logger.logDebugMessage("vvvvvvvvvvvvvvvvv    generateBlock(%s)    vvvvvvvvvvvvvvvvv", blockDescription);
         try {
             AccessController.doPrivileged((PrivilegedExceptionAction<Void>) () -> {
                 blockchainProcessor.generateBlock(Crypto.getPrivateKey(forgerSecretPhrase), Nxt.getEpochTime());
@@ -271,15 +279,26 @@ public abstract class BlockchainTest extends AbstractBlockchainTest {
             e.printStackTrace();
             Assert.fail();
         }
-        Logger.logDebugMessage("^----------------    generateBlock()    ----------------^");
+        Logger.logDebugMessage("^----------------    generateBlock(%s)    ----------------^", blockDescription);
     }
 
     protected static void generateBlocks(int howMany) {
+        generateBlocksWithDescription(howMany, "multiple blocks");
+    }
+
+    protected static void generateBlocksWithDescription(int howMany, String blockDescription) {
+        String prefix = blockDescription + " (";
+        String postfix = "/" + howMany + ")";
         for (int i = 0; i < howMany; i++) {
-            generateBlock();
+            generateBlockWithDescription(prefix + (i + 1) + postfix);
         }
     }
 
+    protected static void popOffTo(int height) {
+        blockchainProcessor.popOffTo(height);
+    }
+
+    @SuppressWarnings("UnusedReturnValue")
     public static Object putAdditionalProperty(String key, String value) {
         return additionalProperties.put(key, value);
     }

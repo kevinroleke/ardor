@@ -19,11 +19,11 @@ import nxt.BlockchainTest;
 import nxt.addons.JO;
 import nxt.blockchain.Chain;
 import nxt.blockchain.ChainTransactionId;
-import nxt.blockchain.ChildChain;
-import nxt.http.APICall;
 import nxt.http.callers.GetBlockCall;
 import nxt.http.callers.GetBlockchainStatusCall;
 import nxt.http.callers.GetExecutedTransactionsCall;
+import nxt.http.callers.SendMessageCall;
+import nxt.http.callers.SendMoneyCall;
 import nxt.http.responses.BlockResponse;
 import nxt.http.responses.TransactionResponse;
 import nxt.tools.ContractManager;
@@ -54,32 +54,30 @@ public class ContractTestHelper {
     }
 
     public static String payContract(String message, Chain chain, boolean encryptMessage, String secretPhrase, String recipient, boolean addHashedSecret) {
-        APICall.Builder<?> builder = new APICall.Builder<>("sendMoney").
+        SendMoneyCall builder = SendMoneyCall.create(chain.getId()).
                 secretPhrase(secretPhrase).
-                param("chain", chain.getId()).
-                param("recipient", recipient).
-                param("amountNQT", 100 * chain.ONE_COIN);
+                recipient(recipient).
+                amountNQT(100 * chain.ONE_COIN);
         if (message != null) {
             if (encryptMessage) {
-                builder.param("encryptedMessageIsPrunable", "true").param("messageToEncrypt", message);
+                builder.encryptedMessageIsPrunable(true).messageToEncrypt(message);
             } else {
-                builder.param("messageIsPrunable", "true").param("message", message);
+                builder.messageIsPrunable(true).message(message);
             }
         }
         if (addHashedSecret) {
-            builder.param("phased", true);
-            builder.param("phasingFinishHeight", BlockResponse.create(GetBlockCall.create().call()).getHeight() + 201);
-            builder.param("phasingQuorum", 1);
-            builder.param("phasingVotingModel", 5);
-            builder.param("phasingHashedSecret", "ad531905859e62ee0b5ef2cc916cef3949b11d9b8817a8e4d7ac04f44c79e704");
-            builder.param("phasingHashedSecretAlgorithm", 2);
+            builder.phased(true);
+            builder.phasingFinishHeight(BlockResponse.create(GetBlockCall.create().callNoError()).getHeight() + 201);
+            builder.phasingQuorum(1);
+            builder.phasingVotingModel((byte) 5);
+            builder.phasingHashedSecret("ad531905859e62ee0b5ef2cc916cef3949b11d9b8817a8e4d7ac04f44c79e704");
+            builder.phasingHashedSecretAlgorithm((byte) 2);
         }
         builder.feeNQT(IGNIS.ONE_COIN);
-        APICall apiCall = builder.build();
-        JO response = new JO(apiCall.invoke());
+        JO response = builder.callNoError();
         Logger.logDebugMessage("sendMoney: " + response);
         BlockchainTest.generateBlock();
-        return (String)response.get("fullHash");
+        return response.getString("fullHash");
     }
 
     public static String messageTriggerContract(String message) {
@@ -87,15 +85,13 @@ public class ContractTestHelper {
     }
 
     public static String messageTriggerContract(String message, String secretPhrase) {
-        APICall apiCall = new APICall.Builder<>("sendMessage").
+        JO response = SendMessageCall.create(IGNIS.getId()).
                 secretPhrase(secretPhrase).
-                param("chain", ChildChain.IGNIS.getId()).
-                param("recipient", BlockchainTest.ALICE.getRsAccount()).
-                param("messageIsPrunable", "true").
-                param("message", message).
+                recipient(BlockchainTest.ALICE.getRsAccount()).
+                messageIsPrunable(true).
+                message(message).
                 feeNQT(IGNIS.ONE_COIN).
-                build();
-        JO response = new JO(apiCall.invoke());
+                callNoError();
         Logger.logDebugMessage("sendMessage: " + response);
         BlockchainTest.generateBlock();
         return (String)response.get("fullHash");
@@ -136,7 +132,7 @@ public class ContractTestHelper {
                         , contractReferenceTransaction.getString("errorDescription")));
             }
             if (isGenerateBlock) {
-                BlockchainTest.generateBlock();
+                BlockchainTest.generateBlockWithDescription("Deploy contract");
             }
             return null;
         });
@@ -144,7 +140,7 @@ public class ContractTestHelper {
 
     @SuppressWarnings("SameParameterValue")
     public static void testChildTransaction(int chainId, int type, int subType, long amount, long fee, long sender, List<Long> recipients) {
-        JO getBlockchainStatusCall = GetBlockchainStatusCall.create().call();
+        JO getBlockchainStatusCall = GetBlockchainStatusCall.create().callNoError();
         ChainTransactionId contractResultTransactionId = null;
         List<TransactionResponse> childTransactions = GetExecutedTransactionsCall.create(IGNIS.getId()).type(0).subtype(0).height(getBlockchainStatusCall.getInt("numberOfBlocks") - 1).getTransactions();
         for (TransactionResponse childTransaction : childTransactions) {

@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class StartFundingMonitorCall extends APICall.Builder<StartFundingMonitorCall> {
+public class StartFundingMonitorCall extends ChainSpecificCallBuilder<StartFundingMonitorCall> {
     private StartFundingMonitorCall() {
         super(ApiSpec.startFundingMonitor);
     }
@@ -24,7 +22,7 @@ public class StartFundingMonitorCall extends APICall.Builder<StartFundingMonitor
         return unsignedLongParam("holding", holding);
     }
 
-    public StartFundingMonitorCall amount(String amount) {
+    public StartFundingMonitorCall amount(long amount) {
         return param("amount", amount);
     }
 
@@ -42,5 +40,9 @@ public class StartFundingMonitorCall extends APICall.Builder<StartFundingMonitor
 
     public StartFundingMonitorCall threshold(String threshold) {
         return param("threshold", threshold);
+    }
+
+    public StartFundingMonitorCall feeRateNQTPerFXT(long feeRateNQTPerFXT) {
+        return param("feeRateNQTPerFXT", feeRateNQTPerFXT);
     }
 }

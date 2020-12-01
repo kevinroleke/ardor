@@ -1,5 +1,12 @@
 <h2>Sample Ardor APIs for Node JS</h2>
 
+<h3>What's new?</h3>
+This release is compatible with the Ardor 2.3.2 APIs.<br>
+A new configuration parameter disableSslCertificateVerification was added to config.json.<br> 
+Use it to enable https communication with a node when using a self signed certificate. 
+
+<h3>General Information</h3>
+
 The Node JS module performs local signing and encryption using the same code used by the official Ardor wallet.<br>
 - Your passphrase, seed or private key are never submitted to the remote node when submitting a transaction.<br>
 - Transaction bytes returned by the remote node are parsed and validated against the submitted data.<br>
@@ -29,3 +36,4 @@ You can use the content of the `html/www/js` folder as a standalone module.<br>
 <h3>Warning</h3>
 Your passphrase or private key are submitted to a remote node only when invoking specific APIs which require them to operate like the startForging API.<br>
 We recommend that you avoid using these APIs in your scripts when connecting to an untrusted remote node.<br>
+

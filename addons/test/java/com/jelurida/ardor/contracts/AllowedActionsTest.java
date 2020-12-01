@@ -34,7 +34,7 @@ public class AllowedActionsTest extends AbstractContractTest {
 
         // Verify that all actions worked
         generateBlock();
-        JO getBlockchainStatusCall = GetBlockchainStatusCall.create().call();
+        JO getBlockchainStatusCall = GetBlockchainStatusCall.create().callNoError();
         List<TransactionResponse> childTransactions = GetExecutedTransactionsCall.create(IGNIS.getId()).type(1).subtype(0).height(getBlockchainStatusCall.getInt("numberOfBlocks") - 1).getTransactions();
         Assert.assertTrue(childTransactions.size() > 0);
         childTransactions.forEach(t -> {

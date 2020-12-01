@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class AddAccountPermissionCall extends CreateTransactionCallBuilder<AddAccountPermissionCall> {
+public class AddAccountPermissionCall extends CreateTwoSidesTransactionCallBuilder<AddAccountPermissionCall> {
     private AddAccountPermissionCall() {
         super(ApiSpec.addAccountPermission);
     }

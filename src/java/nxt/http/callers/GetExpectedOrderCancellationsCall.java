@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetExpectedOrderCancellationsCall extends APICall.Builder<GetExpectedOrderCancellationsCall> {
+public class GetExpectedOrderCancellationsCall extends ChainSpecificCallBuilder<GetExpectedOrderCancellationsCall> {
     private GetExpectedOrderCancellationsCall() {
         super(ApiSpec.getExpectedOrderCancellations);
     }

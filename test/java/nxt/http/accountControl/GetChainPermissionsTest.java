@@ -51,7 +51,7 @@ public class GetChainPermissionsTest extends BlockchainTest {
 
     @Test
     public void getChainPermissions() {
-        JO actual = GetChainPermissionsCall.create(AEUR.getId()).call();
+        JO actual = GetChainPermissionsCall.create(AEUR.getId()).callNoError();
 
         assertEquals(list(CHAIN_USER, CHAIN_ADMIN), actual.get(ALICE.getRsAccount()));
         assertEquals(list(CHAIN_USER, MASTER_ADMIN), actual.get(CHUCK.getRsAccount()));
@@ -59,7 +59,7 @@ public class GetChainPermissionsTest extends BlockchainTest {
 
     @Test
     public void getChainPermissionsPaging() {
-        JO actual = GetChainPermissionsCall.create(AEUR.getId()).firstIndex(0).lastIndex(1).call();
+        JO actual = GetChainPermissionsCall.create(AEUR.getId()).firstIndex(0).lastIndex(1).callNoError();
 
         assertEquals(list(CHAIN_USER, CHAIN_ADMIN), actual.get(ALICE.getRsAccount()));
         assertNull(actual.get(CHUCK.getRsAccount()));

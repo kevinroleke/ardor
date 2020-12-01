@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class CastVoteCall extends CreateTransactionCallBuilder<CastVoteCall> {
+public class CastVoteCall extends CreateOneSideTransactionCallBuilder<CastVoteCall> {
     private CastVoteCall() {
         super(ApiSpec.castVote);
     }

@@ -24,6 +24,7 @@ import nxt.blockchain.Attachment;
 import nxt.blockchain.ChainTransactionId;
 import nxt.util.Convert;
 import nxt.voting.PhasingVoteCastingAttachment;
+import nxt.voting.VotingTransactionType;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,8 +37,10 @@ public class ApproveTransaction extends CreateTransaction {
     static final ApproveTransaction instance = new ApproveTransaction();
 
     private ApproveTransaction() {
-        super(new APITag[]{APITag.CREATE_TRANSACTION, APITag.PHASING}, "phasedTransaction", "phasedTransaction", "phasedTransaction",
-                "revealedSecret", "revealedSecret", "revealedSecret", "revealedSecretIsText", "revealedSecretText");
+        super(VotingTransactionType.PHASING_VOTE_CASTING, new APITag[]{APITag.CREATE_TRANSACTION, APITag.PHASING},
+                "phasedTransaction", "phasedTransaction", "phasedTransaction",
+                "revealedSecret", "revealedSecret", "revealedSecret", "revealedSecretIsText",
+                "revealedSecretText", "revealedSecretText", "revealedSecretText");
     }
 
     @Override

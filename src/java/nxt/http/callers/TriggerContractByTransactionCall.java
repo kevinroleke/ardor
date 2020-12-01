@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class TriggerContractByTransactionCall extends APICall.Builder<TriggerContractByTransactionCall> {
+public class TriggerContractByTransactionCall extends ChainSpecificCallBuilder<TriggerContractByTransactionCall> {
     private TriggerContractByTransactionCall() {
         super(ApiSpec.triggerContractByTransaction);
     }
@@ -20,7 +18,7 @@ public class TriggerContractByTransactionCall extends APICall.Builder<TriggerCon
         return param("requireLastBlock", requireLastBlock);
     }
 
-    public TriggerContractByTransactionCall apply(String apply) {
+    public TriggerContractByTransactionCall apply(boolean apply) {
         return param("apply", apply);
     }
 

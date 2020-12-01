@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetPhasingPollCall extends APICall.Builder<GetPhasingPollCall> {
+public class GetPhasingPollCall extends ChainSpecificCallBuilder<GetPhasingPollCall> {
     private GetPhasingPollCall() {
         super(ApiSpec.getPhasingPoll);
     }
@@ -20,7 +18,7 @@ public class GetPhasingPollCall extends APICall.Builder<GetPhasingPollCall> {
         return param("requireLastBlock", requireLastBlock);
     }
 
-    public GetPhasingPollCall countVotes(String countVotes) {
+    public GetPhasingPollCall countVotes(boolean countVotes) {
         return param("countVotes", countVotes);
     }
 

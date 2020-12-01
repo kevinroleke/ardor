@@ -17,82 +17,83 @@
 package nxt.http.twophased;
 
 import nxt.BlockchainTest;
-import nxt.blockchain.ChildChain;
+import nxt.addons.JA;
+import nxt.addons.JO;
 import nxt.http.APICall;
-import nxt.http.twophased.TestCreateTwoPhased.TwoPhasedMoneyTransferBuilder;
+import nxt.http.callers.ApproveTransactionCall;
+import nxt.http.callers.GetVoterPhasedTransactionsCall;
 import nxt.util.Logger;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
+
+import static nxt.blockchain.ChildChain.IGNIS;
 
 public class TestGetVoterPhasedTransactions extends BlockchainTest {
 
     static APICall getVoterPhasedTransactions() {
-        return new APICall.Builder("getVoterPhasedTransactions")
-                .param("account", Long.toUnsignedString(CHUCK.getId()))
-                .param("firstIndex", 0)
-                .param("lastIndex", 10)
+        return GetVoterPhasedTransactionsCall.create(IGNIS.getId())
+                .account(CHUCK.getId())
+                .firstIndex(0)
+                .lastIndex(10)
                 .build();
     }
 
     @Test
     public void simpleTransactionLookup() {
-        APICall apiCall = new TwoPhasedMoneyTransferBuilder().build();
-        JSONObject transactionJSON = TestCreateTwoPhased.issueCreateTwoPhased(apiCall, false);
+        APICall apiCall = TestCreateTwoPhased.createSendMoneyBuilder().build();
+        JO transactionJSON = TestCreateTwoPhased.issueCreateTwoPhased(apiCall, false);
         String transactionId = (String) transactionJSON.get("fullHash");
 
         generateBlock();
 
-        JSONObject response = getVoterPhasedTransactions().invoke();
+        JO response = getVoterPhasedTransactions().getJsonResponse();
         Logger.logMessage("getVoterPhasedTransactionsResponse:" + response.toJSONString());
-        JSONArray transactionsJson = (JSONArray) response.get("transactions");
+        JA transactionsJson = response.getArray("transactions");
         Assert.assertTrue(TwoPhasedSuite.searchForTransactionId(transactionsJson, transactionId));
     }
 
     @Test
     public void transactionLookupAfterVote() {
 
-        APICall apiCall = new TwoPhasedMoneyTransferBuilder()
+        APICall apiCall = TestCreateTwoPhased.createSendMoneyBuilder()
                 .build();
-        JSONObject transactionJSON = TestCreateTwoPhased.issueCreateTwoPhased(apiCall, false);
+        JO transactionJSON = TestCreateTwoPhased.issueCreateTwoPhased(apiCall, false);
         String transactionFullHash = (String) transactionJSON.get("fullHash");
 
         generateBlock();
 
-        long fee = ChildChain.IGNIS.ONE_COIN;
-        apiCall = new APICall.Builder("approveTransaction")
-                .param("secretPhrase", CHUCK.getSecretPhrase())
-                .param("phasedTransaction", ChildChain.IGNIS.getId() + ":" + transactionFullHash)
-                .param("feeNQT", fee)
-                .build();
-        JSONObject response = apiCall.invoke();
+        long fee = IGNIS.ONE_COIN;
+        JO response = ApproveTransactionCall.create(IGNIS.getId())
+                .secretPhrase(CHUCK.getSecretPhrase())
+                .phasedTransaction(IGNIS.getId() + ":" + transactionFullHash)
+                .feeNQT(fee)
+                .callNoError();
         Logger.logMessage("approvePhasedTransactionResponse:" + response.toJSONString());
 
         generateBlock();
 
-        response = getVoterPhasedTransactions().invoke();
+        response = getVoterPhasedTransactions().getJsonResponse();
         Logger.logMessage("getVoterPhasedTransactionsResponse:" + response.toJSONString());
-        JSONArray transactionsJson = (JSONArray) response.get("transactions");
+        JA transactionsJson = response.getArray("transactions");
         Assert.assertFalse(TwoPhasedSuite.searchForTransactionId(transactionsJson, transactionFullHash));
     }
 
     @Test
     public void sorting() {
         for (int i = 0; i < 15; i++) {
-            APICall apiCall = new TestCreateTwoPhased.TwoPhasedMoneyTransferBuilder().build();
+            APICall apiCall = TestCreateTwoPhased.createSendMoneyBuilder().build();
             TestCreateTwoPhased.issueCreateTwoPhased(apiCall, false);
         }
 
-        JSONObject response = getVoterPhasedTransactions().invoke();
+        JO response = getVoterPhasedTransactions().getJsonResponse();
         Logger.logMessage("getVoterPhasedTransactionsResponse:" + response.toJSONString());
-        JSONArray transactionsJson = (JSONArray) response.get("transactions");
+        JA transactionsJson = response.getArray("transactions");
 
         //sorting check
         int prevHeight = Integer.MAX_VALUE;
         for (Object transactionsJsonObj : transactionsJson) {
-            JSONObject transactionObject = (JSONObject) transactionsJsonObj;
-            int height = ((Long) transactionObject.get("height")).intValue();
+            JO transactionObject = (JO) transactionsJsonObj;
+            int height = transactionObject.getInt("height");
             Assert.assertTrue(height <= prevHeight);
             prevHeight = height;
         }

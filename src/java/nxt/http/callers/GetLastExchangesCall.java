@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetLastExchangesCall extends APICall.Builder<GetLastExchangesCall> {
+public class GetLastExchangesCall extends ChainSpecificCallBuilder<GetLastExchangesCall> {
     private GetLastExchangesCall() {
         super(ApiSpec.getLastExchanges);
     }

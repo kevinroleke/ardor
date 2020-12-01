@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetStateCall extends APICall.Builder<GetStateCall> {
+public class GetStateCall extends ChainSpecificCallBuilder<GetStateCall> {
     private GetStateCall() {
         super(ApiSpec.getState);
     }

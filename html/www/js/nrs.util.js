@@ -922,11 +922,12 @@
                             return $.t("error_not_enough_assets");
                         case "Not enough funds":
                             if (response.amount !== undefined) {
-                                return $.t("error_not_enough_funds_explained", {
-                                    amount: NRS.formatAmount(response.amount),
-                                    fee: NRS.formatAmount(response.fee),
-                                    balance: NRS.formatAmount(response.balance),
-                                    diff: NRS.formatAmount(response.diff),
+                                let decimals = NRS.getChain(response.chain).decimals;
+                                return $.t(response.amount === '0' ? "error_not_enough_for_fee_explained" : "error_not_enough_funds_explained", {
+                                    amount: NRS.formatAmount(response.amount, false, false, false, decimals),
+                                    fee: NRS.formatAmount(response.fee, false, false, false, decimals),
+                                    balance: NRS.formatAmount(response.balance, false, false, false, decimals),
+                                    diff: NRS.formatAmount(response.diff, false, false, false, decimals),
                                     chain: NRS.getChainName(response.chain)
                                 });
                             } else {

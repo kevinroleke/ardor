@@ -20,6 +20,7 @@ import nxt.NxtException;
 import nxt.account.Account;
 import nxt.aliases.AliasDeleteAttachment;
 import nxt.aliases.AliasHome;
+import nxt.aliases.AliasTransactionType;
 import nxt.blockchain.Attachment;
 import org.json.simple.JSONStreamAware;
 
@@ -33,7 +34,8 @@ public final class DeleteAlias extends CreateTransaction {
     static final DeleteAlias instance = new DeleteAlias();
 
     private DeleteAlias() {
-        super(new APITag[] {APITag.ALIASES, APITag.CREATE_TRANSACTION}, "alias", "aliasName");
+        super(AliasTransactionType.ALIAS_DELETE, new APITag[] {APITag.ALIASES, APITag.CREATE_TRANSACTION},
+                "alias", "aliasName");
     }
 
     @Override

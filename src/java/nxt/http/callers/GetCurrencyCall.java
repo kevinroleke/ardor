@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetCurrencyCall extends APICall.Builder<GetCurrencyCall> {
+public class GetCurrencyCall extends ChainSpecificCallBuilder<GetCurrencyCall> {
     private GetCurrencyCall() {
         super(ApiSpec.getCurrency);
     }

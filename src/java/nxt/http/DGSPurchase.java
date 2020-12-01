@@ -21,6 +21,7 @@ import nxt.NxtException;
 import nxt.account.Account;
 import nxt.blockchain.Attachment;
 import nxt.dgs.DigitalGoodsHome;
+import nxt.dgs.DigitalGoodsTransactionType;
 import nxt.dgs.PurchaseAttachment;
 import nxt.util.Convert;
 import org.json.simple.JSONStreamAware;
@@ -38,7 +39,7 @@ public final class DGSPurchase extends CreateTransaction {
     static final DGSPurchase instance = new DGSPurchase();
 
     private DGSPurchase() {
-        super(new APITag[] {APITag.DGS, APITag.CREATE_TRANSACTION},
+        super(DigitalGoodsTransactionType.PURCHASE, new APITag[] {APITag.DGS, APITag.CREATE_TRANSACTION},
                 "goods", "priceNQT", "quantity", "deliveryDeadlineTimestamp");
     }
 

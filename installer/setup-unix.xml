@@ -161,6 +161,8 @@
             <executable targetfile="${INSTALL_PATH}/generateAPICalls.sh"/>
             <file src="pem.to.pkcs12.keystore.certbot.hook.sh" targetdir="${INSTALL_PATH}" override="true"/>
             <executable targetfile="${INSTALL_PATH}/pem.to.pkcs12.keystore.certbot.hook.sh"/>
+            <file src="run-taxreport.sh" targetdir="${INSTALL_PATH}" override="true"/>
+            <executable targetfile="${INSTALL_PATH}/run-taxreport.sh"/>
         </pack>
 
     </packs>

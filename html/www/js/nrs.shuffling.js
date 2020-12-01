@@ -421,65 +421,80 @@ NRS.onSiteBuildDone().then(() => {
         };
 
         NRS.pages.standby_shufflers = function () {
-            async.waterfall([
-                function(callback) {
-                    NRS.hasMorePages = false;
-                    var view = NRS.simpleview.get('standby_shufflers_page', {
-                        errorMessage: null,
-                        isLoading: true,
-                        isEmpty: false,
-                        standbyShufflers: []
-                    });
-                    if (NRS.constants.REQUEST_TYPES.getStandbyShufflers === undefined) {
+            renderStandbyShufflersPage($("#standby_shufflers_page_type").find(".active").data("type"));
+        };
+
+        function renderStandbyShufflersPage(type) {
+            NRS.hasMorePages = false;
+            let view = NRS.simpleview.get('standby_shufflers_section', {
+                errorMessage: null,
+                isLoading: true,
+                isEmpty: false,
+                standbyShufflers: []
+            });
+            if (NRS.constants.REQUEST_TYPES.getStandbyShufflers === undefined) {
+                view.render({
+                    errorMessage: $.t("standbyshuffling_disabled"),
+                    isLoading: false,
+                    isEmpty: false
+                });
+                return;
+            }
+            let data = {
+                adminPassword: NRS.getAdminPassword(),
+                includeHoldingInfo: true,
+                includeAll: type === 'all'
+            };
+            if (!data.includeAll) {
+                data.account = NRS.account;
+            }
+            NRS.sendRequest("getStandbyShufflers", data,
+                function(response) {
+                    if (NRS.isErrorResponse(response)) {
                         view.render({
-                            errorMessage: $.t("standbyshuffling_disabled"),
+                            errorMessage: $.t("cannot_check_standbyshufflers_status") + " " + NRS.getErrorMessage(response),
                             isLoading: false,
                             isEmpty: false
                         });
                         return;
                     }
-                    NRS.sendRequest("getStandbyShufflers", { "adminPassword": NRS.getAdminPassword(), "includeHoldingInfo": "true" },
-                        function(response) {
-                            if (NRS.isErrorResponse(response)) {
-                                view.render({
-                                    errorMessage: $.t("cannot_check_standbyshufflers_status") + " " + NRS.getErrorMessage(response),
-                                    isLoading: false,
-                                    isEmpty: false
-                                });
-                                return;
-                            }
-                            var minAmountDecimals = NRS.getNumberOfDecimals(response.standbyShufflers, "minAmount", function(standbyshuffler) {
-                                switch (standbyshuffler.holdingType) {
-                                    case 0: return NRS.formatAmount(standbyshuffler.minAmount);
-                                    case 1:
-                                    case 2: return NRS.formatQuantity(standbyshuffler.minAmount, standbyshuffler.holdingInfo.decimals);
-                                    default: return "";
-                                }
-                            });
-                            var maxAmountDecimals = NRS.getNumberOfDecimals(response.standbyShufflers, "maxAmount", function(standbyshuffler) {
-                                switch (standbyshuffler.holdingType) {
-                                    case 0: return NRS.formatAmount(standbyshuffler.maxAmount);
-                                    case 1:
-                                    case 2: return NRS.formatQuantity(standbyshuffler.maxAmount, standbyshuffler.holdingInfo.decimals);
-                                    default: return "";
-                                }
-                            });
-                            response.standbyShufflers.forEach(
-                                function (standbyshufflerJson) {
-                                    view.standbyShufflers.push( NRS.jsondata.standbyshuffler(standbyshufflerJson, minAmountDecimals, maxAmountDecimals) );
-                                }
-                            );
-                            view.render({
-                                isLoading: false,
-                                isEmpty: view.standbyShufflers.length == 0
-                            });
-                            NRS.pageLoaded();
-                            callback(null);
+                    var minAmountDecimals = NRS.getNumberOfDecimals(response.standbyShufflers, "minAmount", function(standbyshuffler) {
+                        switch (standbyshuffler.holdingType) {
+                            case 0: return NRS.formatAmount(standbyshuffler.minAmount);
+                            case 1:
+                            case 2: return NRS.formatQuantity(standbyshuffler.minAmount, standbyshuffler.holdingInfo.decimals);
+                            default: return "";
+                        }
+                    });
+                    var maxAmountDecimals = NRS.getNumberOfDecimals(response.standbyShufflers, "maxAmount", function(standbyshuffler) {
+                        switch (standbyshuffler.holdingType) {
+                            case 0: return NRS.formatAmount(standbyshuffler.maxAmount);
+                            case 1:
+                            case 2: return NRS.formatQuantity(standbyshuffler.maxAmount, standbyshuffler.holdingInfo.decimals);
+                            default: return "";
+                        }
+                    });
+                    response.standbyShufflers.forEach(
+                        function (standbyshufflerJson) {
+                            view.standbyShufflers.push( NRS.jsondata.standbyshuffler(standbyshufflerJson, minAmountDecimals, maxAmountDecimals) );
                         }
                     );
+                    view.render({
+                        isLoading: false,
+                        isEmpty: view.standbyShufflers.length == 0
+                    });
+                    NRS.pageLoaded();
                 }
-            ], function (err, result) {});
-        };
+            );
+        }
+
+        $("#standby_shufflers_page_type").find(".btn").click(function (e) {
+            e.preventDefault();
+            $("#standby_shufflers_table")
+                .find("tbody").empty().end()
+                .parent().addClass("data-loading").removeClass("data-empty");
+            renderStandbyShufflersPage($(this).data("type"));
+        });
 
         $("#m_shuffling_create_modal").on("show.bs.modal", function() {
             $('#m_shuffling_create_holding_type').change();

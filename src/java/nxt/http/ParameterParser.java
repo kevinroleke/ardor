@@ -1420,4 +1420,17 @@ public final class ParameterParser {
             return Arrays.stream((version.split("\\."))).mapToInt(Integer::parseInt).toArray();
         }
     }
+
+    public static boolean isAnyNonEmpty(HttpServletRequest req, String... parameterNames) {
+        for (String parameterName : parameterNames) {
+            if (Convert.emptyToNull(req.getParameter(parameterName)) != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean areAllEmpty(HttpServletRequest req, String... parameterNames) {
+        return !isAnyNonEmpty(req, parameterNames);
+    }
 }

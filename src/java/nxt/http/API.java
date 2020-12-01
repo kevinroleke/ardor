@@ -18,6 +18,7 @@ package nxt.http;
 
 import nxt.Constants;
 import nxt.Nxt;
+import nxt.crypto.Crypto;
 import nxt.util.Convert;
 import nxt.util.Logger;
 import nxt.util.SslKeyStoreGenerator;
@@ -63,6 +64,7 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -102,7 +104,8 @@ public final class API {
     private static final Set<String> allowedBotHosts;
     private static final List<NetworkAddress> allowedBotNets;
     private static final Map<String, PasswordCount> incorrectPasswords = new HashMap<>();
-    static final String adminPassword = Nxt.getStringProperty("nxt.adminPassword", "", true);
+    private static final String adminPassword = Nxt.getStringProperty("nxt.adminPassword", "", true);
+    private static final String adminPasswordHash = Nxt.getStringProperty("nxt.adminPasswordHash", "", true);
     static final boolean disableAdminPassword;
     static final int maxRecords = Nxt.getIntProperty("nxt.maxAPIRecords");
     static final boolean enableAPIUPnP = Nxt.getBooleanProperty("nxt.enableAPIUPnP");
@@ -120,6 +123,9 @@ public final class API {
     private static volatile String paperWalletPage;
 
     static {
+        if (!adminPassword.isEmpty() && !adminPasswordHash.isEmpty()) {
+            Logger.logWarningMessage("admin password and admin password hash are both defined");
+        }
         List<String> allowedBotHostsList = Nxt.getStringListProperty("nxt.allowedBotHosts");
         if (!allowedBotHostsList.contains("*")) {
             Set<String> hosts = new HashSet<>();
@@ -148,7 +154,7 @@ public final class API {
             final int port = Constants.isTestnet ? TESTNET_API_PORT : Nxt.getIntProperty("nxt.apiServerPort");
             final int sslPort = Constants.isTestnet ? TESTNET_API_SSLPORT : Nxt.getIntProperty("nxt.apiServerSSLPort");
             final String host = Nxt.getStringProperty("nxt.apiServerHost");
-            disableAdminPassword = Nxt.getBooleanProperty("nxt.disableAdminPassword") || ("127.0.0.1".equals(host) && adminPassword.isEmpty());
+            disableAdminPassword = Nxt.getBooleanProperty("nxt.disableAdminPassword") || ("127.0.0.1".equals(host) && !isAdminPasswordConfigured());
 
             apiServer = new Server();
             ServerConnector connector;
@@ -390,6 +396,7 @@ public final class API {
         if (sm != null) {
             sm.checkPermission(LIFE_CYCLE_PERMISSION);
         }
+        Logger.logShutdownMessage("Shutting down the API server...");
         if (apiServer != null) {
             try {
                 apiServer.stop();
@@ -404,6 +411,7 @@ public final class API {
                 Logger.logShutdownMessage("Failed to stop API server", e);
             }
         }
+        Logger.logShutdownMessage("API server stopped");
     }
 
     public static void verifyPassword(HttpServletRequest req) throws ParameterException {
@@ -414,7 +422,7 @@ public final class API {
         if (API.disableAdminPassword) {
             return;
         }
-        if (API.adminPassword.isEmpty()) {
+        if (!isAdminPasswordConfigured()) {
             throw new ParameterException(NO_PASSWORD_IN_CONFIG);
         }
         checkOrLockPassword(req);
@@ -428,7 +436,7 @@ public final class API {
         if (API.disableAdminPassword) {
             return true;
         }
-        if (API.adminPassword.isEmpty()) {
+        if (!isAdminPasswordConfigured()) {
             return false;
         }
         if (Convert.emptyToNull(req.getParameter("adminPassword")) == null) {
@@ -474,6 +482,14 @@ public final class API {
         return adminPassword;
     }
 
+    public static boolean isAdminPasswordConfigured() {
+        SecurityManager sm = System.getSecurityManager();
+        if (sm != null) {
+            sm.checkPermission(API_PERMISSION);
+        }
+        return !adminPassword.isEmpty() || !adminPasswordHash.isEmpty();
+    }
+
     public static List<APIEnum> getDisabledApis() {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
@@ -512,30 +528,37 @@ public final class API {
                 Logger.logWarningMessage("Too many incorrect admin password attempts from " + remoteHost);
                 throw new ParameterException(LOCKED_ADMIN_PASSWORD);
             }
-            String adminPassword = Convert.nullToEmpty(req.getParameter("adminPassword"));
-            if (!API.adminPassword.equals(adminPassword)) {
-                if (adminPassword.length() > 0) {
-                    if (passwordCount == null) {
-                        passwordCount = new PasswordCount();
-                        incorrectPasswords.put(remoteHost, passwordCount);
-                        if (incorrectPasswords.size() > 1000) {
-                            // Remove one of the locked hosts at random to prevent unlimited growth of the map
-                            List<String> remoteHosts = new ArrayList<>(incorrectPasswords.keySet());
-                            Random r = new Random();
-                            incorrectPasswords.remove(remoteHosts.get(r.nextInt(remoteHosts.size())));
-                        }
-                    }
-                    passwordCount.count++;
-                    passwordCount.time = now;
-                    Logger.logWarningMessage("Incorrect adminPassword from " + remoteHost);
-                    throw new ParameterException(INCORRECT_ADMIN_PASSWORD);
-                } else {
-                    throw new ParameterException(MISSING_ADMIN_PASSWORD);
+            String adminPasswordParam = Convert.nullToEmpty(req.getParameter("adminPassword"));
+            if (!adminPassword.isEmpty() && adminPassword.equals(adminPasswordParam)) {
+                if (passwordCount != null) {
+                    incorrectPasswords.remove(remoteHost);
+                }
+                return;
+            }
+            if (adminPasswordParam.isEmpty()) {
+                throw new ParameterException(MISSING_ADMIN_PASSWORD);
+            }
+            String passwordHash = Convert.toHexString(Crypto.sha256().digest(adminPasswordParam.getBytes(StandardCharsets.UTF_8)));
+            if (adminPasswordHash.equals(passwordHash)) {
+                if (passwordCount != null) {
+                    incorrectPasswords.remove(remoteHost);
+                }
+                return;
+            }
+            if (passwordCount == null) {
+                passwordCount = new PasswordCount();
+                incorrectPasswords.put(remoteHost, passwordCount);
+                if (incorrectPasswords.size() > 1000) {
+                    // Remove one of the locked hosts at random to prevent unlimited growth of the map
+                    List<String> remoteHosts = new ArrayList<>(incorrectPasswords.keySet());
+                    Random r = new Random();
+                    incorrectPasswords.remove(remoteHosts.get(r.nextInt(remoteHosts.size())));
                 }
             }
-            if (passwordCount != null) {
-                incorrectPasswords.remove(remoteHost);
-            }
+            passwordCount.count++;
+            passwordCount.time = now;
+            Logger.logWarningMessage("Incorrect adminPassword from " + remoteHost);
+            throw new ParameterException(INCORRECT_ADMIN_PASSWORD);
         }
     }
 

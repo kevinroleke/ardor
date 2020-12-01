@@ -20,7 +20,6 @@ import java.util.stream.Stream;
 
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
 import static java.util.stream.Collectors.toMap;
-import static nxt.account.AccountLedger.LedgerEvent.BLOCK_GENERATED;
 import static nxt.addons.taxreport.Column.BUY_CURRENCY;
 import static nxt.addons.taxreport.Column.BUY_VOLUME;
 import static nxt.addons.taxreport.Column.COMMENT;
@@ -165,8 +164,8 @@ class Record {
         return result.toString();
     }
 
-    Record commentAndGroup(Block block) {
-        return comment("Block id: " + Long.toUnsignedString(block.getId())).group(BLOCK_GENERATED);
+    Record commentAndGroup(Block block, LedgerEvent group) {
+        return comment("Block id: " + Long.toUnsignedString(block.getId())).group(group);
     }
 
     Record group(LedgerEvent group) {

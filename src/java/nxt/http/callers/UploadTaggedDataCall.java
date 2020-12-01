@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class UploadTaggedDataCall extends CreateTransactionCallBuilder<UploadTaggedDataCall> {
+public class UploadTaggedDataCall extends CreateOneSideTransactionCallBuilder<UploadTaggedDataCall> {
     private UploadTaggedDataCall() {
         super(ApiSpec.uploadTaggedData);
     }

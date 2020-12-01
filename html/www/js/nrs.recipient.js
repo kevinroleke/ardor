@@ -342,7 +342,7 @@ NRS.onSiteBuildDone().then(() => {
 			});
 			if (response.errorCode) {
 				result.error = response.errorDescription;
-				return
+				return result;
 			}
 			if (response.aliasURI) {
 				let aliasURI = String(response.aliasURI);
@@ -360,7 +360,7 @@ NRS.onSiteBuildDone().then(() => {
 							match[1] = address.toString();
 						} else {
 							result.error = $.t("error_invalid_account_id");
-							return;
+							return result;
 						}
 					}
 					result.id = match[1];

@@ -34,7 +34,6 @@ import nxt.blockchain.TransactionType;
 import nxt.configuration.ConfigPropertyBuilder;
 import nxt.configuration.SubSystem;
 import nxt.db.DbIterator;
-import nxt.http.APICall;
 import nxt.http.APIServlet;
 import nxt.http.APITag;
 import nxt.http.JSONData;
@@ -365,6 +364,9 @@ public final class ContractRunner implements AddOn, ContractProvider {
         try {
             contractMethod = contract.getClass().getDeclaredMethod(invocationType.getMethodName(), invocationType.getContextClass());
         } catch (NoSuchMethodException e) {
+            if (invocationType == BLOCK) {
+                return new JO();
+            }
             return context.generateInfoResponse("Method %s not implemented by contract %s", invocationType.getMethodName(), contract.getClass().getSimpleName());
         }
         context.setContractSetupParameters(contractAndParameters.getParams());
@@ -754,13 +756,13 @@ public final class ContractRunner implements AddOn, ContractProvider {
                 }
                 expectedTransactionJSON = new JO(JSONData.unconfirmedTransaction(transactionToApprove));
                 int chainId = (int) expectedTransactionJSON.get("chain");
-                APICall.Builder builder = ApproveTransactionCall.create(chainId).
-                        param("phasedTransaction", chainId + ":" + expectedTransactionJSON.getString("fullHash")).
+                ApproveTransactionCall builder = ApproveTransactionCall.create(chainId).
+                        phasedTransaction(chainId + ":" + expectedTransactionJSON.getString("fullHash")).
                         privateKey(validatorPrivateKey);
                 if (Chain.getChain(chainId) instanceof ChildChain) {
-                    builder.param("feeRateNQTPerFXT", config.getCurrentFeeRateNQTPerFXT(chainId));
+                    builder.feeRateNQTPerFXT(config.getCurrentFeeRateNQTPerFXT(chainId));
                 }
-                return new JO(builder.build().invoke());
+                return builder.call();
             } else {
                 Logger.logInfoMessage("Transactions differ");
                 Logger.logInfoMessage("Expected Transaction " + expectedTransactionJSON.toJSONString());
@@ -788,15 +790,12 @@ public final class ContractRunner implements AddOn, ContractProvider {
             if (isDuplicate(contract, TransactionResponse.create(transactionJSON))) {
                 continue;
             }
-            APICall.Builder builder;
-            APICall apiCall;
             if (!transactionJSON.isExist("signature")) {
-                builder = SignTransactionCall.create().
+                JO signTransactionResponse = SignTransactionCall.create().
                         privateKey(privateKey).
                         unsignedTransactionJSON(transactionJSON.toJSONString()).
-                        validate(true);
-                apiCall = builder.build();
-                JO signTransactionResponse = new JO(apiCall.invoke());
+                        validate(true).
+                        call();
                 if (signTransactionResponse.isExist("errorCode")) {
                     Logger.logErrorMessage(String.format("Error signing transaction %s chain %d message %s",
                             transactionJSON.getString("fullHash"), transactionJSON.getLong("chain"), signTransactionResponse.getString("errorDescription")));
@@ -805,9 +804,7 @@ public final class ContractRunner implements AddOn, ContractProvider {
                 }
                 transactionJSON = new JO(signTransactionResponse.get("transactionJSON"));
             }
-            builder = BroadcastTransactionCall.create().transactionJSON(transactionJSON.toJSONString());
-            apiCall = builder.build();
-            JO broadcastTransactionResponse = new JO(apiCall.invoke());
+            JO broadcastTransactionResponse = BroadcastTransactionCall.create().transactionJSON(transactionJSON.toJSONString()).call();
             if (broadcastTransactionResponse.get("errorCode") != null) {
                 Logger.logErrorMessage(String.format("Error %s broadcasting transaction %s on chain %d",
                         broadcastTransactionResponse.getString("errorDescription"), transactionJSON.getString("fullHash"), transactionJSON.getLong("chain")));

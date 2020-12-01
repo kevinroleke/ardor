@@ -18,7 +18,7 @@ package nxt.http.bundling;
 import nxt.Constants;
 import nxt.Nxt;
 import nxt.account.PaymentTransactionType;
-import nxt.http.APICall;
+import nxt.addons.JO;
 import nxt.http.callers.BundleTransactionsCall;
 import nxt.http.callers.GetBundlersCall;
 import nxt.http.callers.GetTransactionCall;
@@ -40,10 +40,10 @@ public class BundlingFeesTest extends BundlerTest {
 
         String sendMoneyFullHash = sendMoney();
 
-        APICall getChildTxCall = GetTransactionCall.create(IGNIS.getId())
+        JO response = GetTransactionCall.create(IGNIS.getId())
                 .fullHash(sendMoneyFullHash)
-                .build();
-        JSONAssert jsonAssert = new JSONAssert(getChildTxCall.invokeNoError());
+                .callNoError();
+        JSONAssert jsonAssert = new JSONAssert(response);
         Assert.assertEquals(true, jsonAssert.bool("isBundled"));
 
         JSONAssert childBlockTx = getForgyUnconfirmedFxtTransaction();
@@ -60,7 +60,7 @@ public class BundlingFeesTest extends BundlerTest {
                 .secretPhrase(CHUCK.getSecretPhrase())
                 .feeNQT(feePayedByChuck)
                 .deadline(10)
-                .transactionFullHash(sendMoneyFullHash).build().invokeNoError());
+                .transactionFullHash(sendMoneyFullHash).callNoError());
 
         generateBlock();
 
@@ -70,6 +70,7 @@ public class BundlingFeesTest extends BundlerTest {
         Assert.assertTrue(Nxt.getEpochTime() + Constants.MAX_TIMEDRIFT < childBlockExpiration);
         Assert.assertEquals("FORGY's current total fees still not restored", feePayedByForgy, getCurrentTotalFees());
 
+        //noinspection StatementWithEmptyBody
         while (Nxt.getEpochTime() + Constants.MAX_TIMEDRIFT < childBlockExpiration) {
             //empty
         }
@@ -88,6 +89,7 @@ public class BundlingFeesTest extends BundlerTest {
 
         int childBlockExpiration = (int) (childBlockTx.integer("timestamp") + childBlockTx.integer("deadline") * 60 + 60);
 
+        //noinspection StatementWithEmptyBody
         while (Nxt.getEpochTime() < childBlockExpiration) {
             //empty
         }
@@ -102,7 +104,7 @@ public class BundlingFeesTest extends BundlerTest {
                 .secretPhrase(FORGY.getSecretPhrase())
                 .minRateNQTPerFXT((101 * IGNIS.ONE_COIN) / 100)
                 .totalFeesLimitFQT(100 * IGNIS.ONE_COIN)
-                .build().invokeNoError();
+                .callNoError();
     }
 
     private String sendMoney() {
@@ -111,21 +113,21 @@ public class BundlingFeesTest extends BundlerTest {
                 .amountNQT(12 * IGNIS.ONE_COIN)
                 .recipient(BOB.getId())
                 .deadline(20)
-                .feeNQT(IGNIS.ONE_COIN).build().invokeNoError());
+                .feeNQT(IGNIS.ONE_COIN).callNoError());
 
         return sendMoneyResult.fullHash();
     }
 
     private JSONAssert getForgyUnconfirmedFxtTransaction() {
         JSONAssert jsonAssert = new JSONAssert(GetUnconfirmedTransactionsCall.create(FXT.getId())
-                .account(FORGY.getId()).build().invokeNoError());
+                .account(FORGY.getId()).callNoError());
         return new JSONAssert(jsonAssert.array("unconfirmedTransactions", JSONObject.class).get(0));
     }
 
 
     private long getCurrentTotalFees() {
         JSONAssert getBundlersResult = new JSONAssert(GetBundlersCall.create(IGNIS.getId())
-                .account(FORGY.getId()).build().invokeNoError());
+                .account(FORGY.getId()).callNoError());
         return Long.parseUnsignedLong(new JSONAssert(getBundlersResult
                 .array("bundlers", JSONObject.class).get(0))
                 .str("currentTotalFeesFQT"));

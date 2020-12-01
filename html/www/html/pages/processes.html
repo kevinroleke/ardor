@@ -23,7 +23,7 @@
             {{#if emptyUI}}
             <p data-i18n="node_processes_config_empty_ui">
                 This section allows to interact with add-ons that save and start local processes via an encrypted file.
-                There are none of those add-ons enabled (i.e. SaveBundlingEncrypted).
+                There are none of those add-ons enabled (e.g. BundlingEncryptedConfig).
             </p>
             {{/if}}
             <table class="table">
@@ -33,11 +33,15 @@
                     <td>{{ i18n friendlyName }}</td>
                     <td>
                         <a href='#' class='btn btn-xs btn-default' data-toggle='modal' data-addon="{{@index}}"
-                           data-target='{{ save_modal }}' data-i18n="save">Save</a>
+                           data-target='#m_start_node_process_config_modal' data-i18n="start">Start</a>
                     </td>
                     <td>
                         <a href='#' class='btn btn-xs btn-default' data-toggle='modal' data-addon="{{@index}}"
-                           data-target='#m_start_node_process_config_modal' data-i18n="start">Start</a>
+                           data-target='{{ save_modal }}' data-i18n="set">Set</a>
+                    </td>
+                    <td>
+                        <a href='#' class='btn btn-xs btn-default' data-toggle='modal' data-addon="{{@index}}"
+                           data-target='#m_delete_node_process_config_modal' data-i18n="delete">Delete</a>
                     </td>
                 </tr>
                 {{/if}}

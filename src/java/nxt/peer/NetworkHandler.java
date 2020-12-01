@@ -86,7 +86,7 @@ public final class NetworkHandler implements Runnable {
     public static final int TESTNET_PEER_PORT = (Constants.isPermissioned ? 26873 : Constants.isAutomatedTest ? 26872 : 26874);
 
     /** Maximum number of pending messages for a single peer */
-    static final int MAX_PENDING_MESSAGES = 25;
+    static final int MAX_PENDING_MESSAGES = 250;
 
     /** Message header magic bytes */
     private static final byte[] MESSAGE_HEADER_MAGIC = new byte[] {(byte)0x03, (byte)0x2c, (byte)0x05, (byte)0xc2};

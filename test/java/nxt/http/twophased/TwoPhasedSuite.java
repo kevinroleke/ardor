@@ -16,11 +16,13 @@
 
 package nxt.http.twophased;
 
+import nxt.addons.JA;
+import nxt.addons.JO;
 import nxt.http.AbstractHttpApiSuite;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+
+import java.util.Iterator;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -35,14 +37,17 @@ import org.junit.runners.Suite;
         TestGetVoterPhasedTransactions.class,
         TestPropertyVoting.class,
         TestTrustlessAssetSwap.class,
+        TestPhasedMessaging.class
 })
 
 public class TwoPhasedSuite extends AbstractHttpApiSuite {
-    static boolean searchForTransactionId(JSONArray transactionsJson, String transactionId) {
+    @SuppressWarnings("WhileLoopReplaceableByForEach")
+    static boolean searchForTransactionId(JA transactionsJson, String transactionId) {
         boolean found = false;
-        for (Object transactionsJsonObj : transactionsJson) {
-            JSONObject transactionObject = (JSONObject) transactionsJsonObj;
-            String iteratedTransactionId = (String) transactionObject.get("fullHash");
+        Iterator<JO> iterator = transactionsJson.iterator();
+        while (iterator.hasNext()) {
+            JO transactionObject = iterator.next();
+            String iteratedTransactionId = transactionObject.getString("fullHash");
             if (iteratedTransactionId.equals(transactionId)) {
                 found = true;
                 break;

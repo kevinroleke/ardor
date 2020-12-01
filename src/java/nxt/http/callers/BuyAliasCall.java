@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class BuyAliasCall extends CreateTransactionCallBuilder<BuyAliasCall> {
+public class BuyAliasCall extends CreateTwoSidesTransactionCallBuilder<BuyAliasCall> {
     private BuyAliasCall() {
         super(ApiSpec.buyAlias);
     }

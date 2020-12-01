@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class DeleteAliasCall extends CreateTransactionCallBuilder<DeleteAliasCall> {
+public class DeleteAliasCall extends CreateOneSideTransactionCallBuilder<DeleteAliasCall> {
     private DeleteAliasCall() {
         super(ApiSpec.deleteAlias);
     }

@@ -16,9 +16,12 @@
 package nxt.http.client;
 
 import nxt.Tester;
+import nxt.addons.JO;
 import nxt.http.APICall;
-import nxt.util.JSONAssert;
-import org.json.simple.JSONObject;
+import nxt.http.callers.PlaceAskOrderCall;
+import nxt.http.callers.PlaceBidOrderCall;
+
+import static nxt.blockchain.ChildChain.IGNIS;
 
 public class PlaceAssetOrderBuilder {
     private final Tester sender;
@@ -43,53 +46,37 @@ public class PlaceAssetOrderBuilder {
         return this;
     }
 
-    private APICall build(String requestType) {
-        return new APICall.Builder(requestType)
-                .param("secretPhrase", sender.getSecretPhrase())
-                .param("asset", Long.toUnsignedString(assetId))
-                .param("quantityQNT", quantityQNT)
-                .param("priceNQTPerShare", price)
-                .param("feeNQT", feeNQT)
-                .build();
+    private PlaceBidOrderCall buildBid() {
+        return PlaceBidOrderCall.create(IGNIS.getId())
+                .secretPhrase(sender.getSecretPhrase())
+                .asset(assetId)
+                .quantityQNT(quantityQNT)
+                .priceNQTPerShare(price)
+                .feeNQT(feeNQT);
     }
 
-    private APICall buildBid() {
-        return build("placeBidOrder");
+    private PlaceAskOrderCall buildAsk() {
+        return PlaceAskOrderCall.create(IGNIS.getId())
+                .secretPhrase(sender.getSecretPhrase())
+                .asset(assetId)
+                .quantityQNT(quantityQNT)
+                .priceNQTPerShare(price)
+                .feeNQT(feeNQT);
     }
 
-    private APICall buildAsk() {
-        return build("placeAskOrder");
+    public JO placeBidOrder() {
+        return buildBid().callNoError();
     }
 
-    public PlaceOrderResult placeBidOrder() {
-        return placeSuccess(buildBid());
-    }
-
-    public PlaceOrderResult placeAskOrder() {
-        return placeSuccess(buildAsk());
-    }
-
-    private PlaceOrderResult placeSuccess(APICall apiCall) {
-        return new PlaceOrderResult(apiCall.invokeNoError());
+    public JO placeAskOrder() {
+        return buildAsk().callNoError();
     }
 
     public APICall.InvocationError placeBidOrderWithError() {
-        return buildBid().invokeWithError();
+        return buildBid().build().invokeWithError();
     }
 
     public APICall.InvocationError placeAskOrderWithError() {
-        return buildAsk().invokeWithError();
-    }
-
-    public static class PlaceOrderResult {
-        private final JSONObject jsonObject;
-
-        PlaceOrderResult(JSONObject jsonObject) {
-            this.jsonObject = jsonObject;
-        }
-
-        public String getFullHash() {
-            return new JSONAssert(jsonObject).str("fullHash");
-        }
+        return buildAsk().build().invokeWithError();
     }
 }

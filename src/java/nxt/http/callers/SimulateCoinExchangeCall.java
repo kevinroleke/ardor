@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class SimulateCoinExchangeCall extends APICall.Builder<SimulateCoinExchangeCall> {
+public class SimulateCoinExchangeCall extends ChainSpecificCallBuilder<SimulateCoinExchangeCall> {
     private SimulateCoinExchangeCall() {
         super(ApiSpec.simulateCoinExchange);
     }

@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class DeleteContractReferenceCall extends CreateTransactionCallBuilder<DeleteContractReferenceCall> {
+public class DeleteContractReferenceCall extends CreateOneSideTransactionCallBuilder<DeleteContractReferenceCall> {
     private DeleteContractReferenceCall() {
         super(ApiSpec.deleteContractReference);
     }

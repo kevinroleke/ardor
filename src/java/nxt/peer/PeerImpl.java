@@ -36,8 +36,10 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -47,6 +49,12 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 final class PeerImpl implements Peer {
+
+    private final Set<String> NON_CRITICAL_BLACKLISTING_MESSAGES = Collections.unmodifiableSet(new HashSet<>(
+            Arrays.asList(
+                    "java.io.IOException: Connection reset by peer",
+                    "java.io.IOException: Connection timed out",
+                    "java.io.IOException: No route to host")));
 
     /** Host address */
     private final String host;
@@ -557,14 +565,19 @@ final class PeerImpl implements Peer {
             // prevents erroneous blacklisting during loading of blockchain from scratch
             return;
         }
+        String message = cause.toString();
         if (!isBlacklisted()) {
             if (cause instanceof IOException || cause instanceof IllegalArgumentException) {
-                Logger.logDebugMessage("Blacklisting " + host + " because of: " + cause.toString());
+                if (NON_CRITICAL_BLACKLISTING_MESSAGES.contains(message)) {
+                    Logger.logDebugMessage("Blacklisting " + host + " because of: " + message.split(": ")[1]);
+                } else {
+                    Logger.logDebugMessage("Blacklisting " + host + " because of: " + message);
+                }
             } else {
-                Logger.logDebugMessage("Blacklisting " + host + " because of: " + cause.toString(), cause);
+                Logger.logDebugMessage("Blacklisting " + host + " because of: " + message, cause);
             }
         }
-        blacklist(cause.toString() == null || Peers.hideErrorDetails ? cause.getClass().getName() : cause.toString());
+        blacklist(message == null || Peers.hideErrorDetails ? cause.getClass().getName() : message);
     }
 
     /**

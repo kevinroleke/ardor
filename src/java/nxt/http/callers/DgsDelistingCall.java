@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class DgsDelistingCall extends CreateTransactionCallBuilder<DgsDelistingCall> {
+public class DgsDelistingCall extends CreateOneSideTransactionCallBuilder<DgsDelistingCall> {
     private DgsDelistingCall() {
         super(ApiSpec.dgsDelisting);
     }

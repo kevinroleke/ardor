@@ -69,8 +69,6 @@ NRS.onSiteBuildDone().then(() => {
 
         $("#changehero_buy_modal").on("show.bs.modal", NRS.changelly.getOnShowBuyModalCallback(EXCHANGE_NAME));
 
-        $("#changehero_buy_submit").on("click", NRS.changelly.getOnBuySubmitCallback(EXCHANGE_NAME, apiCall, TRANSACTIONS_KEY));
-
         $('#changehero_buy_amount').change(NRS.changelly.getBuyAmountChangeCallback(EXCHANGE_NAME, apiCall));
 
         $("#changehero_sell_modal").on("show.bs.modal", NRS.changelly.getOnShowSellModalCallback(EXCHANGE_NAME, apiCall));

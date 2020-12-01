@@ -51,7 +51,7 @@ public class ChildChainPermissionStoreTest extends BlockchainWithChildChainContr
 
         assertNull(tested.get(ALICE.getId(), CHAIN_USER));
 
-        blockchainProcessor.popOffTo(baseHeight);
+        popOffTo(baseHeight);
 
         assertNotNull(tested.get(ALICE.getId(), CHAIN_USER));
     }

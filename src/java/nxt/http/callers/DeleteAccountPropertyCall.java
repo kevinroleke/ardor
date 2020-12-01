@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class DeleteAccountPropertyCall extends CreateTransactionCallBuilder<DeleteAccountPropertyCall> {
+public class DeleteAccountPropertyCall extends CreateTwoSidesTransactionCallBuilder<DeleteAccountPropertyCall> {
     private DeleteAccountPropertyCall() {
         super(ApiSpec.deleteAccountProperty);
     }

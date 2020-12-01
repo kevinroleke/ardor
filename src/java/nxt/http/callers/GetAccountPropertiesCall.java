@@ -24,6 +24,14 @@ public class GetAccountPropertiesCall extends APICall.Builder<GetAccountProperti
         return param("property", property);
     }
 
+    public GetAccountPropertiesCall recipient(String recipient) {
+        return param("recipient", recipient);
+    }
+
+    public GetAccountPropertiesCall recipient(long recipient) {
+        return unsignedLongParam("recipient", recipient);
+    }
+
     public GetAccountPropertiesCall lastIndex(int lastIndex) {
         return param("lastIndex", lastIndex);
     }

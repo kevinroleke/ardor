@@ -20,6 +20,7 @@ import nxt.Nxt;
 import nxt.NxtException;
 import nxt.account.Account;
 import nxt.blockchain.ChildBlockAttachment;
+import nxt.blockchain.ChildBlockFxtTransactionType;
 import nxt.blockchain.ChildTransaction;
 import nxt.blockchain.Transaction;
 import nxt.blockchain.UnconfirmedTransaction;
@@ -41,7 +42,8 @@ public final class BundleTransactions extends CreateTransaction {
     static final BundleTransactions instance = new BundleTransactions();
 
     private BundleTransactions() {
-        super(new APITag[]{APITag.FORGING, APITag.CREATE_TRANSACTION}, "transactionFullHash", "transactionFullHash", "transactionFullHash");
+        super(ChildBlockFxtTransactionType.INSTANCE, new APITag[]{APITag.FORGING, APITag.CREATE_TRANSACTION},
+                "transactionFullHash", "transactionFullHash", "transactionFullHash");
     }
 
     @Override

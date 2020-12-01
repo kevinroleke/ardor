@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetPollCall extends APICall.Builder<GetPollCall> {
+public class GetPollCall extends ChainSpecificCallBuilder<GetPollCall> {
     private GetPollCall() {
         super(ApiSpec.getPoll);
     }

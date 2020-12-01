@@ -89,7 +89,7 @@ NRS.onSiteBuildDone().then(() => {
 				$menuItem.popover({
 					"html": true,
 					"content": $popoverItem,
-					"trigger": "click",
+					"trigger": "focus",
 					template: template
 				});
 			}

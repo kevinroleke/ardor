@@ -17,8 +17,9 @@
 package nxt.http.accountproperties;
 
 import nxt.BlockchainTest;
-import nxt.http.APICall;
-import org.json.simple.JSONObject;
+import nxt.addons.JO;
+import nxt.http.callers.GetAccountCall;
+import nxt.http.callers.SetAccountInfoCall;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -34,22 +35,21 @@ public class AccountInfoTest extends BlockchainTest {
             sb.append(specialChar);
         }
         String name = sb.toString();
-        APICall.Builder builder = new APICall.Builder("setAccountInfo").
-                param("secretPhrase", ALICE.getSecretPhrase()).param("chain", IGNIS.getId()).feeNQT(IGNIS.ONE_COIN * 20).
-                param("name", name);
-        JSONObject response = builder.build().invoke();
+        SetAccountInfoCall builder = SetAccountInfoCall.create(IGNIS.getId()).
+                secretPhrase(ALICE.getSecretPhrase()).
+                feeNQT(IGNIS.ONE_COIN * 20).
+                name(name);
+        JO response = builder.call();
         Assert.assertEquals(4L, response.get("errorCode"));
-        Assert.assertTrue(((String)response.get("errorDescription")).contains("Invalid account info issuance"));
+        Assert.assertTrue(response.getString("errorDescription").contains("Invalid account info issuance"));
         BlockchainTest.generateBlock();
 
         String fixedName = name.substring(0, 40); //the specialChar is 2 characters long
         String description = name + name;
-        builder.param("name", fixedName).param("description", description);
-        response = builder.build().invoke();
-        Assert.assertNull(response.get("errorCode"));
+        builder.name(fixedName).description(description).callNoError();
         BlockchainTest.generateBlock();
 
-        response = new APICall.Builder("getAccount").param("account", ALICE.getRsAccount()).build().invoke();
+        response = GetAccountCall.create().account(ALICE.getRsAccount()).callNoError();
         Assert.assertEquals(fixedName, response.get("name"));
         Assert.assertEquals(description, response.get("description"));
     }
@@ -62,20 +62,20 @@ public class AccountInfoTest extends BlockchainTest {
             sb.append(char3Byte);
         }
         String name = sb.toString();
-        APICall.Builder builder = new APICall.Builder("setAccountInfo").
-                param("secretPhrase", ALICE.getSecretPhrase()).param("chain", IGNIS.getId()).feeNQT(IGNIS.ONE_COIN * 20).
-                param("name", name);
-        JSONObject response = builder.build().invoke();
+        SetAccountInfoCall builder = SetAccountInfoCall.create(IGNIS.getId()).
+                secretPhrase(ALICE.getSecretPhrase()).
+                feeNQT(IGNIS.ONE_COIN * 20).
+                name(name);
+        JO response = builder.call();
         Assert.assertEquals(4L, response.get("errorCode"));
-        Assert.assertTrue(((String)response.get("errorDescription")).contains("Invalid account info issuance"));
+        Assert.assertTrue(response.getString("errorDescription").contains("Invalid account info issuance"));
         BlockchainTest.generateBlock();
 
         String fixedName = name.substring(0, 33);
-        response = builder.param("name", fixedName).build().invoke();
-        Assert.assertNull(response.get("errorCode"));
+        builder.name(fixedName).callNoError();
         BlockchainTest.generateBlock();
 
-        response = new APICall.Builder("getAccount").param("account", ALICE.getRsAccount()).build().invoke();
+        response = GetAccountCall.create().account(ALICE.getRsAccount()).callNoError();
         Assert.assertEquals(fixedName, response.get("name"));
     }
 }

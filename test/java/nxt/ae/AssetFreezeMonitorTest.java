@@ -22,9 +22,9 @@ import nxt.blockchain.ChildChain;
 import nxt.dbschema.Db;
 import nxt.http.APICall;
 import nxt.http.assetexchange.AssetExchangeTest;
+import nxt.http.callers.SetAssetPropertyCall;
 import nxt.http.client.GetAccountCurrentOrderIdsBuilder;
 import nxt.http.client.PlaceAssetOrderBuilder;
-import nxt.http.client.SetAssetPropertyBuilder;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -62,8 +62,13 @@ public class AssetFreezeMonitorTest extends BlockchainTest {
     }
 
     private void setAssetFreezeProperty(Asset asset, int height) {
-        new SetAssetPropertyBuilder(ALICE, asset.getId(), ASSET_FREEZE_HEIGHT_PROPERTY, String.valueOf(height))
-                .invokeNoError();
+        SetAssetPropertyCall.create(ChildChain.IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .asset(asset.getId())
+                .feeNQT(3 * ChildChain.IGNIS.ONE_COIN)
+                .property(ASSET_FREEZE_HEIGHT_PROPERTY)
+                .value(String.valueOf(height))
+                .callNoError();
     }
 
     @Test

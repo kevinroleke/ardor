@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class ApproveTransactionCall extends CreateTransactionCallBuilder<ApproveTransactionCall> {
+public class ApproveTransactionCall extends CreateOneSideTransactionCallBuilder<ApproveTransactionCall> {
     private ApproveTransactionCall() {
         super(ApiSpec.approveTransaction);
     }
@@ -14,7 +14,7 @@ public class ApproveTransactionCall extends CreateTransactionCallBuilder<Approve
         return param("revealedSecret", revealedSecret);
     }
 
-    public ApproveTransactionCall revealedSecretText(String revealedSecretText) {
+    public ApproveTransactionCall revealedSecretText(String... revealedSecretText) {
         return param("revealedSecretText", revealedSecretText);
     }
 

@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetDataTagsCall extends APICall.Builder<GetDataTagsCall> {
+public class GetDataTagsCall extends ChainSpecificCallBuilder<GetDataTagsCall> {
     private GetDataTagsCall() {
         super(ApiSpec.getDataTags);
     }

@@ -44,8 +44,10 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static nxt.account.AccountLedger.LedgerEvent.ASSET_TRADE;
+import static nxt.account.AccountLedger.LedgerEvent.BLOCK_GENERATED;
 import static nxt.account.AccountLedger.LedgerEvent.COIN_EXCHANGE_TRADE;
 import static nxt.account.AccountLedger.LedgerEvent.CURRENCY_EXCHANGE;
+import static nxt.account.AccountLedger.LedgerEvent.FORGING_BACK_FEES;
 import static nxt.account.AccountLedger.LedgerEvent.TRANSACTION_FEE;
 import static nxt.addons.taxreport.Record.dividend;
 import static nxt.addons.taxreport.Record.dividendIncome;
@@ -70,7 +72,7 @@ import static nxt.blockchain.ChildChain.AEUR;
 import static nxt.blockchain.ChildChain.IGNIS;
 import static nxt.blockchain.FxtChain.FXT;
 import static nxt.http.client.IssueAssetBuilder.ASSET_ISSUE_FEE_NQT;
-import static nxt.http.monetarysystem.TestCurrencyIssuance.Builder.initialSupplyQNT;
+import static nxt.http.monetarysystem.TestCurrencyIssuance.INITIAL_SUPPLY_QNT;
 import static nxt.messaging.MessagingTransactionType.ARBITRARY_MESSAGE;
 import static nxt.ms.MonetarySystemTransactionType.CURRENCY_ISSUANCE;
 import static nxt.ms.MonetarySystemTransactionType.CURRENCY_TRANSFER;
@@ -180,8 +182,7 @@ public class TaxReportTest extends BlockchainTest {
                 .recipient(to.getId())
                 .amountNQT(amountNQT)
                 .feeNQT(FXT.ONE_COIN)
-                .build()
-                .invokeNoError();
+                .callNoError();
         generateBlock();
     }
 
@@ -215,7 +216,8 @@ public class TaxReportTest extends BlockchainTest {
         List<Record> actual = runTaxReport(height, BOB, ALICE, FORGY);
         assertEquals(
                 asList(
-                        mining().buy(1000000, FXT).commentAndGroup(lastBlock),
+                        mining().buy(750000, FXT).commentAndGroup(lastBlock, FORGING_BACK_FEES),
+                        mining().buy(250000, FXT).commentAndGroup(lastBlock, BLOCK_GENERATED),
                         mining().buy(1, AEUR).fee(1000000, FXT).commentAndGroup(generateBlockId),
                         spend().sell(1000, AEUR).fee(1, AEUR).commentAndGroup(sendMoneyId),
                         income().buy(1000, AEUR).commentAndGroup(sendMoneyId)),
@@ -235,7 +237,8 @@ public class TaxReportTest extends BlockchainTest {
         List<Record> actual = runTaxReport(height, FORGY);
         assertEquals(
                 asList(
-                        mining().buy(1000000, FXT).commentAndGroup(lastBlock),
+                        mining().buy(750000, FXT).commentAndGroup(lastBlock, FORGING_BACK_FEES),
+                        mining().buy(250000, FXT).commentAndGroup(lastBlock, BLOCK_GENERATED),
                         mining().buy(1, AEUR).fee(1000000, FXT).commentAndGroup(generateBlockId)),
                 actual);
     }
@@ -261,7 +264,7 @@ public class TaxReportTest extends BlockchainTest {
     private void sendAsset(long assetId, Tester sender, Tester recipient, int volume) {
         new TransferAssetBuilder(assetId, sender, recipient)
                 .setQuantityQNT(volume)
-                .setFee(IGNIS.ONE_COIN)
+                .feeNQT(IGNIS.ONE_COIN)
                 .transfer();
     }
 
@@ -327,7 +330,7 @@ public class TaxReportTest extends BlockchainTest {
         List<Record> actual = runTaxReport(height, ALICE);
 
         assertEquals(
-                singletonList(issueCurrency().buy(initialSupplyQNT, currencyDisplayName, decimalsTest1).fee(40 * IGNIS.ONE_COIN, IGNIS).commentAndGroup(currencyIssuanceId)),
+                singletonList(issueCurrency().buy(INITIAL_SUPPLY_QNT, currencyDisplayName, decimalsTest1).fee(40 * IGNIS.ONE_COIN, IGNIS).commentAndGroup(currencyIssuanceId)),
                 actual);
     }
 
@@ -467,8 +470,7 @@ public class TaxReportTest extends BlockchainTest {
                     .recipient(CHUCK.getId())
                     .message("Some message")
                     .feeNQT(1)
-                    .build()
-                    .invokeNoError();
+                    .callNoError();
             generateBlock();
         }
 
@@ -525,7 +527,7 @@ public class TaxReportTest extends BlockchainTest {
 
         assertEquals(
                 asList(
-                        issueCurrency().buy(initialSupplyQNT, currencyDisplayName, decimalsTest1)
+                        issueCurrency().buy(INITIAL_SUPPLY_QNT, currencyDisplayName, decimalsTest1)
                                 .fee(40 * IGNIS.ONE_COIN, IGNIS).commentAndGroup(currencyIssuanceId),
                         trade().sell(200, currencyDisplayName, decimalsTest1).buy(200 * 105, IGNIS)
                                 .fee(IGNIS.ONE_COIN, IGNIS).comment(exchangeOfferId).group(CURRENCY_EXCHANGE)),
@@ -546,7 +548,7 @@ public class TaxReportTest extends BlockchainTest {
 
         assertEquals(
                 asList(
-                        issueCurrency().buy(initialSupplyQNT, currencyDisplayName, decimalsTest1)
+                        issueCurrency().buy(INITIAL_SUPPLY_QNT, currencyDisplayName, decimalsTest1)
                                 .fee(40 * IGNIS.ONE_COIN, IGNIS).commentAndGroup(currencyIssuanceId),
                         trade().sell(200 * 95, IGNIS).buy(200, currencyDisplayName, decimalsTest1)
                                 .fee(IGNIS.ONE_COIN, IGNIS).comment(exchangeOfferId).group(CURRENCY_EXCHANGE),
@@ -589,8 +591,7 @@ public class TaxReportTest extends BlockchainTest {
                 .recipient(recipient.getId())
                 .amountNQT(amount)
                 .feeNQT(1)
-                .build()
-                .invokeNoError();
+                .callNoError();
         generateBlock();
     }
 
@@ -600,8 +601,7 @@ public class TaxReportTest extends BlockchainTest {
                 .recipient(recipient.getId())
                 .message("Some message")
                 .feeNQT(1)
-                .build()
-                .invokeNoError();
+                .callNoError();
         generateBlock();
     }
 
@@ -622,8 +622,7 @@ public class TaxReportTest extends BlockchainTest {
                 .height(height)
                 .validate(false)
                 .adminPassword("")
-                .build()
-                .invokeNoError();
+                .callNoError();
     }
 
     private static class ListLineWriter implements LineWriter {

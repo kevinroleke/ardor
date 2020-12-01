@@ -28,8 +28,6 @@ import nxt.blockchain.Fee;
 import nxt.blockchain.Transaction;
 import nxt.blockchain.TransactionImpl;
 import nxt.blockchain.TransactionType;
-import nxt.messaging.PrunablePlainMessageAppendix;
-import nxt.util.Search;
 import org.json.simple.JSONObject;
 
 import java.nio.ByteBuffer;
@@ -158,17 +156,6 @@ public abstract class DigitalGoodsTransactionType extends ChildTransactionType {
                     || attachment.getQuantity() < 0 || attachment.getQuantity() > Constants.MAX_DGS_LISTING_QUANTITY
                     || attachment.getPriceNQT() <= 0 || attachment.getPriceNQT() > Constants.MAX_BALANCE_NQT) {
                 throw new NxtException.NotValidException("Invalid digital goods listing: " + attachment.getJSONObject());
-            }
-            PrunablePlainMessageAppendix prunablePlainMessage = transaction.getPrunablePlainMessage();
-            if (!Constants.DISABLE_METADATA_DETECTION && prunablePlainMessage != null
-                    && Nxt.getBlockchain().getHeight() < Constants.MISSING_TX_SENDER_BLOCK) {
-                byte[] image = prunablePlainMessage.getMessage();
-                if (image != null) {
-                    String mediaType = Search.detectMimeType(image);
-                    if (mediaType == null || !mediaType.startsWith("image/")) {
-                        throw new NxtException.NotValidException("Only image attachments allowed for DGS listing, media type is " + mediaType);
-                    }
-                }
             }
         }
 

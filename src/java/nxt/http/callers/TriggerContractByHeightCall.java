@@ -16,7 +16,7 @@ public class TriggerContractByHeightCall extends APICall.Builder<TriggerContract
         return param("requireLastBlock", requireLastBlock);
     }
 
-    public TriggerContractByHeightCall apply(String apply) {
+    public TriggerContractByHeightCall apply(boolean apply) {
         return param("apply", apply);
     }
 

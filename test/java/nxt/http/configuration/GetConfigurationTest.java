@@ -20,7 +20,6 @@ import nxt.BlockchainTest;
 import nxt.addons.JA;
 import nxt.addons.JO;
 import nxt.http.callers.GetConfigurationCall;
-import org.json.simple.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -28,7 +27,7 @@ public class GetConfigurationTest extends BlockchainTest {
 
     @Test
     public void test() {
-        JSONObject response = GetConfigurationCall.create().build().invokeNoError();
+        JO response = GetConfigurationCall.create().callNoError();
         for (JO jo : new JA(response.get("properties")).objects()) {
             if ("nxt.isTestnet".equals(jo.getString("name"))) {
                 Assert.assertEquals("BOOLEAN", jo.getString("type"));

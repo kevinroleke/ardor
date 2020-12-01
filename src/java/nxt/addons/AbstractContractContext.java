@@ -390,7 +390,9 @@ public abstract class AbstractContractContext {
         if (feeRatio == -1) {
             return -1;
         }
-        return BigDecimal.valueOf(feeFQT).multiply(BigDecimal.valueOf(feeRatio)).divide(BigDecimal.valueOf(chain.getOneCoin()), RoundingMode.HALF_EVEN).longValue();
+        return BigDecimal.valueOf(feeFQT)
+                .multiply(BigDecimal.valueOf(feeRatio))
+                .divide(BigDecimal.valueOf(FxtChain.FXT.ONE_COIN), RoundingMode.HALF_EVEN).longValue();
     }
 
     private JO createTransactionImpl(APICall.Builder builder) {

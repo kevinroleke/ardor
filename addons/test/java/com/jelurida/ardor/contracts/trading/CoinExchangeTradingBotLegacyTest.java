@@ -38,7 +38,7 @@ public class CoinExchangeTradingBotLegacyTest extends AbstractContractTest {
         createOrderBook(askQuantities, ChildChain.IGNIS, askPrices, FxtChain.FXT);
         generateBlock();
 
-        JO response = GetCoinExchangeOrdersCall.create(1).exchange(2).call();
+        JO response = GetCoinExchangeOrdersCall.create(1).exchange(2).callNoError();
         System.out.println(response);
         List<CoinExchangeOrderResponse> orders = response.getJoList("orders").stream().map(CoinExchangeOrderResponse::create).collect(Collectors.toList());
         Assert.assertEquals(bidQuantities.length, orders.size());
@@ -47,7 +47,7 @@ public class CoinExchangeTradingBotLegacyTest extends AbstractContractTest {
             Assert.assertEquals(bidPrices[i], orders.get(i).getBidNQTPerCoin());
         }
 
-        response = GetCoinExchangeOrdersCall.create(2).exchange(1).call();
+        response = GetCoinExchangeOrdersCall.create(2).exchange(1).callNoError();
         System.out.println(response);
         orders = response.getJoList("orders").stream().map(CoinExchangeOrderResponse::create).collect(Collectors.toList());
         Assert.assertEquals(askQuantities.length, orders.size());
@@ -59,7 +59,7 @@ public class CoinExchangeTradingBotLegacyTest extends AbstractContractTest {
         generateBlock(); // Trading bot processing new orders
         generateBlock(); // Submitted orders confirmed
 
-        response = GetCoinExchangeOrdersCall.create(1).exchange(2).call();
+        response = GetCoinExchangeOrdersCall.create(1).exchange(2).callNoError();
         System.out.println(response);
         orders = response.getJoList("orders").stream().map(CoinExchangeOrderResponse::create).collect(Collectors.toList());
         Assert.assertEquals(bidQuantities.length + 2, orders.size());
@@ -69,7 +69,7 @@ public class CoinExchangeTradingBotLegacyTest extends AbstractContractTest {
             Assert.assertEquals(newBidPrices[i], order.getBidNQTPerCoin());
         }
 
-        response = GetCoinExchangeOrdersCall.create(2).exchange(1).call();
+        response = GetCoinExchangeOrdersCall.create(2).exchange(1).callNoError();
         System.out.println(response);
         orders = response.getJoList("orders").stream().map(CoinExchangeOrderResponse::create).collect(Collectors.toList());
         Assert.assertEquals(askQuantities.length + 2, orders.size());
@@ -83,21 +83,21 @@ public class CoinExchangeTradingBotLegacyTest extends AbstractContractTest {
 
         generateBlock(); // Bot orders cancellation submitted
         generateBlock(); // Cancellations are confirmed, new order are created
-        response = GetCoinExchangeOrdersCall.create(1).exchange(2).call();
+        response = GetCoinExchangeOrdersCall.create(1).exchange(2).callNoError();
         System.out.println(response);
         orders = response.getJoList("orders").stream().map(CoinExchangeOrderResponse::create).collect(Collectors.toList());
         Assert.assertEquals(bidQuantities.length, orders.size());
-        response = GetCoinExchangeOrdersCall.create(2).exchange(1).call();
+        response = GetCoinExchangeOrdersCall.create(2).exchange(1).callNoError();
         System.out.println(response);
         orders = response.getJoList("orders").stream().map(CoinExchangeOrderResponse::create).collect(Collectors.toList());
         Assert.assertEquals(askQuantities.length, orders.size());
 
         generateBlock(); // new order are confirmed
-        response = GetCoinExchangeOrdersCall.create(1).exchange(2).call();
+        response = GetCoinExchangeOrdersCall.create(1).exchange(2).callNoError();
         System.out.println(response);
         orders = response.getJoList("orders").stream().map(CoinExchangeOrderResponse::create).collect(Collectors.toList());
         Assert.assertEquals(bidQuantities.length + 2, orders.size());
-        response = GetCoinExchangeOrdersCall.create(2).exchange(1).call();
+        response = GetCoinExchangeOrdersCall.create(2).exchange(1).callNoError();
         System.out.println(response);
         orders = response.getJoList("orders").stream().map(CoinExchangeOrderResponse::create).collect(Collectors.toList());
         Assert.assertEquals(askQuantities.length + 2, orders.size());
@@ -117,7 +117,7 @@ public class CoinExchangeTradingBotLegacyTest extends AbstractContractTest {
         createOrderBook(askQuantities, ChildChain.AEUR, askPrices, FxtChain.FXT);
         generateBlock();
 
-        JO response = GetCoinExchangeOrdersCall.create(1).exchange(3).call();
+        JO response = GetCoinExchangeOrdersCall.create(1).exchange(3).callNoError();
         System.out.println(response);
         List<CoinExchangeOrderResponse> orders = response.getJoList("orders").stream().map(CoinExchangeOrderResponse::create).collect(Collectors.toList());
         Assert.assertEquals(bidQuantities.length, orders.size());
@@ -126,7 +126,7 @@ public class CoinExchangeTradingBotLegacyTest extends AbstractContractTest {
             Assert.assertEquals(bidPrices[i], orders.get(i).getBidNQTPerCoin());
         }
 
-        response = GetCoinExchangeOrdersCall.create(3).exchange(1).call();
+        response = GetCoinExchangeOrdersCall.create(3).exchange(1).callNoError();
         System.out.println(response);
         orders = response.getJoList("orders").stream().map(CoinExchangeOrderResponse::create).collect(Collectors.toList());
         Assert.assertEquals(askQuantities.length, orders.size());
@@ -138,7 +138,7 @@ public class CoinExchangeTradingBotLegacyTest extends AbstractContractTest {
         generateBlock(); // Trading bot processing new orders
         generateBlock(); // Submitted orders confirmed
 
-        response = GetCoinExchangeOrdersCall.create(1).exchange(3).call();
+        response = GetCoinExchangeOrdersCall.create(1).exchange(3).callNoError();
         System.out.println(response);
         orders = response.getJoList("orders").stream().map(CoinExchangeOrderResponse::create).collect(Collectors.toList());
         Assert.assertEquals(bidQuantities.length + 2, orders.size());
@@ -148,7 +148,7 @@ public class CoinExchangeTradingBotLegacyTest extends AbstractContractTest {
             Assert.assertEquals(newBidPrices[i], order.getBidNQTPerCoin());
         }
 
-        response = GetCoinExchangeOrdersCall.create(3).exchange(1).call();
+        response = GetCoinExchangeOrdersCall.create(3).exchange(1).callNoError();
         System.out.println(response);
         orders = response.getJoList("orders").stream().map(CoinExchangeOrderResponse::create).collect(Collectors.toList());
         Assert.assertEquals(askQuantities.length + 2, orders.size());
@@ -194,7 +194,7 @@ public class CoinExchangeTradingBotLegacyTest extends AbstractContractTest {
         createOrderBook(askQuantities, ChildChain.AEUR, askPrices, ChildChain.IGNIS);
         generateBlock();
 
-        JO response = GetCoinExchangeOrdersCall.create(2).exchange(3).call();
+        JO response = GetCoinExchangeOrdersCall.create(2).exchange(3).callNoError();
         System.out.println(response);
         List<CoinExchangeOrderResponse> orders = response.getJoList("orders").stream().map(CoinExchangeOrderResponse::create).collect(Collectors.toList());
         Assert.assertEquals(bidQuantities.length, orders.size());
@@ -203,7 +203,7 @@ public class CoinExchangeTradingBotLegacyTest extends AbstractContractTest {
             Assert.assertEquals(bidPrices[i], orders.get(i).getBidNQTPerCoin());
         }
 
-        response = GetCoinExchangeOrdersCall.create(3).exchange(2).call();
+        response = GetCoinExchangeOrdersCall.create(3).exchange(2).callNoError();
         System.out.println(response);
         orders = response.getJoList("orders").stream().map(CoinExchangeOrderResponse::create).collect(Collectors.toList());
         Assert.assertEquals(askQuantities.length, orders.size());
@@ -215,7 +215,7 @@ public class CoinExchangeTradingBotLegacyTest extends AbstractContractTest {
         generateBlock(); // Trading bot processing new orders
         generateBlock(); // Submitted orders confirmed
 
-        response = GetCoinExchangeOrdersCall.create(2).exchange(3).call();
+        response = GetCoinExchangeOrdersCall.create(2).exchange(3).callNoError();
         System.out.println(response);
         orders = response.getJoList("orders").stream().map(CoinExchangeOrderResponse::create).collect(Collectors.toList());
         Assert.assertEquals(2 * bidQuantities.length, orders.size());
@@ -224,7 +224,7 @@ public class CoinExchangeTradingBotLegacyTest extends AbstractContractTest {
             Assert.assertEquals(expectedBotBidPrices[i], order.getBidNQTPerCoin());
         }
 
-        response = GetCoinExchangeOrdersCall.create(3).exchange(2).call();
+        response = GetCoinExchangeOrdersCall.create(3).exchange(2).callNoError();
         System.out.println(response);
         orders = response.getJoList("orders").stream().map(CoinExchangeOrderResponse::create).collect(Collectors.toList());
         Assert.assertEquals(2 * askQuantities.length, orders.size());
@@ -238,11 +238,11 @@ public class CoinExchangeTradingBotLegacyTest extends AbstractContractTest {
 
     private void assertNoTrades(int chain, int exchange) {
         JO response;
-        response = GetCoinExchangeTradesCall.create(chain).exchange(exchange).call();
+        response = GetCoinExchangeTradesCall.create(chain).exchange(exchange).callNoError();
         List<CoinExchangeTradeResponse> trades = response.getJoList("trades").stream().map(CoinExchangeTradeResponse::create).collect(Collectors.toList());
         Assert.assertEquals(0, trades.size());
 
-        response = GetCoinExchangeTradesCall.create(exchange).exchange(chain).call();
+        response = GetCoinExchangeTradesCall.create(exchange).exchange(chain).callNoError();
         trades = response.getJoList("trades").stream().map(CoinExchangeTradeResponse::create).collect(Collectors.toList());
         Assert.assertEquals(0, trades.size());
     }
@@ -264,7 +264,7 @@ public class CoinExchangeTradingBotLegacyTest extends AbstractContractTest {
             feeNQT = fromChain.ONE_COIN;
         }
         JO response = ExchangeCoinsCall.create(fromChain.getId()).exchange(toChain.getId()).
-                quantityQNT(quantity).priceNQTPerCoin(price).secretPhrase(DAVE.getSecretPhrase()).feeNQT(feeNQT).call();
+                quantityQNT(quantity).priceNQTPerCoin(price).secretPhrase(DAVE.getSecretPhrase()).feeNQT(feeNQT).callNoError();
         System.out.println(response);
     }
 }

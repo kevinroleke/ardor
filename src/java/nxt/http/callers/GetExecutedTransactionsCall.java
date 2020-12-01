@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetExecutedTransactionsCall extends APICall.Builder<GetExecutedTransactionsCall> {
+public class GetExecutedTransactionsCall extends ChainSpecificCallBuilder<GetExecutedTransactionsCall> {
     private GetExecutedTransactionsCall() {
         super(ApiSpec.getExecutedTransactions);
     }
@@ -36,7 +34,15 @@ public class GetExecutedTransactionsCall extends APICall.Builder<GetExecutedTran
         return param("subtype", subtype);
     }
 
-    public GetExecutedTransactionsCall numberOfConfirmations(String numberOfConfirmations) {
+    public GetExecutedTransactionsCall recipient(String recipient) {
+        return param("recipient", recipient);
+    }
+
+    public GetExecutedTransactionsCall recipient(long recipient) {
+        return unsignedLongParam("recipient", recipient);
+    }
+
+    public GetExecutedTransactionsCall numberOfConfirmations(int numberOfConfirmations) {
         return param("numberOfConfirmations", numberOfConfirmations);
     }
 

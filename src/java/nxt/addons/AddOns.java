@@ -104,6 +104,7 @@ public final class AddOns {
             Logger.logShutdownMessage("Shutting down " + addOn.getClass().getName());
             addOn.shutdown();
         });
+        Logger.logShutdownMessage("AddOns shutdown complete");
     }
 
     public static void registerAPIRequestHandlers(Map<String, APIServlet.APIRequestHandler> map) {

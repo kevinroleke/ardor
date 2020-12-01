@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetAccountShufflingsCall extends APICall.Builder<GetAccountShufflingsCall> {
+public class GetAccountShufflingsCall extends ChainSpecificCallBuilder<GetAccountShufflingsCall> {
     private GetAccountShufflingsCall() {
         super(ApiSpec.getAccountShufflings);
     }

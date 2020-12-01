@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class StopBundlerCall extends APICall.Builder<StopBundlerCall> {
+public class StopBundlerCall extends ChainSpecificCallBuilder<StopBundlerCall> {
     private StopBundlerCall() {
         super(ApiSpec.stopBundler);
     }

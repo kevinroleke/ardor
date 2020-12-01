@@ -21,6 +21,7 @@ import nxt.NxtException;
 import nxt.account.Account;
 import nxt.aliases.AliasHome;
 import nxt.aliases.AliasSellAttachment;
+import nxt.aliases.AliasTransactionType;
 import nxt.blockchain.Attachment;
 import nxt.util.Convert;
 import org.json.simple.JSONStreamAware;
@@ -36,7 +37,8 @@ public final class SellAlias extends CreateTransaction {
     static final SellAlias instance = new SellAlias();
 
     private SellAlias() {
-        super(new APITag[] {APITag.ALIASES, APITag.CREATE_TRANSACTION}, "alias", "aliasName", "recipient", "priceNQT");
+        super(AliasTransactionType.ALIAS_SELL, new APITag[] {APITag.ALIASES, APITag.CREATE_TRANSACTION},
+                "alias", "aliasName", "recipient", "priceNQT");
     }
 
     @Override

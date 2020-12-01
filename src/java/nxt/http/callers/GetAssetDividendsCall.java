@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetAssetDividendsCall extends APICall.Builder<GetAssetDividendsCall> {
+public class GetAssetDividendsCall extends ChainSpecificCallBuilder<GetAssetDividendsCall> {
     private GetAssetDividendsCall() {
         super(ApiSpec.getAssetDividends);
     }

@@ -44,6 +44,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.List;
 
 import static nxt.http.JSONResponses.ERROR_NOT_ALLOWED;
@@ -163,8 +164,12 @@ public final class APIProxyServlet extends AsyncMiddleManServlet {
             PasswordDetectedException passwordDetectedException = (PasswordDetectedException) failure;
             try (Writer writer = proxyResponse.getWriter()) {
                 JSON.writeJSONString(passwordDetectedException.getErrorResponse(), writer);
-                sendProxyResponseError(clientRequest, proxyResponse, HttpStatus.OK_200);
-            } catch (IOException e) {
+                proxyResponse.setStatus(HttpStatus.OK_200);
+                proxyResponse.flushBuffer();
+                if (clientRequest.isAsyncStarted()) {
+                    clientRequest.getAsyncContext().complete();
+                }
+            } catch (Exception e) {
                 e.addSuppressed(failure);
                 super.onClientRequestFailure(clientRequest, proxyRequest, proxyResponse, e);
             }
@@ -255,6 +260,9 @@ public final class APIProxyServlet extends AsyncMiddleManServlet {
     @Override
     protected void onProxyResponseSuccess(HttpServletRequest clientRequest, HttpServletResponse proxyResponse, Response serverResponse) {
         super.onProxyResponseSuccess(clientRequest, proxyResponse, serverResponse);
+        if (Arrays.asList("sendMoney", "getTransaction").contains(clientRequest.getAttribute(Attr.REQUEST_TYPE))) {
+            Logger.logDebugMessage("onProxyResponseSuccess " + clientRequest.getAttribute(Attr.REMOTE_URL));
+        }
         if (Boolean.TRUE.equals(clientRequest.getAttribute(Attr.REQUEST_NEEDS_CONFIRMATION))) {
             APIProxy.getInstance().startResponseConfirmation(new ResponseConfirmation(confirmationsClient, clientRequest));
         }

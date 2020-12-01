@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class ShufflingCreateCall extends CreateTransactionCallBuilder<ShufflingCreateCall> {
+public class ShufflingCreateCall extends CreateOneSideTransactionCallBuilder<ShufflingCreateCall> {
     private ShufflingCreateCall() {
         super(ApiSpec.shufflingCreate);
     }
@@ -18,15 +18,15 @@ public class ShufflingCreateCall extends CreateTransactionCallBuilder<ShufflingC
         return unsignedLongParam("holding", holding);
     }
 
-    public ShufflingCreateCall amount(String amount) {
+    public ShufflingCreateCall amount(long amount) {
         return param("amount", amount);
     }
 
-    public ShufflingCreateCall registrationPeriod(String registrationPeriod) {
+    public ShufflingCreateCall registrationPeriod(int registrationPeriod) {
         return param("registrationPeriod", registrationPeriod);
     }
 
-    public ShufflingCreateCall participantCount(String participantCount) {
+    public ShufflingCreateCall participantCount(byte participantCount) {
         return param("participantCount", participantCount);
     }
 

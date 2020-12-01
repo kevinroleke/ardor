@@ -147,7 +147,10 @@
                 return NRS.getModuleConfig().adminPassword;
             }
             if (window.java) {
-                return window.java.getAdminPassword();
+                let adminPassword = window.java.getAdminPassword();
+                if (adminPassword !== "") {
+                    return adminPassword;
+                }
             }
             return NRS.deviceSettings.admin_password;
         };
@@ -155,6 +158,13 @@
         NRS.isFileReaderSupported = function () {
             return (isDesktopApplication && window.java && window.java.isFileReaderSupported()) ||
                 (!isDesktopApplication && !!(window.File && window.FileList && window.FileReader)); // https://github.com/Modernizr/Modernizr/blob/master/feature-detects/file/api.js
+        };
+
+        NRS.canInitializePlugins = function () {
+            if (!isDesktopApplication) {
+                return true;
+            }
+            return window.java && window.java.canInitializePlugins();
         };
 
         NRS.isVideoSupported = function () {

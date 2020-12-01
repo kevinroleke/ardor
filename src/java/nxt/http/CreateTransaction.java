@@ -31,6 +31,7 @@ import nxt.blockchain.ChildTransactionType;
 import nxt.blockchain.FxtChain;
 import nxt.blockchain.FxtTransactionType;
 import nxt.blockchain.Transaction;
+import nxt.blockchain.TransactionType;
 import nxt.crypto.Crypto;
 import nxt.messaging.EncryptToSelfMessageAppendix;
 import nxt.messaging.MessageAppendix;
@@ -47,8 +48,10 @@ import org.json.simple.JSONStreamAware;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import static nxt.http.JSONResponses.FEATURE_NOT_AVAILABLE;
 import static nxt.http.JSONResponses.INCORRECT_EC_BLOCK;
@@ -61,7 +64,6 @@ public abstract class CreateTransaction extends APIServlet.APIRequestHandler {
     private static final String[] commonParameters = new String[]{"secretPhrase", "privateKey", "publicKey", "feeNQT", "feeRateNQTPerFXT", "minBundlerBalanceFXT", "minBundlerFeeLimitFQT",
             "deadline", "referencedTransaction", "broadcast", "timestamp",
             "message", "messageIsText", "messageIsPrunable",
-            "messageToEncrypt", "messageToEncryptIsText", "encryptedMessageData", "encryptedMessageNonce", "encryptedMessageIsPrunable", "compressMessageToEncrypt",
             "messageToEncryptToSelf", "messageToEncryptToSelfIsText", "encryptToSelfMessageData", "encryptToSelfMessageNonce", "compressMessageToEncryptToSelf",
             "phased", "phasingFinishHeight", "phasingVotingModel", "phasingQuorum", "phasingMinBalance", "phasingHolding", "phasingMinBalanceModel",
             "phasingWhitelisted", "phasingWhitelisted", "phasingWhitelisted",
@@ -71,19 +73,33 @@ public abstract class CreateTransaction extends APIServlet.APIRequestHandler {
             "phasingSenderPropertyValue", "phasingRecipientPropertySetter",
             "phasingRecipientPropertyName", "phasingRecipientPropertyValue",
             "phasingExpression",
-            "recipientPublicKey",
             "ecBlockId", "ecBlockHeight", "voucher",
             "sharedPiece", "sharedPiece", "sharedPiece", "sharedPieceAccount",
             "transactionPriority"
     };
 
+    private static final String[] recipientParameters = new String[]{
+            "messageToEncrypt", "messageToEncryptIsText", "encryptedMessageData", "encryptedMessageNonce", "encryptedMessageIsPrunable", "compressMessageToEncrypt",
+            "recipientPublicKey", "recipient"
+    };
+
     private static final List<String> commonFileParameters = Collections.unmodifiableList(Arrays.asList(
-            "messageFile", "messageToEncryptFile", "encryptToSelfMessageFile", "encryptedMessageFile"
+            "messageFile", "encryptToSelfMessageFile"
     ));
 
-    private static String[] addCommonParameters(String[] parameters) {
-        String[] result = Arrays.copyOf(parameters, parameters.length + commonParameters.length);
+    private static final List<String> recipientFileParameters = Collections.unmodifiableList(Arrays.asList(
+            "messageToEncryptFile", "encryptedMessageFile"
+    ));
+
+    private static String[] addCommonParameters(String[] parameters, List<TransactionType> transactionTypes) {
+        int nParameters = parameters.length + commonParameters.length;
+        boolean canHaveRecipient = canHaveRecipient(transactionTypes);
+        nParameters += canHaveRecipient ? recipientParameters.length : 0;
+        String[] result = Arrays.copyOf(parameters, nParameters);
         System.arraycopy(commonParameters, 0, result, parameters.length, commonParameters.length);
+        if (canHaveRecipient) {
+            System.arraycopy(recipientParameters, 0, result, parameters.length + commonParameters.length, recipientParameters.length);
+        }
         return result;
     }
 
@@ -91,22 +107,49 @@ public abstract class CreateTransaction extends APIServlet.APIRequestHandler {
         return Collections.unmodifiableList(Arrays.asList(commonParameters));
     }
 
-    private static List<String> addCommonFileParameters(List<String> fileParameters) {
+    public static List<String> getRecipientParameters() {
+        return Collections.unmodifiableList(Arrays.asList(recipientParameters));
+    }
+
+    private static List<String> addCommonFileParameters(List<String> fileParameters, List<TransactionType> transactionTypes) {
         List<String> result = new ArrayList<>(fileParameters);
         result.addAll(commonFileParameters);
+        if (canHaveRecipient(transactionTypes)) {
+            result.addAll(recipientFileParameters);
+        }
         return result;
+    }
+
+    static boolean canHaveRecipient(Collection<TransactionType> transactionTypes) {
+        return transactionTypes.stream().anyMatch(TransactionType::canHaveRecipient);
     }
 
     public static List<String> getCommonFileParameters() {
         return commonFileParameters;
     }
 
-    CreateTransaction(APITag[] apiTags, String... parameters) {
-        this(Collections.emptyList(), apiTags, parameters);
+    public static List<String> getRecipientFileParameters() {
+        return recipientFileParameters;
     }
 
-    protected CreateTransaction(List<String> fileParameters, APITag[] apiTags, String... parameters) {
-        super(addCommonFileParameters(fileParameters), apiTags, addCommonParameters(parameters));
+    private static <E> List<E> requireNonEmpty(List<E> list) {
+        if (list == null || list.isEmpty()) {
+            throw new IllegalArgumentException("CreateTransaction requires a non-empty list of transaction types.");
+        }
+        return list;
+    }
+
+    CreateTransaction(TransactionType transactionType, APITag[] apiTags, String... parameters) {
+        this(Collections.singletonList(Objects.requireNonNull(transactionType)), Collections.emptyList(), apiTags, parameters);
+    }
+
+    CreateTransaction(List<TransactionType> transactionTypes, APITag[] apiTags, String... parameters) {
+        this(transactionTypes, Collections.emptyList(), apiTags, parameters);
+    }
+
+    protected CreateTransaction(List<TransactionType> transactionTypes, List<String> fileParameters, APITag[] apiTags, String... parameters) {
+        super(requireNonEmpty(transactionTypes), addCommonFileParameters(fileParameters, transactionTypes), apiTags,
+                addCommonParameters(parameters, transactionTypes));
         if (!getAPITags().contains(APITag.CREATE_TRANSACTION)) {
             throw new RuntimeException("CreateTransaction API " + getClass().getName() + " is missing APITag.CREATE_TRANSACTION tag");
         }
@@ -136,6 +179,7 @@ public abstract class CreateTransaction extends APIServlet.APIRequestHandler {
         return new PhasingAppendix(finishHeight, phasingParams);
     }
 
+    @SuppressWarnings("unchecked")
     private JSONStreamAware createTransactionFromParameters(CreateTransactionParameters parameters) throws NxtException {
         final HttpServletRequest req = parameters.getReq();
         final ChainTransactionId referencedTransactionId = parameters.getReferencedTransactionId();

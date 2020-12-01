@@ -206,15 +206,17 @@ public final class Constants {
     public static final int CANCEL_FXT_COIN_ORDER_FIX_BLOCK = Constants.isAutomatedTest ? 20 : CHILD_CHAIN_CONTROL_BLOCK;
     public static final int GPS_BLOCK = Constants.isTestnet ? Constants.isAutomatedTest ? Integer.MAX_VALUE : 4949000 : 1453000;
     public static final long GPS_ASSET_ID = Convert.parseUnsignedLong(Constants.isTestnet ? "8016986501463341146" : "3123987739214429747");
+    public static final int AUTO_CANCEL_DUST_ORDER_BLOCK = Constants.isAutomatedTest ? 0 : Integer.MAX_VALUE;
+    public static final int CHECKSUM_BLOCK_6 = Constants.isTestnet ? 5666000 : 1453500;
 
-    public static final int LAST_CHECKSUM_BLOCK = CHECKSUM_BLOCK_5;
+    public static final int LAST_CHECKSUM_BLOCK = CHECKSUM_BLOCK_6;
 
-    public static final int LAST_KNOWN_BLOCK =  Constants.isAutomatedTest ? 0 : CHECKSUM_BLOCK_5;
+    public static final int LAST_KNOWN_BLOCK =  Constants.isAutomatedTest ? 0 : CHECKSUM_BLOCK_6;
     public static final long LAST_KNOWN_BLOCK_ID = Convert.parseUnsignedLong(
-            isTestnet ? Constants.isAutomatedTest ? "1318911886063902233" : "5657621390974142748" : "11295165462625039807");
+            isTestnet ? Constants.isAutomatedTest ? "1318911886063902233" : "310146089847255748" : "2264241179859389954");
 
-    public static final int[] MIN_VERSION = Constants.isTestnet ? new int[] {2, 3, 1} : new int[] {2, 2, 1};
-    public static final int[] MIN_PROXY_VERSION = Constants.isTestnet ? new int[] {2, 3, 1} : new int[] {2, 2, 1};
+    public static final int[] MIN_VERSION = new int[] {2, 3, 2};
+    public static final int[] MIN_PROXY_VERSION = new int[] {2, 3, 2};
 
     public static final long UNCONFIRMED_POOL_DEPOSIT_FQT = 10 * ONE_FXT;
 

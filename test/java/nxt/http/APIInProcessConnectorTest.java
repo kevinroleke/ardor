@@ -40,7 +40,7 @@ public class APIInProcessConnectorTest extends BlockchainTest {
                 .recipient(BOB.getStrId())
                 .amountNQT(100 * FxtChain.FXT.ONE_COIN)
                 .feeNQT(FxtChain.FXT.ONE_COIN * 10)
-                .build().invokeNoError();
+                .callNoError();
         String actual = String.join("\n", logListeningRule.getMessages());
 
         assertThat(actual, containsString("secretPhrase={hidden}"));
@@ -51,7 +51,7 @@ public class APIInProcessConnectorTest extends BlockchainTest {
     public void testCustomSensitiveParametersHiding() {
         new Builder<>(handlerName, singletonList(parameterName), null, false)
                 .param(parameterName, "some value")
-                .build().invokeNoError();
+                .callNoError();
         String actual = String.join("\n", logListeningRule.getMessages());
 
         assertThat(actual, containsString(parameterName + "={hidden}"));

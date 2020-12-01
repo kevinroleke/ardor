@@ -21,6 +21,7 @@ import nxt.account.Account;
 import nxt.blockchain.Attachment;
 import nxt.ms.Currency;
 import nxt.ms.CurrencyTransferAttachment;
+import nxt.ms.MonetarySystemTransactionType;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,7 +33,8 @@ public final class TransferCurrency extends CreateTransaction {
     static final TransferCurrency instance = new TransferCurrency();
 
     private TransferCurrency() {
-        super(new APITag[] {APITag.MS, APITag.CREATE_TRANSACTION}, "recipient", "currency", "unitsQNT");
+        super(MonetarySystemTransactionType.CURRENCY_TRANSFER, new APITag[] {APITag.MS, APITag.CREATE_TRANSACTION},
+                "recipient", "currency", "unitsQNT");
     }
 
     @Override

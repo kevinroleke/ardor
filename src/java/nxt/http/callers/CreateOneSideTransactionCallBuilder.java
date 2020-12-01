@@ -1,10 +1,8 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class CreateTransactionCallBuilder<T extends APICall.Builder> extends APICall.Builder<T> {
-    protected CreateTransactionCallBuilder(ApiSpec apiSpec) {
+public class CreateOneSideTransactionCallBuilder<T extends CreateOneSideTransactionCallBuilder> extends ChainSpecificCallBuilder<T> {
+    protected CreateOneSideTransactionCallBuilder(ApiSpec apiSpec) {
         super(apiSpec);
     }
 
@@ -18,10 +16,6 @@ public class CreateTransactionCallBuilder<T extends APICall.Builder> extends API
 
     public T phasingQuorum(long phasingQuorum) {
         return param("phasingQuorum", phasingQuorum);
-    }
-
-    public T encryptedMessageIsPrunable(boolean encryptedMessageIsPrunable) {
-        return param("encryptedMessageIsPrunable", encryptedMessageIsPrunable);
     }
 
     public T messageIsPrunable(boolean messageIsPrunable) {
@@ -80,36 +74,12 @@ public class CreateTransactionCallBuilder<T extends APICall.Builder> extends API
         return unsignedLongParam("phasingHolding", phasingHolding);
     }
 
-    public T encryptedMessageData(String encryptedMessageData) {
-        return param("encryptedMessageData", encryptedMessageData);
-    }
-
-    public T encryptedMessageData(byte[] encryptedMessageData) {
-        return param("encryptedMessageData", encryptedMessageData);
-    }
-
-    public T encryptedMessageFile(byte[] b) {
-        return parts("encryptedMessageFile", b);
-    }
-
     public T phasingRecipientPropertySetter(String phasingRecipientPropertySetter) {
         return param("phasingRecipientPropertySetter", phasingRecipientPropertySetter);
     }
 
-    public T messageToEncryptIsText(boolean messageToEncryptIsText) {
-        return param("messageToEncryptIsText", messageToEncryptIsText);
-    }
-
     public T messageToEncryptToSelf(String messageToEncryptToSelf) {
         return param("messageToEncryptToSelf", messageToEncryptToSelf);
-    }
-
-    public T messageToEncrypt(String messageToEncrypt) {
-        return param("messageToEncrypt", messageToEncrypt);
-    }
-
-    public T messageToEncryptFile(byte[] b) {
-        return parts("messageToEncryptFile", b);
     }
 
     public T messageIsText(boolean messageIsText) {
@@ -140,12 +110,8 @@ public class CreateTransactionCallBuilder<T extends APICall.Builder> extends API
         return param("referencedTransaction", referencedTransaction);
     }
 
-    public T recipientPublicKey(String recipientPublicKey) {
-        return param("recipientPublicKey", recipientPublicKey);
-    }
-
-    public T recipientPublicKey(byte[] recipientPublicKey) {
-        return param("recipientPublicKey", recipientPublicKey);
+    public T feeNQT(long feeNQT) {
+        return param("feeNQT", feeNQT);
     }
 
     public T phasingSenderPropertySetter(String phasingSenderPropertySetter) {
@@ -158,14 +124,6 @@ public class CreateTransactionCallBuilder<T extends APICall.Builder> extends API
 
     public T phasingSenderPropertyName(String phasingSenderPropertyName) {
         return param("phasingSenderPropertyName", phasingSenderPropertyName);
-    }
-
-    public T encryptedMessageNonce(String encryptedMessageNonce) {
-        return param("encryptedMessageNonce", encryptedMessageNonce);
-    }
-
-    public T encryptedMessageNonce(byte[] encryptedMessageNonce) {
-        return param("encryptedMessageNonce", encryptedMessageNonce);
     }
 
     public T message(String message) {
@@ -188,6 +146,10 @@ public class CreateTransactionCallBuilder<T extends APICall.Builder> extends API
         return parts("encryptToSelfMessageFile", b);
     }
 
+    public T feeRateNQTPerFXT(long feeRateNQTPerFXT) {
+        return param("feeRateNQTPerFXT", feeRateNQTPerFXT);
+    }
+
     public T phasingRecipientPropertyValue(String phasingRecipientPropertyValue) {
         return param("phasingRecipientPropertyValue", phasingRecipientPropertyValue);
     }
@@ -206,10 +168,6 @@ public class CreateTransactionCallBuilder<T extends APICall.Builder> extends API
 
     public T phasingFinishHeight(int phasingFinishHeight) {
         return param("phasingFinishHeight", phasingFinishHeight);
-    }
-
-    public T compressMessageToEncrypt(String compressMessageToEncrypt) {
-        return param("compressMessageToEncrypt", compressMessageToEncrypt);
     }
 
     public T phasingParams(String phasingParams) {

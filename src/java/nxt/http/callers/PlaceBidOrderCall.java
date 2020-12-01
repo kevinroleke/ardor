@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class PlaceBidOrderCall extends CreateTransactionCallBuilder<PlaceBidOrderCall> {
+public class PlaceBidOrderCall extends CreateOneSideTransactionCallBuilder<PlaceBidOrderCall> {
     private PlaceBidOrderCall() {
         super(ApiSpec.placeBidOrder);
     }

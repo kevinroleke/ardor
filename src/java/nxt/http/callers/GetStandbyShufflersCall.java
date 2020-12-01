@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetStandbyShufflersCall extends APICall.Builder<GetStandbyShufflersCall> {
+public class GetStandbyShufflersCall extends ChainSpecificCallBuilder<GetStandbyShufflersCall> {
     private GetStandbyShufflersCall() {
         super(ApiSpec.getStandbyShufflers);
     }
@@ -30,6 +28,10 @@ public class GetStandbyShufflersCall extends APICall.Builder<GetStandbyShufflers
 
     public GetStandbyShufflersCall holdingType(byte holdingType) {
         return param("holdingType", holdingType);
+    }
+
+    public GetStandbyShufflersCall includeAll(boolean includeAll) {
+        return param("includeAll", includeAll);
     }
 
     public GetStandbyShufflersCall account(String account) {

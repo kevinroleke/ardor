@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetDGSTagsCall extends APICall.Builder<GetDGSTagsCall> {
+public class GetDGSTagsCall extends ChainSpecificCallBuilder<GetDGSTagsCall> {
     private GetDGSTagsCall() {
         super(ApiSpec.getDGSTags);
     }

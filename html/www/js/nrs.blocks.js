@@ -49,15 +49,7 @@ NRS.onSiteBuildDone().then(() => {
 					//if no new blocks in 6 hours, show blockchain download progress..
 					var timeDiff = NRS.state.time - NRS.blocks[0].timestamp;
 					if (timeDiff > 60 * 60 * 18) {
-						if (timeDiff > 60 * 60 * 24 * 14) {
-							NRS.setStateInterval(30);
-						} else if (timeDiff > 60 * 60 * 24 * 7) {
-							//second to last week
-							NRS.setStateInterval(15);
-						} else {
-							//last week
-							NRS.setStateInterval(10);
-						}
+					    NRS.setStateIntervalFromBlockTime(timeDiff);
 						NRS.downloadingBlockchain = true;
 						$("#nrs_update_explanation").find("span").hide();
 						$("#nrs_update_explanation_wait").attr("style", "display: none !important");
@@ -88,7 +80,7 @@ NRS.onSiteBuildDone().then(() => {
 		NRS.handleNewBlocks = function(response) {
 			if (NRS.downloadingBlockchain) {
 				//new round started...
-				if (NRS.tempBlocks.length == 0 && NRS.getLastBlock() != response.block) {
+				if (NRS.tempBlocks.length == 0 && NRS.state.lastBlock != response.block) {
 					return;
 				}
 			}
@@ -166,16 +158,7 @@ NRS.onSiteBuildDone().then(() => {
 						NRS.checkAliasVersions();
 						NRS.checkIfOnAFork();
 					} else {
-						if (timeDiff > 60 * 60 * 24 * 14) {
-							NRS.setStateInterval(30);
-						} else if (timeDiff > 60 * 60 * 24 * 7) {
-							//second to last week
-							NRS.setStateInterval(15);
-						} else {
-							//last week
-							NRS.setStateInterval(10);
-						}
-
+						NRS.setStateIntervalFromBlockTime(timeDiff);
 						NRS.updateBlockchainDownloadProgress();
 					}
 				}
@@ -219,6 +202,18 @@ NRS.onSiteBuildDone().then(() => {
 				blockLink.html(NRS.getBlockLink(NRS.lastBlockHeight));
 			}
 		};
+
+        NRS.setStateIntervalFromBlockTime = function(timeDiff) {
+            if (timeDiff > 60 * 60 * 24 * 14) {
+                NRS.setStateInterval(30);
+            } else if (timeDiff > 60 * 60 * 24 * 7) {
+                //second to last week
+                NRS.setStateInterval(15);
+            } else {
+                //last week
+                NRS.setStateInterval(10);
+            }
+        }
 
 		NRS.pages.blocks = function() {
 			NRS.preparePage();

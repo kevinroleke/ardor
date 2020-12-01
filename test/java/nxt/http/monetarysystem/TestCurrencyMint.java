@@ -17,27 +17,33 @@
 package nxt.http.monetarysystem;
 
 import nxt.BlockchainTest;
-import nxt.blockchain.ChildChain;
+import nxt.addons.JO;
 import nxt.crypto.HashFunction;
 import nxt.http.APICall;
+import nxt.http.callers.CurrencyMintCall;
+import nxt.http.callers.GetCurrencyCall;
+import nxt.http.callers.GetMintingTargetCall;
 import nxt.ms.CurrencyMinting;
 import nxt.ms.CurrencyType;
 import nxt.util.Convert;
 import nxt.util.Logger;
-import org.json.simple.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
+
+import static nxt.blockchain.ChildChain.IGNIS;
 
 public class TestCurrencyMint extends BlockchainTest {
 
     @Test
     public void mint() {
-        APICall apiCall = new TestCurrencyIssuance.Builder().
+        APICall apiCall = TestCurrencyIssuance.builder().
                 type(CurrencyType.MINTABLE.getCode() | CurrencyType.EXCHANGEABLE.getCode()).
-                maxSupply((long)10000000).
-                initialSupply((long)0).
+                maxSupplyQNT(10000000).
+                initialSupplyQNT(0).
                 issuanceHeight(0).
-                minting((byte)2, (byte)8, HashFunction.SHA256.getId()).
+                minDifficulty((byte)2).
+                maxDifficulty((byte)8).
+                algorithm(HashFunction.SHA256.getId()).
                 build();
 
         String currencyId = TestCurrencyIssuance.issueCurrencyApi(apiCall);
@@ -46,27 +52,23 @@ public class TestCurrencyMint extends BlockchainTest {
 
     public void mintCurrency(String currencyId) {
         // Failed attempt to mint
-        APICall apiCall = new APICall.Builder("currencyMint").
+        JO mintResponse = CurrencyMintCall.create(IGNIS.getId()).
                 secretPhrase(ALICE.getSecretPhrase()).
-                feeNQT(ChildChain.IGNIS.ONE_COIN).
-                param("currency", currencyId).
-                param("nonce", 123456).
-                param("unitsQNT", 1000).
-                param("counter", 1).
-                build();
-        JSONObject mintResponse = apiCall.invoke();
+                feeNQT(IGNIS.ONE_COIN).
+                currency( currencyId).
+                nonce("123456").
+                unitsQNT(1000).
+                counter(1).
+                call();
         Logger.logDebugMessage("mintResponse: " + mintResponse);
         generateBlock();
-        apiCall = new APICall.Builder("getCurrency").
-                param("currency", currencyId).
-                build();
-        JSONObject getCurrencyResponse = apiCall.invoke();
+        JO getCurrencyResponse = GetCurrencyCall.create().currency(currencyId).callNoError();
         Logger.logDebugMessage("getCurrencyResponse: " + getCurrencyResponse);
         Assert.assertEquals("0", getCurrencyResponse.get("currentSupplyQNT"));
 
         // Successful attempt
         long units = 10;
-        long algorithm = (Long)getCurrencyResponse.get("algorithm");
+        long algorithm = getCurrencyResponse.getLong("algorithm");
         long nonce;
         for (nonce=0; nonce < Long.MAX_VALUE; nonce++) {
             if (CurrencyMinting.meetsTarget(CurrencyMinting.getHash((byte) algorithm, nonce, Convert.parseUnsignedLong(currencyId), units, 1, ALICE.getId()),
@@ -75,30 +77,25 @@ public class TestCurrencyMint extends BlockchainTest {
             }
         }
         Logger.logDebugMessage("nonce: " + nonce);
-        apiCall = new APICall.Builder("currencyMint").
+        mintResponse = CurrencyMintCall.create(IGNIS.getId()).
                 secretPhrase(ALICE.getSecretPhrase()).
-                feeNQT(ChildChain.IGNIS.ONE_COIN).
-                param("currency", currencyId).
-                param("nonce", nonce).
-                param("unitsQNT", units).
-                param("counter", 1).
-                build();
-        mintResponse = apiCall.invoke();
+                feeNQT(IGNIS.ONE_COIN).
+                currency(currencyId).
+                nonce(Long.toString(nonce)).
+                unitsQNT( units).
+                counter(1).
+                callNoError();
         Logger.logDebugMessage("mintResponse: " + mintResponse);
         generateBlock();
-        apiCall = new APICall.Builder("getCurrency").
-                param("currency", currencyId).
-                build();
-        getCurrencyResponse = apiCall.invoke();
+        getCurrencyResponse = GetCurrencyCall.create().currency(currencyId).callNoError();
         Logger.logDebugMessage("getCurrencyResponse: " + getCurrencyResponse);
         Assert.assertEquals("" + units, getCurrencyResponse.get("currentSupplyQNT"));
 
-        apiCall = new APICall.Builder("getMintingTarget").
-                param("currency", currencyId).
-                param("account", ALICE.getId()).
-                param("unitsQNT", "1000").
-                build();
-        JSONObject getMintingTargetResponse = apiCall.invoke();
+        JO getMintingTargetResponse = GetMintingTargetCall.create().
+                currency(currencyId).
+                account(ALICE.getId()).
+                unitsQNT(1000).
+                callNoError();
         Logger.logDebugMessage("getMintingTargetResponse: " + getMintingTargetResponse);
         Assert.assertEquals("4000", getMintingTargetResponse.get("difficulty"));
         Assert.assertEquals("a9f1d24d62105839b4c876be9f1a2fdd24068195438b6ce7fba9f1d24d621000", getMintingTargetResponse.get("targetBytes"));

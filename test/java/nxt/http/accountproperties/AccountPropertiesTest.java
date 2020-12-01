@@ -16,8 +16,8 @@
 package nxt.http.accountproperties;
 
 import nxt.BlockchainTest;
-import nxt.http.APICall;
-import org.json.simple.JSONObject;
+import nxt.addons.JO;
+import nxt.http.callers.SetAccountPropertyCall;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,12 +32,7 @@ public class AccountPropertiesTest extends BlockchainTest {
 
     @Test
     public void accountProperty1() {
-        JSONObject response = new APICall.Builder("setAccountProperty").
-                param("secretPhrase", ALICE.getSecretPhrase()).param("chain", IGNIS.getId()).feeNQT(IGNIS.ONE_COIN * 20).
-                param("recipient", BOB.getStrId()).
-                param("property", KEY1).
-                param("value", VALUE1).
-                build().invoke();
+        JO response = setAccountProperty(KEY1, VALUE1);
         Assert.assertEquals(4L, response.get("errorCode"));
         Assert.assertTrue(((String)response.get("errorDescription")).contains("Invalid account property"));
         BlockchainTest.generateBlock();
@@ -52,12 +47,7 @@ public class AccountPropertiesTest extends BlockchainTest {
             sb.append(specialChar);
         }
         String value = sb.toString();
-        JSONObject response = new APICall.Builder("setAccountProperty").
-                param("secretPhrase", ALICE.getSecretPhrase()).param("chain", IGNIS.getId()).feeNQT(IGNIS.ONE_COIN * 20).
-                param("recipient", BOB.getStrId()).
-                param("property", KEY1).
-                param("value", value).
-                build().invoke();
+        JO response = setAccountProperty(KEY1, value);
         Assert.assertEquals(4L, response.get("errorCode"));
         Assert.assertTrue(((String)response.get("errorDescription")).contains("Invalid account property"));
         BlockchainTest.generateBlock();
@@ -72,12 +62,7 @@ public class AccountPropertiesTest extends BlockchainTest {
             sb.append(specialChar);
         }
         String value = sb.toString();
-        JSONObject response = new APICall.Builder("setAccountProperty").
-                param("secretPhrase", ALICE.getSecretPhrase()).param("chain", IGNIS.getId()).feeNQT(IGNIS.ONE_COIN * 20).
-                param("recipient", BOB.getStrId()).
-                param("property", KEY1).
-                param("value", value).
-                build().invoke();
+        JO response = setAccountProperty(KEY1, value);
         Assert.assertEquals(4L, response.get("errorCode"));
         Assert.assertTrue(((String)response.get("errorDescription")).contains("Invalid account property"));
         BlockchainTest.generateBlock();
@@ -91,15 +76,20 @@ public class AccountPropertiesTest extends BlockchainTest {
             sb.append(specialChar);
         }
         String name = sb.toString();
-        JSONObject response = new APICall.Builder("setAccountProperty").
-                param("secretPhrase", ALICE.getSecretPhrase()).param("chain", IGNIS.getId()).feeNQT(IGNIS.ONE_COIN * 20).
-                param("recipient", BOB.getStrId()).
-                param("property", name).
-                param("value", "").
-                build().invoke();
+        JO response = setAccountProperty(name, "");
 
         Assert.assertNull(response.get("errorCode"));
         BlockchainTest.generateBlock();
+    }
+
+    private JO setAccountProperty(String name, String value) {
+        return SetAccountPropertyCall.create(IGNIS.getId()).
+                secretPhrase(ALICE.getSecretPhrase()).
+                feeNQT(IGNIS.ONE_COIN * 20).
+                recipient(BOB.getStrId()).
+                property(name).
+                value(value).
+                call();
     }
 
 }

@@ -8,7 +8,6 @@ import nxt.blockchain.ChildChain;
 import nxt.http.APICall.InvocationError;
 import nxt.http.callers.BundleTransactionsCall;
 import nxt.http.callers.SendMessageCall;
-import org.json.simple.JSONObject;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -25,19 +24,18 @@ public class BundleTransactionsTest extends BlockchainTest {
     @Test
     public void bundleTransactionsExpiringSoon() {
 
-        final String hash1 = (String) sendMessageCall()
+        String hash1 = sendMessageCall()
                 .deadline(5)
-                .build().invokeNoError()
-                .get("fullHash");
+                .callNoError()
+                .getString("fullHash");
 
-        final String hash2 = (String) sendMessageCall()
+        String hash2 = sendMessageCall()
                 .deadline(6)
-                .build().invokeNoError()
-                .get("fullHash");
+                .callNoError()
+                .getString("fullHash");
 
 
-        final JSONObject actual = bundleTransactionsCall(hash1, hash2)
-                .build().invokeNoError();
+        JO actual = bundleTransactionsCall(hash1, hash2).callNoError();
 
         // deadline is less then minimal transaction expiration because it also adjusts for transaction timestamp difference
         Assert.assertEquals(4, getDeadline(actual));
@@ -46,23 +44,22 @@ public class BundleTransactionsTest extends BlockchainTest {
     @Test
     public void bundleTransactionsExpiringSoonWithTimestampSet() {
 
-        final String hash1 = (String) sendMessageCall()
+        String hash1 = sendMessageCall()
                 .deadline(5)
-                .build().invokeNoError()
-                .get("fullHash");
+                .callNoError()
+                .getString("fullHash");
 
-        final String hash2 = (String) sendMessageCall()
+        String hash2 = sendMessageCall()
                 .deadline(6)
-                .build().invokeNoError()
-                .get("fullHash");
+                .callNoError()
+                .getString("fullHash");
 
         moveTimeForward(3 * 60);
 
 
-        final JSONObject actual = bundleTransactionsCall(hash1, hash2)
+        JO actual = bundleTransactionsCall(hash1, hash2)
                 .timestamp(Nxt.getEpochTime() - 2 * 60)
-                .build()
-                .invokeNoError();
+                .callNoError();
 
         // deadline is less then minimal transaction expiration because it also adjusts for transaction timestamp difference
         // due to time move and timestamp applied, now bundling transaction is 1 minute after bundled transactions, so "-1" to deadline.
@@ -71,21 +68,20 @@ public class BundleTransactionsTest extends BlockchainTest {
 
     @Test
     public void bundleTransactionsExpired() {
-        final String hash1 = (String) sendMessageCall()
+        String hash1 = sendMessageCall()
                 .deadline(1)
-                .build().invokeNoError()
-                .get("fullHash");
+                .callNoError()
+                .getString("fullHash");
 
-        final String hash2 = (String) sendMessageCall()
+        String hash2 = sendMessageCall()
                 .deadline(4)
-                .build().invokeNoError()
-                .get("fullHash");
+                .callNoError()
+                .getString("fullHash");
 
         moveTimeForward(2 * 60);
 
 
-        final JSONObject actual = bundleTransactionsCall(hash1, hash2)
-                .build().invokeNoError();
+        JO actual = bundleTransactionsCall(hash1, hash2).callNoError();
 
 
         // deadline is less then minimal transaction expiration because it also adjusts for transaction timestamp difference
@@ -99,15 +95,15 @@ public class BundleTransactionsTest extends BlockchainTest {
     @Ignore
     @Test
     public void bundleTransactionsExpiredDueToRounding() {
-        final String hash1 = (String) sendMessageCall()
+        String hash1 = sendMessageCall()
                 .deadline(1)
-                .build().invokeNoError()
-                .get("fullHash");
+                .callNoError()
+                .getString("fullHash");
 
-        final String hash2 = (String) sendMessageCall()
+        String hash2 = sendMessageCall()
                 .deadline(3)
-                .build().invokeNoError()
-                .get("fullHash");
+                .callNoError()
+                .getString("fullHash");
 
         moveTimeForward(2 * 60);
 
@@ -118,15 +114,15 @@ public class BundleTransactionsTest extends BlockchainTest {
 
     @Test
     public void bundleTransactionsAllExpired() {
-        final String hash1 = (String) sendMessageCall()
+        String hash1 = sendMessageCall()
                 .deadline(1)
-                .build().invokeNoError()
-                .get("fullHash");
+                .callNoError()
+                .getString("fullHash");
 
-        final String hash2 = (String) sendMessageCall()
+        String hash2 = sendMessageCall()
                 .deadline(1)
-                .build().invokeNoError()
-                .get("fullHash");
+                .callNoError()
+                .getString("fullHash");
 
         moveTimeForward(60);
 
@@ -148,18 +144,17 @@ public class BundleTransactionsTest extends BlockchainTest {
     @Test
     public void bundleTransactionsExpiringInDistantFuture() {
 
-        final String hash1 = (String) sendMessageCall()
+        String hash1 = sendMessageCall()
                 .deadline(14400)
-                .build().invokeNoError()
-                .get("fullHash");
+                .callNoError()
+                .getString("fullHash");
 
-        final String hash2 = (String) sendMessageCall()
-                .build().invokeNoError()
-                .get("fullHash");
+        String hash2 = sendMessageCall()
+                .callNoError()
+                .getString("fullHash");
 
 
-        final JSONObject actual = bundleTransactionsCall(hash1, hash2)
-                .build().invokeNoError();
+        JO actual = bundleTransactionsCall(hash1, hash2).callNoError();
 
         Assert.assertEquals(10, getDeadline(actual));
     }
@@ -181,26 +176,25 @@ public class BundleTransactionsTest extends BlockchainTest {
                 .feeNQT(chain.ONE_COIN);
     }
 
-    private int getDeadline(JSONObject actual) {
-        return new JO(actual).getJo("transactionJSON").getInt("deadline");
+    private int getDeadline(JO actual) {
+        return actual.getJo("transactionJSON").getInt("deadline");
     }
 
     @Test
     public void bundleTransactions() {
 
-        final String hash1 = (String) sendMessageCall()
-                .build().invokeNoError()
-                .get("fullHash");
+        String hash1 = sendMessageCall()
+                .callNoError()
+                .getString("fullHash");
 
-        final String hash2 = (String) sendMessageCall()
-                .build().invokeNoError()
-                .get("fullHash");
+        String hash2 = sendMessageCall()
+                .callNoError()
+                .getString("fullHash");
 
 
-        final JSONObject actual = bundleTransactionsCall(hash1, hash2)
+        JO actual = bundleTransactionsCall(hash1, hash2)
                 .deadline(10)
-                .build()
-                .invokeNoError();
+                .callNoError();
 
         Assert.assertEquals(10, getDeadline(actual));
     }

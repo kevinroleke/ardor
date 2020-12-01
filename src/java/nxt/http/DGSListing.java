@@ -20,6 +20,7 @@ import nxt.Constants;
 import nxt.NxtException;
 import nxt.account.Account;
 import nxt.blockchain.Attachment;
+import nxt.dgs.DigitalGoodsTransactionType;
 import nxt.dgs.ListingAttachment;
 import nxt.messaging.PrunablePlainMessageAppendix;
 import nxt.util.Convert;
@@ -29,8 +30,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
-
-import java.util.Collections;
 
 import static nxt.http.JSONResponses.INCORRECT_DGS_LISTING_DESCRIPTION;
 import static nxt.http.JSONResponses.INCORRECT_DGS_LISTING_NAME;
@@ -42,7 +41,7 @@ public final class DGSListing extends CreateTransaction {
     static final DGSListing instance = new DGSListing();
 
     private DGSListing() {
-        super(new APITag[] {APITag.DGS, APITag.CREATE_TRANSACTION},
+        super(DigitalGoodsTransactionType.LISTING, new APITag[] {APITag.DGS, APITag.CREATE_TRANSACTION},
                 "name", "description", "tags", "quantity", "priceNQT");
     }
 

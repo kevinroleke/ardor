@@ -92,6 +92,7 @@ public class FeeRateCalculatorTest extends BlockchainTest {
     public void destroy() {
         super.destroy();
         int ratesExpiration = Nxt.getEpochTime() + Peers.BUNDLER_RATE_BROADCAST_INTERVAL + 15 * 60;
+        //noinspection StatementWithEmptyBody
         while (Nxt.getEpochTime() < ratesExpiration) {
             //empty
         }
@@ -99,7 +100,7 @@ public class FeeRateCalculatorTest extends BlockchainTest {
     }
 
     private long invokeFeeCalculation(SendMoneyCall sendMoneyCall) {
-        return new JSONAssert(sendMoneyCall.build().invokeNoError()).amount("bundlerRateNQTPerFXT");
+        return new JSONAssert(sendMoneyCall.callNoError()).amount("bundlerRateNQTPerFXT");
     }
 
     private void createTestRates() {

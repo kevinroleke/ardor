@@ -56,7 +56,7 @@ public class CancelOrderTest extends BlockchainTest {
 
     private JO signAndBroadcast(JSONObject transactionJSON, boolean validate) {
         JSONAssert signResult = new JSONAssert(SignTransactionCall.create().unsignedTransactionJSON(transactionJSON.toJSONString()).
-                    validate(validate).secretPhrase(ALICE.getSecretPhrase()).build().invokeNoError());
+                    validate(validate).secretPhrase(ALICE.getSecretPhrase()).callNoError());
 
         JO result = BroadcastTransactionCall.create().transactionJSON(signResult.subObj("transactionJSON").getJson().toJSONString()).call();
         generateBlock();
@@ -66,7 +66,7 @@ public class CancelOrderTest extends BlockchainTest {
     private JSONAssert createFxtOrder() {
         JSONAssert result = new JSONAssert(ExchangeCoinsCall.create(IGNIS.getId()).exchange(FXT.getId()).quantityQNT(100).
                 priceNQTPerCoin(IGNIS.ONE_COIN * 2).feeRateNQTPerFXT(IGNIS.ONE_COIN).
-                secretPhrase(ALICE.getSecretPhrase()).build().invokeNoError());
+                secretPhrase(ALICE.getSecretPhrase()).callNoError());
         Assert.assertEquals("ARDR exchanges are automatically created on the ARDR chain",
                 FXT.getId(), result.subObj("transactionJSON").integer("chain"));
 
@@ -80,7 +80,7 @@ public class CancelOrderTest extends BlockchainTest {
 
     private JSONObject createCancellingOrderOnIgnis(String orderId) {
         JSONAssert cancelRes = new JSONAssert(CancelCoinExchangeCall.create(IGNIS.getId()).order(orderId).
-                publicKey(ALICE.getPublicKey()).broadcast(false).build().invokeNoError());
+                publicKey(ALICE.getPublicKey()).broadcast(false).callNoError());
 
         generateBlock();
 

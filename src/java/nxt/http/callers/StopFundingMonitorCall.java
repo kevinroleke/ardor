@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class StopFundingMonitorCall extends APICall.Builder<StopFundingMonitorCall> {
+public class StopFundingMonitorCall extends ChainSpecificCallBuilder<StopFundingMonitorCall> {
     private StopFundingMonitorCall() {
         super(ApiSpec.stopFundingMonitor);
     }

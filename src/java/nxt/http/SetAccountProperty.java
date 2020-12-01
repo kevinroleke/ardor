@@ -20,6 +20,7 @@ import nxt.Constants;
 import nxt.NxtException;
 import nxt.account.Account;
 import nxt.account.AccountPropertyAttachment;
+import nxt.account.AccountPropertyTransactionType;
 import nxt.blockchain.Attachment;
 import nxt.util.Convert;
 import org.json.simple.JSONStreamAware;
@@ -34,7 +35,8 @@ public final class SetAccountProperty extends CreateTransaction {
     static final SetAccountProperty instance = new SetAccountProperty();
 
     private SetAccountProperty() {
-        super(new APITag[] {APITag.ACCOUNTS, APITag.CREATE_TRANSACTION}, "recipient", "property", "value");
+        super(AccountPropertyTransactionType.ACCOUNT_PROPERTY_SET,
+                new APITag[] {APITag.ACCOUNTS, APITag.CREATE_TRANSACTION}, "recipient", "property", "value");
     }
 
     @Override

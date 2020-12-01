@@ -67,7 +67,7 @@
                 <input type="file" id="upload_file_save_processes_field" class="hidden"/>
                 <button type="button" class="btn btn-default" data-dismiss="modal" data-i18n="cancel">Cancel</button>
                 <button type="button" class="btn btn-primary" disabled
-                        data-loading-text="Submitting..." data-i18n="save;[placeholder]submitting">Save</button>
+                        data-loading-text="Submitting..." data-i18n="set;[placeholder]submitting">Set</button>
             </div>
         </div>
     </div>
@@ -79,7 +79,7 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                 <h4 class="modal-title">
-                    <span data-i18n="save">Save</span>:
+                    <span data-i18n="set">Set</span>:
                     <span data-i18n="forging">Forging</span>
                 </h4>
             </div>
@@ -122,7 +122,8 @@
             </div>
             <div class="modal-footer" style="margin-top:0;">
                 <button type="button" class="btn btn-default" data-dismiss="modal" data-i18n="cancel">Cancel</button>
-                <button type="button" class="btn btn-primary" data-loading-text="Submitting..." data-i18n="save;[placeholder]submitting">Save</button>
+                <button type="button" class="btn btn-primary" disabled
+                        data-loading-text="Submitting..." data-i18n="set;[placeholder]submitting">Set</button>
             </div>
         </div>
     </div>
@@ -148,6 +149,28 @@
             <div class="modal-footer" style="margin-top:0;">
                 <button type="button" class="btn btn-default" data-dismiss="modal" data-i18n="cancel">Cancel</button>
                 <button type="button" class="btn btn-primary" data-loading-text="Submitting..." data-i18n="start;[placeholder]submitting">Start</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="m_delete_node_process_config_modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title"></h4>
+            </div>
+            <div class="modal-body">
+                <form role="form" autocomplete="off">
+                    <div class="callout callout-danger error_message" style="display:none"></div>
+                    <p data-i18n="delete_encrypted_config_warning"></p>
+                    <input type="hidden" name="request_type" id="delete_node_process_config_request_type"/>
+                </form>
+            </div>
+            <div class="modal-footer" style="margin-top:0;">
+                <button type="button" class="btn btn-default" data-dismiss="modal" data-i18n="cancel">Cancel</button>
+                <button type="button" class="btn btn-primary" data-loading-text="Submitting..." data-i18n="delete;[placeholder]submitting">Delete</button>
             </div>
         </div>
     </div>

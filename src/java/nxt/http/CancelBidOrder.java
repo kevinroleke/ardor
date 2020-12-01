@@ -18,6 +18,7 @@ package nxt.http;
 
 import nxt.NxtException;
 import nxt.account.Account;
+import nxt.ae.AssetExchangeTransactionType;
 import nxt.ae.BidOrderCancellationAttachment;
 import nxt.ae.OrderHome;
 import nxt.blockchain.Attachment;
@@ -33,7 +34,8 @@ public final class CancelBidOrder extends CreateTransaction {
     static final CancelBidOrder instance = new CancelBidOrder();
 
     private CancelBidOrder() {
-        super(new APITag[] {APITag.AE, APITag.CREATE_TRANSACTION}, "order");
+        super(AssetExchangeTransactionType.BID_ORDER_CANCELLATION, new APITag[] {APITag.AE, APITag.CREATE_TRANSACTION},
+                "order");
     }
 
     @Override

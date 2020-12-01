@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class ExchangeCoinsCall extends CreateTransactionCallBuilder<ExchangeCoinsCall> {
+public class ExchangeCoinsCall extends CreateOneSideTransactionCallBuilder<ExchangeCoinsCall> {
     private ExchangeCoinsCall() {
         super(ApiSpec.exchangeCoins);
     }

@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetExpectedSellOffersCall extends APICall.Builder<GetExpectedSellOffersCall> {
+public class GetExpectedSellOffersCall extends ChainSpecificCallBuilder<GetExpectedSellOffersCall> {
     private GetExpectedSellOffersCall() {
         super(ApiSpec.getExpectedSellOffers);
     }

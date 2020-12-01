@@ -647,6 +647,11 @@ NRS.onSiteBuildDone().then(() => {
 		};
 
 		NRS.initSettings = function() {
+			$("#settings_box select").on("change", function(e) {
+				e.preventDefault();
+				NRS.updateSettings($(this).attr("name"), $(this).val());
+			});
+
 			$('#login_panel .languageSelector, #settings_box .languageSelector').on('click', 'li', function(e) {
 				e.preventDefault();
 				NRS.updateSettings('language', $(this).data('language'));

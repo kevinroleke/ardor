@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class SetContractReferenceCall extends CreateTransactionCallBuilder<SetContractReferenceCall> {
+public class SetContractReferenceCall extends CreateOneSideTransactionCallBuilder<SetContractReferenceCall> {
     private SetContractReferenceCall() {
         super(ApiSpec.setContractReference);
     }

@@ -20,8 +20,7 @@ import nxt.BlockchainWithChildChainControlTest;
 import nxt.Nxt;
 import nxt.blockchain.chaincontrol.PermissionTestUtil;
 import nxt.blockchain.chaincontrol.PermissionType;
-import nxt.http.APICall;
-import nxt.http.twophased.TestCreateTwoPhased.TwoPhasedMoneyTransferBuilder;
+import nxt.http.callers.ApproveTransactionCall;
 import org.junit.Test;
 
 import static nxt.blockchain.ChildChain.IGNIS;
@@ -32,22 +31,20 @@ public class TestPhasingSafetyAndChildChainPermissions extends BlockchainWithChi
     public void testPhasingSafeTransactionSuccess() {
         int duration = 10;
 
-        Object fullHash = new TwoPhasedMoneyTransferBuilder()
-                .finishHeight(Nxt.getBlockchain().getHeight() + duration)
-                .build()
-                .invokeNoError()
-                .get("fullHash");
+        String fullHash = TestCreateTwoPhased.createSendMoneyBuilder()
+                .phasingFinishHeight(Nxt.getBlockchain().getHeight() + duration)
+                .callNoError()
+                .getString("fullHash");
 
         generateBlock();
 
         PermissionTestUtil.removePermission(IGNIS, ALICE, PermissionType.CHAIN_USER);
 
-        new APICall.Builder("approveTransaction")
-                .param("secretPhrase", CHUCK.getSecretPhrase())
-                .param("phasedTransaction", IGNIS.getId() + ":" + fullHash)
-                .param("feeNQT", IGNIS.ONE_COIN)
-                .build()
-                .invokeNoError();
+        ApproveTransactionCall.create(IGNIS.getId())
+                .secretPhrase(CHUCK.getSecretPhrase())
+                .phasedTransaction(IGNIS.getId() + ":" + fullHash)
+                .feeNQT(IGNIS.ONE_COIN)
+                .callNoError();
 
         generateBlocks(duration);
 

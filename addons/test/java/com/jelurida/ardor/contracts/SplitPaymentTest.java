@@ -18,7 +18,7 @@ package com.jelurida.ardor.contracts;
 import nxt.addons.JA;
 import nxt.addons.JO;
 import nxt.blockchain.ChildTransaction;
-import nxt.http.APICall;
+import nxt.http.callers.TriggerContractByTransactionCall;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -64,11 +64,9 @@ public class SplitPaymentTest extends AbstractContractTest {
         }
 
         // Now let's validate the operation of the contract
-        APICall apiCall = new APICall.Builder("triggerContractByTransaction").
-                param("chain", IGNIS.getId()).
-                param("triggerFullHash", triggerFullHash).build();
-        JO response = new JO(apiCall.invoke());
-        JA transactionsJson = new JA(response.get("transactions"));
+        JO response = TriggerContractByTransactionCall.create(IGNIS.getId()).
+                triggerFullHash(triggerFullHash).callNoError();
+        JA transactionsJson = response.getArray("transactions");
         Assert.assertEquals(3, transactionsJson.size());
     }
 

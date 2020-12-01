@@ -17,10 +17,8 @@ package nxt.http.client;
 
 import nxt.Tester;
 import nxt.blockchain.ChildChain;
-import nxt.http.APICall;
 import nxt.http.APICall.InvocationError;
-import nxt.util.JSONAssert;
-import org.json.simple.JSONObject;
+import nxt.http.callers.TransferAssetCall;
 
 public class TransferAssetBuilder {
     private final long assetId;
@@ -44,38 +42,25 @@ public class TransferAssetBuilder {
         return this;
     }
 
-    public TransferAssetBuilder setFee(long fee) {
+    public TransferAssetBuilder feeNQT(long fee) {
         this.fee = fee;
         return this;
     }
 
-    private APICall build() {
-        return new APICall.Builder("transferAsset")
-                .param("secretPhrase", from.getSecretPhrase())
-                .param("recipient", to.getRsAccount())
-                .param("asset", Long.toUnsignedString(assetId))
-                .param("quantityQNT", quantityQNT)
-                .param("feeNQT", fee)
-                .build();
+    private TransferAssetCall caller() {
+        return TransferAssetCall.create(ChildChain.IGNIS.getId())
+                .secretPhrase(from.getSecretPhrase())
+                .recipient(to.getRsAccount())
+                .asset(assetId)
+                .quantityQNT(quantityQNT)
+                .feeNQT(fee);
     }
 
-    public TransferResult transfer() {
-        return new TransferResult(build().invokeNoError());
+    public String transfer() {
+        return caller().callNoError().getString("fullHash");
     }
 
     public InvocationError transferWithError() {
-        return build().invokeWithError();
-    }
-
-    public static class TransferResult {
-        private final JSONObject jsonObject;
-
-        TransferResult(JSONObject jsonObject) {
-            this.jsonObject = jsonObject;
-        }
-
-        public String getFullHash() {
-            return new JSONAssert(jsonObject).str("fullHash");
-        }
+        return caller().build().invokeWithError();
     }
 }

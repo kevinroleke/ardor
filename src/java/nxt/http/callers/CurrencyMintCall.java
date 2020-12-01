@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class CurrencyMintCall extends CreateTransactionCallBuilder<CurrencyMintCall> {
+public class CurrencyMintCall extends CreateOneSideTransactionCallBuilder<CurrencyMintCall> {
     private CurrencyMintCall() {
         super(ApiSpec.currencyMint);
     }
@@ -22,7 +22,7 @@ public class CurrencyMintCall extends CreateTransactionCallBuilder<CurrencyMintC
         return unsignedLongParam("currency", currency);
     }
 
-    public CurrencyMintCall counter(String counter) {
+    public CurrencyMintCall counter(long counter) {
         return param("counter", counter);
     }
 

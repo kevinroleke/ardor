@@ -164,15 +164,24 @@
 </div>
 
 <div id="standby_shufflers_page" class="paginated page">
-    <script type="text/x-handlebars-template">
-        <section class="content-header">
-            <h1 class="col-xs-12 col-sm-6">{{i18n "standby_shufflers"}}</h1>
-            <div class="text-right col-xs-12 col-sm-6">
-                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#m_start_standbyshuffler_modal" data-i18n="start_standbyshuffler">Start StandbyShuffler</button>
+    <section class="content-header">
+        <h1 class="col-xs-12 col-sm-6" data-i18n="standby_shufflers">STANDBY_SHUFFLERS</h1>
+        <div class="text-right col-xs-12 col-sm-6">
+            <div class="btn-group" data-toggle="buttons" id="standby_shufflers_page_type">
+                <label class="btn btn-default" data-type="all">
+                    <input type="radio" name="standby_shufflers_page_type"> <span data-i18n="all">ALL</span>
+                </label>
+                <label class="btn btn-default active" data-type="my">
+                    <input type="radio" name="standby_shufflers_page_type"> <span data-i18n="my">MY</span>
+                </label>
+                <button type="button" class="btn btn-default" data-toggle="modal" data-i18n="start_standbyshuffler"
+                        data-target="#m_start_standbyshuffler_modal">START_STANDBYSHUFFLER</button>
             </div>
-            <div class="clearfix"></div>
-        </section>
-        <section class="content">
+        </div>
+        <div class="clearfix"></div>
+    </section>
+    <section class="content" id="standby_shufflers_section">
+        <script type="text/x-handlebars-template">
             <div class="alert alert-info" role="alert">{{ i18n "standbyshuffler_intro" }}</div>
             {{#if errorMessage}}
             <div class="alert alert-danger" role="alert">{{{ errorMessage }}}</div>
@@ -218,8 +227,8 @@
                     </p>
                 </div>
             </div>
-        </section>
-    </script>
+        </script>
+    </section>
 </div>
 
 <div id="finished_shufflings_page" class="paginated page">

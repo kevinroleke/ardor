@@ -22,6 +22,7 @@ import nxt.NxtException;
 import nxt.account.Account;
 import nxt.aliases.AliasAssignmentAttachment;
 import nxt.aliases.AliasHome;
+import nxt.aliases.AliasTransactionType;
 import nxt.blockchain.Attachment;
 import nxt.blockchain.ChildChain;
 import nxt.util.Convert;
@@ -29,7 +30,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
-
 import java.util.Locale;
 
 import static nxt.http.JSONResponses.INCORRECT_ALIAS_LENGTH;
@@ -42,7 +42,8 @@ public final class SetAlias extends CreateTransaction {
     static final SetAlias instance = new SetAlias();
 
     private SetAlias() {
-        super(new APITag[] {APITag.ALIASES, APITag.CREATE_TRANSACTION}, "aliasName", "aliasURI");
+        super(AliasTransactionType.ALIAS_ASSIGNMENT, new APITag[] {APITag.ALIASES, APITag.CREATE_TRANSACTION},
+                "aliasName", "aliasURI");
     }
 
     @Override

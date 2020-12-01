@@ -21,6 +21,7 @@ import nxt.NxtException;
 import nxt.account.Account;
 import nxt.blockchain.Attachment;
 import nxt.dgs.DigitalGoodsHome;
+import nxt.dgs.DigitalGoodsTransactionType;
 import nxt.dgs.RefundAttachment;
 import nxt.util.Convert;
 import org.json.simple.JSONStreamAware;
@@ -37,7 +38,7 @@ public final class DGSRefund extends CreateTransaction {
     static final DGSRefund instance = new DGSRefund();
 
     private DGSRefund() {
-        super(new APITag[] {APITag.DGS, APITag.CREATE_TRANSACTION},
+        super(DigitalGoodsTransactionType.REFUND, new APITag[] {APITag.DGS, APITag.CREATE_TRANSACTION},
                 "purchase", "refundNQT");
     }
 

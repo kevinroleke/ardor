@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetBalanceCall extends APICall.Builder<GetBalanceCall> {
+public class GetBalanceCall extends ChainSpecificCallBuilder<GetBalanceCall> {
     private GetBalanceCall() {
         super(ApiSpec.getBalance);
     }

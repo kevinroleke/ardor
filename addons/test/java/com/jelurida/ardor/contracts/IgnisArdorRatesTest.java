@@ -20,7 +20,7 @@ import nxt.account.AccountPropertyTransactionType;
 import nxt.addons.JO;
 import nxt.blockchain.ChildTransaction;
 import nxt.blockchain.ChildTransactionType;
-import nxt.http.APICall;
+import nxt.http.callers.TriggerContractByRequestCall;
 import nxt.messaging.MessagingTransactionType;
 import nxt.messaging.PrunableEncryptedMessageAppendix;
 import org.junit.Assert;
@@ -59,7 +59,7 @@ public class IgnisArdorRatesTest extends AbstractContractTest {
                         .filter(PrunableEncryptedMessageAppendix.class::isInstance)
                         .map(PrunableEncryptedMessageAppendix.class::cast)
                         .findFirst()
-                        .get();
+                        .orElseThrow(() -> new RuntimeException("Expected at least 1 PrunableEncryptedMessageAppendix"));
                 Assert.assertEquals(ALICE.getId(), childTransaction.getSenderId());
                 Assert.assertEquals(BOB.getId(), childTransaction.getRecipientId());
                 continue;
@@ -74,10 +74,7 @@ public class IgnisArdorRatesTest extends AbstractContractTest {
         }
         Assert.assertTrue(isMessageFound);
         Assert.assertTrue(isPropertyFound);
-        APICall apiCall = new APICall.Builder("triggerContractByRequest").
-                param("contractName", contractName).
-                build();
-        JO response = new JO(apiCall.invoke());
+        JO response = TriggerContractByRequestCall.create().contractName(contractName).callNoError();
         Assert.assertNotNull(response.get("BTRX"));
     }
 }

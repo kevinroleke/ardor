@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetExpectedCoinExchangeOrderCancellationsCall extends APICall.Builder<GetExpectedCoinExchangeOrderCancellationsCall> {
+public class GetExpectedCoinExchangeOrderCancellationsCall extends ChainSpecificCallBuilder<GetExpectedCoinExchangeOrderCancellationsCall> {
     private GetExpectedCoinExchangeOrderCancellationsCall() {
         super(ApiSpec.getExpectedCoinExchangeOrderCancellations);
     }

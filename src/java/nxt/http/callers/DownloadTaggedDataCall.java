@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class DownloadTaggedDataCall extends APICall.Builder<DownloadTaggedDataCall> {
+public class DownloadTaggedDataCall extends ChainSpecificCallBuilder<DownloadTaggedDataCall> {
     private DownloadTaggedDataCall() {
         super(ApiSpec.downloadTaggedData);
     }

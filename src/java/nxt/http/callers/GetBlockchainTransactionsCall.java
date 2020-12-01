@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetBlockchainTransactionsCall extends APICall.Builder<GetBlockchainTransactionsCall> {
+public class GetBlockchainTransactionsCall extends ChainSpecificCallBuilder<GetBlockchainTransactionsCall> {
     private GetBlockchainTransactionsCall() {
         super(ApiSpec.getBlockchainTransactions);
     }
@@ -24,7 +22,7 @@ public class GetBlockchainTransactionsCall extends APICall.Builder<GetBlockchain
         return param("includeExpiredPrunable", includeExpiredPrunable);
     }
 
-    public GetBlockchainTransactionsCall numberOfConfirmations(String numberOfConfirmations) {
+    public GetBlockchainTransactionsCall numberOfConfirmations(int numberOfConfirmations) {
         return param("numberOfConfirmations", numberOfConfirmations);
     }
 

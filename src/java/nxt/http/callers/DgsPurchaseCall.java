@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class DgsPurchaseCall extends CreateTransactionCallBuilder<DgsPurchaseCall> {
+public class DgsPurchaseCall extends CreateTwoSidesTransactionCallBuilder<DgsPurchaseCall> {
     private DgsPurchaseCall() {
         super(ApiSpec.dgsPurchase);
     }
@@ -14,11 +14,11 @@ public class DgsPurchaseCall extends CreateTransactionCallBuilder<DgsPurchaseCal
         return param("priceNQT", priceNQT);
     }
 
-    public DgsPurchaseCall quantity(String quantity) {
+    public DgsPurchaseCall quantity(int quantity) {
         return param("quantity", quantity);
     }
 
-    public DgsPurchaseCall deliveryDeadlineTimestamp(String deliveryDeadlineTimestamp) {
+    public DgsPurchaseCall deliveryDeadlineTimestamp(int deliveryDeadlineTimestamp) {
         return param("deliveryDeadlineTimestamp", deliveryDeadlineTimestamp);
     }
 

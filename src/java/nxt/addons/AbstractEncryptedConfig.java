@@ -68,10 +68,18 @@ public abstract class AbstractEncryptedConfig implements AddOn {
         APIServlet.APIRequestHandler saveAPI = new APIServlet.APIRequestHandler(apiTags, saveParameters.toArray(new String[0])) {
             @Override
             protected JSONStreamAware processRequest(HttpServletRequest request) throws ParameterException {
-                boolean dataAlreadyEncrypted = "true".equalsIgnoreCase(request.getParameter("dataAlreadyEncrypted"));
                 try {
+                    // special case when data, encryptionPassword and path are null/empty, delete the file
+                    if (ParameterParser.areAllEmpty(request, "path", "encryptionPassword", getDataParameter())) {
+                        Logger.logInfoMessage(getAPIRequestName() + " deleting default file");
+                        Files.deleteIfExists(getDefaultPath());
+                        JO response = new JO();
+                        response.put("filesize", -1);
+                        return response.toJSONObject();
+                    }
+
                     byte[] encrypted;
-                    if (dataAlreadyEncrypted) {
+                    if ("true".equalsIgnoreCase(request.getParameter("dataAlreadyEncrypted"))) {
                         encrypted = ParameterParser.getBytes(request, getDataParameter(), true);
                     } else {
                         String password = ParameterParser.getParameter(request, "encryptionPassword");
@@ -89,6 +97,7 @@ public abstract class AbstractEncryptedConfig implements AddOn {
                         Files.write(path, encrypted, StandardOpenOption.CREATE_NEW);
                     }
                     JSONObject response = new JSONObject();
+                    //noinspection unchecked
                     response.put("filesize", encrypted.length);
                     return response;
                 } catch (IOException e) {

@@ -25,6 +25,7 @@ import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import nxt.Nxt;
 import nxt.configuration.Setup;
+import nxt.http.APIServlet.APIRequestHandler;
 import nxt.http.callers.ApiSpec;
 
 import javax.lang.model.element.Modifier;
@@ -34,6 +35,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -53,27 +55,31 @@ public class APICallGenerator {
 
     private static final Predicate<String> ENTITY_IDENTIFIERS = exactMatch("account", "recipient", "sender", "asset",
             "poll", "account", "currency", "order", "offer", "transaction", "ledgerId", "event", "goods", "buyer",
-            "purchase", "holding", "block", "ecBlockId", "setter"
+            "purchase", "holding", "block", "ecBlockId", "setter", "cancellingAccount"
     ).or(phasingParamWhich(endsWith("Holding")));
 
     private static final Predicate<String> CHAIN_IDENTIFIERS = exactMatch("chain", "exchange");
 
     private static final Predicate<String> INT_IDENTIFIERS = exactMatch("height", "fromHeight", "toHeight", "timestamp", "firstIndex", "lastIndex",
             "type", "subtype", "deadline", "ecBlockHeight", "totalPieces", "minimumPieces", "minParticipants", "childIndex",
-            "startFromChildIndex", "decimals")
+            "startFromChildIndex", "decimals", "issuanceHeight", "expirationHeight", "controlMinDuration", "controlMaxDuration",
+            "period", "finishHeight", "numberOfConfirmations", "registrationPeriod", "quantity", "deliveryDeadlineTimestamp")
             .or(phasingParamWhich(endsWith("FinishHeight")));
 
-    private static final Predicate<String> BYTE_IDENTIFIERS = exactMatch("holdingType")
+    private static final Predicate<String> BYTE_IDENTIFIERS = exactMatch("holdingType", "algorithm", "minDifficulty",
+            "maxDifficulty", "votingModel", "minNumberOfOptions", "maxNumberOfOptions", "minRangeValue", "maxRangeValue",
+            "minBalanceModel", "participantCount")
             .or(phasingParamWhich(endsWith("VotingModel", "MinBalanceModel", "HashedSecretAlgorithm")));
 
 
-    private static final Predicate<String> BOOLEAN_IDENTIFIERS = exactMatch("executedOnly", "phased", "broadcast", "voucher", "retrieve", "add", "remove", "validate")
+    private static final Predicate<String> BOOLEAN_IDENTIFIERS = exactMatch("executedOnly", "phased", "broadcast",
+            "voucher", "retrieve", "add", "remove", "validate", "countVotes", "apply")
             .or(startsWith("include", "is"))
             .or(contains("Is"));
 
     private static final Predicate<String> LONG_IDENTIFIERS = contains("NQT", "FQT", "FXT", "QNT")
             .or(phasingParamWhich(endsWith("Quorum", "MinBalance", "Holding")))
-            .or(exactMatch("timeout"));
+            .or(exactMatch("timeout", "counter", "minBalance", "amount"));
 
     private static final Predicate<String> BYTE_ARRAYS = startsWith("fullHash", "publicKey", "chainCode")
             .or(contains("FullHash", "PublicKey"))
@@ -82,9 +88,6 @@ public class APICallGenerator {
     private static final Predicate<String> REMOTE_ONLY_APIS = exactMatch("eventRegister", "eventWait");
 
     private static final String outputPackageName = "nxt.http.callers";
-
-    private final Set<String> parametersHandledInSuperClass = new HashSet<>(
-            Arrays.asList("secretPhrase", "privateKey", "sharedPiece", "sharedPieceAccount", "chain", "feeNQT", "feeRateNQTPerFXT", "recipient"));
 
     private static final String defaultAddOns = "nxt.addons.ContractRunner;nxt.addons.StandbyShuffling;nxt.addons.TaxReportAddOn";
 
@@ -106,7 +109,7 @@ public class APICallGenerator {
         this.requestType = requestType;
         this.typeName = typeName;
         className = ClassName.get(outputPackageName, typeName);
-        typeVariableName = TypeVariableName.get("T", TypeName.get(APICall.Builder.class));
+        typeVariableName = TypeVariableName.get("T", className);
         parameterMethodReturnType = typeVariableName;
     }
 
@@ -129,25 +132,46 @@ public class APICallGenerator {
     }
 
     private static void generateApiCallers() {
-        new APICallGenerator(null, "CreateTransactionCallBuilder").generateCreateTransactionCallBuilder();
-        Map<String, APIServlet.APIRequestHandler> apiRequestHandlers = APIServlet.getAPIRequestHandlers();
+        SuperClasses superClasses = creteSuperClasses();
+
+        Map<String, APIRequestHandler> apiRequestHandlers = APIServlet.getAPIRequestHandlers();
         for (String requestType : apiRequestHandlers.keySet()) {
-            APIServlet.APIRequestHandler apiRequestHandler = apiRequestHandlers.get(requestType);
-            new APICallGenerator(requestType).generateApiCall(apiRequestHandler);
+            APIRequestHandler apiRequestHandler = apiRequestHandlers.get(requestType);
+            SuperClass superClass = superClasses.selectSuperClass(apiRequestHandler);
+            new APICallGenerator(requestType).generateApiCall(apiRequestHandler, superClass);
         }
+    }
+
+    private static SuperClasses creteSuperClasses() {
+        SuperClass noTransactionSuperClass = createAPICallBuilderSuperClass();
+
+        SuperClass chainSpecificSuperClass = new APICallGenerator(null, "ChainSpecificCallBuilder")
+                .createChainSpecificSuperClass(noTransactionSuperClass);
+
+        SuperClass oneSideSuper = new APICallGenerator(null, "CreateOneSideTransactionCallBuilder")
+                .generateCreateOneSideTransactionCallBuilder(chainSpecificSuperClass);
+
+        SuperClass twoSidesSuper = new APICallGenerator(null, "CreateTwoSidesTransactionCallBuilder")
+                .generateCreateTwoSidesTransactionCallBuilder(oneSideSuper);
+
+        return new SuperClasses(noTransactionSuperClass, chainSpecificSuperClass, oneSideSuper, twoSidesSuper);
+    }
+
+    private SuperClass createChainSpecificSuperClass(SuperClass superClass) {
+        return generateCallBuilder(superClass, Collections.singletonList("chain"), Collections.emptyList());
     }
 
     private static void generateApiSpec() {
         // Generate the API Specification enum
         ClassName enumClass = ClassName.get(outputPackageName, "ApiSpec");
         TypeSpec.Builder apiSpec = TypeSpec.enumBuilder(enumClass).addModifiers(Modifier.PUBLIC);
-        for (Map.Entry<String, APIServlet.APIRequestHandler> entry : APIServlet.getAPIRequestHandlers().entrySet()) {
+        for (Map.Entry<String, APIRequestHandler> entry : APIServlet.getAPIRequestHandlers().entrySet()) {
             String requestType = entry.getKey();
-            APIServlet.APIRequestHandler apiRequestHandler = entry.getValue();
+            APIRequestHandler apiRequestHandler = entry.getValue();
             List<String> fileParameters = apiRequestHandler.getFileParameters();
             CodeBlock.Builder codeBlockBuilder = CodeBlock.builder().add("$L", apiRequestHandler.isChainSpecific()).add(", ");
             if (!fileParameters.isEmpty()) {
-                codeBlockBuilder.add("new String[] {\"$L\"}", String.join("\", \"", fileParameters));
+                codeBlockBuilder.add("new String[]{\"$L\"}", String.join("\", \"", fileParameters));
             } else {
                 codeBlockBuilder.add("$L", (Object) null);
             }
@@ -191,52 +215,54 @@ public class APICallGenerator {
         writeToFile(apiSpec.build());
     }
 
-    private void generateApiCall(APIServlet.APIRequestHandler apiRequestHandler) {
-        ClassName superClass = ClassName.get(APICall.Builder.class);
-
-        if (apiRequestHandler instanceof CreateTransaction) {
-            superClass = ClassName.get(outputPackageName, "CreateTransactionCallBuilder");
-            parametersHandledInSuperClass.addAll(CreateTransaction.getCommonParameters());
-            parametersHandledInSuperClass.addAll(CreateTransaction.getCommonFileParameters());
-        }
-        final TypeSpec.Builder classBuilder = TypeSpec.classBuilder(typeName)
+    private void generateApiCall(APIRequestHandler apiRequestHandler, SuperClass superClass) {
+        TypeSpec.Builder classBuilder = TypeSpec.classBuilder(typeName)
                 .addModifiers(Modifier.PUBLIC)
-                .superclass(ParameterizedTypeName.get(superClass, className));
-
+                .superclass(superClass.getTypeName(className));
 
         classBuilder.addMethod(createCallerConstructor());
-        createFactoryMethod(classBuilder, apiRequestHandler);
+        classBuilder.addMethods(createFactoryMethod(apiRequestHandler));
 
-        List<String> parameters = apiRequestHandler.getParameters().stream()
-                .filter(s -> !parametersHandledInSuperClass.contains(s))
-                .collect(Collectors.toList());
-        Set<String> fileParameters = new LinkedHashSet<>(apiRequestHandler.getFileParameters());
-        classBuilder.addMethods(createParameterMethods(parameters, fileParameters));
-        fileParameters.stream().filter(s -> !parametersHandledInSuperClass.contains(s))
-                .forEach(fileParam -> classBuilder.addMethods(createFileParameterMethods(fileParam)));
+        classBuilder.addMethods(generateParameterHandlers(superClass, apiRequestHandler.getParameters(), apiRequestHandler.getFileParameters()));
 
         classBuilder.addMethods(createIsRemoteOnly());
 
         writeToFile(classBuilder.build());
     }
 
-    private void generateCreateTransactionCallBuilder() {
+    private SuperClass generateCreateTwoSidesTransactionCallBuilder(SuperClass superClass) {
+        return generateCallBuilder(superClass, CreateTransaction.getRecipientParameters(), CreateTransaction.getRecipientFileParameters());
+    }
+
+    private SuperClass generateCreateOneSideTransactionCallBuilder(SuperClass superClass) {
+        return generateCallBuilder(superClass, CreateTransaction.getCommonParameters(), CreateTransaction.getCommonFileParameters());
+    }
+
+    private SuperClass generateCallBuilder(SuperClass superClass, List<String> parameters, List<String> fileParameters) {
         final TypeSpec.Builder classBuilder = TypeSpec.classBuilder(typeName)
                 .addModifiers(Modifier.PUBLIC)
                 .addTypeVariable(typeVariableName)
-                .superclass(ParameterizedTypeName.get(ClassName.get(APICall.Builder.class), typeVariableName));
+                .superclass(superClass.getTypeName(typeVariableName));
 
         classBuilder.addMethod(createBuilderConstructor());
-
-        List<String> parameters = CreateTransaction.getCommonParameters().stream()
-                .filter(s -> !parametersHandledInSuperClass.contains(s))
-                .collect(Collectors.toList());
-
-        Set<String> fileParameters = new LinkedHashSet<>(CreateTransaction.getCommonFileParameters());
-        classBuilder.addMethods(createParameterMethods(parameters, fileParameters));
-        fileParameters.forEach(fileParam -> classBuilder.addMethods(createFileParameterMethods(fileParam)));
+        classBuilder.addMethods(generateParameterHandlers(superClass, parameters, fileParameters));
 
         writeToFile(classBuilder.build());
+        return new SuperClass(superClass, className, parameters, fileParameters);
+    }
+
+    private List<MethodSpec> generateParameterHandlers(SuperClass superClass, List<String> parameters1, List<String> fileParameters1) {
+        List<String> parameters = parameters1.stream()
+                .filter(superClass.handledParameters().negate())
+                .collect(Collectors.toList());
+
+        Set<String> fileParameters = new LinkedHashSet<>(fileParameters1);
+        final List<MethodSpec> classBuilder = new ArrayList<>(createParameterMethods(parameters, fileParameters));
+        fileParameters.stream()
+                .filter(superClass.handledParameters().negate())
+                .forEach(fileParam -> classBuilder.addAll(createFileParameterMethods(fileParam)));
+
+        return classBuilder;
     }
 
     private MethodSpec createBuilderConstructor() {
@@ -331,23 +357,26 @@ public class APICallGenerator {
                 .build();
     }
 
-    private void createFactoryMethod(TypeSpec.Builder classBuilder, APIServlet.APIRequestHandler apiRequestHandler) {
+    private List<MethodSpec> createFactoryMethod(APIRequestHandler apiRequestHandler) {
+        List<MethodSpec> result = new ArrayList<>();
         if (!(apiRequestHandler instanceof CreateTransaction)) {
-            MethodSpec.Builder factoryBuilder = MethodSpec.methodBuilder("create")
+            MethodSpec factory = MethodSpec.methodBuilder("create")
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                    .returns(className);
-            factoryBuilder.addStatement("return new $L()", typeName);
-            classBuilder.addMethod(factoryBuilder.build());
+                    .addStatement("return new $L()", typeName)
+                    .returns(className)
+                    .build();
+            result.add(factory);
         }
         if (apiRequestHandler.isChainSpecific()) {
-            MethodSpec.Builder factoryBuilder = MethodSpec.methodBuilder("create")
+            MethodSpec factory = MethodSpec.methodBuilder("create")
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                    .returns(className);
-            factoryBuilder
                     .addParameter(int.class, "chain")
-                    .addStatement("return new $L().param($S, chain)", typeName, "chain");
-            classBuilder.addMethod(factoryBuilder.build());
+                    .addStatement("return new $L().param($S, chain)", typeName, "chain")
+                    .returns(className)
+                    .build();
+            result.add(factory);
         }
+        return result;
     }
 
     private MethodSpec createMethod(String paramName, String paramMethodName, Class<?> paramMethodType, boolean isVarargs) {
@@ -387,5 +416,67 @@ public class APICallGenerator {
 
     private static Predicate<String> phasingParamWhich(Predicate<String> additionalCondition) {
         return startsWith("phasing", "control").and(additionalCondition);
+    }
+
+    private static class SuperClasses {
+        private final SuperClass noTransactionSuperClass;
+        private final SuperClass chainSpecificSuperClass;
+        private final SuperClass oneSideSuper;
+        private final SuperClass twoSidesSuper;
+
+        public SuperClasses(SuperClass noTransactionSuperClass, SuperClass chainSpecificSuperClass, SuperClass oneSideSuper, SuperClass twoSidesSuper) {
+            this.noTransactionSuperClass = noTransactionSuperClass;
+            this.chainSpecificSuperClass = chainSpecificSuperClass;
+            this.oneSideSuper = oneSideSuper;
+            this.twoSidesSuper = twoSidesSuper;
+        }
+
+        SuperClass selectSuperClass(APIRequestHandler apiRequestHandler) {
+            if ((apiRequestHandler instanceof CreateTransaction)) {
+                if (apiRequestHandler.canHaveRecipient()) {
+                    return twoSidesSuper;
+                }
+                return oneSideSuper;
+            }
+            if (apiRequestHandler.isChainSpecific()) {
+                return chainSpecificSuperClass;
+            }
+            return noTransactionSuperClass;
+        }
+    }
+
+    private static class SuperClass {
+        private final ClassName className;
+        private final Set<String> handledParameters = new HashSet<>();
+
+        private SuperClass(ClassName name) {
+            className = name;
+        }
+
+        private SuperClass(ClassName name, Collection<String> handledParameters) {
+            this(name);
+            this.handledParameters.addAll(handledParameters);
+        }
+
+        private SuperClass(SuperClass superClass, ClassName name, Collection<String> handledParameters, Collection<String> handledFileParameters) {
+            this(name, handledParameters);
+            this.handledParameters.addAll(handledFileParameters);
+            this.handledParameters.addAll(superClass.handledParameters);
+        }
+
+        public TypeName getTypeName(TypeName typeArgument) {
+            return ParameterizedTypeName.get(className, typeArgument);
+        }
+
+        Predicate<String> handledParameters() {
+            return handledParameters::contains;
+        }
+    }
+
+    private static SuperClass createAPICallBuilderSuperClass() {
+        return new SuperClass(
+                ClassName.get(APICall.Builder.class),
+                Arrays.asList("secretPhrase", "privateKey", "sharedPiece", "sharedPieceAccount")
+        );
     }
 }

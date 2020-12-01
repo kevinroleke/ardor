@@ -18,6 +18,7 @@ package nxt.http;
 
 import nxt.NxtException;
 import nxt.account.Account;
+import nxt.blockchain.chaincontrol.ChildChainControlTransactionType;
 import nxt.blockchain.chaincontrol.RemovePermissionAttachment;
 import nxt.blockchain.chaincontrol.PermissionType;
 import org.json.simple.JSONStreamAware;
@@ -28,7 +29,9 @@ public final class RemoveAccountPermission extends CreateTransaction {
     static final RemoveAccountPermission instance = new RemoveAccountPermission();
 
     private RemoveAccountPermission() {
-        super(new APITag[] {APITag.CHILD_CHAIN_CONTROL, APITag.CREATE_TRANSACTION}, "recipient", "permission", "height");
+        super(ChildChainControlTransactionType.REMOVE_PERMISSION,
+                new APITag[] {APITag.CHILD_CHAIN_CONTROL, APITag.CREATE_TRANSACTION},
+                "recipient", "permission", "height");
     }
 
     @Override

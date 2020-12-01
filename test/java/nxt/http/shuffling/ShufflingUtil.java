@@ -20,12 +20,26 @@ import nxt.BlockchainTest;
 import nxt.Tester;
 import nxt.account.HoldingType;
 import nxt.addons.JO;
-import nxt.blockchain.ChildChain;
 import nxt.blockchain.Fee;
-import nxt.http.APICall;
-import nxt.util.Convert;
+import nxt.http.callers.BroadcastTransactionCall;
+import nxt.http.callers.GetShufflingCall;
+import nxt.http.callers.GetShufflingParticipantsCall;
+import nxt.http.callers.IssueAssetCall;
+import nxt.http.callers.IssueCurrencyCall;
+import nxt.http.callers.SendMoneyCall;
+import nxt.http.callers.ShufflingCancelCall;
+import nxt.http.callers.ShufflingCreateCall;
+import nxt.http.callers.ShufflingProcessCall;
+import nxt.http.callers.ShufflingRegisterCall;
+import nxt.http.callers.ShufflingVerifyCall;
+import nxt.http.callers.SignTransactionCall;
+import nxt.http.callers.StartShufflerCall;
+import nxt.http.callers.StopShufflerCall;
+import nxt.http.callers.TransferAssetCall;
+import nxt.http.callers.TransferCurrencyCall;
 import nxt.util.Logger;
-import org.json.simple.JSONObject;
+
+import static nxt.blockchain.ChildChain.IGNIS;
 
 public class ShufflingUtil {
 
@@ -38,279 +52,258 @@ public class ShufflingUtil {
     static final long defaultHoldingShufflingAmount = 40000;
     static long shufflingAsset;
     static long shufflingCurrency;
-    static final int chainId = ChildChain.IGNIS.getId();
-    static final long SHUFFLING_REGISTER_FEE = ChildChain.IGNIS.ONE_COIN/100;
-    static final long SHUFFLING_PROCESSING_FEE = ChildChain.IGNIS.ONE_COIN/10 + Fee.NEW_ACCOUNT_FEE;
-    static final long SHUFFLING_VERIFY_FEE = ChildChain.IGNIS.ONE_COIN/10;
+    static final int chainId = IGNIS.getId();
+    static final long SHUFFLING_REGISTER_FEE = IGNIS.ONE_COIN/100;
+    static final long SHUFFLING_PROCESSING_FEE = IGNIS.ONE_COIN/10 + Fee.NEW_ACCOUNT_FEE;
+    static final long SHUFFLING_VERIFY_FEE = IGNIS.ONE_COIN/10;
     static final long SHUFFLING_TOTAL_FEE = 2 * SHUFFLING_REGISTER_FEE + SHUFFLING_PROCESSING_FEE;
-    static final long SHUFFLING_RECIPIENTS_FEE = (ChildChain.IGNIS.ONE_COIN * 11)/100 + Fee.NEW_ACCOUNT_FEE;
 
     static JO create(Tester creator) {
         return create(creator, 4);
     }
 
     public static JO create(Tester creator, int participantCount) {
-        APICall apiCall = new APICall.Builder("shufflingCreate").
+        JO response = ShufflingCreateCall.create(IGNIS.getId()).
                 secretPhrase(creator.getSecretPhrase()).
-                feeRateNQTPerFXT(ChildChain.IGNIS.ONE_COIN).
-                param("amount", String.valueOf(defaultShufflingAmount)).
-                param("participantCount", String.valueOf(participantCount)).
-                param("registrationPeriod", 10).
-                build();
-        JSONObject response = apiCall.invokeNoError();
+                feeRateNQTPerFXT(IGNIS.ONE_COIN).
+                amount(defaultShufflingAmount).
+                participantCount((byte) participantCount).
+                registrationPeriod(10).
+                callNoError();
         Logger.logMessage("shufflingCreateResponse: " + response.toJSONString());
-        return JO.valueOf(response);
+        return response;
     }
 
-    static JSONObject createAssetShuffling(Tester creator) {
-        APICall apiCall = new APICall.Builder("issueAsset")
-                .param("secretPhrase", creator.getSecretPhrase())
-                .param("name", "phased")
-                .param("description", "shuffling transaction testing")
-                .param("quantityQNT", 1000000)
-                .param("decimals", 2)
-                .param("feeNQT", 1000 * ChildChain.IGNIS.ONE_COIN)
-                .param("deadline", 1440)
-                .build();
-        JSONObject response = apiCall.invoke();
+    static JO createAssetShuffling(Tester creator) {
+        JO response = IssueAssetCall.create(IGNIS.getId())
+                .secretPhrase(creator.getSecretPhrase())
+                .name("phased")
+                .description("shuffling transaction testing")
+                .quantityQNT(1000000)
+                .decimals(2)
+                .feeNQT(1000 * IGNIS.ONE_COIN)
+                .deadline(1440)
+                .callNoError();
         shufflingAsset = Long.parseUnsignedLong(Tester.responseToStringId(response));
         BlockchainTest.generateBlock();
-        apiCall = new APICall.Builder("transferAsset")
-                .param("secretPhrase", creator.getSecretPhrase())
-                .param("recipient", BlockchainTest.BOB.getRsAccount())
-                .param("asset", Long.toUnsignedString(shufflingAsset))
-                .param("quantityQNT", 100000)
-                .param("feeNQT", ChildChain.IGNIS.ONE_COIN)
-                .param("deadline", 1440)
-                .build();
-        response = apiCall.invoke();
+        response = TransferAssetCall.create(IGNIS.getId())
+                .secretPhrase(creator.getSecretPhrase())
+                .recipient(BlockchainTest.BOB.getRsAccount())
+                .asset(shufflingAsset)
+                .quantityQNT(100000)
+                .feeNQT(IGNIS.ONE_COIN)
+                .deadline(1440)
+                .callNoError();
         Logger.logMessage("transferAssetResponse: " + response.toJSONString());
-        apiCall = new APICall.Builder("transferAsset")
-                .param("secretPhrase", creator.getSecretPhrase())
-                .param("recipient", BlockchainTest.CHUCK.getRsAccount())
-                .param("asset", Long.toUnsignedString(shufflingAsset))
-                .param("quantityQNT", 100000)
-                .param("feeNQT", ChildChain.IGNIS.ONE_COIN)
-                .param("deadline", 1440)
-                .build();
-        response = apiCall.invoke();
+        response = TransferAssetCall.create(IGNIS.getId())
+                .secretPhrase(creator.getSecretPhrase())
+                .recipient(BlockchainTest.CHUCK.getRsAccount())
+                .asset(shufflingAsset)
+                .quantityQNT(100000)
+                .feeNQT(IGNIS.ONE_COIN)
+                .deadline(1440)
+                .callNoError();
         Logger.logMessage("transferAssetResponse: " + response.toJSONString());
-        apiCall = new APICall.Builder("transferAsset")
-                .param("secretPhrase", creator.getSecretPhrase())
-                .param("recipient", BlockchainTest.DAVE.getRsAccount())
-                .param("asset", Long.toUnsignedString(shufflingAsset))
-                .param("quantityQNT", 100000)
-                .param("feeNQT", ChildChain.IGNIS.ONE_COIN)
-                .param("deadline", 1440)
-                .build();
-        response = apiCall.invoke();
+        response = TransferAssetCall.create(IGNIS.getId())
+                .secretPhrase(creator.getSecretPhrase())
+                .recipient(BlockchainTest.DAVE.getRsAccount())
+                .asset(shufflingAsset)
+                .quantityQNT(100000)
+                .feeNQT(IGNIS.ONE_COIN)
+                .deadline(1440)
+                .callNoError();
         Logger.logMessage("transferAssetResponse: " + response.toJSONString());
         BlockchainTest.generateBlock();
-        apiCall = new APICall.Builder("shufflingCreate").
+        response = ShufflingCreateCall.create(IGNIS.getId()).
                 secretPhrase(creator.getSecretPhrase()).
-                feeRateNQTPerFXT(ChildChain.IGNIS.ONE_COIN).
-                param("amount", String.valueOf(defaultHoldingShufflingAmount)).
-                param("participantCount", "4").
-                param("registrationPeriod", 10).
-                param("holding", Long.toUnsignedString(shufflingAsset)).
-                param("holdingType", String.valueOf(HoldingType.ASSET.getCode())).
-                build();
-        response = apiCall.invoke();
+                feeRateNQTPerFXT(IGNIS.ONE_COIN).
+                amount(defaultHoldingShufflingAmount).
+                participantCount((byte) 4).
+                registrationPeriod(10).
+                holding(shufflingAsset).
+                holdingType(HoldingType.ASSET.getCode()).
+                callNoError();
         Logger.logMessage("shufflingCreateResponse: " + response.toJSONString());
         return response;
     }
 
-    static JSONObject createCurrencyShuffling(Tester creator) {
-        APICall apiCall = new APICall.Builder("issueCurrency")
-                .param("secretPhrase", creator.getSecretPhrase())
-                .param("name", "shfle")
-                .param("code", "SHFL")
-                .param("description", "phased transaction testing")
-                .param("type", 1)
-                .param("initialSupplyQNT", 10000000)
-                .param("maxSupplyQNT", 10000000)
-                .param("decimals", 2)
-                .param("feeNQT", 1000 * ChildChain.IGNIS.ONE_COIN)
-                .param("deadline", 1440)
-                .build();
-        JSONObject response = apiCall.invoke();
+    static JO createCurrencyShuffling(Tester creator) {
+        JO response = IssueCurrencyCall.create(IGNIS.getId())
+                .secretPhrase(creator.getSecretPhrase())
+                .name("shfle")
+                .code("SHFL")
+                .description("phased transaction testing")
+                .type(1)
+                .initialSupplyQNT(10000000)
+                .maxSupplyQNT(10000000)
+                .decimals(2)
+                .feeNQT(1000 * IGNIS.ONE_COIN)
+                .deadline(1440)
+                .callNoError();
         shufflingCurrency = Long.parseUnsignedLong(Tester.responseToStringId(response));
         BlockchainTest.generateBlock();
-        apiCall = new APICall.Builder("transferCurrency")
-                .param("secretPhrase", creator.getSecretPhrase())
-                .param("recipient", BlockchainTest.BOB.getRsAccount())
-                .param("currency", Long.toUnsignedString(shufflingCurrency))
-                .param("unitsQNT", 100000)
-                .param("feeNQT", ChildChain.IGNIS.ONE_COIN)
-                .param("deadline", 1440)
-                .build();
-        response = apiCall.invoke();
+        response = TransferCurrencyCall.create(IGNIS.getId())
+                .secretPhrase(creator.getSecretPhrase())
+                .recipient(BlockchainTest.BOB.getRsAccount())
+                .currency(shufflingCurrency)
+                .unitsQNT(100000)
+                .feeNQT(IGNIS.ONE_COIN)
+                .deadline(1440)
+                .callNoError();
         Logger.logMessage("transferCurrencyResponse: " + response.toJSONString());
-        apiCall = new APICall.Builder("transferCurrency")
-                .param("secretPhrase", creator.getSecretPhrase())
-                .param("recipient", BlockchainTest.CHUCK.getRsAccount())
-                .param("currency", Long.toUnsignedString(shufflingCurrency))
-                .param("unitsQNT", 100000)
-                .param("feeNQT", ChildChain.IGNIS.ONE_COIN)
-                .param("deadline", 1440)
-                .build();
-        response = apiCall.invoke();
+        response = TransferCurrencyCall.create(IGNIS.getId())
+                .secretPhrase(creator.getSecretPhrase())
+                .recipient(BlockchainTest.CHUCK.getRsAccount())
+                .currency(shufflingCurrency)
+                .unitsQNT(100000)
+                .feeNQT(IGNIS.ONE_COIN)
+                .deadline(1440)
+                .callNoError();
         Logger.logMessage("transferCurrencyResponse: " + response.toJSONString());
-        apiCall = new APICall.Builder("transferCurrency")
-                .param("secretPhrase", creator.getSecretPhrase())
-                .param("recipient", BlockchainTest.DAVE.getRsAccount())
-                .param("currency", Long.toUnsignedString(shufflingCurrency))
-                .param("unitsQNT", 100000)
-                .param("feeNQT", ChildChain.IGNIS.ONE_COIN)
-                .param("deadline", 1440)
-                .build();
-        response = apiCall.invoke();
+        response = TransferCurrencyCall.create(IGNIS.getId())
+                .secretPhrase(creator.getSecretPhrase())
+                .recipient(BlockchainTest.DAVE.getRsAccount())
+                .currency(shufflingCurrency)
+                .unitsQNT(100000)
+                .feeNQT(IGNIS.ONE_COIN)
+                .deadline(1440)
+                .callNoError();
         Logger.logMessage("transferCurrencyResponse: " + response.toJSONString());
         BlockchainTest.generateBlock();
-        apiCall = new APICall.Builder("shufflingCreate").
+        response = ShufflingCreateCall.create(IGNIS.getId()).
                 secretPhrase(creator.getSecretPhrase()).
-                feeRateNQTPerFXT(ChildChain.IGNIS.ONE_COIN).
-                param("amount", String.valueOf(defaultHoldingShufflingAmount)).
-                param("participantCount", "4").
-                param("registrationPeriod", 10).
-                param("holding", Long.toUnsignedString(shufflingCurrency)).
-                param("holdingType", String.valueOf(HoldingType.CURRENCY.getCode())).
-                build();
-        response = apiCall.invoke();
+                feeRateNQTPerFXT(IGNIS.ONE_COIN).
+                amount(defaultHoldingShufflingAmount).
+                participantCount((byte) 4).
+                registrationPeriod(10).
+                holding(shufflingCurrency).
+                holdingType(HoldingType.CURRENCY.getCode()).
+                callNoError();
         Logger.logMessage("shufflingCreateResponse: " + response.toJSONString());
         return response;
     }
 
-    static JSONObject register(String shufflingFullHash, Tester tester) {
-        APICall apiCall = new APICall.Builder("shufflingRegister").
+    static JO register(String shufflingFullHash, Tester tester) {
+        JO response = ShufflingRegisterCall.create(IGNIS.getId()).
                 secretPhrase(tester.getSecretPhrase()).
-                feeRateNQTPerFXT(ChildChain.IGNIS.ONE_COIN).
-                param("shufflingFullHash", shufflingFullHash).
-                build();
-        JSONObject response = apiCall.invoke();
+                feeRateNQTPerFXT(IGNIS.ONE_COIN).
+                shufflingFullHash(shufflingFullHash).
+                call();
         Logger.logMessage("shufflingRegisterResponse: " + response.toJSONString());
         return response;
     }
 
     public static JO getShuffling(String shufflingFullHash) {
-        APICall apiCall = new APICall.Builder("getShuffling").
-                param("shufflingFullHash", shufflingFullHash).
-                build();
-        JSONObject getShufflingResponse = apiCall.invoke();
+        JO getShufflingResponse = GetShufflingCall.create(IGNIS.getId()).
+                shufflingFullHash(shufflingFullHash).
+                callNoError();
         Logger.logMessage("getShufflingResponse: " + getShufflingResponse.toJSONString());
-        return JO.valueOf(getShufflingResponse);
+        return getShufflingResponse;
     }
 
     public static JO getShufflingParticipants(String shufflingFullHash) {
-        APICall apiCall = new APICall.Builder("getShufflingParticipants").
-                param("shufflingFullHash", shufflingFullHash).
-                build();
-        JSONObject getParticipantsResponse = apiCall.invoke();
+        JO getParticipantsResponse = GetShufflingParticipantsCall.create(IGNIS.getId()).
+                shufflingFullHash(shufflingFullHash).
+                callNoError();
         Logger.logMessage("getShufflingParticipantsResponse: " + getParticipantsResponse.toJSONString());
-        return JO.valueOf(getParticipantsResponse);
+        return getParticipantsResponse;
     }
 
-    static JSONObject process(String shufflingFullHash, Tester tester, Tester recipient) {
+    static JO process(String shufflingFullHash, Tester tester, Tester recipient) {
         return process(shufflingFullHash, tester, recipient, true);
     }
 
-    static JSONObject process(String shufflingFullHash, Tester tester, Tester recipient, boolean broadcast) {
-        APICall.Builder builder = new APICall.Builder("shufflingProcess").
-                param("shufflingFullHash", shufflingFullHash).
-                param("secretPhrase", tester.getSecretPhrase()).
-                param("recipientSecretPhrase", recipient.getSecretPhrase()).
-                feeRateNQTPerFXT(ChildChain.IGNIS.ONE_COIN);
+    static JO process(String shufflingFullHash, Tester tester, Tester recipient, boolean broadcast) {
+        ShufflingProcessCall builder = ShufflingProcessCall.create(IGNIS.getId()).
+                shufflingFullHash(shufflingFullHash).
+                secretPhrase(tester.getSecretPhrase()).
+                recipientSecretPhrase(recipient.getSecretPhrase()).
+                feeRateNQTPerFXT(IGNIS.ONE_COIN);
         if (!broadcast) {
-            builder.param("broadcast", "false");
+            builder.broadcast(false);
         }
-        APICall apiCall = builder.build();
-        JSONObject shufflingProcessResponse = apiCall.invoke();
+        JO shufflingProcessResponse = builder.call();
         Logger.logMessage("shufflingProcessResponse: " + shufflingProcessResponse.toJSONString());
         return shufflingProcessResponse;
     }
 
-    static JSONObject verify(String shufflingFullHash, Tester tester, String shufflingStateHash) {
-        APICall apiCall = new APICall.Builder("shufflingVerify").
-                param("shufflingFullHash", shufflingFullHash).
-                param("secretPhrase", tester.getSecretPhrase()).
-                param("shufflingStateHash", shufflingStateHash).
-                feeRateNQTPerFXT(ChildChain.IGNIS.ONE_COIN).
-                build();
-        JSONObject response = apiCall.invoke();
+    static JO verify(String shufflingFullHash, Tester tester, String shufflingStateHash) {
+        JO response = ShufflingVerifyCall.create(IGNIS.getId()).
+                shufflingFullHash(shufflingFullHash).
+                secretPhrase(tester.getSecretPhrase()).
+                shufflingStateHash(shufflingStateHash).
+                feeRateNQTPerFXT(IGNIS.ONE_COIN).
+                call();
         Logger.logDebugMessage("shufflingVerifyResponse:" + response);
         return response;
     }
 
-    static JSONObject cancel(String shufflingFullHash, Tester tester, String shufflingStateHash, long cancellingAccountId) {
+    static JO cancel(String shufflingFullHash, Tester tester, String shufflingStateHash, long cancellingAccountId) {
         return cancel(shufflingFullHash, tester, shufflingStateHash, cancellingAccountId, true);
     }
 
-    static JSONObject cancel(String shufflingFullHash, Tester tester, String shufflingStateHash, long cancellingAccountId, boolean broadcast) {
-        APICall.Builder builder = new APICall.Builder("shufflingCancel").
-                param("shufflingFullHash", shufflingFullHash).
-                param("secretPhrase", tester.getSecretPhrase()).
-                param("shufflingStateHash", shufflingStateHash).
-                feeRateNQTPerFXT(ChildChain.IGNIS.ONE_COIN);
+    static JO cancel(String shufflingFullHash, Tester tester, String shufflingStateHash, long cancellingAccountId, boolean broadcast) {
+        ShufflingCancelCall builder = ShufflingCancelCall.create(IGNIS.getId()).
+                shufflingFullHash(shufflingFullHash).
+                secretPhrase(tester.getSecretPhrase()).
+                shufflingStateHash(shufflingStateHash).
+                feeRateNQTPerFXT(IGNIS.ONE_COIN);
         if (cancellingAccountId != 0) {
-            builder.param("cancellingAccount", Long.toUnsignedString(cancellingAccountId));
+            builder.cancellingAccount(cancellingAccountId);
         }
         if (!broadcast) {
-            builder.param("broadcast", "false");
+            builder.broadcast(false);
         }
-        APICall apiCall = builder.build();
-        JSONObject response = apiCall.invoke();
+        JO response = builder.call();
         Logger.logDebugMessage("shufflingCancelResponse:" + response);
         return response;
     }
 
-    static JSONObject broadcast(JSONObject transaction, Tester tester) {
+    static JO broadcast(JO transaction, Tester tester) {
         transaction.remove("signature");
-        APICall apiCall = new APICall.Builder("signTransaction")
-                .param("unsignedTransactionJSON", transaction.toJSONString())
-                .param("validate", "false")
-                .param("secretPhrase", tester.getSecretPhrase())
-                .build();
-        JSONObject response = apiCall.invoke();
+        JO response = SignTransactionCall.create()
+                .unsignedTransactionJSON(transaction.toJSONString())
+                .validate(false)
+                .secretPhrase(tester.getSecretPhrase())
+                .call();
         if (response.get("transactionJSON") == null) {
             return response;
         }
-        apiCall = new APICall.Builder("broadcastTransaction").
-                param("transactionJSON", ((JSONObject)response.get("transactionJSON")).toJSONString()).
-                build();
-        response = apiCall.invoke();
+        response = BroadcastTransactionCall.create().
+                transactionJSON(response.getJo("transactionJSON").toJSONString()).
+                call();
         Logger.logDebugMessage("broadcastTransactionResponse:" + response);
         return response;
     }
 
-    public static JSONObject startShuffler(Tester tester, Tester recipient, String shufflingFullHash) {
-        APICall apiCall = new APICall.Builder("startShuffler").
+    public static JO startShuffler(Tester tester, Tester recipient, String shufflingFullHash) {
+        JO response = StartShufflerCall.create(IGNIS.getId()).
                 secretPhrase(tester.getSecretPhrase()).
-                param("recipientPublicKey", Convert.toHexString(recipient.getPublicKey())).
-                param("shufflingFullHash", shufflingFullHash).
-                param("feeRateNQTPerFXT", ChildChain.IGNIS.ONE_COIN).
-                build();
-        JSONObject response = apiCall.invoke();
+                recipientPublicKey(recipient.getPublicKey()).
+                shufflingFullHash(shufflingFullHash).
+                feeRateNQTPerFXT(IGNIS.ONE_COIN).
+                call();
         Logger.logMessage("startShufflerResponse: " + response.toJSONString());
         return response;
     }
 
-    static JSONObject stopShuffler(Tester tester, String shufflingFullHash) {
-        APICall apiCall = new APICall.Builder("stopShuffler").
+    static JO stopShuffler(Tester tester, String shufflingFullHash) {
+        JO response = StopShufflerCall.create().
                 secretPhrase(tester.getSecretPhrase()).
-                param("shufflingFullHash", shufflingFullHash).
-                build();
-        JSONObject response = apiCall.invoke();
+                shufflingFullHash(shufflingFullHash).
+                call();
         Logger.logMessage("stopShufflerResponse: " + response.toJSONString());
         return response;
     }
 
-    static JSONObject sendMoney(Tester sender, Tester recipient, long amountNXT) {
-        JSONObject response = new APICall.Builder("sendMoney").
-                param("secretPhrase", sender.getSecretPhrase()).
-                param("recipient", recipient.getStrId()).
-                param("amountNQT", amountNXT * ChildChain.IGNIS.ONE_COIN).
-                feeRateNQTPerFXT(ChildChain.IGNIS.ONE_COIN).
-                build().invoke();
+    @SuppressWarnings({"UnusedReturnValue", "SameParameterValue"})
+    static JO sendMoney(Tester sender, Tester recipient, long amountNXT) {
+        JO response = SendMoneyCall.create(IGNIS.getId()).
+                secretPhrase(sender.getSecretPhrase()).
+                recipient(recipient.getStrId()).
+                amountNQT(amountNXT * IGNIS.ONE_COIN).
+                feeRateNQTPerFXT(IGNIS.ONE_COIN).
+                call();
         Logger.logMessage("sendMoneyResponse: " + response.toJSONString());
         return response;
     }

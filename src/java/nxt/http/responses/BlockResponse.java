@@ -17,7 +17,6 @@ package nxt.http.responses;
 
 import nxt.addons.JO;
 import nxt.blockchain.ChainTransactionId;
-import org.json.simple.JSONObject;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -25,10 +24,6 @@ import java.util.List;
 public interface BlockResponse {
 
     static BlockResponse create(JO object) {
-        return new BlockResponseImpl(object);
-    }
-
-    static BlockResponse create(JSONObject object) {
         return new BlockResponseImpl(object);
     }
 

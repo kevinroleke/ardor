@@ -741,9 +741,13 @@ NRS.onSiteBuildDone().then(() => {
 					if (NRS.isHardwareEncryptionEnabled()) {
 						encrypted = await NRS.encryptUsingHardwareWallet(await NRS.getPublicKeyFromAccountId(data.buyer), data.data);
 					} else {
+						let privateKey;
+						if (data.secretPhrase) {
+							privateKey = NRS.getPrivateKey(data.secretPhrase);
+						}
 						encrypted = await NRS.encryptNote(data.data, {
 							"account": data.buyer,
-							"privateKey": NRS.getPrivateKey(data.secretPhrase)
+							"privateKey": privateKey
 						});
 					}
 					data.goodsData = encrypted.message;

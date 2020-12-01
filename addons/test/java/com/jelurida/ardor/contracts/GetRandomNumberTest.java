@@ -26,7 +26,7 @@ public class GetRandomNumberTest extends AbstractContractTest {
     public void submitRequest() {
         String contractName = ContractTestHelper.deployContract(GetRandomNumber.class);
         JO response = TriggerContractByRequestCall.create().contractName(contractName).
-                setParamValidation(false).param("seed", 1234).call();
+                setParamValidation(false).param("seed", 1234).callNoError();
         int randomValue = response.getInt("random");
         Assert.assertTrue(randomValue >= 0 && randomValue < 1000);
     }

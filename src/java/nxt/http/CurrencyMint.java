@@ -21,6 +21,7 @@ import nxt.account.Account;
 import nxt.blockchain.Attachment;
 import nxt.ms.Currency;
 import nxt.ms.CurrencyMintingAttachment;
+import nxt.ms.MonetarySystemTransactionType;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
@@ -49,7 +50,8 @@ public final class CurrencyMint extends CreateTransaction {
     static final CurrencyMint instance = new CurrencyMint();
 
     private CurrencyMint() {
-        super(new APITag[] {APITag.MS, APITag.CREATE_TRANSACTION}, "currency", "nonce", "unitsQNT", "counter");
+        super(MonetarySystemTransactionType.CURRENCY_MINTING, new APITag[] {APITag.MS, APITag.CREATE_TRANSACTION},
+                "currency", "nonce", "unitsQNT", "counter");
     }
 
     @Override

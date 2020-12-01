@@ -35,7 +35,7 @@ final class GetPeers {
                         && p.getAnnouncedAddress() != null
                         && p.shareAddress()
                         && !p.getAnnouncedAddress().equals(peer.getAnnouncedAddress()),
-                    NetworkMessage.MAX_LIST_SIZE);
+                    NetworkMessage.MAX_LIST_SIZE_PRE_2_3_3);
         if (!peerList.isEmpty()) {
             peer.sendMessage(new NetworkMessage.AddPeersMessage(peerList));
         }

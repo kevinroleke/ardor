@@ -19,6 +19,7 @@ package nxt.http;
 import nxt.NxtException;
 import nxt.account.Account;
 import nxt.account.AccountPropertyDeleteAttachment;
+import nxt.account.AccountPropertyTransactionType;
 import nxt.blockchain.Attachment;
 import nxt.util.Convert;
 import org.json.simple.JSONStreamAware;
@@ -30,7 +31,8 @@ public final class DeleteAccountProperty extends CreateTransaction {
     static final DeleteAccountProperty instance = new DeleteAccountProperty();
 
     private DeleteAccountProperty() {
-        super(new APITag[] {APITag.ACCOUNTS, APITag.CREATE_TRANSACTION}, "recipient", "property", "setter");
+        super(AccountPropertyTransactionType.ACCOUNT_PROPERTY_DELETE, new APITag[] {APITag.ACCOUNTS, APITag.CREATE_TRANSACTION},
+                "recipient", "property", "setter");
     }
 
     @Override

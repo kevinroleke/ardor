@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class SetAliasCall extends CreateTransactionCallBuilder<SetAliasCall> {
+public class SetAliasCall extends CreateOneSideTransactionCallBuilder<SetAliasCall> {
     private SetAliasCall() {
         super(ApiSpec.setAlias);
     }

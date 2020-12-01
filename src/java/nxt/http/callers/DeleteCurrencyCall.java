@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class DeleteCurrencyCall extends CreateTransactionCallBuilder<DeleteCurrencyCall> {
+public class DeleteCurrencyCall extends CreateOneSideTransactionCallBuilder<DeleteCurrencyCall> {
     private DeleteCurrencyCall() {
         super(ApiSpec.deleteCurrency);
     }

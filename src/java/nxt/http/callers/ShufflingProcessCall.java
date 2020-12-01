@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class ShufflingProcessCall extends CreateTransactionCallBuilder<ShufflingProcessCall> {
+public class ShufflingProcessCall extends CreateOneSideTransactionCallBuilder<ShufflingProcessCall> {
     private ShufflingProcessCall() {
         super(ApiSpec.shufflingProcess);
     }
@@ -12,6 +12,14 @@ public class ShufflingProcessCall extends CreateTransactionCallBuilder<Shuffling
 
     public ShufflingProcessCall recipientSecretPhrase(String recipientSecretPhrase) {
         return param("recipientSecretPhrase", recipientSecretPhrase);
+    }
+
+    public ShufflingProcessCall recipientPublicKey(String recipientPublicKey) {
+        return param("recipientPublicKey", recipientPublicKey);
+    }
+
+    public ShufflingProcessCall recipientPublicKey(byte[] recipientPublicKey) {
+        return param("recipientPublicKey", recipientPublicKey);
     }
 
     public ShufflingProcessCall shufflingFullHash(String shufflingFullHash) {

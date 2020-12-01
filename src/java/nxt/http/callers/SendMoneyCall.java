@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class SendMoneyCall extends CreateTransactionCallBuilder<SendMoneyCall> {
+public class SendMoneyCall extends CreateTwoSidesTransactionCallBuilder<SendMoneyCall> {
     private SendMoneyCall() {
         super(ApiSpec.sendMoney);
     }

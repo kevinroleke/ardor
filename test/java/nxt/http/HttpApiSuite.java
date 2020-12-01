@@ -32,7 +32,9 @@ import org.junit.runners.Suite;
         APIRemoteConnectorTest.class,
         BundleTransactionsTest.class,
         GetAskOrdersTest.class,
-        MockedRequestTest.class
+        MockedRequestTest.class,
+        APIHandlerParametersTest.class,
+        CreateTransactionTest.class
 })
 public class HttpApiSuite extends AbstractHttpApiSuite {
 }

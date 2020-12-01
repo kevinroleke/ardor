@@ -127,6 +127,16 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                         -65, -75, 6, -41, 36, 125, -64, -100, -50, 93, -67, -39, -41, -83, 18, -105,
                         109, 82, -70, -75, -109, 20, 64, 45, -116, -42, 105, -56, -42, 21, -123, -58
                 });
+        map.put(Constants.CHECKSUM_BLOCK_6, Constants.isTestnet ?
+                new byte[] {
+                        -60, 114, -46, -71, 57, -36, 77, 4, -101, 88, -100, -95, 54, 85, -108, 7,
+                        107, -52, -18, -87, -60, -111, -77, 6, -76, -125, 29, 115, 116, 50, -66, 67
+                }
+                :
+                new byte[] {
+                        2, -114, 84, 75, 91, 51, 108, 31, 25, 46, 43, -120, -23, -85, -122, 82,
+                        -97, 1, 108, 7, -82, -116, 20, 111, 76, -22, 3, -34, -97, 84, 68, 105
+                });
         checksums = Collections.unmodifiableNavigableMap(map);
     }
 
@@ -149,6 +159,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     private final List<DerivedDbTable> derivedTables = new CopyOnWriteArrayList<>();
     private final boolean trimDerivedTables = Nxt.getBooleanProperty("nxt.trimDerivedTables");
     private final boolean simulateEndlessDownload = Nxt.getBooleanProperty("nxt.simulateEndlessDownload");
+    private final int trimFrequency;
+    private final int trimHeightOffset;
 
     private int initialScanHeight;
     private volatile int lastTrimHeight;
@@ -935,18 +947,21 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
     };
 
     private BlockchainProcessorImpl() {
-        final int trimFrequency = Nxt.getIntProperty("nxt.trimFrequency");
+        trimFrequency = Nxt.getIntProperty("nxt.trimFrequency");
+        trimHeightOffset = Crypto.getSecureRandom().nextInt(trimFrequency);
+        Logger.logInfoMessage("trimHeightOffset=" + trimHeightOffset);
+
         blockListeners.addListener(block -> {
             if (block.getHeight() % 5000 == 0) {
                 Logger.logMessage("processed block " + block.getHeight());
             }
-            if (trimDerivedTables && block.getHeight() % trimFrequency == 0) {
+            if (trimDerivedTables && isTrimHeight(block.getHeight())) {
                 doTrimDerivedTables();
             }
         }, Event.BLOCK_SCANNED);
 
         blockListeners.addListener(block -> {
-            if (trimDerivedTables && block.getHeight() % trimFrequency == 0 && !isTrimming) {
+            if (trimDerivedTables && !isTrimming && isTrimHeight(block.getHeight())) {
                 isTrimming = true;
                 networkService.submit(() -> {
                     try {
@@ -1023,6 +1038,10 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
             });
         }
 
+    }
+
+    private boolean isTrimHeight(int height) {
+        return height % trimFrequency == trimHeightOffset;
     }
 
     @Override

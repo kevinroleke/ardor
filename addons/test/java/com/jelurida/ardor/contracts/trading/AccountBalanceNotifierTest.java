@@ -147,8 +147,7 @@ public class AccountBalanceNotifierTest extends AbstractContractTest {
                 .asset(assetId)
                 .quantityQNT(1_000 * 100_000_000L - 100L)
                 .feeNQT(IGNIS.ONE_COIN)
-                .build()
-                .invokeNoError();
+                .callNoError();
     }
 
     private void sendCoinToBob(Tester tester, ChildChain chain) {
@@ -157,8 +156,7 @@ public class AccountBalanceNotifierTest extends AbstractContractTest {
                 .secretPhrase(tester.getSecretPhrase())
                 .amountNQT(tester.getChainBalance(chain.getId()) - 2 * chain.ONE_COIN)
                 .recipient(BOB.getId())
-                .build()
-                .invokeNoError();
+                .callNoError();
     }
 
     private void setRunnerConfig(JO botConfig) {

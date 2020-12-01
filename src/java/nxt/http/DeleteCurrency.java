@@ -21,6 +21,7 @@ import nxt.account.Account;
 import nxt.blockchain.Attachment;
 import nxt.ms.Currency;
 import nxt.ms.CurrencyDeletionAttachment;
+import nxt.ms.MonetarySystemTransactionType;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,7 +31,8 @@ public final class DeleteCurrency extends CreateTransaction {
     static final DeleteCurrency instance = new DeleteCurrency();
 
     private DeleteCurrency() {
-        super(new APITag[] {APITag.MS, APITag.CREATE_TRANSACTION}, "currency");
+        super(MonetarySystemTransactionType.CURRENCY_DELETION, new APITag[] {APITag.MS, APITag.CREATE_TRANSACTION},
+                "currency");
     }
 
     @Override

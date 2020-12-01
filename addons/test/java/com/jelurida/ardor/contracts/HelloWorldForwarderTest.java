@@ -38,7 +38,9 @@ public class HelloWorldForwarderTest extends AbstractContractTest {
                 a -> true, 4000000L,
                 ALICE, CHUCK, triggerFullHash);
         // Load the attached message
-        JO prunableMessageResponse = GetPrunableMessageCall.create(2).transactionFullHash(childTransaction.getFullHash()).call();
+        JO prunableMessageResponse = GetPrunableMessageCall.create(2)
+                .transactionFullHash(childTransaction.getFullHash())
+                .callNoError();
         JO contractResponse = JO.parse(prunableMessageResponse.getString("message"));
         Assert.assertEquals("Hi", contractResponse.getString("text"));
     }
@@ -64,10 +66,15 @@ public class HelloWorldForwarderTest extends AbstractContractTest {
     public void dataReturnedByGetSupportedContracts() {
         String contractName = ContractTestHelper.deployContract(HelloWorldForwarder.class);
         sendTriggerMessage(contractName);
-        JO contractsResponse = GetSupportedContractsCall.create().call();
+        JO contractsResponse = GetSupportedContractsCall.create().callNoError();
         JA contracts = contractsResponse.getArray("supportedContracts");
         Assert.assertEquals(1, contracts.size());
-        JO contract = contracts.objects().stream().filter(jo -> jo.getString("name").equals("HelloWorldForwarder")).map(jo -> jo.getJo("contract")).findFirst().get();
+        JO contract = contracts.objects()
+                .stream()
+                .filter(jo -> jo.getString("name").equals("HelloWorldForwarder"))
+                .map(jo -> jo.getJo("contract"))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("HelloWorldForwarder contract not found"));
         JA invocationParams = contract.getArray("supportedInvocationParams");
         Assert.assertEquals(2, invocationParams.size());
         JA validationAnnotations = contract.getArray("validityChecks");

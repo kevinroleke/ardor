@@ -17,6 +17,7 @@
 package nxt;
 
 import nxt.account.Account;
+import nxt.addons.JO;
 import nxt.blockchain.Chain;
 import nxt.blockchain.ChildChain;
 import nxt.blockchain.FxtChain;
@@ -94,8 +95,16 @@ public class Tester {
         return responseToStringId(transaction, "fullHash");
     }
 
+    public static String responseToStringId(JO transaction) {
+        return responseToStringId(transaction, "fullHash");
+    }
+
     public static String responseToStringId(JSONObject response, String attr) {
         return hexFullHashToStringId((String)response.get(attr));
+    }
+
+    public static String responseToStringId(JO response, String attr) {
+        return hexFullHashToStringId(response.getString(attr));
     }
 
     public static String hexFullHashToStringId(String fullHash) {

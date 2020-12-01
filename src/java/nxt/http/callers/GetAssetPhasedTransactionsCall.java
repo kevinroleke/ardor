@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetAssetPhasedTransactionsCall extends APICall.Builder<GetAssetPhasedTransactionsCall> {
+public class GetAssetPhasedTransactionsCall extends ChainSpecificCallBuilder<GetAssetPhasedTransactionsCall> {
     private GetAssetPhasedTransactionsCall() {
         super(ApiSpec.getAssetPhasedTransactions);
     }

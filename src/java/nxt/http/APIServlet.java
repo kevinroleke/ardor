@@ -22,6 +22,7 @@ import nxt.NxtException;
 import nxt.addons.AddOns;
 import nxt.blockchain.Chain;
 import nxt.blockchain.ChildChain;
+import nxt.blockchain.TransactionType;
 import nxt.dbschema.Db;
 import nxt.util.JSON;
 import nxt.util.Logger;
@@ -56,21 +57,22 @@ public final class APIServlet extends HttpServlet {
 
     public abstract static class APIRequestHandler {
 
+        private final List<TransactionType> transactionTypes;
         private final List<String> parameters;
         private final List<String> fileParameters;
         private final Set<APITag> apiTags;
         private final String docsUrlPath;
 
         protected APIRequestHandler(APITag[] apiTags, String... parameters) {
-            this(Collections.emptyList(), apiTags, parameters);
+            this(Collections.emptyList(), Collections.emptyList(), apiTags, parameters);
         }
 
         protected APIRequestHandler(String fileParameter, APITag[] apiTags, String... origParameters) {
-            this(fileParameter == null ? Collections.emptyList() : Collections.singletonList(fileParameter),
+            this(Collections.emptyList(), fileParameter == null ? Collections.emptyList() : Collections.singletonList(fileParameter),
                     apiTags, origParameters);
         }
 
-        protected APIRequestHandler(List<String> fileParameters, APITag[] apiTags, String... origParameters) {
+        protected APIRequestHandler(List<TransactionType> transactionTypes, List<String> fileParameters, APITag[] apiTags, String... origParameters) {
             List<String> parameters = new ArrayList<>();
             if (isChainSpecific()) {
                 parameters.add("chain");
@@ -90,6 +92,7 @@ public final class APIServlet extends HttpServlet {
                 parameters.add("sharedPiece");
                 parameters.add("sharedPiece");
             }
+            this.transactionTypes = Collections.unmodifiableList(transactionTypes);
             this.parameters = Collections.unmodifiableList(parameters);
             this.apiTags = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(apiTags)));
             this.fileParameters = Collections.unmodifiableList(fileParameters);
@@ -173,6 +176,19 @@ public final class APIServlet extends HttpServlet {
             return docsUrlPath;
         }
 
+        /**
+         * Some API calls (i.e. CreateTransaction subclasses) create transactions. This method returns the
+         * list of possible transactions types created by this API call.
+         *
+         * @return the list of transaction types that this API call can create
+         */
+        protected List<TransactionType> getCreateTransactionTypes() {
+            return transactionTypes;
+        }
+
+        protected boolean canHaveRecipient() {
+            return CreateTransaction.canHaveRecipient(transactionTypes);
+        }
     }
 
     private static final boolean enforcePost = Nxt.getBooleanProperty("nxt.apiServerEnforcePOST");
@@ -271,6 +287,7 @@ public final class APIServlet extends HttpServlet {
     }
 
 
+    @SuppressWarnings("unchecked")
     private void process(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         // Set response values now in case we create an asynchronous context
         resp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate, private");

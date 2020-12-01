@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetPrunableMessagesCall extends APICall.Builder<GetPrunableMessagesCall> {
+public class GetPrunableMessagesCall extends ChainSpecificCallBuilder<GetPrunableMessagesCall> {
     private GetPrunableMessagesCall() {
         super(ApiSpec.getPrunableMessages);
     }

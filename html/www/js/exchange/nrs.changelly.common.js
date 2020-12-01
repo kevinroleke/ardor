@@ -88,6 +88,7 @@ NRS.onSiteBuildDone().then(() => {
                             return;
                         }
                     }
+                    //NRS.logConsole(`Exchange api call response: ${JSON.stringify(response)} method: ${method} post data: ${postData}`);
                     doneCallback(response);
                 }).fail(function (xhr, textStatus, error) {
                     const message = `Request failed, method ${method} status ${textStatus} error ${error}`;
@@ -175,8 +176,10 @@ NRS.onSiteBuildDone().then(() => {
 
         NRS.changelly.renderExchangeTable = function (exchange, op, apiCall) {
             const table = $(`#p_${exchange}_${op}_nxt`);
+            const RATE_CALCULATION_MULTIPLIER = 1.1;
             table.find("tbody").empty();
             table.parent().addClass("data-loading").removeClass("data-empty");
+            let minAmounts = {};
             // We execute the getMinAmount and getExchangeAmount APIs one after the other, then render the results provided
             // by both into a single table. Note that both APIs accept multiple trading pairs.
             async.waterfall([
@@ -193,14 +196,19 @@ NRS.onSiteBuildDone().then(() => {
                     apiCall('getMinAmount', pairs, response => callback(response.error, response));
                 },
                 function (getMinAmountResponse, callback) {
-                    // In the absence of better data we set the expected amount to "1" coin
+                    let successfulMinAmounts = getMinAmountResponse.result.filter(result => !result.error);
+                    successfulMinAmounts.forEach(function (item) {
+                        minAmounts[item.from.toUpperCase() + "_" + item.to.toUpperCase()] = item.minAmount;
+                    });
+                    // In the absence of better data we set the expected amount to the min amount multiplied
+                    //  by RATE_CALCULATION_MULTIPLIER
                     // Once the amount is known in the modals we provide more accurate rate calculation
-                    const pairs = getMinAmountResponse.result.map(result => ({
+                    const pairs = successfulMinAmounts.map(result => ({
                         from  : result.from,
                         to    : result.to,
-                        amount: result.minAmount
+                        amount: result.minAmount * RATE_CALCULATION_MULTIPLIER
                     }));
-                    apiCall('getExchangeAmount', pairs, response => callback(null, response.result));
+                    apiCall('getExchangeAmount', pairs, response => callback(response.error, response.result));
                 }
             ], function (err, exchangeAmountResults) {
                 if (err) {
@@ -212,6 +220,7 @@ NRS.onSiteBuildDone().then(() => {
                     const result = exchangeAmountResults[i];
                     result.from = result.from.toUpperCase();
                     result.to = result.to.toUpperCase();
+                    const minAmount = minAmounts[result.from + "_" + result.to];
                     let rate = new Big(result.result).div(new Big(result.amount)).toFixed(8);
                     let symbol;
                     if (op === 'sell') {
@@ -223,11 +232,11 @@ NRS.onSiteBuildDone().then(() => {
                     }
                     rows += `<tr>
                          <td>${symbol}</td>
-                         <td><span>${String(result.amount).escapeHTML()}</span>&nbsp[<span>${result.from}</span>]</td>
+                         <td><span>${String(minAmount).escapeHTML()}</span>&nbsp[<span>${result.from}</span>]</td>
                          <td>${String(rate).escapeHTML()}</td>
                          <td><a href='#' class='btn btn-xs btn-default' data-toggle='modal' 
                          data-target='#${exchange}_${op}_modal' data-from='${result.from}' data-to='${result.to}' 
-                         data-rate='${rate}' data-min='${result.amount}'>${$.t("buy")} ${result.to}</a></td>
+                         data-rate='${rate}' data-min='${minAmount}'>${$.t("buy")} ${result.to}</a></td>
                          </tr>`;
                 }
                 table.find("tbody").empty().append(rows);
@@ -311,36 +320,31 @@ NRS.onSiteBuildDone().then(() => {
                 const invoker = $(e.relatedTarget);
                 const from = invoker.data("from");
                 const to = invoker.data("to");
+                const defaultRate = invoker.data("rate");
                 NRS.logConsole(`modal invoked from ${from} to ${to}`);
+                $(this).data("exchange", exchange);
+                $(this).data("defaultRate", defaultRate);
+                $(this).find("[name=recipient]").val("");
                 $(`#${exchange}_buy_from`).val(from);
                 $(`#${exchange}_buy_to`).val(to);
                 $(`#${exchange}_buy_title`).html($.t("exchange_crypto", { from: from, to: to }));
                 $(`#${exchange}_buy_min`).val(invoker.data("min"));
                 $(`#${exchange}_buy_min_coin`).html(NRS.getActiveChainName());
-                $(`#${exchange}_buy_rate`).val(new Big(invoker.data("rate")).toFixed(8));
+                $(`#${exchange}_buy_rate`).val(new Big(defaultRate).toFixed(8));
                 $(`#${exchange}_buy_rate_text`).html(to + " " + $.t("per") + " " + NRS.getActiveChainName());
                 $(`#${exchange}_buy_estimated_amount`).val("");
-                $(`#${exchange}_buy_estimated_amount_text`).html(to);
+                $(`.${exchange}_buy_estimated_amount_text`).html(to);
                 $(`#${exchange}_withdrawal_address_coin`).html(to);
             };
         };
 
-        NRS.changelly.getOnBuySubmitCallback = function (exchange, apiCall, TRANSACTIONS_KEY) {
-            return function (e) {
-                e.preventDefault();
-                const $modal = $(this).closest(".modal");
-                const $btn = NRS.lockForm($modal);
+        NRS.changelly.getExchangeTransactionDetails = function(exchange) {
+            return new Promise((resolutionFunc, rejectionFunc) => {
+                const apiCall = NRS.changelly.generateApiCall(exchange);
                 const amountNXT = $(`#${exchange}_buy_amount`).val();
-                const minAmount = $(`#${exchange}_buy_min`).val();
-                if (parseFloat(amountNXT) <= parseFloat(minAmount)) {
-                    NRS.showModalError($.t('amount_should_be_greater', {min:minAmount}), $modal);
-                    return;
-                }
-                const amountNQT = NRS.convertToNQT(amountNXT);
                 const withdrawal = $(`#${exchange}_buy_withdrawal_address`).val();
                 const from = $(`#${exchange}_buy_from`).val();
                 const to = $(`#${exchange}_buy_to`).val();
-                NRS.logConsole(`changehero withdrawal to address ${withdrawal} coin ${to}`);
                 apiCall('createTransaction', {
                     from: from,
                     to: to,
@@ -349,35 +353,55 @@ NRS.onSiteBuildDone().then(() => {
                 }, function (data) {
                     if (data.error) {
                         NRS.logConsole(`${exchange} createTransaction error ${data.error.code} ${data.error.message}`);
-                        return;
+                        rejectionFunc(data.error);
+                    } else {
+                        resolutionFunc(data.result);
                     }
-                    const depositAddress = data.result.payinAddress;
-                    if (!depositAddress) {
-                        const msg = `${exchange} did not return a deposit address for id ${data.result.id}`;
-                        NRS.logConsole(msg);
-                        NRS.showModalError(msg, $modal);
-                        return;
-                    }
-                    addTransaction(data.result.id, TRANSACTIONS_KEY);
-                    NRS.logConsole(NRS.getActiveChainName() + " deposit address " + depositAddress);
-                    NRS.sendRequest("sendMoney", {
-                        recipient: depositAddress,
-                        amountNQT: amountNQT,
-                        secretPhrase: $(`#${exchange}_buy_password`).val(),
-                        feeNXT: $(`#${exchange}_buy_fee`).val(),
-                        deadline: "15"
-                    }, function (response) {
-                        if (response.errorCode) {
-                            NRS.logConsole(`sendMoney response ${response.errorCode} ${response.errorDescription.escapeHTML()}`);
-                            NRS.showModalError(NRS.translateServerError(response), $modal);
-                            return;
-                        }
-                        NRS.changelly.renderMyExchangesTable(TRANSACTIONS_KEY, apiCall, exchange);
-                        $(`#${exchange}_buy_passpharse`).val("");
-                        NRS.unlockForm($modal, $btn, true);
-                    });
-                }, true, $modal);
-            };
+                });
+            });
+        };
+
+        NRS.forms.sendMoneyToExchange = async ($modal) => {
+            const $recipientField = $modal.find('[name=recipient]');
+            const $addMessageField = $modal.find('[name=add_message]');
+            const $messageField = $modal.find('[name=message]');
+            const exchange = $modal.data("exchange");
+            let resultId;
+            
+            await NRS.changelly.getExchangeTransactionDetails(exchange).then((result) => {
+                $recipientField.val(result.payinAddress);
+                if (result.payinExtraId) {
+                    $addMessageField.val("true");
+                    $messageField.val(result.payinExtraId);
+                } else {
+                    $addMessageField.val("");
+                }
+                resultId = result.id;
+            }, (error) => {
+                NRS.showModalError(error.message, $modal);
+                throw new Error(error.message);
+            });
+            let data = NRS.getFormData($modal.find("form:first"));
+            data["_extra"] = {exchange, resultId};
+            return {
+                "requestType": "sendMoney",
+                "data": data
+            }
+        };
+
+        NRS.forms.sendMoneyToExchangeComplete = (response, data) => {
+            if(!response.errorCode) {
+                const exchange = data["_extra"].exchange;
+                const resultId = data["_extra"].resultId;
+                const TRANSACTIONS_KEY = `${exchange}.transactions`;
+                const depositAddress = data.recipientRS;
+                const apiCall = NRS.changelly.generateApiCall(exchange);
+            
+                addTransaction(resultId, TRANSACTIONS_KEY);
+                NRS.logConsole(NRS.getActiveChainName() + " deposit address " + depositAddress);
+                NRS.changelly.renderMyExchangesTable(TRANSACTIONS_KEY, apiCall, exchange);
+                $(`#${exchange}_buy_passpharse`).val("");
+            }
         };
 
         function addTransaction(id, TRANSACTIONS_KEY) {
@@ -410,8 +434,12 @@ NRS.onSiteBuildDone().then(() => {
                 const from = $(`#${exchange}_buy_from`).val();
                 const to = $(`#${exchange}_buy_to`).val();
                 const $estimatedAmount = $(`#${exchange}_buy_estimated_amount`);
+                const $amountToReceive = $(`#${exchange}_buy_amount_to_receive`);
+                const $networkFee = $(`#${exchange}_buy_network_fee`);
+                const $rate = $(`#${exchange}_buy_rate`);
                 if (!amount) {
                     $estimatedAmount.val("");
+                    $rate.val(new Big($modal.data("defaultRate")).toFixed(8));
                     return;
                 }
                 const coinAmount = new Big(amount);
@@ -423,17 +451,26 @@ NRS.onSiteBuildDone().then(() => {
                 }
                 $modal.find(".error_message").html("").hide();
                 $modal.css('cursor', 'wait');
-                apiCall('getExchangeAmount', {
+                apiCall('getExchangeAmount', [{
                     amount: amount,
                     from: from,
                     to: to
-                }, function (response) {
+                }], function (response) {
                     if (response.error) {
                         $estimatedAmount.val("");
                         $modal.css('cursor', 'default');
                         return;
                     }
-                    $estimatedAmount.val(new Big(response.result).toFixed(8));
+                    let result = response.result[0];
+                    $estimatedAmount.val(new Big(result.result).toFixed(8));
+                    if (result.networkFee) {
+                        $networkFee.val(new Big(result.networkFee).toFixed(8));
+                        $amountToReceive.val(new Big(result.result).minus(new Big(result.networkFee)).toFixed(8));
+                    } else {
+                        $networkFee.val("0");
+                        $amountToReceive.val($estimatedAmount);
+                    }
+                    $rate.val(new Big(result.result).div(new Big(amount)).toFixed(8));
                     $modal.css('cursor', 'default');
                 });
             };
@@ -446,21 +483,25 @@ NRS.onSiteBuildDone().then(() => {
                 const to = invoker.data("to");
                 const rate = invoker.data("rate");
                 const min = invoker.data("min");
+                let defaultRate;
                 NRS.logConsole(`sell modal exchange from ${from} to ${to}`);
                 $(`#${exchange}_sell_title`).html($.t("exchange_crypto", { from: from, to: to }));
                 $(`#${exchange}_sell_qr_code`).html("");
                 if (min && rate) {
                     $(`#${exchange}_sell_min`).val(min);
                     $(`#${exchange}_sell_rate`).val(rate);
+                    defaultRate = rate;
                 } else {
                     apiCall("getMinAmount", { from: from, to: to }, function (getMinAmountResponse) {
                         $(`#${exchange}_sell_min`).val(getMinAmountResponse.result);
                         apiCall("getExchangeAmount", { from: from, to: to, amount: getMinAmountResponse.result }, function (response) {
                             const sellRate = NRS.getInverse(new Big(response.result).div(new Big(getMinAmountResponse.result)).toFixed(8));
                             $(`#${exchange}_sell_rate`).val(sellRate);
+                            defaultRate = rate;
                         });
                     });
                 }
+                $(this).data("defaultRate", defaultRate);
                 $(`#${exchange}_sell_min_coin`).html(from);
                 $(`#${exchange}_sell_rate_text`).html(from + " " + $.t("per") + " " + NRS.getActiveChainName());
                 $(`#${exchange}_sell_amount_text`).html(from);
@@ -477,9 +518,11 @@ NRS.onSiteBuildDone().then(() => {
                 const from = $(`#${exchange}_sell_from`).val();
                 const to = $(`#${exchange}_sell_to`).val();
                 const $estimatedAmount = $(`#${exchange}_sell_estimated_amount`);
+                const $rate = $(`#${exchange}_sell_rate`);
                 const depositAddress = $(`#${exchange}_sell_deposit_address`).html();
                 if (!amount) {
                     $estimatedAmount.val("");
+                    $rate.val(new Big($modal.data("defaultRate")).toFixed(8));
                     NRS.generateQRCode(`#${exchange}_sell_qr_code`, depositAddress);
                     return;
                 }
@@ -521,16 +564,30 @@ NRS.onSiteBuildDone().then(() => {
                         NRS.showModalError(msg, $modal);
                         return;
                     }
-                    const depositAddress = data.result.payinAddress;
+                    let result = data.result;
+                    const depositAddress = result.payinAddress;
                     if (!depositAddress) {
-                        const msg = `${exchange} did not return a deposit address for id ${data.result.id}`;
+                        const msg = `${exchange} did not return a deposit address for id ${result.id}`;
                         NRS.logConsole(msg);
                         NRS.showModalError(msg, $modal);
                         return;
                     }
+
+                    if (result.payinExtraId) {
+                        $(`#${exchange}_sell_deposit_message`).closest(".row").show();
+                        $(`#${exchange}_sell_deposit_message`).html(result.payinExtraId);
+                        let params = {
+                            exchange: $.t(exchange),
+                            message_name: $.t("exchange_default_message_name")
+                        }
+                        $(`label[for=${exchange}_sell_deposit_message]`).html($.t("deposit_message", params));
+                        $(`#${exchange}_sell_deposit_message_warning`).html($.t("exchange_deposit_message_warning", params));
+                    } else {
+                        $(`#${exchange}_sell_deposit_message`).closest(".row").hide();
+                    }
                     NRS.logConsole(`${from} deposit address ${depositAddress}`);
                     $(`#${exchange}_sell_deposit_address`).html(depositAddress);
-                    addTransaction(data.result.id, TRANSACTIONS_KEY);
+                    addTransaction(result.id, TRANSACTIONS_KEY);
                     apiCall('getExchangeAmount', {
                         amount: amount,
                         from: from,
@@ -543,6 +600,7 @@ NRS.onSiteBuildDone().then(() => {
                             return;
                         }
                         $estimatedAmount.val(response.result);
+                        $rate.val(NRS.getInverse(new Big(response.result).div(new Big(amount)).toFixed(8)));
                         NRS.generateQRCode(`#${exchange}_sell_qr_code`, "bitcoin:" + depositAddress + "?amount=" + amount);
                         $modal.css('cursor', 'default');
                     });

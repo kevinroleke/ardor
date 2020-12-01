@@ -16,15 +16,16 @@
 package nxt.http.client;
 
 import nxt.Tester;
-import nxt.blockchain.ChildChain;
-import nxt.http.APICall;
-import org.json.simple.JSONObject;
+import nxt.addons.JO;
+import nxt.http.callers.IssueAssetCall;
+
+import static nxt.blockchain.ChildChain.IGNIS;
 
 public class IssueAssetBuilder {
 
     public static final int ASSET_QNT = 10000000;
     public static final int ASSET_DECIMALS = 4;
-    public static final long ASSET_ISSUE_FEE_NQT = 1000 * ChildChain.IGNIS.ONE_COIN;
+    public static final long ASSET_ISSUE_FEE_NQT = 1000 * IGNIS.ONE_COIN;
 
     private final String secretPhrase;
     private final String name;
@@ -43,20 +44,16 @@ public class IssueAssetBuilder {
         return new IssueAssetResult(invokeNoErr());
     }
 
-    private JSONObject invokeNoErr() {
-        return build().invokeNoError();
-    }
-
-    private APICall build() {
-        return new APICall.Builder<>("issueAsset")
-                .param("secretPhrase", secretPhrase)
-                .param("name", name)
-                .param("description", description)
-                .param("quantityQNT", quantityQNT)
-                .param("decimals", decimals)
-                .param("feeNQT", feeNQT)
-                .param("deadline", deadline)
-                .build();
+    private JO invokeNoErr() {
+        return IssueAssetCall.create(IGNIS.getId())
+                .secretPhrase(secretPhrase)
+                .name(name)
+                .description(description)
+                .quantityQNT(quantityQNT)
+                .decimals(decimals)
+                .feeNQT(feeNQT)
+                .deadline(deadline)
+                .callNoError();
     }
 
     public IssueAssetBuilder setDescription(String description) {
@@ -85,9 +82,9 @@ public class IssueAssetBuilder {
     }
 
     public static class IssueAssetResult {
-        private final JSONObject jsonObject;
+        private final JO jsonObject;
 
-        IssueAssetResult(JSONObject jsonObject) {
+        IssueAssetResult(JO jsonObject) {
             this.jsonObject = jsonObject;
         }
 

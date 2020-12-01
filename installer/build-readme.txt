@@ -1,6 +1,6 @@
 Building the NXT installer
 
-Note: all pathes are relative to the git repository folder (nxt-private)
+Note: all paths are relative to the git repository folder (nxt-private)
 
 Pre-requisites for both Unix and Windows
 ========================================

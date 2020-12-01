@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class BundleTransactionsCall extends CreateTransactionCallBuilder<BundleTransactionsCall> {
+public class BundleTransactionsCall extends CreateOneSideTransactionCallBuilder<BundleTransactionsCall> {
     private BundleTransactionsCall() {
         super(ApiSpec.bundleTransactions);
     }

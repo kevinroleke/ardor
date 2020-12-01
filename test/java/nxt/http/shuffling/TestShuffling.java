@@ -19,11 +19,11 @@ package nxt.http.shuffling;
 import nxt.BlockchainTest;
 import nxt.Nxt;
 import nxt.RequireNonePermissionPolicyTestsCategory;
+import nxt.addons.JA;
 import nxt.addons.JO;
 import nxt.blockchain.ChildChain;
 import nxt.shuffling.ShufflingStage;
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -53,6 +53,7 @@ import static nxt.http.shuffling.ShufflingUtil.shufflingCurrency;
 import static nxt.http.shuffling.ShufflingUtil.verify;
 
 
+@SuppressWarnings("DuplicateExpressions")
 @Category(RequireNonePermissionPolicyTestsCategory.class)
 public class TestShuffling extends BlockchainTest {
 
@@ -133,8 +134,8 @@ public class TestShuffling extends BlockchainTest {
 
     @Test
     public void successfulAssetShuffling() {
-        JSONObject shufflingCreate = createAssetShuffling(ALICE);
-        String shufflingFullHash = (String)shufflingCreate.get("fullHash");
+        JO shufflingCreate = createAssetShuffling(ALICE);
+        String shufflingFullHash = shufflingCreate.getString("fullHash");
         generateBlock();
         register(shufflingFullHash, BOB);
         generateBlock();
@@ -217,8 +218,8 @@ public class TestShuffling extends BlockchainTest {
 
     @Test
     public void successfulCurrencyShuffling() {
-        JSONObject shufflingCreate = createCurrencyShuffling(ALICE);
-        String shufflingFullHash = (String)shufflingCreate.get("fullHash");
+        JO shufflingCreate = createCurrencyShuffling(ALICE);
+        String shufflingFullHash = shufflingCreate.getString("fullHash");
         generateBlock();
         register(shufflingFullHash, BOB);
         generateBlock();
@@ -333,8 +334,8 @@ public class TestShuffling extends BlockchainTest {
 
     @Test
     public void registrationNotFinishedAsset() {
-        JSONObject shufflingCreate = createAssetShuffling(ALICE);
-        String shufflingFullHash = (String)shufflingCreate.get("fullHash");
+        JO shufflingCreate = createAssetShuffling(ALICE);
+        String shufflingFullHash = shufflingCreate.getString("fullHash");
         generateBlock();
         register(shufflingFullHash, BOB);
         for (int i = 0; i < 9; i++) {
@@ -412,8 +413,8 @@ public class TestShuffling extends BlockchainTest {
 
     @Test
     public void processingNotStartedCurrency() {
-        JSONObject shufflingCreate = createCurrencyShuffling(ALICE);
-        String shufflingFullHash = (String)shufflingCreate.get("fullHash");
+        JO shufflingCreate = createCurrencyShuffling(ALICE);
+        String shufflingFullHash = shufflingCreate.getString("fullHash");
         generateBlock();
         register(shufflingFullHash, BOB);
         generateBlock();
@@ -808,11 +809,11 @@ public class TestShuffling extends BlockchainTest {
         String shufflingStateHash = (String)getShufflingResponse.get("shufflingStateHash");
         verify(shufflingFullHash, ALICE, shufflingStateHash);
         verify(shufflingFullHash, BOB, shufflingStateHash);
-        JSONObject cancelResponse = cancel(shufflingFullHash, CHUCK, shufflingStateHash, 0, false);
-        JSONObject transactionJSON = (JSONObject)cancelResponse.get("transactionJSON");
-        JSONArray keySeeds = (JSONArray)((JSONObject)transactionJSON.get("attachment")).get("keySeeds");
-        String s = (String)keySeeds.get(0);
-        keySeeds.set(0, "0000000000" + s.substring(10));
+        JO cancelResponse = cancel(shufflingFullHash, CHUCK, shufflingStateHash, 0, false);
+        JO transactionJSON = cancelResponse.getJo("transactionJSON");
+        JA keySeeds = transactionJSON.getJo("attachment").getArray("keySeeds");
+        String s = (String)keySeeds.getObject(0);
+        keySeeds.setString(0, "0000000000" + s.substring(10));
         broadcast(transactionJSON, CHUCK);
         generateBlock();
         getShufflingResponse = getShuffling(shufflingFullHash);
@@ -898,11 +899,11 @@ public class TestShuffling extends BlockchainTest {
         shufflingStateHash = (String)getShufflingResponse.get("shufflingStateHash");
         shufflingAssignee = (String) getShufflingResponse.get("assignee");
         Assert.assertEquals(Long.toUnsignedString(CHUCK.getId()), shufflingAssignee);
-        JSONObject cancelResponse = cancel(shufflingFullHash, ALICE, shufflingStateHash, CHUCK.getId(), false);
-        JSONObject transactionJSON = (JSONObject)cancelResponse.get("transactionJSON");
-        JSONArray keySeeds = (JSONArray)((JSONObject)transactionJSON.get("attachment")).get("keySeeds");
-        String s = (String)keySeeds.get(0);
-        keySeeds.set(0, "0000000000" + s.substring(10));
+        JO cancelResponse = cancel(shufflingFullHash, ALICE, shufflingStateHash, CHUCK.getId(), false);
+        JO transactionJSON = cancelResponse.getJo("transactionJSON");
+        JA keySeeds = transactionJSON.getJo("attachment").getArray("keySeeds");
+        String s = (String)keySeeds.getObject(0);
+        keySeeds.setString(0, "0000000000" + s.substring(10));
         broadcast(transactionJSON, ALICE);
         generateBlock();
         cancel(shufflingFullHash, BOB, shufflingStateHash, CHUCK.getId());
@@ -983,11 +984,11 @@ public class TestShuffling extends BlockchainTest {
         shufflingStateHash = (String)getShufflingResponse.get("shufflingStateHash");
         shufflingAssignee = (String) getShufflingResponse.get("assignee");
         Assert.assertEquals(Long.toUnsignedString(CHUCK.getId()), shufflingAssignee);
-        JSONObject cancelResponse = cancel(shufflingFullHash, ALICE, shufflingStateHash, CHUCK.getId(), false);
-        JSONObject transactionJSON = (JSONObject)cancelResponse.get("transactionJSON");
-        JSONArray keySeeds = (JSONArray)((JSONObject)transactionJSON.get("attachment")).get("keySeeds");
-        String s = (String)keySeeds.get(1);
-        keySeeds.set(1, "0000000000" + s.substring(10));
+        JO cancelResponse = cancel(shufflingFullHash, ALICE, shufflingStateHash, CHUCK.getId(), false);
+        JO transactionJSON = cancelResponse.getJo("transactionJSON");
+        JA keySeeds = transactionJSON.getJo("attachment").getArray("keySeeds");
+        String s = (String)keySeeds.getObject(1);
+        keySeeds.setString(1, "0000000000" + s.substring(10));
         broadcast(transactionJSON, ALICE);
         generateBlock();
         cancel(shufflingFullHash, BOB, shufflingStateHash, CHUCK.getId());
@@ -1048,11 +1049,11 @@ public class TestShuffling extends BlockchainTest {
         String shufflingAssignee = (String) getShufflingResponse.get("assignee");
         Assert.assertEquals(Long.toUnsignedString(ALICE.getId()), shufflingAssignee);
 
-        JSONObject processResponse = process(shufflingFullHash, ALICE, ALICE_RECIPIENT, false);
-        JSONObject transactionJSON = (JSONObject)processResponse.get("transactionJSON");
-        JSONArray data = (JSONArray)((JSONObject)transactionJSON.get("attachment")).get("data");
-        String s = (String)data.get(0);
-        data.set(0, "8080808080" + s.substring(10));
+        JO processResponse = process(shufflingFullHash, ALICE, ALICE_RECIPIENT, false);
+        JO transactionJSON = processResponse.getJo("transactionJSON");
+        JA data = transactionJSON.getJo("attachment").getArray("data");
+        String s = (String)data.getObject(0);
+        data.setString(0, "8080808080" + s.substring(10));
         broadcast(transactionJSON, ALICE);
         generateBlock();
         getShufflingResponse = getShuffling(shufflingFullHash);
@@ -1113,11 +1114,11 @@ public class TestShuffling extends BlockchainTest {
 
         process(shufflingFullHash, ALICE, ALICE_RECIPIENT);
         generateBlock();
-        JSONObject processResponse = process(shufflingFullHash, BOB, BOB_RECIPIENT, false);
-        JSONObject transactionJSON = (JSONObject)processResponse.get("transactionJSON");
-        JSONArray data = (JSONArray)((JSONObject)transactionJSON.get("attachment")).get("data");
-        String s = (String)data.get(0);
-        data.set(0, "8080808080" + s.substring(10));
+        JO processResponse = process(shufflingFullHash, BOB, BOB_RECIPIENT, false);
+        JO transactionJSON = processResponse.getJo("transactionJSON");
+        JA data = transactionJSON.getJo("attachment").getArray("data");
+        String s = data.getString(0);
+        data.setString(0, "8080808080" + s.substring(10));
         broadcast(transactionJSON, BOB);
         generateBlock();
         getShufflingResponse = getShuffling(shufflingFullHash);
@@ -1130,7 +1131,7 @@ public class TestShuffling extends BlockchainTest {
         Assert.assertEquals(Long.toUnsignedString(CHUCK.getId()), shufflingAssignee);
         String shufflingStateHash = (String)getShufflingResponse.get("shufflingStateHash");
         cancel(shufflingFullHash, ALICE, shufflingStateHash, CHUCK.getId());
-        JSONObject cancelResponse = cancel(shufflingFullHash, BOB, shufflingStateHash, CHUCK.getId());
+        JO cancelResponse = cancel(shufflingFullHash, BOB, shufflingStateHash, CHUCK.getId());
         boolean bobCancelFailed = cancelResponse.get("error") != null; // if he happened to modify his own piece
         for (int i = 0; i < 14; i++) {
             generateBlock();
@@ -1185,11 +1186,11 @@ public class TestShuffling extends BlockchainTest {
         generateBlock();
         process(shufflingFullHash, BOB, BOB_RECIPIENT);
         generateBlock();
-        JSONObject processResponse = process(shufflingFullHash, CHUCK, CHUCK_RECIPIENT, false);
-        JSONObject transactionJSON = (JSONObject)processResponse.get("transactionJSON");
-        JSONArray data = (JSONArray)((JSONObject)transactionJSON.get("attachment")).get("data");
-        String s = (String)data.get(0);
-        data.set(0, "8080808080" + s.substring(10));
+        JO processResponse = process(shufflingFullHash, CHUCK, CHUCK_RECIPIENT, false);
+        JO transactionJSON = processResponse.getJo("transactionJSON");
+        JA data = transactionJSON.getJo("attachment").getArray("data");
+        String s = data.getString(0);
+        data.setString(0, "8080808080" + s.substring(10));
         broadcast(transactionJSON, CHUCK);
         generateBlock();
         getShufflingResponse = getShuffling(shufflingFullHash);
@@ -1203,7 +1204,7 @@ public class TestShuffling extends BlockchainTest {
         String shufflingStateHash = (String)getShufflingResponse.get("shufflingStateHash");
         cancel(shufflingFullHash, ALICE, shufflingStateHash, DAVE.getId());
         cancel(shufflingFullHash, BOB, shufflingStateHash, DAVE.getId());
-        JSONObject cancelResponse = cancel(shufflingFullHash, CHUCK, shufflingStateHash, DAVE.getId());
+        JO cancelResponse = cancel(shufflingFullHash, CHUCK, shufflingStateHash, DAVE.getId());
         boolean chuckCancelFailed = cancelResponse.get("error") != null; // if he happened to modify his own piece
         for (int i = 0; i < 14; i++) {
             generateBlock();
@@ -1260,15 +1261,15 @@ public class TestShuffling extends BlockchainTest {
         generateBlock();
         process(shufflingFullHash, CHUCK, CHUCK_RECIPIENT);
         generateBlock();
-        JSONObject processResponse = process(shufflingFullHash, DAVE, DAVE_RECIPIENT, false);
-        JSONObject transactionJSON = (JSONObject)processResponse.get("transactionJSON");
-        JSONArray data = (JSONArray)((JSONObject)transactionJSON.get("attachment")).get("recipientPublicKeys");
-        String s = (String)data.get(0);
+        JO processResponse = process(shufflingFullHash, DAVE, DAVE_RECIPIENT, false);
+        JO transactionJSON = processResponse.getJo("transactionJSON");
+        JA data = transactionJSON.getJo("attachment").getArray("recipientPublicKeys");
+        String s = data.getString(0);
         if (!s.equals(DAVE_RECIPIENT.getPublicKeyStr())) {
-            data.set(0, "0000000000" + s.substring(10));
+            data.setString(0, "0000000000" + s.substring(10));
         } else {
-            s = (String)data.get(1);
-            data.set(1, "0000000000" + s.substring(10));
+            s = data.getString(1);
+            data.setString(1, "0000000000" + s.substring(10));
         }
         broadcast(transactionJSON, DAVE);
         generateBlock();
@@ -1340,12 +1341,12 @@ public class TestShuffling extends BlockchainTest {
         generateBlock();
         process(shufflingFullHash, CHUCK, CHUCK_RECIPIENT);
         generateBlock();
-        JSONObject processResponse = process(shufflingFullHash, DAVE, DAVE_RECIPIENT, false);
-        JSONObject transactionJSON = (JSONObject)processResponse.get("transactionJSON");
-        JSONArray data = (JSONArray)((JSONObject)transactionJSON.get("attachment")).get("recipientPublicKeys");
-        String s = (String)data.get(0);
-        data.set(1, s);
-        JSONObject broadcastResponse = broadcast(transactionJSON, DAVE);
+        JO processResponse = process(shufflingFullHash, DAVE, DAVE_RECIPIENT, false);
+        JO transactionJSON = processResponse.getJo("transactionJSON");
+        JA data = transactionJSON.getJo("attachment").getArray("recipientPublicKeys");
+        String s = data.getString(0);
+        data.setString(1, s);
+        JO broadcastResponse = broadcast(transactionJSON, DAVE);
         Assert.assertNotNull(broadcastResponse.get("error"));
         for (int i = 0; i < 14; i++) {
             generateBlock();
@@ -1400,12 +1401,12 @@ public class TestShuffling extends BlockchainTest {
         generateBlock();
         process(shufflingFullHash, BOB, BOB_RECIPIENT);
         generateBlock();
-        JSONObject processResponse = process(shufflingFullHash, CHUCK, CHUCK_RECIPIENT, false);
-        JSONObject transactionJSON = (JSONObject)processResponse.get("transactionJSON");
-        JSONArray data = (JSONArray)((JSONObject)transactionJSON.get("attachment")).get("data");
-        String s = (String)data.get(0);
-        data.set(1, s);
-        JSONObject broadcastResponse = broadcast(transactionJSON, CHUCK);
+        JO processResponse = process(shufflingFullHash, CHUCK, CHUCK_RECIPIENT, false);
+        JO transactionJSON = processResponse.getJo("transactionJSON");
+        JA data = transactionJSON.getJo("attachment").getArray("data");
+        String s = (String)data.getObject(0);
+        data.setString(1, s);
+        JO broadcastResponse = broadcast(transactionJSON, CHUCK);
         Assert.assertNotNull(broadcastResponse.get("error"));
         for (int i = 0; i < 14; i++) {
             generateBlock();

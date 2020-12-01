@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class DgsPriceChangeCall extends CreateTransactionCallBuilder<DgsPriceChangeCall> {
+public class DgsPriceChangeCall extends CreateOneSideTransactionCallBuilder<DgsPriceChangeCall> {
     private DgsPriceChangeCall() {
         super(ApiSpec.dgsPriceChange);
     }

@@ -17,7 +17,6 @@ package com.jelurida.ardor.contracts;
 
 import nxt.addons.AbstractContract;
 import nxt.addons.AbstractContractContext;
-import nxt.addons.BlockContext;
 import nxt.addons.ChainWrapper;
 import nxt.addons.ContractParametersProvider;
 import nxt.addons.ContractSetupParameter;
@@ -25,23 +24,21 @@ import nxt.addons.JA;
 import nxt.addons.JO;
 import nxt.addons.RequestContext;
 import nxt.addons.TransactionContext;
+import nxt.addons.ValidateContractRunnerIsRecipient;
 import nxt.http.callers.GetCoinExchangeOrdersCall;
-import nxt.http.callers.GetExecutedTransactionsCall;
 import nxt.http.callers.SendMoneyCall;
 
 import java.math.BigInteger;
-import java.util.List;
 
 /**
  * Sample contract which receives amount in child chain and returns amount in parent chain according to the coin exchange
  * order book.
- * It let's you to exchange child coins to ARDR without first having ARDR in the account which was a major limitation.
- * The contract demonstrates 3 different callbacks.
+ * It enables users to exchange child coins to ARDR without first having ARDR in the account which is a major limitation.
+ * The contract demonstrates two different callbacks.
  * processTransaction - activated by a transaction with trigger message
- * processBlock - scans the transaction in a block and when finding one which matches the criteria performs the exchange
  * processRequest - simulates the operation of the contract without actually receiving or submitting transactions
  **/
-public class ChildToParentExchange extends AbstractContract {
+public class ChildToParentExchange extends AbstractContract<Object, Object> {
 
     @ContractParametersProvider
     public interface Params {
@@ -51,44 +48,9 @@ public class ChildToParentExchange extends AbstractContract {
         }
     }
 
-    @Override
-    public JO processBlock(BlockContext context) {
-        // Look for payments from 6 blocks ago
-        int height = context.getHeight() - 6;
-        if (height < 2) {
-            return context.generateInfoResponse("blockchain height is too low");
-        }
-
-        // Read the transactions in the block
-        GetExecutedTransactionsCall request = GetExecutedTransactionsCall.create(2).height(height).type(0).subtype(0).recipient(context.getAccount());
-        JO getExecutedTransactionsResponse = request.call();
-        List<JO> transactions = getExecutedTransactionsResponse.getArray("transactions").objects();
-        if (transactions.size() == 0) {
-            return context.generateInfoResponse("block at height %d has no matching transactions", height);
-        }
-
-        // Iterate over the transactions and make the payments
-        final int maxAmountNXT = context.getParams(Params.class).maxAmountNXT();
-        for (JO transaction : transactions) {
-            long amountNQT = transaction.getLong("amountNQT");
-            ChainWrapper chain = context.getChain(transaction.getInt("chain"));
-            CoinExchangeOrders coinExchangeOrders = new CoinExchangeOrders(context).invoke(chain, amountNQT, maxAmountNXT);
-            long returnAmount = coinExchangeOrders.getReturnAmountNQT();
-            ChainWrapper returnChain = coinExchangeOrders.getReturnChain();
-
-            // Send the payment
-            SendMoneyCall sendMoneyCall = SendMoneyCall.create(returnChain.getId()).recipient(transaction.getString("sender")).amountNQT(returnAmount);
-            context.createTransaction(sendMoneyCall);
-        }
-        return context.getResponse();
-    }
-
+    @ValidateContractRunnerIsRecipient
     @Override
     public JO processTransaction(TransactionContext context) {
-        if (context.notSameRecipient()) {
-            return context.getResponse();
-        }
-        // Read the contract configuration
         int maxAmountNXT = context.getParams(Params.class).maxAmountNXT();
         long chainAmountNQT = context.getAmountNQT();
         ChainWrapper chain = context.getChainOfTransaction();
@@ -126,7 +88,7 @@ public class ChildToParentExchange extends AbstractContract {
     }
 
     public static class CoinExchangeOrders {
-        private AbstractContractContext context;
+        private final AbstractContractContext context;
         private long returnAmountNQT;
         private ChainWrapper returnChain;
 

@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetAvailableToSellCall extends APICall.Builder<GetAvailableToSellCall> {
+public class GetAvailableToSellCall extends ChainSpecificCallBuilder<GetAvailableToSellCall> {
     private GetAvailableToSellCall() {
         super(ApiSpec.getAvailableToSell);
     }

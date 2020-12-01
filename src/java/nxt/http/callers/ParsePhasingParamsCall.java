@@ -21,6 +21,14 @@ public class ParsePhasingParamsCall extends APICall.Builder<ParsePhasingParamsCa
         return param("phasingRecipientPropertyName", phasingRecipientPropertyName);
     }
 
+    public ParsePhasingParamsCall chain(String chain) {
+        return param("chain", chain);
+    }
+
+    public ParsePhasingParamsCall chain(int chain) {
+        return param("chain", chain);
+    }
+
     public ParsePhasingParamsCall phasingQuorum(long phasingQuorum) {
         return param("phasingQuorum", phasingQuorum);
     }

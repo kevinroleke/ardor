@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetAccountPermissionsCall extends APICall.Builder<GetAccountPermissionsCall> {
+public class GetAccountPermissionsCall extends ChainSpecificCallBuilder<GetAccountPermissionsCall> {
     private GetAccountPermissionsCall() {
         super(ApiSpec.getAccountPermissions);
     }

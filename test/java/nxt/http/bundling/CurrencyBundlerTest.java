@@ -17,9 +17,13 @@ package nxt.http.bundling;
 
 import nxt.Nxt;
 import nxt.Tester;
-import nxt.blockchain.ChildChain;
-import nxt.blockchain.FxtChain;
-import nxt.http.APICall;
+import nxt.http.callers.CurrencyBuyCall;
+import nxt.http.callers.CurrencyReserveClaimCall;
+import nxt.http.callers.CurrencyReserveIncreaseCall;
+import nxt.http.callers.CurrencySellCall;
+import nxt.http.callers.PublishExchangeOfferCall;
+import nxt.http.callers.StartBundlerCall;
+import nxt.http.callers.TransferCurrencyCall;
 import nxt.http.monetarysystem.TestCurrencyIssuance;
 import nxt.ms.CurrencyType;
 import nxt.util.JSONAssert;
@@ -28,26 +32,26 @@ import org.junit.Test;
 
 import java.util.Collections;
 
+import static nxt.blockchain.ChildChain.IGNIS;
+
 public class CurrencyBundlerTest extends BundlerTest {
 
     @Test
     public void testTransfer() {
-        JSONAssert result = new JSONAssert(new TestCurrencyIssuance.Builder().
+        JSONAssert result = new JSONAssert(TestCurrencyIssuance.builder().
                 type(CurrencyType.EXCHANGEABLE.getCode()).
-                initialSupply((long)100000).
-                build().invoke());
+                initialSupplyQNT(100000).call());
         String fullHash = result.str("fullHash");
         String currencyId = bundleIssueCurrency(fullHash);
 
         startCurrencyBundler(currencyId);
 
-        result = new JSONAssert(new APICall.Builder("transferCurrency").
-                param("secretPhrase", ALICE.getSecretPhrase()).
-                param("currency", currencyId).
-                param("recipient", BOB.getStrId()).
-                param("unitsQNT", "2000").
-                feeNQT(0).
-                build().invoke());
+        result = new JSONAssert(TransferCurrencyCall.create(IGNIS.getId()).
+                secretPhrase(ALICE.getSecretPhrase()).
+                currency(currencyId).
+                recipient(BOB.getStrId()).
+                unitsQNT(2000).
+                feeNQT(0).call());
         fullHash = result.str("fullHash");
         generateBlock();
         Assert.assertTrue(isBundled(fullHash));
@@ -55,48 +59,44 @@ public class CurrencyBundlerTest extends BundlerTest {
 
     @Test
     public void testExchange() {
-        JSONAssert result = new JSONAssert(new TestCurrencyIssuance.Builder().
+        JSONAssert result = new JSONAssert(TestCurrencyIssuance.builder().
                 type(CurrencyType.EXCHANGEABLE.getCode()).
-                initialSupply((long)100000).
-                build().invoke());
+                initialSupplyQNT(100000).call());
         String fullHash = result.str("fullHash");
         String currencyId = bundleIssueCurrency(fullHash);
 
         startCurrencyBundler(currencyId);
 
-        result = new JSONAssert(new APICall.Builder("publishExchangeOffer").
+        result = new JSONAssert(PublishExchangeOfferCall.create(IGNIS.getId()).
                 secretPhrase(ALICE.getSecretPhrase()).
                 feeNQT(0).
-                param("deadline", "1440").
-                param("currency", currencyId).
-                param("buyRateNQTPerUnit", "" + 95). // buy currency for NXT
-                param("sellRateNQTPerUnit", "" + 105). // sell currency for NXT
-                param("totalBuyLimitQNT", "10000").
-                param("totalSellLimitQNT", "5000").
-                param("initialBuySupplyQNT", "1000").
-                param("initialSellSupplyQNT", "500").
-                param("expirationHeight", "" + Integer.MAX_VALUE).
-                build().invoke());
+                deadline(1440).
+                currency(currencyId).
+                buyRateNQTPerUnit(95). // buy currency for NXT
+                sellRateNQTPerUnit(105). // sell currency for NXT
+                totalBuyLimitQNT(10000).
+                totalSellLimitQNT(5000).
+                initialBuySupplyQNT(1000).
+                initialSellSupplyQNT(500).
+                expirationHeight(Integer.MAX_VALUE).call());
         fullHash = result.str("fullHash");
         generateBlock();
         Assert.assertTrue(isBundled(fullHash));
 
-        result = new JSONAssert(new APICall.Builder("currencyBuy").
+        result = new JSONAssert(CurrencyBuyCall.create(IGNIS.getId()).
                 secretPhrase(BOB.getSecretPhrase()).feeNQT(0).
-                param("currency", currencyId).
-                param("rateNQTPerUnit", "" + 106).
-                param("unitsQNT", "200").
-                build().invoke());
+                currency(currencyId).
+                rateNQTPerUnit(106).
+                unitsQNT(200).call());
         fullHash = result.str("fullHash");
         generateBlock();
         Assert.assertTrue(isBundled(fullHash));
 
-        result = new JSONAssert(new APICall.Builder("currencySell").
+        result = new JSONAssert(CurrencySellCall.create(IGNIS.getId()).
                 secretPhrase(BOB.getSecretPhrase()).feeNQT(0).
-                param("currency", currencyId).
-                param("rateNQTPerUnit", "" + 94).
-                param("unitsQNT", "200").
-                build().invoke());
+                currency(currencyId).
+                rateNQTPerUnit(94).
+                unitsQNT(200).call());
         fullHash = result.str("fullHash");
         generateBlock();
         Assert.assertTrue(isBundled(fullHash));
@@ -104,36 +104,33 @@ public class CurrencyBundlerTest extends BundlerTest {
 
     @Test
     public void testReservable() {
-        JSONAssert result = new JSONAssert(new TestCurrencyIssuance.Builder().
+        JSONAssert result = new JSONAssert(TestCurrencyIssuance.builder().
                 type(CurrencyType.RESERVABLE.getCode() | CurrencyType.CLAIMABLE.getCode()).
                 issuanceHeight(Nxt.getBlockchain().getHeight() + 5).
-                minReservePerUnitNQT((long) 1).
-                initialSupply((long)0).
-                reserveSupply((long)100000).
-                build().invoke());
+                minReservePerUnitNQT(1).
+                initialSupplyQNT(0).
+                reserveSupplyQNT(100000).call());
         String fullHash = result.str("fullHash");
         String currencyId = bundleIssueCurrency(fullHash);
 
         startCurrencyBundler(currencyId);
 
-        result = new JSONAssert(new APICall.Builder("currencyReserveIncrease").
+        result = new JSONAssert(CurrencyReserveIncreaseCall.create(IGNIS.getId()).
                 secretPhrase(CHUCK.getSecretPhrase()).
                 feeNQT(0).
-                param("currency", currencyId).
-                param("amountPerUnitNQT", "" + 2).
-                build().invoke());
+                currency(currencyId).
+                amountPerUnitNQT(2).call());
         fullHash = result.str("fullHash");
         generateBlock();
         Assert.assertTrue(isBundled(fullHash));
 
         generateBlocks(5);
 
-        result = new JSONAssert(new APICall.Builder("currencyReserveClaim").
+        result = new JSONAssert(CurrencyReserveClaimCall.create(IGNIS.getId()).
                 secretPhrase(CHUCK.getSecretPhrase()).
                 feeNQT(0).
-                param("currency", currencyId).
-                param("unitsQNT", "2000").
-                build().invoke());
+                currency(currencyId).
+                unitsQNT(2000).call());
         fullHash = result.str("fullHash");
         generateBlock();
         Assert.assertTrue(isBundled(fullHash));
@@ -149,13 +146,12 @@ public class CurrencyBundlerTest extends BundlerTest {
     }
 
     private void startCurrencyBundler(String currencyId) {
-        JSONAssert result = new JSONAssert(new APICall.Builder("startBundler").
+        JSONAssert result = new JSONAssert(StartBundlerCall.create().
                 secretPhrase(BOB.getSecretPhrase()).
-                param("chain", ChildChain.IGNIS.getId()).
-                param("filter", "CurrencyBundler:" + currencyId).
-                param("minRateNQTPerFXT", 0).
-                param("feeCalculatorName", "MIN_FEE").
-                build().invoke());
+                chain(IGNIS.getId()).
+                filter("CurrencyBundler:" + currencyId).
+                minRateNQTPerFXT(0).
+                feeCalculatorName("MIN_FEE").call());
         result.str("totalFeesLimitFQT");
     }
 }

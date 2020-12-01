@@ -22,6 +22,7 @@ import nxt.blockchain.Attachment;
 import nxt.blockchain.ChildChain;
 import nxt.shuffling.ShufflingHome;
 import nxt.shuffling.ShufflingRegistrationAttachment;
+import nxt.shuffling.ShufflingTransactionType;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,7 +32,8 @@ public final class ShufflingRegister extends CreateTransaction {
     static final ShufflingRegister instance = new ShufflingRegister();
 
     private ShufflingRegister() {
-        super(new APITag[] {APITag.SHUFFLING, APITag.CREATE_TRANSACTION}, "shufflingFullHash");
+        super(ShufflingTransactionType.SHUFFLING_REGISTRATION,
+                new APITag[] {APITag.SHUFFLING, APITag.CREATE_TRANSACTION}, "shufflingFullHash");
     }
 
     @Override

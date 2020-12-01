@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetDGSGoodCall extends APICall.Builder<GetDGSGoodCall> {
+public class GetDGSGoodCall extends ChainSpecificCallBuilder<GetDGSGoodCall> {
     private GetDGSGoodCall() {
         super(ApiSpec.getDGSGood);
     }

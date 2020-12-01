@@ -22,6 +22,7 @@ import nxt.account.Account;
 import nxt.blockchain.Attachment;
 import nxt.blockchain.ChainTransactionId;
 import nxt.lightcontracts.ContractReferenceAttachment;
+import nxt.lightcontracts.LightContractTransactionType;
 import nxt.util.Convert;
 import org.json.simple.JSONStreamAware;
 
@@ -35,7 +36,9 @@ public final class SetContractReference extends CreateTransaction {
     static final SetContractReference instance = new SetContractReference();
 
     private SetContractReference() {
-        super(new APITag[] {APITag.ACCOUNTS, APITag.CREATE_TRANSACTION}, "contractName", "contractParams", "contract");
+        super(LightContractTransactionType.CONTRACT_REFERENCE_SET,
+                new APITag[] {APITag.ACCOUNTS, APITag.CREATE_TRANSACTION},
+                "contractName", "contractParams", "contract");
     }
 
     @Override

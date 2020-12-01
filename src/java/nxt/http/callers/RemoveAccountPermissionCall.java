@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class RemoveAccountPermissionCall extends CreateTransactionCallBuilder<RemoveAccountPermissionCall> {
+public class RemoveAccountPermissionCall extends CreateTwoSidesTransactionCallBuilder<RemoveAccountPermissionCall> {
     private RemoveAccountPermissionCall() {
         super(ApiSpec.removeAccountPermission);
     }

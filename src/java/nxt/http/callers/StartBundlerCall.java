@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class StartBundlerCall extends APICall.Builder<StartBundlerCall> {
+public class StartBundlerCall extends ChainSpecificCallBuilder<StartBundlerCall> {
     private StartBundlerCall() {
         super(ApiSpec.startBundler);
     }

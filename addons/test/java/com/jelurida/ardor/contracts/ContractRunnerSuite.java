@@ -52,7 +52,8 @@ import org.junit.runners.Suite;
         CoinExchangeTradingBotLegacyTest.class,
         ContractWithInnerClassParameterTest.class,
         AccountBalanceNotifierTest.class,
-        WhaleAlertTest.class
+        WhaleAlertTest.class,
+        ContractRunnerFeeCalculationTest.class
 })
 public class ContractRunnerSuite extends SafeShutdownSuite {
 }

@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class StartStandbyShufflerCall extends APICall.Builder<StartStandbyShufflerCall> {
+public class StartStandbyShufflerCall extends ChainSpecificCallBuilder<StartStandbyShufflerCall> {
     private StartStandbyShufflerCall() {
         super(ApiSpec.startStandbyShuffler);
     }
@@ -40,11 +38,11 @@ public class StartStandbyShufflerCall extends APICall.Builder<StartStandbyShuffl
         return param("serializedMasterPublicKey", serializedMasterPublicKey);
     }
 
-    public StartStandbyShufflerCall recipientPublicKeys(String recipientPublicKeys) {
+    public StartStandbyShufflerCall recipientPublicKeys(String... recipientPublicKeys) {
         return param("recipientPublicKeys", recipientPublicKeys);
     }
 
-    public StartStandbyShufflerCall recipientPublicKeys(byte[] recipientPublicKeys) {
+    public StartStandbyShufflerCall recipientPublicKeys(byte[]... recipientPublicKeys) {
         return param("recipientPublicKeys", recipientPublicKeys);
     }
 
@@ -54,6 +52,10 @@ public class StartStandbyShufflerCall extends APICall.Builder<StartStandbyShuffl
 
     public StartStandbyShufflerCall maxAmount(String maxAmount) {
         return param("maxAmount", maxAmount);
+    }
+
+    public StartStandbyShufflerCall feeRateNQTPerFXT(long feeRateNQTPerFXT) {
+        return param("feeRateNQTPerFXT", feeRateNQTPerFXT);
     }
 
     public StartStandbyShufflerCall minParticipants(int minParticipants) {

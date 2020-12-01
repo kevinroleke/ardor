@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class StartShufflerCall extends APICall.Builder<StartShufflerCall> {
+public class StartShufflerCall extends ChainSpecificCallBuilder<StartShufflerCall> {
     private StartShufflerCall() {
         super(ApiSpec.startShuffler);
     }
@@ -26,6 +24,10 @@ public class StartShufflerCall extends APICall.Builder<StartShufflerCall> {
 
     public StartShufflerCall recipientPublicKey(byte[] recipientPublicKey) {
         return param("recipientPublicKey", recipientPublicKey);
+    }
+
+    public StartShufflerCall feeRateNQTPerFXT(long feeRateNQTPerFXT) {
+        return param("feeRateNQTPerFXT", feeRateNQTPerFXT);
     }
 
     public StartShufflerCall shufflingFullHash(String shufflingFullHash) {

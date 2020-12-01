@@ -22,12 +22,14 @@ import nxt.shuffling.ShufflingAttachment;
 import nxt.shuffling.ShufflingHome;
 import nxt.shuffling.ShufflingParticipantHome;
 import nxt.shuffling.ShufflingStage;
+import nxt.shuffling.ShufflingTransactionType;
 import nxt.util.Convert;
 import nxt.util.JSON;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 
 import static nxt.http.JSONResponses.INCORRECT_PUBLIC_KEY;
 
@@ -36,7 +38,8 @@ public final class ShufflingProcess extends CreateTransaction {
     static final ShufflingProcess instance = new ShufflingProcess();
 
     private ShufflingProcess() {
-        super(new APITag[]{APITag.SHUFFLING, APITag.CREATE_TRANSACTION},
+        super(Arrays.asList(ShufflingTransactionType.SHUFFLING_PROCESSING, ShufflingTransactionType.SHUFFLING_RECIPIENTS),
+                new APITag[]{APITag.SHUFFLING, APITag.CREATE_TRANSACTION},
                 "shufflingFullHash", "recipientSecretPhrase", "recipientPublicKey");
     }
 

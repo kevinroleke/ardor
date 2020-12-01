@@ -24,6 +24,7 @@ import nxt.blockchain.Attachment;
 import nxt.util.Convert;
 import nxt.voting.PollCreationAttachment.PollBuilder;
 import nxt.voting.VoteWeighting;
+import nxt.voting.VotingTransactionType;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
@@ -42,7 +43,7 @@ public final class CreatePoll extends CreateTransaction {
     static final CreatePoll instance = new CreatePoll();
 
     private CreatePoll() {
-        super(new APITag[]{APITag.VS, APITag.CREATE_TRANSACTION},
+        super(VotingTransactionType.POLL_CREATION, new APITag[]{APITag.VS, APITag.CREATE_TRANSACTION},
                 "name", "description", "finishHeight", "votingModel",
                 "minNumberOfOptions", "maxNumberOfOptions",
                 "minRangeValue", "maxRangeValue",

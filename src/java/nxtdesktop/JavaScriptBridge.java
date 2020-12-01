@@ -157,4 +157,14 @@ public class JavaScriptBridge {
         int hotFix = Integer.parseInt(tokens[2]);
         return majorVersion >= 12 || majorVersion == 11 && minorVersion >=0 && hotFix >= 6;
     }
+
+    @SuppressWarnings("unused")
+    public boolean canInitializePlugins() {
+        String version = System.getProperty("javafx.version");
+        String[] tokens = version.split("\\.");
+
+        // Supported by all versions before JavaFX 15
+        int majorVersion = Integer.parseInt(tokens[0]);
+        return majorVersion < 15;
+    }
 }

@@ -23,6 +23,7 @@ import nxt.blockchain.Attachment;
 import nxt.crypto.EncryptedData;
 import nxt.dgs.DeliveryAttachment;
 import nxt.dgs.DigitalGoodsHome;
+import nxt.dgs.DigitalGoodsTransactionType;
 import nxt.dgs.UnencryptedDeliveryAttachment;
 import nxt.util.Convert;
 import org.json.simple.JSONStreamAware;
@@ -39,7 +40,7 @@ public final class DGSDelivery extends CreateTransaction {
     static final DGSDelivery instance = new DGSDelivery();
 
     private DGSDelivery() {
-        super(new APITag[] {APITag.DGS, APITag.CREATE_TRANSACTION},
+        super(DigitalGoodsTransactionType.DELIVERY, new APITag[] {APITag.DGS, APITag.CREATE_TRANSACTION},
                 "purchase", "discountNQT", "goodsToEncrypt", "goodsIsText", "goodsData", "goodsNonce");
     }
 

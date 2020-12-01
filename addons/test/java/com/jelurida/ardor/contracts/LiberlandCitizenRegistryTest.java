@@ -45,7 +45,7 @@ public class LiberlandCitizenRegistryTest extends AbstractContractTest {
         generateBlock();
 
         // Check that the contract has registered the citizen on the blockchain
-        JO call = GetAccountPropertiesCall.create().setter(ALICE.getRsAccount()).property("liberlandId").recipient(BOB.getRsAccount()).call();
+        JO call = GetAccountPropertiesCall.create().setter(ALICE.getRsAccount()).property("liberlandId").recipient(BOB.getRsAccount()).callNoError();
         JA properties = call.getArray("properties");
         Assert.assertEquals(1, properties.size());
         JO property = properties.get(0);

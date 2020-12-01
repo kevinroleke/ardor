@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetDGSExpiredPurchasesCall extends APICall.Builder<GetDGSExpiredPurchasesCall> {
+public class GetDGSExpiredPurchasesCall extends ChainSpecificCallBuilder<GetDGSExpiredPurchasesCall> {
     private GetDGSExpiredPurchasesCall() {
         super(ApiSpec.getDGSExpiredPurchases);
     }

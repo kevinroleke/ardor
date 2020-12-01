@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class VerifyPrunableMessageCall extends APICall.Builder<VerifyPrunableMessageCall> {
+public class VerifyPrunableMessageCall extends ChainSpecificCallBuilder<VerifyPrunableMessageCall> {
     private VerifyPrunableMessageCall() {
         super(ApiSpec.verifyPrunableMessage);
     }

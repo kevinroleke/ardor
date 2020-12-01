@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class DgsDeliveryCall extends CreateTransactionCallBuilder<DgsDeliveryCall> {
+public class DgsDeliveryCall extends CreateTwoSidesTransactionCallBuilder<DgsDeliveryCall> {
     private DgsDeliveryCall() {
         super(ApiSpec.dgsDelivery);
     }

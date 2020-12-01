@@ -660,13 +660,13 @@ public final class ShufflingHome {
                 long fee = childChain.SHUFFLING_DEPOSIT_NQT / 4;
                 for (int i = 0; i < 3; i++) {
                     BalanceHome.Balance previousGeneratorBalance = childChain.getBalanceHome().getBalance(Nxt.getBlockchain().getBlockAtHeight(block.getHeight() - i - 1).getGeneratorId());
-                    previousGeneratorBalance.addToBalanceAndUnconfirmedBalance(AccountLedger.LedgerEvent.BLOCK_GENERATED, eventId, fee);
+                    previousGeneratorBalance.addToBalanceAndUnconfirmedBalance(AccountLedger.LedgerEvent.SHUFFLING_PENALTY_FORGER_AWARD, eventId, fee);
                     Logger.logDebugMessage("Shuffling penalty %f %s awarded to forger at height %d", ((double) fee) / childChain.ONE_COIN,
                             childChain.getName(), block.getHeight() - i - 1);
                 }
                 fee = childChain.SHUFFLING_DEPOSIT_NQT - 3 * fee;
                 BalanceHome.Balance blockGeneratorBalance = childChain.getBalanceHome().getBalance(block.getGeneratorId());
-                blockGeneratorBalance.addToBalanceAndUnconfirmedBalance(AccountLedger.LedgerEvent.BLOCK_GENERATED, eventId, fee);
+                blockGeneratorBalance.addToBalanceAndUnconfirmedBalance(AccountLedger.LedgerEvent.SHUFFLING_PENALTY_FORGER_AWARD, eventId, fee);
                 Logger.logDebugMessage("Shuffling penalty %f %s awarded to forger at height %d", ((double) fee) / childChain.ONE_COIN,
                         childChain.getName(), block.getHeight());
             }

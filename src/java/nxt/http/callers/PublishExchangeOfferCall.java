@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class PublishExchangeOfferCall extends CreateTransactionCallBuilder<PublishExchangeOfferCall> {
+public class PublishExchangeOfferCall extends CreateOneSideTransactionCallBuilder<PublishExchangeOfferCall> {
     private PublishExchangeOfferCall() {
         super(ApiSpec.publishExchangeOffer);
     }
@@ -14,7 +14,7 @@ public class PublishExchangeOfferCall extends CreateTransactionCallBuilder<Publi
         return param("initialSellSupplyQNT", initialSellSupplyQNT);
     }
 
-    public PublishExchangeOfferCall expirationHeight(String expirationHeight) {
+    public PublishExchangeOfferCall expirationHeight(int expirationHeight) {
         return param("expirationHeight", expirationHeight);
     }
 

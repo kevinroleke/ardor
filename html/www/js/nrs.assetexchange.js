@@ -866,7 +866,10 @@ NRS.onSiteBuildDone().then(() => {
 
         NRS.loadAssetControl = function(assetId, callback) {
             NRS.sendRequest("getPhasingAssetControl", { 'asset': assetId }, function (response) {
-                assetControlParams = response.controlParams;
+                if (response.controlParams && response.controlParams.phasingExpression !== undefined) {
+                    response.controlParams.phasingExpression = NRS.unescapeRespStr(response.controlParams.phasingExpression);
+                }
+                assetControlParams = response.controlParams; 
                 if (callback) {
                     callback();
                 }
@@ -1694,6 +1697,7 @@ NRS.onSiteBuildDone().then(() => {
             var action = $invoker.data("action");
 
             $("#transfer_asset_asset").val(assetId);
+            $("#transfer_asset_id").text(String(assetId));
             $("#transfer_asset_decimals").val(decimals);
             $("#transfer_asset_action").val(action);
             $("#transfer_asset_name, #transfer_asset_quantity_name").html(String(assetName).escapeHTML());
@@ -1707,6 +1711,11 @@ NRS.onSiteBuildDone().then(() => {
             } else if (action == "increase_shares") {
                 $("#transfer_asset_recipient_container").hide();
                 $("#transfer_asset_request_type").val("increaseAssetShares");
+            }
+            if (NRS.isHardwareTransactionSigningEnabled()) {
+                $('#transfer_asset_qnt').show();
+            } else {
+                $('#transfer_asset_qnt').hide();
             }
 
             var confirmedBalance = 0;
@@ -1753,6 +1762,16 @@ NRS.onSiteBuildDone().then(() => {
                     });
                 }
             });
+        });
+
+        $('#transfer_asset_quantity').on('input', function() {
+            let qnt = 0;
+            try {
+                qnt = NRS.convertToQNT($(this).val(), $('#transfer_asset_decimals').val());
+            } catch (e) {
+                // we ignore parsing errors that will be handled by the form validation
+            }
+            $('#transfer_asset_qnt').val(qnt + ' QNT');
         });
 
         NRS.forms.transferAsset = function ($modal) {

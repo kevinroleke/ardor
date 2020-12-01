@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetChannelTaggedDataCall extends APICall.Builder<GetChannelTaggedDataCall> {
+public class GetChannelTaggedDataCall extends ChainSpecificCallBuilder<GetChannelTaggedDataCall> {
     private GetChannelTaggedDataCall() {
         super(ApiSpec.getChannelTaggedData);
     }

@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class CancelAskOrderCall extends CreateTransactionCallBuilder<CancelAskOrderCall> {
+public class CancelAskOrderCall extends CreateOneSideTransactionCallBuilder<CancelAskOrderCall> {
     private CancelAskOrderCall() {
         super(ApiSpec.cancelAskOrder);
     }

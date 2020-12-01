@@ -50,7 +50,7 @@ import static nxt.addons.taxreport.Column.TYPE;
 public class TaxReport implements Closeable {
     private final LineWriter lineWriter;
     private final Predicate<LedgerEntry> ledgerEntryPredicate;
-    private final LimitedGrouper<EventIdAdnAccountId, LedgerEntry> ledgerEntries = new LimitedGrouper<>();
+    private final LimitedGrouper<EventIdAndAccountId, LedgerEntry> ledgerEntries = new LimitedGrouper<>();
     private final Function<Instant, String> timestampFormatter;
     private final Listener<LedgerEntry> ledgerEventListener = this::onLedgerEvent;
     private final Function<List<LedgerEntry>, List<Record>> unknownEventPolicy;
@@ -71,7 +71,7 @@ public class TaxReport implements Closeable {
             return;
         }
 
-        Map.Entry<EventIdAdnAccountId, List<LedgerEntry>> oldest = ledgerEntries.offer(new EventIdAdnAccountId(ledgerEntry), ledgerEntry);
+        Map.Entry<EventIdAndAccountId, List<LedgerEntry>> oldest = ledgerEntries.offer(new EventIdAndAccountId(ledgerEntry), ledgerEntry);
         if (oldest == null) {
             return;
         }
@@ -142,12 +142,15 @@ public class TaxReport implements Closeable {
                         case ASSET_ISSUANCE:
                         case CURRENCY_ISSUANCE:
                         case CURRENCY_TRANSFER:
-                        case BLOCK_GENERATED:
                         case CHILD_BLOCK:
                         case CURRENCY_DELETION:
                         case ASSET_DELETE:
                         case CURRENCY_MINTING:
                             return SingleEventOperation.INSTANCE;
+                        case BLOCK_GENERATED:
+                        case FORGING_BACK_FEES:
+                        case SHUFFLING_PENALTY_FORGER_AWARD:
+                            return BlockGenerationOperation.INSTANCE;
                         case COIN_EXCHANGE_TRADE:
                         case CURRENCY_EXCHANGE:
                         case ASSET_TRADE:
@@ -294,22 +297,42 @@ public class TaxReport implements Closeable {
                     return event.name();
             }
         }
+    }
 
-        private static String getIncomeType(LedgerEvent event) {
-            switch (event) {
-                case ASSET_DIVIDEND_PAYMENT:
-                    return "Dividends Income";
-                case ASSET_TRANSFER:
-                case ORDINARY_PAYMENT:
-                case FXT_PAYMENT:
-                    return "Income";
-                case BLOCK_GENERATED:
-                case CHILD_BLOCK:
-                case CURRENCY_MINTING:
-                    return "Mining";
-                default:
-                    return event.name();
-            }
+    private static String getIncomeType(LedgerEvent event) {
+        switch (event) {
+            case ASSET_DIVIDEND_PAYMENT:
+                return "Dividends Income";
+            case ASSET_TRANSFER:
+            case ORDINARY_PAYMENT:
+            case FXT_PAYMENT:
+                return "Income";
+            case BLOCK_GENERATED:
+            case FORGING_BACK_FEES:
+            case SHUFFLING_PENALTY_FORGER_AWARD:
+            case CHILD_BLOCK:
+            case CURRENCY_MINTING:
+                return "Mining";
+            default:
+                return event.name();
+        }
+    }
+
+    private enum BlockGenerationOperation implements Function<List<LedgerEntry>, List<Record>> {
+        INSTANCE;
+
+        @Override
+        public List<Record> apply(List<LedgerEntry> ledgerEntries) {
+            return ledgerEntries.stream().map(BlockGenerationOperation::createLine).collect(toList());
+        }
+
+        private static Record createLine(LedgerEntry ledgerEntry) {
+            Record record = new Record();
+            Holding holding = getHolding(ledgerEntry.getHolding(), ledgerEntry.getHoldingId());
+            record.type(getIncomeType(ledgerEntry.getEvent()));
+            record.buy(holding, ledgerEntry.getChange());
+            record.comment(ledgerEntry.getEventId(), ledgerEntry.getEvent());
+            return record;
         }
     }
 
@@ -494,11 +517,11 @@ public class TaxReport implements Closeable {
                 .toString();
     }
 
-    private static class EventIdAdnAccountId {
+    private static class EventIdAndAccountId {
         private final long eventId;
         private final long accountId;
 
-        public EventIdAdnAccountId(LedgerEntry entry) {
+        public EventIdAndAccountId(LedgerEntry entry) {
             eventId = entry.getEventId();
             accountId = entry.getAccountId();
         }
@@ -508,7 +531,7 @@ public class TaxReport implements Closeable {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
-            EventIdAdnAccountId that = (EventIdAdnAccountId) o;
+            EventIdAndAccountId that = (EventIdAndAccountId) o;
 
             if (eventId != that.eventId) return false;
             return accountId == that.accountId;

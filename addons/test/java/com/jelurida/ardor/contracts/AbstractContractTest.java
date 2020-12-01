@@ -28,7 +28,6 @@ import nxt.blockchain.ChildTransaction;
 import nxt.blockchain.FxtTransaction;
 import nxt.http.callers.UploadContractRunnerConfigurationCall;
 import nxt.util.Convert;
-import org.json.simple.JSONObject;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -93,11 +92,10 @@ public abstract class AbstractContractTest extends BlockchainTest {
     }
 
     protected static void setRunnerConfig(byte[] configBytes) {
-        final JSONObject response = UploadContractRunnerConfigurationCall.create()
+        JO response = UploadContractRunnerConfigurationCall.create()
                 .config(configBytes)
-                .build()
-                .invokeNoError();
-        assertTrue(new JO(response).getBoolean("configLoaded"));
+                .callNoError();
+        assertTrue(response.getBoolean("configLoaded"));
     }
 
     public int getHeight() {

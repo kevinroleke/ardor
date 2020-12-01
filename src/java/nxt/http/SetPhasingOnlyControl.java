@@ -20,6 +20,7 @@ import nxt.Constants;
 import nxt.NxtException;
 import nxt.account.Account;
 import nxt.blockchain.ChildChain;
+import nxt.voting.AccountControlTransactionType;
 import nxt.voting.PhasingParams;
 import nxt.voting.SetPhasingOnlyAttachment;
 import org.json.simple.JSONObject;
@@ -68,7 +69,9 @@ public final class SetPhasingOnlyControl extends CreateTransaction {
     static final SetPhasingOnlyControl instance = new SetPhasingOnlyControl();
 
     private SetPhasingOnlyControl() {
-        super(new APITag[] {APITag.ACCOUNT_CONTROL, APITag.CREATE_TRANSACTION}, "controlVotingModel", "controlQuorum", "controlMinBalance",
+        super(AccountControlTransactionType.SET_PHASING_ONLY,
+                new APITag[] {APITag.ACCOUNT_CONTROL, APITag.CREATE_TRANSACTION},
+                "controlVotingModel", "controlQuorum", "controlMinBalance",
                 "controlMinBalanceModel", "controlHolding", "controlWhitelisted", "controlWhitelisted", "controlWhitelisted",
                 "controlSenderPropertySetter", "controlSenderPropertyName",
                 "controlSenderPropertyValue", "controlRecipientPropertySetter",

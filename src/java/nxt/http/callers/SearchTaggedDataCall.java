@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class SearchTaggedDataCall extends APICall.Builder<SearchTaggedDataCall> {
+public class SearchTaggedDataCall extends ChainSpecificCallBuilder<SearchTaggedDataCall> {
     private SearchTaggedDataCall() {
         super(ApiSpec.searchTaggedData);
     }

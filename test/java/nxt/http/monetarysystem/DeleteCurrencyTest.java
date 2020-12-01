@@ -17,121 +17,114 @@
 package nxt.http.monetarysystem;
 
 import nxt.BlockchainTest;
-import nxt.blockchain.ChildChain;
+import nxt.addons.JA;
+import nxt.addons.JO;
 import nxt.http.APICall;
+import nxt.http.callers.DeleteCurrencyCall;
+import nxt.http.callers.GetAllCurrenciesCall;
+import nxt.http.callers.GetCurrencyCall;
+import nxt.http.callers.TransferCurrencyCall;
 import nxt.util.Logger;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
+
+import static nxt.blockchain.ChildChain.IGNIS;
 
 public class DeleteCurrencyTest extends BlockchainTest {
 
     @Test
     public void deleteByIssuer() {
-        APICall apiCall = new TestCurrencyIssuance.Builder().naming("yjwcv", "YJWCV", "test1").build();
+        APICall apiCall = TestCurrencyIssuance.builder("yjwcv", "YJWCV", "test1").build();
         TestCurrencyIssuance.issueCurrencyApi(apiCall);
         generateBlock();
-        apiCall = new APICall.Builder("getCurrency").param("code", "YJWCV").build();
-        JSONObject response = apiCall.invoke();
-        String currencyId = (String)response.get("currency");
-        String code = (String)response.get("code");
+        JO response = GetCurrencyCall.create().code("YJWCV").callNoError();
+        String currencyId = response.getString("currency");
+        String code = response.getString("code");
 
         // Delete the currency
-        apiCall = new APICall.Builder("deleteCurrency").
-                secretPhrase(ALICE.getSecretPhrase()).feeNQT(ChildChain.IGNIS.ONE_COIN).
-                param("currency", currencyId).
-                build();
-        response = apiCall.invoke();
+        response = DeleteCurrencyCall.create(IGNIS.getId()).
+                secretPhrase(ALICE.getSecretPhrase()).feeNQT(IGNIS.ONE_COIN).
+                currency(currencyId).
+                callNoError();
         Logger.logDebugMessage("deleteCurrencyResponse:" + response);
         generateBlock();
-        apiCall = new APICall.Builder("getCurrency").param("code", code).build();
-        response = apiCall.invoke();
+        response = GetCurrencyCall.create().code(code).call();
         Logger.logDebugMessage("getCurrencyResponse:" + response);
-        Assert.assertEquals((long)5, response.get("errorCode"));
+        Assert.assertEquals(5, response.getLong("errorCode"));
         Assert.assertEquals("Unknown currency", response.get("errorDescription"));
 
         // Issue the same currency code again
-        apiCall = new TestCurrencyIssuance.Builder().naming("yjwcv", "YJWCV", "test1").build();
+        apiCall = TestCurrencyIssuance.builder("yjwcv", "YJWCV", "test1").build();
         TestCurrencyIssuance.issueCurrencyApi(apiCall);
         generateBlock();
-        apiCall = new APICall.Builder("getCurrency").param("code", "YJWCV").build();
-        response = apiCall.invoke();
-        String newCurrencyId = (String)response.get("currency");
-        String newCode = (String)response.get("code");
+        response = GetCurrencyCall.create().code("YJWCV").callNoError();
+        String newCurrencyId = response.getString("currency");
+        String newCode = response.getString("code");
         Assert.assertNotEquals(currencyId, newCurrencyId); // this check may fail once in 2^64 tests
         Assert.assertEquals(code, newCode);
     }
 
     @Test
     public void deleteByNonOwnerNotAllowed() {
-        APICall apiCall = new TestCurrencyIssuance.Builder().naming("yjwcv", "YJWCV", "test1").build();
+        APICall apiCall = TestCurrencyIssuance.builder("yjwcv", "YJWCV", "test1").build();
         TestCurrencyIssuance.issueCurrencyApi(apiCall);
         generateBlock();
-        apiCall = new APICall.Builder("getAllCurrencies").build();
-        JSONObject response = apiCall.invoke();
-        JSONArray currencies = (JSONArray) response.get("currencies");
-        String currencyId = (String)((JSONObject)currencies.get(0)).get("currency");
-        String code = (String)((JSONObject)currencies.get(0)).get("code");
+        JO response = GetAllCurrenciesCall.create().callNoError();
+        JA currencies = response.getArray("currencies");
+        String currencyId = currencies.get(0).getString("currency");
+        String code = currencies.get(0).getString("code");
 
         // Delete the currency
-        apiCall = new APICall.Builder("deleteCurrency").
-                secretPhrase(BOB.getSecretPhrase()).feeNQT(ChildChain.IGNIS.ONE_COIN).
-                param("currency", currencyId).
-                build();
-        response = apiCall.invoke();
+        response = DeleteCurrencyCall.create(IGNIS.getId()).
+                secretPhrase(BOB.getSecretPhrase()).feeNQT(IGNIS.ONE_COIN).
+                currency(currencyId).
+                call();
         Logger.logDebugMessage("deleteCurrencyResponse:" + response);
-        Assert.assertEquals((long)8, response.get("errorCode"));
+        Assert.assertEquals(8, response.getLong("errorCode"));
 
         // Verify that currency still exists
-        apiCall = new APICall.Builder("getCurrency").param("code", code).build();
-        response = apiCall.invoke();
+        response = GetCurrencyCall.create().code(code).callNoError();
         Assert.assertEquals(currencyId, response.get("currency"));
     }
 
     @Test
     public void deleteByOwnerNonIssuer() {
-        APICall apiCall = new TestCurrencyIssuance.Builder().naming("yjwcv", "YJWCV", "test1").build();
+        APICall apiCall = TestCurrencyIssuance.builder("yjwcv", "YJWCV", "test1").build();
         TestCurrencyIssuance.issueCurrencyApi(apiCall);
         generateBlock();
 
-        apiCall = new APICall.Builder("getCurrency").param("code", "YJWCV").build();
-        JSONObject response = apiCall.invoke();
-        String currencyId = (String)response.get("currency");
-        String code = (String)response.get("code");
+        JO response = GetCurrencyCall.create().code("YJWCV").callNoError();
+        String currencyId = response.getString("currency");
+        String code = response.getString("code");
 
         // Transfer all units
-        apiCall = new APICall.Builder("transferCurrency").
-                secretPhrase(ALICE.getSecretPhrase()).feeNQT(ChildChain.IGNIS.ONE_COIN).
-                param("recipient", Long.toUnsignedString(BOB.getId())).
-                param("currency", currencyId).
-                param("unitsQNT", (String)response.get("maxSupplyQNT")).
-                build();
-        response = apiCall.invoke();
+        response = TransferCurrencyCall.create(IGNIS.getId()).
+                secretPhrase(ALICE.getSecretPhrase()).feeNQT(IGNIS.ONE_COIN).
+                recipient(BOB.getId()).
+                currency(currencyId).
+                unitsQNT(response.getLong("maxSupplyQNT")).
+                callNoError();
         Logger.logDebugMessage("transferCurrencyResponse:" + response);
         generateBlock();
 
         // Delete the currency
-        apiCall = new APICall.Builder("deleteCurrency").
-                secretPhrase(BOB.getSecretPhrase()).feeNQT(ChildChain.IGNIS.ONE_COIN).
-                param("currency", currencyId).
-                build();
-        response = apiCall.invoke();
+        response = DeleteCurrencyCall.create(IGNIS.getId()).
+                secretPhrase(BOB.getSecretPhrase()).feeNQT(IGNIS.ONE_COIN).
+                currency(currencyId).
+                callNoError();
         Logger.logDebugMessage("deleteCurrencyResponse:" + response);
         generateBlock();
-        apiCall = new APICall.Builder("getCurrency").param("code", code).build();
-        response = apiCall.invoke();
-        Assert.assertEquals((long)5, response.get("errorCode"));
+        response = GetCurrencyCall.create().code(code).call();
+        Assert.assertEquals(5, response.getLong("errorCode"));
         Assert.assertEquals("Unknown currency", response.get("errorDescription"));
 
         // Issue the same currency code again by the original issuer
-        apiCall = new TestCurrencyIssuance.Builder().naming("yjwcv", "YJWCV", "test1").build();
+        apiCall = TestCurrencyIssuance.builder("yjwcv", "YJWCV", "test1").build();
         TestCurrencyIssuance.issueCurrencyApi(apiCall);
         generateBlock();
-        apiCall = new APICall.Builder("getCurrency").param("code", "YJWCV").build();
-        response = apiCall.invoke();
-        String newCurrencyId = (String)response.get("currency");
-        String newCode = (String)response.get("code");
+        response = GetCurrencyCall.create().code("YJWCV").callNoError();
+        String newCurrencyId = response.getString("currency");
+        String newCode = response.getString("code");
         Assert.assertNotEquals(currencyId, newCurrencyId); // this check may fail once in 2^64 tests
         Assert.assertEquals(code, newCode);
     }

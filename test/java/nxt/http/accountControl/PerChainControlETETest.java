@@ -123,7 +123,7 @@ public class PerChainControlETETest extends BlockchainWithChildChainControlTest 
                     .recipient(chainAdmin.getStrId())
                     .permission(permissionType.name())
                     .feeNQT(IGNIS.ONE_COIN)
-                    .build().invokeNoError();
+                    .callNoError();
 
             generateBlock();
         }
@@ -144,7 +144,7 @@ public class PerChainControlETETest extends BlockchainWithChildChainControlTest 
                     .recipient(endUser.getId())
                     .permission(permission.name())
                     .feeNQT(IGNIS.ONE_COIN)
-                    .build().invokeNoError();
+                    .callNoError();
 
             generateBlock();
         }
@@ -170,10 +170,9 @@ public class PerChainControlETETest extends BlockchainWithChildChainControlTest 
             SendMoneyCall.create(childChain.getId())
                     .secretPhrase(wrappedTester.getSecretPhrase())
                     .recipient(recipient.getId())
-                    .param("amountNQT", 100 * childChain.ONE_COIN)
-                    .param("feeNQT", IGNIS.ONE_COIN)
-                    .build()
-                    .invoke();
+                    .amountNQT(100 * childChain.ONE_COIN)
+                    .feeNQT(IGNIS.ONE_COIN)
+                    .call();
 
             generateBlock();
         }

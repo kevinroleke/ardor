@@ -62,7 +62,7 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
     private static final int maxUnconfirmedTransactions;
     static {
         int n = Nxt.getIntProperty("nxt.maxUnconfirmedTransactions");
-        maxUnconfirmedTransactions = n <= 0 ? Integer.MAX_VALUE : n;
+        maxUnconfirmedTransactions = n <= 0 ? NetworkMessage.MAX_LIST_SIZE : Math.min(n, NetworkMessage.MAX_LIST_SIZE);
     }
 
     private static final TransactionProcessorImpl instance = new TransactionProcessorImpl();

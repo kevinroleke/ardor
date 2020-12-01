@@ -16,7 +16,7 @@ public class GetGuaranteedBalanceCall extends APICall.Builder<GetGuaranteedBalan
         return param("requireLastBlock", requireLastBlock);
     }
 
-    public GetGuaranteedBalanceCall numberOfConfirmations(String numberOfConfirmations) {
+    public GetGuaranteedBalanceCall numberOfConfirmations(int numberOfConfirmations) {
         return param("numberOfConfirmations", numberOfConfirmations);
     }
 

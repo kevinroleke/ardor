@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class SetAccountInfoCall extends CreateTransactionCallBuilder<SetAccountInfoCall> {
+public class SetAccountInfoCall extends CreateOneSideTransactionCallBuilder<SetAccountInfoCall> {
     private SetAccountInfoCall() {
         super(ApiSpec.setAccountInfo);
     }

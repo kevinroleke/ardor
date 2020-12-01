@@ -50,7 +50,7 @@ public class AddAccountPermissionTest extends BlockchainWithChildChainControlTes
                 .recipient(ALICE.getId())
                 .permission(CHAIN_ADMIN.name())
                 .feeNQT(IGNIS.ONE_COIN)
-                .build().invokeNoError();
+                .callNoError();
         generateBlock();
 
         assertHasPermission(childChain, ALICE, CHAIN_ADMIN);

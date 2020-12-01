@@ -25,18 +25,9 @@ NRS.onSiteBuildDone().then(() => {
         NRS.activePlugins = false;
         NRS.numRunningPlugins = 0;
 
-        NRS.checkForPluginManifest = function(pluginId) {
-            var manifest = undefined;
-            jQuery.ajaxSetup({ async: false });
-            $.ajax({
-                url: 'plugins/' + pluginId + '/manifest.json',
-                cache: false,
-                success: function(data){
-                    manifest = data;
-                }
-            });
-            jQuery.ajaxSetup({ async: true });
-            return manifest;
+        NRS.checkForPluginManifest = async function(pluginId) {
+            let response = await fetch('plugins/' + pluginId + '/manifest.json', {cache: "no-store"});
+            return await response.json();
         };
 
         NRS.checkPluginValidity = function(pluginId, manifest) {
@@ -187,10 +178,10 @@ NRS.onSiteBuildDone().then(() => {
         };
 
         NRS.initializePlugins = function() {
-            NRS.sendRequest("getPlugins", {}, function (response) {
+            NRS.sendRequest("getPlugins", {}, async function (response) {
                 if(response.plugins && response.plugins.length >= 0) {
                     for (var i=0; i<response.plugins.length; i++) {
-                        var manifest = NRS.checkForPluginManifest(response.plugins[i]);
+                        let manifest = await NRS.checkForPluginManifest(response.plugins[i]);
                         if (manifest) {
                             NRS.plugins[response.plugins[i]] = {
                                 'validity': NRS.constants.PV_NOT_VALID,

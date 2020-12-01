@@ -1,7 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-public class IssueAssetCall extends CreateTransactionCallBuilder<IssueAssetCall> {
+public class IssueAssetCall extends CreateOneSideTransactionCallBuilder<IssueAssetCall> {
     private IssueAssetCall() {
         super(ApiSpec.issueAsset);
     }

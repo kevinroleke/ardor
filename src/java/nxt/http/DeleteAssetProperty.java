@@ -19,6 +19,7 @@ package nxt.http;
 import nxt.NxtException;
 import nxt.account.Account;
 import nxt.ae.Asset;
+import nxt.ae.AssetExchangeTransactionType;
 import nxt.ae.AssetPropertyDeleteAttachment;
 import nxt.blockchain.Attachment;
 import nxt.util.Convert;
@@ -31,7 +32,8 @@ public final class DeleteAssetProperty extends CreateTransaction {
     static final DeleteAssetProperty instance = new DeleteAssetProperty();
 
     private DeleteAssetProperty() {
-        super(new APITag[]{APITag.AE, APITag.CREATE_TRANSACTION}, "asset", "property", "setter");
+        super(AssetExchangeTransactionType.ASSET_PROPERTY_DELETE, new APITag[]{APITag.AE, APITag.CREATE_TRANSACTION},
+                "asset", "property", "setter");
     }
 
     @Override

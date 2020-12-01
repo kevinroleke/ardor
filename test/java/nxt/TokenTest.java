@@ -26,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 
 public class TokenTest extends BlockchainTest {
     @Test
-    public void testParseValidToken() throws Exception {
+    public void testParseValidToken() {
         String token = "6s7hchl9q0e5jgrrtgscoip2lcb2o3oi7ndso1bnjr475suv001ug93uu8aq2f00o7q6pvs2ivrpra1svouvb4k5nreco0tt94qest9mq5jg2qihcvj5n5ljqht5fl6n39nslr7kidqh8kh8u8v6e4rn92f47l3i";
         Token actual = Token.parseToken(token, "http://nxt.org");
 
@@ -35,7 +35,7 @@ public class TokenTest extends BlockchainTest {
     }
 
     @Test
-    public void testParseInValidToken() throws Exception {
+    public void testParseInValidToken() {
         String token = "6s7hchl9q0e5jgrrtgscoip2lcb2o3oi7ndso1bnjr475suv001ug93uu8aq2f00o7q6pvs2ivrpra1svouvb4k5nreco0tt94qest9mq5jg2qihcvj5n5ljqht5fl6n39nslr7kidqh8kh8u8v6e4rn92f47l3i";
         Token actual = Token.parseToken(token, "http://next.org");
 
@@ -44,7 +44,7 @@ public class TokenTest extends BlockchainTest {
     }
 
     @Test
-    public void testGenerateToken() throws Exception {
+    public void testGenerateToken() {
         int start = Nxt.getEpochTime();
         String tokenString = Token.generateToken(Crypto.getPrivateKey("secret"), "http://nxt.org");
         int end = Nxt.getEpochTime();
@@ -56,21 +56,21 @@ public class TokenTest extends BlockchainTest {
     }
 
     @Test
-    public void emptySecret() throws Exception {
+    public void emptySecret() {
         String tokenString = Token.generateToken(Crypto.getPrivateKey(""), "http://nxt.org");
         Token token = Token.parseToken(tokenString, "http://nxt.org");
         assertTrue(token.isValid());
     }
 
     @Test
-    public void emptySite() throws Exception {
+    public void emptySite() {
         String tokenString = Token.generateToken(Crypto.getPrivateKey("secret"), "");
         Token token = Token.parseToken(tokenString, "");
         assertTrue(token.isValid());
     }
 
     @Test
-    public void veryLongSite() throws Exception {
+    public void veryLongSite() {
         StringBuilder site = new StringBuilder(6 * 100000);
         for (int i = 0; i < 100000; i++) {
             site.append("abcd10");

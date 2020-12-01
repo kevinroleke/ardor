@@ -1,9 +1,7 @@
 // Auto generated code, do not modify
 package nxt.http.callers;
 
-import nxt.http.APICall;
-
-public class GetAllOpenAskOrdersCall extends APICall.Builder<GetAllOpenAskOrdersCall> {
+public class GetAllOpenAskOrdersCall extends ChainSpecificCallBuilder<GetAllOpenAskOrdersCall> {
     private GetAllOpenAskOrdersCall() {
         super(ApiSpec.getAllOpenAskOrders);
     }

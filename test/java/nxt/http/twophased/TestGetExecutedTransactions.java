@@ -22,12 +22,12 @@ import nxt.Nxt;
 import nxt.Tester;
 import nxt.account.PaymentFxtTransactionType;
 import nxt.account.PaymentTransactionType;
-import nxt.blockchain.ChildChain;
-import nxt.blockchain.FxtChain;
 import nxt.blockchain.FxtTransactionType;
 import nxt.blockchain.TransactionType;
-import nxt.http.APICall;
 import nxt.http.accountControl.ACTestUtils;
+import nxt.http.callers.ApproveTransactionCall;
+import nxt.http.callers.GetExecutedTransactionsCall;
+import nxt.http.callers.SendMoneyCall;
 import nxt.util.JSONAssert;
 import nxt.voting.VoteWeighting;
 import org.json.simple.JSONObject;
@@ -43,44 +43,54 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static nxt.blockchain.ChildChain.IGNIS;
+import static nxt.blockchain.FxtChain.FXT;
+
 public class TestGetExecutedTransactions extends BlockchainTest {
     @Test
     public void testExecutedAtHeight() {
-        long amount = ChildChain.IGNIS.ONE_COIN * 3;
+        long amount = IGNIS.ONE_COIN * 3;
 
         Set<String> expectedTransactionIds = new TreeSet<>();
         String approveTransactionId = null;
         List<String> transactionsToApprove = new ArrayList<>();
 
         int queriedHeight = Nxt.getBlockchain().getHeight() + 10;
-        ACTestUtils.PhasingBuilder phasedBuilder = new ACTestUtils.PhasingBuilder("sendMoney", ALICE);
-        phasedBuilder.param("recipient", BOB.getStrId()).param("amountNQT", amount);
-        phasedBuilder.votingModel(VoteWeighting.VotingModel.ACCOUNT).whitelist(CHUCK).quorum(1);
+        SendMoneyCall sendMoneyCall = SendMoneyCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .phased(true)
+                .phasingFinishHeight(Nxt.getBlockchain().getHeight() + 5)
+                .recipient(BOB.getStrId())
+                .amountNQT(amount)
+                .phasingVotingModel(VoteWeighting.VotingModel.ACCOUNT.getCode())
+                .phasingWhitelisted(CHUCK.getStrId())
+                .phasingQuorum(1);
 
         for (int i = 0; i < 20; i++) {
             int height = Nxt.getBlockchain().getHeight();
             int finishHeight = height + 10;
-            phasedBuilder.param("phasingFinishHeight", finishHeight).param("amountNQT", amount + i);
-            String fullHash = new JSONAssert(phasedBuilder.build().invoke()).str("fullHash");
+            sendMoneyCall.phasingFinishHeight(finishHeight).amountNQT(amount + i);
+            String fullHash = new JSONAssert(sendMoneyCall.call()).str("fullHash");
             if (height < queriedHeight - 2 && queriedHeight < finishHeight) {
                 expectedTransactionIds.add(fullHash);
-                transactionsToApprove.add(ChildChain.IGNIS.getId() + ":" + fullHash);
+                transactionsToApprove.add(IGNIS.getId() + ":" + fullHash);
             }
 
-            APICall.Builder builder = new APICall.Builder("sendMoney").secretPhrase(ALICE.getSecretPhrase()).
-                    param("recipient", BOB.getStrId()).feeNQT(ChildChain.IGNIS.ONE_COIN);
+            SendMoneyCall builder = SendMoneyCall.create(IGNIS.getId()).secretPhrase(ALICE.getSecretPhrase()).
+                    recipient(BOB.getStrId()).feeNQT(IGNIS.ONE_COIN);
             IntStream.range(0, 10).forEach(j -> {
-                builder.param("amountNQT", amount + j);
-                String fullHash1 = new JSONAssert(builder.build().invoke()).str("fullHash");
+                builder.amountNQT(amount + j);
+                String fullHash1 = new JSONAssert(builder.call()).str("fullHash");
                 if (height + 1 == queriedHeight) {
                     expectedTransactionIds.add(fullHash1);
                 }
             });
 
             if (height + 1 == queriedHeight) {
-                APICall.Builder approveBuilder = ACTestUtils.approveBuilder(transactionsToApprove.get(0), CHUCK, null);
-                approveBuilder.param("phasedTransaction", transactionsToApprove.toArray(new String[transactionsToApprove.size()]));
-                approveTransactionId = new JSONAssert(approveBuilder.build().invoke()).str("fullHash");
+                ApproveTransactionCall approveBuilder = ACTestUtils.approveBuilder(transactionsToApprove.get(0), CHUCK, null);
+                approveBuilder.phasedTransaction(transactionsToApprove.toArray(new String[0]));
+                approveTransactionId = new JSONAssert(approveBuilder.call()).str("fullHash");
             }
 
             generateBlock();
@@ -100,42 +110,47 @@ public class TestGetExecutedTransactions extends BlockchainTest {
         paymentsAndApproveTransaction.add(approveTransactionId);
         Assert.assertEquals(paymentsAndApproveTransaction, actualTransactionIds);
 
-        APICall.Builder builder = executedTransactionsBuilder(BOB, null);
-        builder.param("height", queriedHeight);
-        builder.param("type", PaymentTransactionType.ORDINARY.getType());
-        actualTransactionIds = getTransactionIds(new JSONAssert(builder.build().invoke()));
+        GetExecutedTransactionsCall builder = executedTransactionsBuilder(BOB, null);
+        builder.height(queriedHeight);
+        builder.type(PaymentTransactionType.ORDINARY.getType());
+        actualTransactionIds = getTransactionIds(new JSONAssert(builder.call()));
 
         Assert.assertEquals(expectedTransactionIds, actualTransactionIds);
     }
 
     @Test
     public void testConfirmed() {
-        long amount = ChildChain.IGNIS.ONE_COIN * 3;
+        long amount = IGNIS.ONE_COIN * 3;
 
-        Set<String> expectedTransactionIds = new TreeSet<>();
-
-        APICall.Builder queryBuilder = executedTransactionsBuilder(BOB, PaymentTransactionType.ORDINARY);
-        queryBuilder.param("numberOfConfirmations", 0);
+        GetExecutedTransactionsCall queryBuilder = executedTransactionsBuilder(BOB, PaymentTransactionType.ORDINARY);
+        queryBuilder.numberOfConfirmations(0);
         //add the current transactions as expected
-        expectedTransactionIds.addAll(getTransactionIds(new JSONAssert(queryBuilder.build().invoke())));
+        Set<String> expectedTransactionIds = new TreeSet<>(getTransactionIds(new JSONAssert(queryBuilder.call())));
 
         int confirmations = 5;
         int queriedHeight = Nxt.getBlockchain().getHeight() + 20 - confirmations;
-        ACTestUtils.PhasingBuilder phasedBuilder = new ACTestUtils.PhasingBuilder("sendMoney", ALICE);
-        phasedBuilder.param("recipient", BOB.getStrId()).param("amountNQT", amount);
-        phasedBuilder.votingModel(VoteWeighting.VotingModel.ACCOUNT).whitelist(CHUCK).quorum(1);
+        SendMoneyCall sendMoneyCall = SendMoneyCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .phased(true)
+                .phasingFinishHeight(Nxt.getBlockchain().getHeight() + 5)
+                .recipient(BOB.getStrId())
+                .amountNQT(amount)
+                .phasingVotingModel(VoteWeighting.VotingModel.ACCOUNT.getCode())
+                .phasingWhitelisted(CHUCK.getStrId())
+                .phasingQuorum(1);
 
         IntStream.range(0, 20).forEach(i -> {
             int height = Nxt.getBlockchain().getHeight();
             int finishHeight = height + 10;
-            phasedBuilder.param("phasingFinishHeight", finishHeight).param("amountNQT", amount + i);
-            String phasedFullHash = new JSONAssert(phasedBuilder.build().invoke()).str("fullHash");
+            sendMoneyCall.phasingFinishHeight(finishHeight).amountNQT(amount + i);
+            String phasedFullHash = new JSONAssert(sendMoneyCall.call()).str("fullHash");
 
-            APICall.Builder builder = new APICall.Builder("sendMoney").secretPhrase(ALICE.getSecretPhrase()).
-                    param("recipient", BOB.getStrId()).feeNQT(ChildChain.IGNIS.ONE_COIN);
+            SendMoneyCall builder = SendMoneyCall.create(IGNIS.getId()).secretPhrase(ALICE.getSecretPhrase()).
+                    recipient(BOB.getStrId()).feeNQT(IGNIS.ONE_COIN);
             IntStream.range(0, 10).forEach(j -> {
-                builder.param("amountNQT", amount + j);
-                String fullHash = new JSONAssert(builder.build().invoke()).str("fullHash");
+                builder.amountNQT(amount + j);
+                String fullHash = new JSONAssert(builder.call()).str("fullHash");
                 if (height + 1 <= queriedHeight) {
                     expectedTransactionIds.add(fullHash);
                 }
@@ -150,22 +165,22 @@ public class TestGetExecutedTransactions extends BlockchainTest {
         });
 
         queryBuilder = executedTransactionsBuilder(BOB, PaymentTransactionType.ORDINARY);
-        queryBuilder.param("numberOfConfirmations", confirmations);
+        queryBuilder.numberOfConfirmations(confirmations);
 
-        JSONAssert result = new JSONAssert(queryBuilder.build().invoke());
+        JSONAssert result = new JSONAssert(queryBuilder.call());
 
         Assert.assertEquals(expectedTransactionIds, getTransactionIds(result));
 
         queryBuilder = executedTransactionsBuilder(null, PaymentTransactionType.ORDINARY);
-        queryBuilder.param("numberOfConfirmations", confirmations);
+        queryBuilder.numberOfConfirmations(confirmations);
 
-        result = new JSONAssert(queryBuilder.build().invoke());
+        result = new JSONAssert(queryBuilder.call());
         Assert.assertTrue(result.str("errorDescription").startsWith("At least one of"));
     }
 
     @Test
     public void testOrder() {
-        long amount = ChildChain.IGNIS.ONE_COIN * 3;
+        long amount = IGNIS.ONE_COIN * 3;
 
         List<String> phasedFullHashes = new ArrayList<>();
         LinkedList<String> expectedTransactionIds = new LinkedList<>();
@@ -173,12 +188,19 @@ public class TestGetExecutedTransactions extends BlockchainTest {
         IntStream.range(0, 10).forEach(i -> {
             int height = Nxt.getBlockchain().getHeight();
             int finishHeight = height + 50;
-            ACTestUtils.PhasingBuilder phasedBuilder = new ACTestUtils.PhasingBuilder("sendMoney", ALICE);
-            phasedBuilder.param("recipient", BOB.getStrId()).param("amountNQT", amount);
-            phasedBuilder.votingModel(VoteWeighting.VotingModel.ACCOUNT).whitelist(CHUCK).quorum(1);
+            SendMoneyCall sendMoneyCall = SendMoneyCall.create(IGNIS.getId())
+                    .secretPhrase(ALICE.getSecretPhrase())
+                    .feeNQT(IGNIS.ONE_COIN)
+                    .phased(true)
+                    .phasingFinishHeight(Nxt.getBlockchain().getHeight() + 5)
+                    .recipient(BOB.getStrId())
+                    .amountNQT(amount)
+                    .phasingVotingModel(VoteWeighting.VotingModel.ACCOUNT.getCode())
+                    .phasingWhitelisted(CHUCK.getStrId())
+                    .phasingQuorum(1);
 
-            phasedBuilder.param("phasingFinishHeight", finishHeight).param("amountNQT", amount + i);
-            String phasedFullHash = new JSONAssert(phasedBuilder.build().invoke()).str("fullHash");
+            sendMoneyCall.phasingFinishHeight(finishHeight).amountNQT(amount + i);
+            String phasedFullHash = new JSONAssert(sendMoneyCall.call()).str("fullHash");
             phasedFullHashes.add(phasedFullHash);
         });
         generateBlock();
@@ -186,10 +208,10 @@ public class TestGetExecutedTransactions extends BlockchainTest {
         //interleave non-phased and executed phased transactions
         IntStream.range(0, 10).forEach(j -> {
 
-            APICall.Builder builder = new APICall.Builder("sendMoney").secretPhrase(ALICE.getSecretPhrase()).
-                    param("recipient", BOB.getStrId()).feeNQT(ChildChain.IGNIS.ONE_COIN);
-            builder.param("amountNQT", amount + j);
-            String fullHash = new JSONAssert(builder.build().invoke()).str("fullHash");
+            SendMoneyCall builder = SendMoneyCall.create(IGNIS.getId()).secretPhrase(ALICE.getSecretPhrase()).
+                    recipient(BOB.getStrId()).feeNQT(IGNIS.ONE_COIN);
+            builder.amountNQT(amount + j);
+            String fullHash = new JSONAssert(builder.call()).str("fullHash");
             expectedTransactionIds.addFirst(fullHash);
             generateBlock();
 
@@ -200,27 +222,27 @@ public class TestGetExecutedTransactions extends BlockchainTest {
         });
 
         //result must be ordered by execution height (descending), not acceptance height
-        APICall.Builder queryBuilder = executedTransactionsBuilder(BOB, PaymentTransactionType.ORDINARY);
-        queryBuilder.param("lastIndex", 19); //get 20 results
-        JSONAssert result = new JSONAssert(queryBuilder.build().invoke());
+        GetExecutedTransactionsCall queryBuilder = executedTransactionsBuilder(BOB, PaymentTransactionType.ORDINARY);
+        queryBuilder.lastIndex(19); //get 20 results
+        JSONAssert result = new JSONAssert(queryBuilder.call());
 
         Assert.assertEquals(expectedTransactionIds, getOrderedTransactionIds(result));
     }
 
     @Test
     public void testFXT() {
-        long amount = FxtChain.FXT.ONE_COIN * 3;
+        long amount = FXT.ONE_COIN * 3;
         int queriedHeight = Nxt.getBlockchain().getHeight() + 3;
         List<String> expectedTransactionIds = new ArrayList<>();
 
         IntStream.range(0, 9).forEach(i -> {
             int height = Nxt.getBlockchain().getHeight();
-            APICall.Builder builder = new APICall.Builder("sendMoney").secretPhrase(ALICE.getSecretPhrase()).
-                    param("chain", FxtChain.FXT.getId()).param("recipient", BOB.getStrId()).feeNQT(FxtChain.FXT.ONE_COIN * 10);
+            SendMoneyCall builder = SendMoneyCall.create(FXT.getId()).secretPhrase(ALICE.getSecretPhrase()).
+                    recipient(BOB.getStrId()).feeNQT(FXT.ONE_COIN * 10);
             IntStream.range(0, Math.min(15, Constants.MAX_NUMBER_OF_FXT_TRANSACTIONS)).forEach(j -> {
                 long time = System.currentTimeMillis();
-                builder.param("amountNQT", amount + j);
-                String fullHash = new JSONAssert(builder.build().invoke()).str("fullHash");
+                builder.amountNQT(amount + j);
+                String fullHash = new JSONAssert(builder.call()).str("fullHash");
                 if (height + 1 == queriedHeight) {
                     expectedTransactionIds.add(fullHash);
                 }
@@ -229,6 +251,7 @@ public class TestGetExecutedTransactions extends BlockchainTest {
                 //should match the transaction_index in order for the pagination test to be valid
                 while (System.currentTimeMillis() == time) {
                     try {
+                        //noinspection BusyWait
                         Thread.sleep(1);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -242,15 +265,15 @@ public class TestGetExecutedTransactions extends BlockchainTest {
 
         Assert.assertEquals(new TreeSet<>(expectedTransactionIds), actualTransactionIds);
 
-        APICall.Builder builder = executedTransactionsBuilder(BOB, PaymentFxtTransactionType.ORDINARY);
-        builder.param("height", queriedHeight);
+        GetExecutedTransactionsCall builder = executedTransactionsBuilder(BOB, PaymentFxtTransactionType.ORDINARY);
+        builder.height(queriedHeight);
 
         int first = 3;
         int last = 4;
 
-        builder.param("firstIndex", first);
-        builder.param("lastIndex", expectedTransactionIds.size() - last);
-        actualTransactionIds = getTransactionIds(new JSONAssert(builder.build().invoke()));
+        builder.firstIndex(first);
+        builder.lastIndex(expectedTransactionIds.size() - last);
+        actualTransactionIds = getTransactionIds(new JSONAssert(builder.call()));
 
         List<String> expectedView = expectedTransactionIds.subList(0, expectedTransactionIds.size() - first);
         expectedView = expectedView.subList(last - 1, expectedView.size());
@@ -259,9 +282,9 @@ public class TestGetExecutedTransactions extends BlockchainTest {
     }
 
     private SortedSet<String> getExecutedTransactionsIds(int height, Tester recipient, TransactionType transactionType) {
-        APICall.Builder builder = executedTransactionsBuilder(recipient, transactionType);
-        builder.param("height", height);
-        JSONAssert result = new JSONAssert(builder.build().invoke());
+        GetExecutedTransactionsCall builder = executedTransactionsBuilder(recipient, transactionType);
+        builder.height(height);
+        JSONAssert result = new JSONAssert(builder.call());
 
         return getTransactionIds(result);
     }
@@ -276,17 +299,13 @@ public class TestGetExecutedTransactions extends BlockchainTest {
                 map(t -> new JSONAssert(t).str("fullHash")).collect(Collectors.toCollection(ArrayList::new));
     }
 
-    private APICall.Builder executedTransactionsBuilder(Tester recipient, TransactionType transactionType) {
-        APICall.Builder builder = new APICall.Builder("getExecutedTransactions");
+    private GetExecutedTransactionsCall executedTransactionsBuilder(Tester recipient, TransactionType transactionType) {
+        GetExecutedTransactionsCall builder = GetExecutedTransactionsCall.create(transactionType instanceof FxtTransactionType ? FXT.getId() : IGNIS.getId());
         if (transactionType != null) {
-            builder.param("type", transactionType.getType()).
-                    param("subtype", transactionType.getSubtype());
+            builder.type(transactionType.getType()).subtype(transactionType.getSubtype());
         }
         if (recipient != null) {
-            builder.param("recipient", recipient.getStrId());
-        }
-        if (transactionType instanceof FxtTransactionType) {
-            builder.param("chain", FxtChain.FXT.getId());
+            builder.recipient(recipient.getStrId());
         }
         return builder;
     }

@@ -113,7 +113,7 @@ public class RemoveAccountPermissionTest extends BlockchainWithChildChainControl
                     .recipient(recipient.getId())
                     .permission(permission.name())
                     .feeNQT(IGNIS.ONE_COIN)
-                    .build().invokeNoError();
+                    .callNoError();
             generateBlock();
         }
 
@@ -135,7 +135,7 @@ public class RemoveAccountPermissionTest extends BlockchainWithChildChainControl
                     .permission(permission.name())
                     .height(height)
                     .feeNQT(IGNIS.ONE_COIN)
-                    .build().invokeNoError();
+                    .callNoError();
             generateBlock();
         }
 

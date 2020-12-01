@@ -61,6 +61,7 @@ public class APICall {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     public static class Builder<T extends Builder> {
         protected final Map<String, List<String>> params = new HashMap<>();
         private final List<String> validParams = new ArrayList<>();
@@ -71,11 +72,7 @@ public class APICall {
         private URL remoteUrl;
         private boolean isTrustRemoteCertificate;
 
-        public Builder(String requestType) {
-            this(ApiSpec.valueOf(requestType));
-        }
-
-        public Builder(ApiSpec apiSpec) {
+        protected Builder(ApiSpec apiSpec) {
             this(apiSpec.name(), apiSpec.getParameters(), apiSpec.getFileParameters(), apiSpec.isChainSpecific());
         }
 
@@ -195,30 +192,6 @@ public class APICall {
             return param("sharedPieceAccount", value);
         }
 
-        public T chain(String chain) {
-            return param("chain", chain);
-        }
-
-        public T chain(int chainId) {
-            return param("chain", "" + chainId);
-        }
-
-        public T feeNQT(long value) {
-            return param("feeNQT", "" + value);
-        }
-
-        public T feeRateNQTPerFXT(long value) {
-            return param("feeRateNQTPerFXT", "" + value);
-        }
-
-        public T recipient(long id) {
-            return param("recipient", Long.toUnsignedString(id));
-        }
-
-        public T recipient(String recipient) {
-            return param("recipient", recipient);
-        }
-
         public String getParam(String key) {
             List<String> values = params.get(key);
             return values == null ? null : values.get(0);
@@ -243,6 +216,7 @@ public class APICall {
             return self();
         }
 
+        @SuppressWarnings("unchecked")
         private T self() {
             return (T) this;
         }
@@ -253,6 +227,15 @@ public class APICall {
 
         public JO call() {
             return new APICall(this).getJsonResponse();
+        }
+
+        public JO callNoError() {
+            JO actual = call();
+
+            assertNull(actual.get("errorDescription"));
+            assertNull(actual.get("errorCode"));
+
+            return actual;
         }
 
         public byte[] download() {
@@ -370,13 +353,13 @@ public class APICall {
     }
 
     public InvocationError invokeWithError() {
-        JSONObject actual = invoke();
+        JO actual = invoke();
         return new InvocationError(actual);
     }
 
 
-    public JSONObject invokeNoError() {
-        JSONObject actual = invoke();
+    public JO invokeNoError() {
+        JO actual = invoke();
 
         assertNull(actual.get("errorDescription"));
         assertNull(actual.get("errorCode"));
@@ -384,15 +367,15 @@ public class APICall {
         return actual;
     }
 
-    public JSONObject invoke() {
-        return AccessController.doPrivileged((PrivilegedAction<JSONObject>) this::invokeImpl);
+    public JO invoke() {
+        return AccessController.doPrivileged((PrivilegedAction<JO>) this::invokeImpl);
     }
 
-    private JSONObject invokeImpl() {
+    private JO invokeImpl() {
         try {
             InputStream inputStream = apiConnector.getInputStream();
             try (Reader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-                return (JSONObject) JSONValue.parseWithException(reader); // Parse the response into Json object
+                return new JO((JSONObject) JSONValue.parseWithException(reader)); // Parse the response into Json object
             }
         } catch (IllegalStateException e) {
             throw e;
@@ -414,10 +397,11 @@ public class APICall {
         return o;
     }
 
+    @SuppressWarnings("SameParameterValue")
     public static class InvocationError {
-        private final JSONObject jsonObject;
+        private final JO jsonObject;
 
-        public InvocationError(JSONObject jsonObject) {
+        public InvocationError(JO jsonObject) {
             this.jsonObject = jsonObject;
         }
 

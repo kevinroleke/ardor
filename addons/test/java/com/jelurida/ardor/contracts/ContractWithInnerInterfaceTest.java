@@ -25,7 +25,7 @@ public class ContractWithInnerInterfaceTest extends AbstractContractTest {
     @Test
     public void tryLoad() {
         String contractName = ContractTestHelper.deployContract(ContractWithInnerInterface.class);
-        JO response = TriggerContractByRequestCall.create().contractName(contractName).call();
+        JO response = TriggerContractByRequestCall.create().contractName(contractName).callNoError();
         Assert.assertEquals("prefix_myMessage", response.getString("text"));
     }
 }

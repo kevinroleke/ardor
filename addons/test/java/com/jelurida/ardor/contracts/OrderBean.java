@@ -1,10 +1,10 @@
 package com.jelurida.ardor.contracts;
 
 import nxt.BlockchainTest;
+import nxt.addons.JO;
 import nxt.blockchain.Chain;
 import nxt.http.callers.ExchangeCoinsCall;
 import nxt.http.responses.CoinExchangeOrderResponse;
-import org.json.simple.JSONObject;
 
 import java.util.List;
 import java.util.Objects;
@@ -133,13 +133,13 @@ public class OrderBean {
         long feeNQT = fromChain == FXT || toChain == FXT
                 ? FXT.ONE_COIN / 2
                 : fromChain.ONE_COIN;
-        JSONObject response = ExchangeCoinsCall.create(fromChain.getId())
+        JO response = ExchangeCoinsCall.create(fromChain.getId())
                 .exchange(toChain.getId())
                 .quantityQNT(quantity)
                 .priceNQTPerCoin(price)
                 .secretPhrase(BlockchainTest.DAVE.getSecretPhrase())
                 .feeNQT(feeNQT)
-                .build().invokeNoError();
+                .callNoError();
         System.out.println(response);
     }
 }

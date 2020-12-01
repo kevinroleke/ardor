@@ -507,6 +507,14 @@ public class ChildDbVersion extends DbVersion {
                         .forEach(accountId -> permissionWriter.addInitialPermission(accountId, PermissionType.MASTER_ADMIN)));
                 apply(null);
             case 164:
+                apply("DROP INDEX IF EXISTS ask_order_asset_id_price_idx");
+            case 165:
+                apply("CREATE INDEX IF NOT EXISTS ask_order_asset_id_price_idx ON ask_order (asset_id, latest, price)");
+            case 166:
+                apply("DROP INDEX IF EXISTS bid_order_asset_id_price_idx");
+            case 167:
+                apply("CREATE INDEX IF NOT EXISTS bid_order_asset_id_price_idx ON bid_order (asset_id, latest, price DESC)");
+            case 168:
                 return;
             default:
                 throw new RuntimeException("Child chain " + schema + " database inconsistent with code, at update " + nextUpdate

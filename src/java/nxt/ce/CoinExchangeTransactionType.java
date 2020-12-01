@@ -106,7 +106,7 @@ public abstract class CoinExchangeTransactionType extends ChildTransactionType {
             OrderIssueAttachment attachment = (OrderIssueAttachment)transaction.getAttachment();
             BalanceHome.Balance balance = attachment.getChain().getBalanceHome().getBalance(senderAccount.getId());
             long amountNQT = Convert.unitRateToAmount(attachment.getQuantityQNT(), attachment.getExchangeChain().getDecimals(),
-                                        attachment.getPriceNQT(), attachment.getChain().getDecimals()) + 1;
+                                        attachment.getPriceNQT(), attachment.getChain().getDecimals()) + CoinExchange.AMOUNT_RESERVE;
             if (balance.getUnconfirmedBalance() >= amountNQT) {
                 balance.addToUnconfirmedBalance(getLedgerEvent(), AccountLedger.newEventId(transaction), -amountNQT);
                 return true;
@@ -119,7 +119,7 @@ public abstract class CoinExchangeTransactionType extends ChildTransactionType {
             OrderIssueAttachment attachment = (OrderIssueAttachment)transaction.getAttachment();
             BalanceHome.Balance balance = attachment.getChain().getBalanceHome().getBalance(senderAccount.getId());
             long amountNQT = Convert.unitRateToAmount(attachment.getQuantityQNT(), attachment.getExchangeChain().getDecimals(),
-                                        attachment.getPriceNQT(), attachment.getChain().getDecimals()) + 1;
+                                        attachment.getPriceNQT(), attachment.getChain().getDecimals()) + CoinExchange.AMOUNT_RESERVE;
             balance.addToUnconfirmedBalance(getLedgerEvent(), AccountLedger.newEventId(transaction), amountNQT);
         }
 

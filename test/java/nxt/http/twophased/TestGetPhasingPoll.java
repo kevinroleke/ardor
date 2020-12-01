@@ -18,45 +18,45 @@ package nxt.http.twophased;
 
 
 import nxt.BlockchainTest;
-import nxt.blockchain.ChildChain;
+import nxt.addons.JO;
 import nxt.http.APICall;
+import nxt.http.callers.ApproveTransactionCall;
+import nxt.http.callers.GetPhasingPollCall;
 import nxt.util.Logger;
-import org.json.simple.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
+
+import static nxt.blockchain.ChildChain.IGNIS;
 
 public class TestGetPhasingPoll extends BlockchainTest {
 
     @Test
     public void transactionVotes() {
 
-        APICall apiCall = new TestCreateTwoPhased.TwoPhasedMoneyTransferBuilder()
-                .quorum(1)
+        APICall apiCall = TestCreateTwoPhased.createSendMoneyBuilder()
+                .phasingQuorum(1)
                 .build();
-        JSONObject transactionJSON = TestCreateTwoPhased.issueCreateTwoPhased(apiCall, false);
+        JO transactionJSON = TestCreateTwoPhased.issueCreateTwoPhased(apiCall, false);
         String fullHash = (String) transactionJSON.get("fullHash");
 
         generateBlock();
 
-        long fee = ChildChain.IGNIS.ONE_COIN;
-        apiCall = new APICall.Builder("approveTransaction")
-                .param("secretPhrase", CHUCK.getSecretPhrase())
-                .param("phasedTransaction", ChildChain.IGNIS.getId() + ":" + fullHash)
-                .param("feeNQT", fee)
-                .build();
-        JSONObject response = apiCall.invoke();
+        long fee = IGNIS.ONE_COIN;
+        JO response = ApproveTransactionCall.create(IGNIS.getId())
+                .secretPhrase(CHUCK.getSecretPhrase())
+                .phasedTransaction(IGNIS.getId() + ":" + fullHash)
+                .feeNQT(fee)
+                .callNoError();
         Logger.logMessage("approveTransactionResponse:" + response.toJSONString());
 
         generateBlock();
 
-        apiCall = new APICall.Builder("getPhasingPoll")
-                .param("transactionFullHash", fullHash)
-                .param("countVotes", "true")
-                .build();
-        response = apiCall.invoke();
+        response = GetPhasingPollCall.create(IGNIS.getId())
+                .transactionFullHash(fullHash)
+                .countVotes(true)
+                .callNoError();
         Logger.logMessage("getPhasingPollResponse:" + response.toJSONString());
 
-        Assert.assertNull(response.get("errorCode"));
         Assert.assertEquals(1, Integer.parseInt((String) response.get("result")));
     }
 

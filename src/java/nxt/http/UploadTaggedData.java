@@ -24,12 +24,15 @@ import org.json.simple.JSONStreamAware;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 
+import static nxt.taggeddata.TaggedDataTransactionType.TAGGED_DATA_UPLOAD;
+
 public final class UploadTaggedData extends CreateTransaction {
 
     static final UploadTaggedData instance = new UploadTaggedData();
 
     private UploadTaggedData() {
-        super(Collections.singletonList("file"), new APITag[] {APITag.DATA, APITag.CREATE_TRANSACTION},
+        super(Collections.singletonList(TAGGED_DATA_UPLOAD), Collections.singletonList("file"),
+                new APITag[] {APITag.DATA, APITag.CREATE_TRANSACTION},
                 "name", "description", "tags", "type", "channel", "isText", "filename", "data");
     }
 

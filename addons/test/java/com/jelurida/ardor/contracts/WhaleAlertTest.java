@@ -45,7 +45,7 @@ public class WhaleAlertTest extends AbstractContractTest {
 
     @Test
     public void sendMoneyAlert() {
-        JO setInfoResponse = SetAccountInfoCall.create(2).name("Alice").secretPhrase(ALICE.getSecretPhrase()).feeNQT(ChildChain.IGNIS.ONE_COIN).call();
+        JO setInfoResponse = SetAccountInfoCall.create(2).name("Alice").secretPhrase(ALICE.getSecretPhrase()).feeNQT(ChildChain.IGNIS.ONE_COIN).callNoError();
         Logger.logInfoMessage(setInfoResponse.toJSONString());
         ContractTestHelper.deployContract(SlackNotifier.class);
         String contractName = ContractTestHelper.deployContract(WhaleAlert.class);
@@ -55,16 +55,16 @@ public class WhaleAlertTest extends AbstractContractTest {
         Assert.assertEquals(1002, response.getInt("errorCode"));
 
         // Submit high value transaction and make sure it raises an alert
-        response = SendMoneyCall.create(2).amountNQT(1000L * ChildChain.IGNIS.ONE_COIN).recipient(BOB.getRsAccount()).privateKey(ALICE.getPrivateKey()).feeNQT(ChildChain.IGNIS.ONE_COIN).call();
+        response = SendMoneyCall.create(2).amountNQT(1000L * ChildChain.IGNIS.ONE_COIN).recipient(BOB.getRsAccount()).privateKey(ALICE.getPrivateKey()).feeNQT(ChildChain.IGNIS.ONE_COIN).callNoError();
         Logger.logInfoMessage(response.toJSONString());
         generateBlock();
 
-        response = TriggerContractByRequestCall.create().contractName(contractName).setParamValidation(false).param("height", Nxt.getBlockchain().getHeight()).call();
+        response = TriggerContractByRequestCall.create().contractName(contractName).setParamValidation(false).param("height", Nxt.getBlockchain().getHeight()).callNoError();
         JA messages = response.getArray("messages");
         Assert.assertEquals(String.format(WhaleAlert.ALERT_MESSAGE_FORMAT, "Testnet", 1000.00000000, ChildChain.IGNIS.getName(), "coin", "paid", Nxt.getBlockchain().getHeight(), " from ARDOR-XK4R-7VJU-6EQG-7R335 (Alice) to ARDOR-EVHD-5FLM-3NMQ-G46NR"), messages.get(0).getString("message"));
 
         // Submit low value transaction and make sure it does not raise an alert
-        response = SendMoneyCall.create(2).amountNQT(ChildChain.IGNIS.ONE_COIN).recipient(BOB.getRsAccount()).privateKey(ALICE.getPrivateKey()).feeNQT(ChildChain.IGNIS.ONE_COIN).call();
+        response = SendMoneyCall.create(2).amountNQT(ChildChain.IGNIS.ONE_COIN).recipient(BOB.getRsAccount()).privateKey(ALICE.getPrivateKey()).feeNQT(ChildChain.IGNIS.ONE_COIN).callNoError();
         Logger.logInfoMessage(response.toJSONString());
         generateBlock();
 
@@ -82,7 +82,7 @@ public class WhaleAlertTest extends AbstractContractTest {
         OrderBean.createOrderBook(orders);
         generateBlock();
 
-        JO response = TriggerContractByRequestCall.create().contractName(contractName).setParamValidation(false).param("height", Nxt.getBlockchain().getHeight()).call();
+        JO response = TriggerContractByRequestCall.create().contractName(contractName).setParamValidation(false).param("height", Nxt.getBlockchain().getHeight()).callNoError();
         JA messages = response.getArray("messages");
         Assert.assertEquals(String.format(WhaleAlert.ALERT_MESSAGE_FORMAT, "Testnet", 1000.00000000, FxtChain.FXT_NAME, "coin", "exchanged", Nxt.getBlockchain().getHeight(), ""), messages.get(0).getString("message"));
         Assert.assertEquals(String.format(WhaleAlert.ALERT_MESSAGE_FORMAT, "Testnet", 1000.00000000, ChildChain.IGNIS.getName(), "coin", "exchanged", Nxt.getBlockchain().getHeight(), ""), messages.get(1).getString("message"));
@@ -94,7 +94,7 @@ public class WhaleAlertTest extends AbstractContractTest {
 
     @Test
     public void assetTransferAlert() {
-        JO setInfoResponse = SetAccountInfoCall.create(2).name("Alice").secretPhrase(ALICE.getSecretPhrase()).feeNQT(ChildChain.IGNIS.ONE_COIN).call();
+        JO setInfoResponse = SetAccountInfoCall.create(2).name("Alice").secretPhrase(ALICE.getSecretPhrase()).feeNQT(ChildChain.IGNIS.ONE_COIN).callNoError();
         Logger.logInfoMessage(setInfoResponse.toJSONString());
 
         TransactionResponse issueAssetTransaction = IssueAssetCall.create(2).name("myAsset").description("...").quantityQNT(123456789).decimals(4).privateKey(ALICE.getPrivateKey()).feeNQT(100 * ChildChain.IGNIS.ONE_COIN).getCreatedTransaction();
@@ -106,12 +106,12 @@ public class WhaleAlertTest extends AbstractContractTest {
         String contractName = ContractTestHelper.deployContract(WhaleAlert.class);
 
         // Submit high value transaction and make sure it raises an alert
-        JO assetTransferResponse = TransferAssetCall.create(2).asset(myAsset.getAsset()).recipient(BOB.getRsAccount()).quantityQNT(100000L).recipient(BOB.getRsAccount()).privateKey(ALICE.getPrivateKey()).feeNQT(ChildChain.IGNIS.ONE_COIN).call();
+        JO assetTransferResponse = TransferAssetCall.create(2).asset(myAsset.getAsset()).recipient(BOB.getRsAccount()).quantityQNT(100000L).recipient(BOB.getRsAccount()).privateKey(ALICE.getPrivateKey()).feeNQT(ChildChain.IGNIS.ONE_COIN).callNoError();
         Logger.logInfoMessage(assetTransferResponse.toJSONString());
         Assert.assertFalse(ErrorResponse.create(assetTransferResponse).isError());
         generateBlock();
 
-        JO response = TriggerContractByRequestCall.create().contractName(contractName).setParamValidation(false).param("height", Nxt.getBlockchain().getHeight()).param("type", "ASSET").param("id", Long.toUnsignedString(myAsset.getAsset())).param("thresholdBalance", 8L).call();
+        JO response = TriggerContractByRequestCall.create().contractName(contractName).setParamValidation(false).param("height", Nxt.getBlockchain().getHeight()).param("type", "ASSET").param("id", Long.toUnsignedString(myAsset.getAsset())).param("thresholdBalance", 8L).callNoError();
         JA messages = response.getArray("messages");
         Assert.assertEquals(String.format(WhaleAlert.ALERT_MESSAGE_FORMAT, "Testnet", 10.0000, myAsset.getName(), "asset", "transferred", Nxt.getBlockchain().getHeight(), " from ARDOR-XK4R-7VJU-6EQG-7R335 (Alice) to ARDOR-EVHD-5FLM-3NMQ-G46NR"), messages.get(0).getString("message"));
     }
@@ -135,7 +135,7 @@ public class WhaleAlertTest extends AbstractContractTest {
         generateBlock();
 
         // Check the alert
-        JO response = TriggerContractByRequestCall.create().contractName(contractName).setParamValidation(false).param("height", Nxt.getBlockchain().getHeight()).param("type", "ASSET").param("id", Long.toUnsignedString(myAsset.getAsset())).param("thresholdBalance", 8L).call();
+        JO response = TriggerContractByRequestCall.create().contractName(contractName).setParamValidation(false).param("height", Nxt.getBlockchain().getHeight()).param("type", "ASSET").param("id", Long.toUnsignedString(myAsset.getAsset())).param("thresholdBalance", 8L).callNoError();
         JA messages = response.getArray("messages");
         Assert.assertEquals(String.format(WhaleAlert.ALERT_MESSAGE_FORMAT, "Testnet", 10.0000, myAsset.getName(), "asset", "traded", Nxt.getBlockchain().getHeight(), ""), messages.get(0).getString("message"));
     }
