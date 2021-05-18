@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2020 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2021 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -49,7 +49,7 @@ NRS.onSiteBuildDone().then(() => {
                 clearInterval(timer);
                 timer = null;
             }
-            NRS.hasMorePages = false;
+            NRS.getCurrentPagination().setResultSize(0);
             view = NRS.simpleview.get('generators_page', {
                 errorMessage: null,
                 infoMessage: NRS.getGeneratorAccuracyWarning(),

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020 Jelurida IP B.V.
+ * Copyright © 2021 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -71,6 +71,8 @@ public final class ComparableResponse {
                     entry.remove("ledgerId");
                 }
             }
+        } else if ("getUnconfirmedTransactions".equals(requestType)) {
+            response.clear();
         }
     }
 
@@ -92,7 +94,7 @@ public final class ComparableResponse {
         if ("getAccountLedger".equals(requestType)) {
             return compareLedgerEntries((JSONObject)this.json, (JSONObject)other.json);
         } else {
-            return this.json.equals(other.json);
+            return Objects.equals(this.json, other.json);
         }
     }
 

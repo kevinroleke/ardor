@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2020 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2021 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -227,8 +227,10 @@ NRS.onSiteBuildDone().then(() => {
                     if (account != '') {
                         account = NRS.deviceSettings.account_prefix + account.substr(account.indexOf("-"));
                         $('#login_account').append($("<li></li>")
-                            .append($("<a></a>").attr("href", "#").attr("class", "selectAccount").attr("data-account", account).text(account)
-                                .append($("<a></a>").attr("data-account", account).attr("class", "removeAccount").text(" x"))
+                            .append($("<a></a>").attr("href", "#").attr("class", "select-account")
+                                .attr("data-account", account).text(account)
+                                .append($("<a></a>").attr("href", "#").attr("class", "remove-account")
+                                    .attr("data-account", account).text(" x"))
                             )
                         );
                     }
@@ -342,12 +344,12 @@ NRS.onSiteBuildDone().then(() => {
         }
 
         let $loginAccount = $('#login_account');
-        $loginAccount.on("click", ".selectAccount", function(){
+        $loginAccount.on("click", ".select-account", function(){
             let account = $(this).data().account;
             $("#login_account_other").val(account);
         });
 
-        $loginAccount.on("click", ".removeAccount", function(e){
+        $loginAccount.on("click", ".remove-account", function(e){
             e.stopPropagation();
             let account = $(this).data().account;
             NRS.removeAccount(account);
@@ -483,6 +485,7 @@ NRS.onSiteBuildDone().then(() => {
         };
 
         NRS.removeAccount = function(account) {
+            account = "ARDOR" + account.substr(account.indexOf("-")); //accounts are always saved with "ARDOR" prefix
             var accounts = NRS.getStrItem("savedNxtAccounts").replace(account+';','');
             if (accounts == '') {
                 NRS.removeItem('savedNxtAccounts');
@@ -837,10 +840,10 @@ NRS.onSiteBuildDone().then(() => {
             $("#sidebar_account_id").html(String(NRS.accountRS).escapeHTML());
             $("#sidebar_account_link").html(NRS.getAccountLink(NRS, "account", NRS.accountRS, "details", false, "btn btn-default btn-xs"));
             if (NRS.lastBlockHeight == 0 && NRS.state.numberOfBlocks) {
-                NRS.checkBlockHeight(NRS.state.numberOfBlocks - 1);
+                NRS.setLastBlockHeight(NRS.state.numberOfBlocks - 1, true);
             }
             if (NRS.lastBlockHeight == 0 && NRS.lastProxyBlockHeight) {
-                NRS.checkBlockHeight(NRS.lastProxyBlockHeight);
+                NRS.setLastBlockHeight(NRS.lastProxyBlockHeight, false);
             }
             $("#sidebar_block_link").html(NRS.getBlockLink(NRS.lastBlockHeight));
 

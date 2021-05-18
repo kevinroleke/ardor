@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2020 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2021 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -36,19 +36,14 @@ NRS.onSiteBuildDone().then(() => {
                 sharedKey = $(this).data("sharedkey");
                 fxtTransaction = $(this).data("fxttransaction");
             }
-            var infoModal = $('#transaction_info_modal');
-            var isModalVisible = false;
-            if (infoModal && infoModal.data('bs.modal')) {
-                isModalVisible = infoModal.data('bs.modal').isShown;
-            }
             if ($(this).data("back") == "true") {
                 NRS.modalStack.pop(); // The forward modal
                 NRS.modalStack.pop(); // the current modal
             }
-            await NRS.showTransactionModal(transactionFullHash, chain, sharedKey, fxtTransaction, isModalVisible);
+            await NRS.showTransactionModal(transactionFullHash, chain, sharedKey, fxtTransaction);
         });
 
-        NRS.showTransactionModal = async function (transaction, chain, sharedKey, fxtTransaction, isModalVisible) {
+        NRS.showTransactionModal = async function (transaction, chain, sharedKey, fxtTransaction) {
             if (NRS.fetchingModalData) {
                 return;
             }
@@ -67,7 +62,7 @@ NRS.onSiteBuildDone().then(() => {
                         NRS.sendRequest("getFxtTransaction", {
                             "transaction": fxtTransaction
                         }, function (response) {
-                            NRS.processTransactionModalData(response, sharedKey, fxtTransaction, isModalVisible);
+                            NRS.processTransactionModalData(response, sharedKey, fxtTransaction);
                         });
                     } else {
                         NRS.sendRequest("getTransaction", {
@@ -75,11 +70,11 @@ NRS.onSiteBuildDone().then(() => {
                             "chain": chain,
                             "includePhasingResult": true
                         }, function (response) {
-                            NRS.processTransactionModalData(response, sharedKey, fxtTransaction, isModalVisible);
+                            NRS.processTransactionModalData(response, sharedKey, fxtTransaction);
                         });
                     }
                 } else {
-                    NRS.processTransactionModalData(transaction, sharedKey, fxtTransaction, isModalVisible);
+                    NRS.processTransactionModalData(transaction, sharedKey, fxtTransaction);
                 }
             } catch (e) {
                 NRS.fetchingModalData = false;
@@ -178,7 +173,12 @@ NRS.onSiteBuildDone().then(() => {
             return rows;
         };
 
-        NRS.processTransactionModalData = async function(transaction, sharedKey, fxtTransaction, isModalVisible) {
+        NRS.processTransactionModalData = async function(transaction, sharedKey, fxtTransaction) {
+            let infoModal = $('#transaction_info_modal');
+            let isModalVisible = false;
+            if (infoModal && infoModal.data('bs.modal')) {
+                isModalVisible = infoModal.data('bs.modal').isShown;
+            }
             NRS.setBackLink();
             NRS.modalStack.push({ class: "show_transaction_modal_action", key: "fullhash",
                 value: { fullhash: transaction.fullHash, chain: transaction.chain, sharedkey: sharedKey, fxttransaction: fxtTransaction }});
@@ -646,7 +646,7 @@ NRS.onSiteBuildDone().then(() => {
                     NRS.sendRequest("getTransaction", {
                         "fullHash": transaction.attachment.orderHash
                     }, function (transaction) {
-                        if (transaction.attachment.asset) {
+                        if (transaction.attachment && transaction.attachment.asset) {
                             NRS.sendRequest("getAsset", {
                                 "asset": transaction.attachment.asset
                             }, function (asset) {
@@ -676,7 +676,7 @@ NRS.onSiteBuildDone().then(() => {
                     NRS.sendRequest("getTransaction", {
                         "fullHash": transaction.attachment.orderHash
                     }, function (transaction) {
-                        if (transaction.attachment.asset) {
+                        if (transaction.attachment && transaction.attachment.asset) {
                             NRS.sendRequest("getAsset", {
                                 "asset": transaction.attachment.asset
                             }, function (asset) {

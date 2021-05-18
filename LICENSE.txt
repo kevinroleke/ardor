@@ -1,5 +1,5 @@
 Copyright © 2013-2016 The Nxt Core Developers.
-Copyright © 2016-2020 Jelurida IP B.V.
+Copyright © 2016-2021 Jelurida IP B.V.
 
 This program is distributed under the terms of the Jelurida Public License
 version 1.2 for the Ardor Public Blockchain Platform.
@@ -19,7 +19,7 @@ distributed under the MIT license, a copy of which is available under
 This software also uses third party code and libraries, distributed under
 licenses described in 3RD-PARTY-LICENSES.txt.
 
-Below is the full text of the Jelurida Public License version 1.1 for
+Below is the full text of the Jelurida Public License version 1.2 for
 the Ardor Public Blockchain Platform:
 
 

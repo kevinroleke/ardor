@@ -1,6 +1,6 @@
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ~ Copyright © 2013-2016 The Nxt Core Developers.                            ~
-  ~ Copyright © 2016-2020 Jelurida IP B.V.                                    ~
+  ~ Copyright © 2016-2021 Jelurida IP B.V.                                    ~
   ~                                                                           ~
   ~ See the LICENSE.txt file at the top-level directory of this distribution  ~
   ~ for licensing information.                                                ~
@@ -372,7 +372,7 @@
                                     <div id="account_details_modal_account_display">
                                         <button class="btn btn-default" data-i18n="show">SHOW</button>
                                     </div>
-                                    <div id="account_details_modal_account_qr_code"></div>
+                                    <div id="account_details_modal_account_qr_code" class="qr-code-image"></div>
                                 </td>
                             </tr>
                             <tr>
@@ -381,7 +381,7 @@
                                     <div id="account_details_modal_passphrase_display">
                                         <button class="btn btn-default" data-i18n="show">SHOW</button>
                                     </div>
-                                    <div id="account_details_modal_passphrase_qr_code"></div>
+                                    <div id="account_details_modal_passphrase_qr_code" class="qr-code-image"></div>
                                 </td>
                             </tr>
                             <tr>
@@ -475,7 +475,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="entity_details_modal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="entity_details_modal" tabindex="-1" role="dialog" aria-hidden="true" data-actionclass="show_entity_modal_action">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -517,7 +517,7 @@
                     <form role="form" id="generate_token_form" autocomplete="off">
                         <div class="callout callout-danger error_message" style="display:none"></div>
                         <div class="callout callout-info" id="generate_token_output" style="display:none;"></div>
-                        <div id="generate_token_output_qr_code"></div>
+                        <div id="generate_token_output_qr_code" class="qr-code-image"></div>
                         <div class="form-group">
                             <label for="generate_token_data" data-i18n="data">DATA</label>
                             <textarea class="form-control" name="website" id="generate_token_data" placeholder="Website or Text" data-i18n="[placeholder]website_or_text" tabindex="1" rows="3"></textarea>
@@ -720,7 +720,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="block_info_modal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="block_info_modal" tabindex="-1" role="dialog" aria-hidden="true" data-actionclass="show_block_modal_action">
     <div class="modal-dialog modal-dialog-wide">
         <div class="modal-content">
             <div class="modal-header">
@@ -820,7 +820,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="user_info_modal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="user_info_modal" tabindex="-1" role="dialog" aria-hidden="true" data-actionclass="show_account_modal_action">
     <div class="modal-dialog modal-dialog-wider">
         <div class="modal-content">
             <div class="modal-header">

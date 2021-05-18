@@ -27,8 +27,6 @@ find src/java/ addons/src/java test/java/ -path src/java/nxtdesktop -prune -o -n
 javac -encoding utf8 -sourcepath ${SP} -classpath ${CP} -d classes/ @sources.tmp || exit 1
 rm -f sources.tmp
 
-cp test/java/unit-tests-logging.properties  classes/unit-tests-logging.properties
-
 for TEST in ${TESTS} ; do
 java ${TEST_SYSTEM_PROPERTIES} -classpath ${CP} nxt.JUnitCoreWithListeners ${TEST} ;
 done

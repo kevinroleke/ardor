@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2020 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2021 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -199,6 +199,12 @@ NRS.onSiteBuildDone().then(() => {
 			}
 			if (data.add_message && (data.message || data.messageFile)) {
 				if (data.encrypt_message === undefined) {
+					if (data.encrypt_message_hidden !== undefined && data.encrypt_message_hidden !== "") {
+						data.encrypt_message = data.encrypt_message_hidden;
+					}
+				}
+				delete data.encrypt_message_hidden;
+				if (data.encrypt_message === undefined) {
 					throw new Error($.t('error_no_encryption_option_specified'));
 				} else if (data.encrypt_message === "1") {
 					try {
@@ -280,11 +286,15 @@ NRS.onSiteBuildDone().then(() => {
 			return data;
 		};
 
-		function warnAndUnlock($modal, $form, $btn, formErrorFunction, msg) {
+		function warnAndUnlock($modal, $form, $btn, formErrorFunction, error) {
+			let msg = error;
+			if (typeof error === 'object' && error.errorDescription !== undefined) {
+				msg = NRS.escapeRespStr(error.errorDescription)
+			}
 			NRS.logConsole(msg);
 			$form.find(".error_message").html(msg).show();
 			if (formErrorFunction) {
-				formErrorFunction();
+				formErrorFunction(error);
 			}
 			NRS.unlockForm($modal, $btn);
 		}
@@ -755,7 +765,7 @@ NRS.onSiteBuildDone().then(() => {
 				}
 
 			} else if (response.errorCode) {
-				return warnAndUnlock($modal, $form, $btn, formErrorFunction, NRS.escapeRespStr(response.errorDescription));
+				return warnAndUnlock($modal, $form, $btn, formErrorFunction, response);
 			} else {
 				if (data["_extra"].calculateFee) {
 					NRS.unlockForm($modal, $btn, false);

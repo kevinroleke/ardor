@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2020 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2021 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -26,7 +26,7 @@ NRS.onSiteBuildDone().then(() => {
         };
 
         NRS.renderContracts = function () {
-            NRS.hasMorePages = false;
+            NRS.getCurrentPagination().setResultSize(0);
             var view = NRS.simpleview.get('contracts_page', {
                 errorMessage: null,
                 infoMessage: null,
@@ -37,8 +37,8 @@ NRS.onSiteBuildDone().then(() => {
             });
             var params = {
                 "adminPassword": NRS.getAdminPassword(),
-                "firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-                "lastIndex": NRS.pageNumber * NRS.itemsPerPage
+                "firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+                "lastIndex": NRS.getCurrentPagination().getLastIndex()
             };
             NRS.sendRequest("getSupportedContracts", params,
                 function(response) {

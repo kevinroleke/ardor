@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2020 Jelurida IP B.V.
+ * Copyright © 2016-2021 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -148,7 +148,7 @@ public class NewAccountFaucetTest extends AbstractContractTest {
         JO voucher = getVoucher(newGuy);
         JO response = TriggerContractByVoucherCall.create().
                 parts("voucher", Convert.toBytes(voucher.toJSONString())).
-                contractName(contractName).callNoError();
+                contractName(contractName).call();
         Logger.logDebugMessage("triggerContractByVoucher: " + response);
         generateBlock();
         return response;

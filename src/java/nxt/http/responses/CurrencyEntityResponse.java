@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020 Jelurida IP B.V.
+ * Copyright © 2021 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.

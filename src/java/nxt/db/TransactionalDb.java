@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2020 Jelurida IP B.V.
+ * Copyright © 2016-2021 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -48,6 +48,7 @@ public class TransactionalDb extends BasicDb {
     private final ThreadLocal<DbConnection> localConnection = new ThreadLocal<>();
     private final ThreadLocal<Map<String,Map<DbKey,Object>>> transactionCaches = new ThreadLocal<>();
     private final ThreadLocal<Set<TransactionCallback>> transactionCallback = new ThreadLocal<>();
+    private final ThreadLocal<Integer> queryTimeout = new ThreadLocal<>();;
     private volatile long txTimes = 0;
     private volatile long txCount = 0;
     private volatile long statsTime = 0;
@@ -203,6 +204,28 @@ public class TransactionalDb extends BasicDb {
         callbacks.add(callback);
     }
 
+    /**
+     * <p>Sets the timeout which will be used in {@link Statement#executeQuery(String)} and
+     * {@link PreparedStatement#executeQuery(String)} calls, done by this thread (for the current database).</p>
+     *
+     * <p>Due to an issue in H2 implementation, {@link Statement#setQueryTimeout(int)} affects all statements in the
+     * connection - see https://github.com/h2database/h2database/issues/243. So always reset to 0 after executing
+     * the queries that must be limited</p>
+     *
+     * @param seconds the new query timeout limit in seconds for the current thread; zero means there is no limit
+     */
+    public void setThreadQueryTimeout(int seconds) {
+        queryTimeout.set(seconds);
+    }
+
+    private int getThreadQueryTimeout() {
+        Integer timeoutInteger = queryTimeout.get();
+        if (timeoutInteger == null) {
+            return 0;
+        }
+        return timeoutInteger;
+    }
+
     Map<DbKey,Object> getCache(String schemaTable) {
         if (!isInTransaction()) {
             throw new IllegalStateException("Not in transaction");
@@ -328,6 +351,7 @@ public class TransactionalDb extends BasicDb {
         public boolean execute(String sql) throws SQLException {
             long start = System.currentTimeMillis();
             con.setSchema(schema);
+            setQueryTimeout(0);
             boolean b = super.execute(sql);
             long elapsed = System.currentTimeMillis() - start;
             if (elapsed > stmtThreshold)
@@ -340,6 +364,7 @@ public class TransactionalDb extends BasicDb {
         public ResultSet executeQuery(String sql) throws SQLException {
             long start = System.currentTimeMillis();
             con.setSchema(schema);
+            setQueryTimeout(getThreadQueryTimeout());
             ResultSet r = super.executeQuery(sql);
             long elapsed = System.currentTimeMillis() - start;
             if (elapsed > stmtThreshold)
@@ -352,6 +377,7 @@ public class TransactionalDb extends BasicDb {
         public int executeUpdate(String sql) throws SQLException {
             long start = System.currentTimeMillis();
             con.setSchema(schema);
+            setQueryTimeout(0);
             int c = super.executeUpdate(sql);
             long elapsed = System.currentTimeMillis() - start;
             if (elapsed > stmtThreshold)
@@ -382,6 +408,7 @@ public class TransactionalDb extends BasicDb {
         public boolean execute() throws SQLException {
             long start = System.currentTimeMillis();
             con.setSchema(schema);
+            setQueryTimeout(0);
             boolean b = super.execute();
             long elapsed = System.currentTimeMillis() - start;
             if (elapsed > stmtThreshold)
@@ -394,6 +421,7 @@ public class TransactionalDb extends BasicDb {
         public ResultSet executeQuery() throws SQLException {
             long start = System.currentTimeMillis();
             con.setSchema(schema);
+            setQueryTimeout(getThreadQueryTimeout());
             ResultSet r = super.executeQuery();
             long elapsed = System.currentTimeMillis() - start;
             if (elapsed > stmtThreshold)
@@ -406,6 +434,7 @@ public class TransactionalDb extends BasicDb {
         public int executeUpdate() throws SQLException {
             long start = System.currentTimeMillis();
             con.setSchema(schema);
+            setQueryTimeout(0);
             int c = super.executeUpdate();
             long elapsed = System.currentTimeMillis() - start;
             if (elapsed > stmtThreshold)

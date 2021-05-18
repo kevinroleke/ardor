@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2020 Jelurida IP B.V.
+ * Copyright © 2016-2021 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -355,6 +355,11 @@ public abstract class AbstractContractContext {
                     return generateInternalErrorResponse(FEE_EXCEEDS_AMOUNT,"%s: calculated fee %d bigger than amount %d", getClass().getName(), feeNQT, amountNQT);
                 }
                 builder.param("amountNQT", Math.subtractExact(amountNQT, feeNQT));
+            }
+        }
+        if (!builder.isParamSet("deadline")) {
+            if (config.getDefaultDeadline() > 0) {
+                builder.param("deadline", config.getDefaultDeadline());
             }
         }
         JO transactionResponse = createTransactionImpl(builder);

@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2020 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2021 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -65,16 +65,13 @@ NRS.onSiteBuildDone().then(() => {
 
 		NRS.pages.polls = function() {
 			NRS.sendRequest("getPolls+", {
-				"firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-				"lastIndex": NRS.pageNumber * NRS.itemsPerPage,
+				"firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+				"lastIndex": NRS.getCurrentPagination().getLastIndex(),
 				"includeFinished": false
 			}, function(response) {
+				NRS.getCurrentPagination().onResult(response.polls);
 				if (response.polls && response.polls.length) {
 					var polls = {};
-					if (response.polls.length > NRS.itemsPerPage) {
-						NRS.hasMorePages = true;
-						response.polls.pop();
-					}
 					var rows = "";
 					for (var i = 0; i < response.polls.length; i++) {
 						var poll = response.polls[i];
@@ -1025,7 +1022,6 @@ NRS.onSiteBuildDone().then(() => {
 		NRS.loadPoll = function(poll, refresh) {
 			var pollId = poll.poll;
 			NRS.currentPoll = poll;
-			NRS.currentSubPage = pollId;
 			var followedPollsSidebar = $("#followed_polls_sidebar");
 			var pollLink = followedPollsSidebar.find("a[data-poll=" + pollId + "]");
 			if (pollLink.length) {
@@ -1194,8 +1190,8 @@ NRS.onSiteBuildDone().then(() => {
 				"finishedOnly": "true"
 			};
 			if (full) {
-				params["firstIndex"] = NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage;
-				params["lastIndex"] = NRS.pageNumber * NRS.itemsPerPage;
+				params["firstIndex"] = NRS.getCurrentPagination().getFirstIndex();
+				params["lastIndex"] = NRS.getCurrentPagination().getLastIndex();
 			} else {
 				params["firstIndex"] = 0;
 				params["lastIndex"] = 9;
@@ -1208,10 +1204,7 @@ NRS.onSiteBuildDone().then(() => {
 			});
 			NRS.sendRequest("getPolls", params, function (response) {
 				var polls = response.polls;
-				if (polls.length > NRS.itemsPerPage) {
-					NRS.hasMorePages = true;
-					polls.pop();
-				}
+				NRS.getCurrentPagination().onResult(polls);
 				for (var i = 0; i < polls.length; i++) {
 					var poll = polls[i];
 					var description = NRS.escapeRespStr(poll.description);

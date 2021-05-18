@@ -1,6 +1,6 @@
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ~ Copyright © 2013-2016 The Nxt Core Developers.                            ~
-  ~ Copyright © 2016-2020 Jelurida IP B.V.                                    ~
+  ~ Copyright © 2016-2021 Jelurida IP B.V.                                    ~
   ~                                                                           ~
   ~ See the LICENSE.txt file at the top-level directory of this distribution  ~
   ~ for licensing information.                                                ~
@@ -59,6 +59,15 @@
                             <button type="button" class="btn btn-primary" data-ignore="true" data-i18n="add_passphrase">Add</button>
                         </div>
                     </div>
+
+                    <div class="panel panel-info empty-configuration">
+                        <div class="panel-body" data-i18n="node_processes_set_modal_no_running_configuration"></div>
+                    </div>
+
+                    <div class="panel panel-warning no-accounts-detected">
+                        <div class="panel-body" data-i18n="node_processes_set_modal_no_accounts_detected"></div>
+                    </div>
+
                     <input type="hidden" name="request_type" id="save_node_process_config_request_type"/>
                 </form>
             </div>

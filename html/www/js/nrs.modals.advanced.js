@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2020 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2021 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -96,6 +96,18 @@ NRS.onSiteBuildDone().then(() => {
             $("#raw_transaction_modal").modal("show");
         };
 
+        $(".qr-code-image").click(function() {
+            let $qrImg = $(this).find("img");
+            if ($qrImg.width() === $qrImg[0].naturalWidth) {
+                let size = $(this).width();
+                $qrImg.width(size);
+                $qrImg.height(size);
+            } else {
+                $qrImg.width($qrImg[0].naturalWidth);
+                $qrImg.height($qrImg[0].naturalHeight);
+            }
+        });
+
         NRS.showVoucherModal = function (transaction, signature, publicKey, requestType) {
             var voucher = {};
             voucher.transactionJSON = $.extend(true, {}, transaction.transactionJSON);
@@ -155,28 +167,28 @@ NRS.onSiteBuildDone().then(() => {
             } catch (e) {
                 // TODO brave hangs here and locks the browser session, just load a jpeg file instead of a vocucher to reproduce
                 msg = $.t("cannot_parse_voucher", { voucher: voucherText });
-                $modal.find(".error_message").html(msg).show();
+                $modal.find(".error_message").text(msg).show();
                 NRS.logConsole(msg);
                 return;
             }
             var transactionJSON = voucher.transactionJSON;
             if (!NRS.verifySignature(voucher.signature, voucher.unsignedTransactionBytes, voucher.publicKey)) {
                 msg = $.t("invalid_signature", { signature: voucher.signature, publicKey: voucher.publicKey });
-                $modal.find(".error_message").html(msg).show();
+                $modal.find(".error_message").text(msg).show();
                 NRS.logConsole(msg);
                 return;
             }
             if (transactionJSON.sender != NRS.account) {
                 let senderAccountLink = NRS.getAccountLink({ account: transactionJSON.sender }, "account", undefined, undefined, true);
                 msg = $.t("invalid_voucher_sender", { senderAccountLink });
-                $modal.find(".error_message").html(msg).show();
+                $modal.find(".error_message").text(msg).show();
                 NRS.logConsole(msg);
                 return;
             }
             if (transactionJSON.chain != NRS.getActiveChainId()) {
                 let voucherChainName = NRS.getChainName(transactionJSON.chain);
                 msg = $.t("invalid_voucher_chain", { voucherChainName });
-                $modal.find(".error_message").html(msg).show();
+                $modal.find(".error_message").text(msg).show();
                 NRS.logConsole(msg);
                 return;
             }
@@ -190,7 +202,7 @@ NRS.onSiteBuildDone().then(() => {
                     actual: result.actual,
                     actualType: typeof(result.actual)
                 });
-                $modal.find(".error_message").html(msg).show();
+                $modal.find(".error_message").text(msg).show();
                 NRS.logConsole(msg);
                 return;
             }

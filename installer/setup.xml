@@ -116,7 +116,7 @@
 			<description>Contract Developer Tools</description>
             <file src="ardor-tests.jar" targetdir="${INSTALL_PATH}" override="true"/>
 			<file src="addons/project/intellij/Ardor.iml" targetdir="${INSTALL_PATH}" override="true"/>
-			<file src="addons/plugins/ContractManagerPlugin/ContractManagerPlugin.zip" targetdir="${INSTALL_PATH}" override="true"/>
+			<fileset dir="addons/plugins/ContractManagerPlugin" targetdir="${INSTALL_PATH}" override="true" includes="ContractManagerPlugin-*.zip"/>
             <fileset dir="testlib" targetdir="${INSTALL_PATH}/testlib" override="true" excludes=".gitignore"/>
             <fileset dir="addons" targetdir="${INSTALL_PATH}/addons" override="true" excludes=".gitignore"/>			
             <fileset dir="addons/project/intellij/.idea" targetdir="${INSTALL_PATH}/.idea" override="true" excludes=".gitignore"/>
@@ -139,6 +139,7 @@
             <file src="contractManager.policy" targetdir="${INSTALL_PATH}" override="true"/>
             <file src="conf/nxt-default.properties" targetdir="${INSTALL_PATH}/conf" override="true"/>
             <file src="conf/logging-default.properties" targetdir="${INSTALL_PATH}/conf" override="true"/>
+            <file src="conf/unit-tests-nxt.properties" targetdir="${INSTALL_PATH}/conf" override="true"/>
             <fileset dir="conf/data" targetdir="${INSTALL_PATH}/conf/data" override="true"/>
             <fileset dir="lib" targetdir="${INSTALL_PATH}/lib" override="true" excludes=".gitignore"/>
             <fileset dir="changelogs" targetdir="${INSTALL_PATH}/changelogs" override="true" excludes=".gitignore"/>

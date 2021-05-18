@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2020 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2021 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -141,7 +141,7 @@ NRS.onSiteBuildDone().then(() => {
 
 		function renderMyMessagesTable() {
 			_messages[NRS.account] = [];
-			NRS.hasMorePages = false;
+			NRS.getCurrentPagination().setResultSize(0);
 			var view = NRS.simpleview.get('my_messages_section', {
 				errorMessage: null,
 				isLoading: true,
@@ -149,18 +149,15 @@ NRS.onSiteBuildDone().then(() => {
 				messages: []
 			});
 			var params = {
-				"firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-				"lastIndex": NRS.pageNumber * NRS.itemsPerPage,
+				"firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+				"lastIndex": NRS.getCurrentPagination().getLastIndex(),
 				"account": NRS.account,
 				"type": 1,
 				"subtype": 0
 			};
 			NRS.sendRequest("getBlockchainTransactions+", params,
 				async function (response) {
-					if (response.transactions.length > NRS.itemsPerPage) {
-						NRS.hasMorePages = true;
-						response.transactions.pop();
-					}
+					NRS.getCurrentPagination().onResult(response.transactions);
 					view.messages.length = 0;
 					for (let i=0; i < response.transactions.length; i++) {
 						view.messages.push(await NRS.jsondata.messages(response.transactions[i]));
@@ -518,6 +515,10 @@ NRS.onSiteBuildDone().then(() => {
 				$("#shared_key_link_container").hide();
 			} else {
 				var url = String(window.location);
+				let separatorIndex = url.indexOf('?');
+				if (separatorIndex > 0) {
+					url = url.substr(0, separatorIndex);
+				}
 				if (url.lastIndexOf("#") == url.length-1) {
 					url = url.substr(0, url.length - 1);
 				}

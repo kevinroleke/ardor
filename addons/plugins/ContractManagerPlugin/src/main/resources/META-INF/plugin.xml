@@ -1,0 +1,21 @@
+<idea-plugin>
+    <id>com.jelurida.contract.manager.plugin.ContractManagerPlugin</id>
+    <name>Ardor Contract Manager</name>
+    <vendor email="support@jelurida.com" url="https://www.jelurida.com">Jelurida Swiss</vendor>
+
+    <description><![CDATA[
+    Upload,Reference,Delete,List,Verify lightweight contracts using the contracts manager utility
+    ]]></description>
+
+    <!-- please see https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html
+         on how to target different products -->
+    <depends>com.intellij.java</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <configurationType implementation="com.jelurida.contract.manager.plugin.ContractManagerConfigurationType"/>
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+    </actions>
+</idea-plugin>

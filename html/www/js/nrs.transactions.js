@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2020 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2021 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -922,8 +922,8 @@ NRS.onSiteBuildDone().then(() => {
 
 		NRS.displayUnconfirmedTransactions = function(account) {
 			var params = {
-				"firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-				"lastIndex": NRS.pageNumber * NRS.itemsPerPage
+				"firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+				"lastIndex": NRS.getCurrentPagination().getLastIndex()
 			};
 			if (account != "") {
 				params["account"] = account;
@@ -945,8 +945,8 @@ NRS.onSiteBuildDone().then(() => {
 		NRS.displayPhasedTransactions = function() {
 			var params = {
 				"account": NRS.account,
-				"firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-				"lastIndex": NRS.pageNumber * NRS.itemsPerPage
+				"firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+				"lastIndex": NRS.getCurrentPagination().getLastIndex()
 			};
 			NRS.sendRequest("getAccountPhasedTransactions", params, function(response) {
 				var rows = "";
@@ -1014,16 +1014,13 @@ NRS.onSiteBuildDone().then(() => {
 			var params = {
 				"account": NRS.account,
 				"includeHoldingInfo": true,
-				"firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-				"lastIndex": NRS.pageNumber * NRS.itemsPerPage
+				"firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+				"lastIndex": NRS.getCurrentPagination().getLastIndex()
 			};
 
 			NRS.sendRequest("getAccountLedger+", params, async function(response) {
+				NRS.getCurrentPagination().onResult(response.entries);
 				if (response.entries && response.entries.length) {
-					if (response.entries.length > NRS.itemsPerPage) {
-						NRS.hasMorePages = true;
-						response.entries.pop();
-					}
 					for (var i = 0; i < response.entries.length; i++) {
 						var entry = response.entries[i];
 						rows += await NRS.getLedgerEntryRow(entry);
@@ -1070,8 +1067,8 @@ NRS.onSiteBuildDone().then(() => {
 
 			var params = {
 				"account": NRS.account,
-				"firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-				"lastIndex": NRS.pageNumber * NRS.itemsPerPage
+				"firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+				"lastIndex": NRS.getCurrentPagination().getLastIndex()
 			};
 			var transactions;
 			if (selectedType) {
@@ -1090,11 +1087,8 @@ NRS.onSiteBuildDone().then(() => {
 			}
 
 			NRS.sendRequest("getBlockchainTransactions+", params, function(response) {
+				NRS.getCurrentPagination().onResult(response.transactions);
 				if (response.transactions && response.transactions.length) {
-					if (response.transactions.length > NRS.itemsPerPage) {
-						NRS.hasMorePages = true;
-						response.transactions.pop();
-					}
 					var decimals = NRS.getTransactionsAmountDecimals(response.transactions);
 					for (var i = 0; i < response.transactions.length; i++) {
 						var transaction = response.transactions[i];
@@ -1143,17 +1137,13 @@ NRS.onSiteBuildDone().then(() => {
 		NRS.pages.approval_requests_account = function() {
 			var params = {
 				"account": NRS.account,
-				"firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-				"lastIndex": NRS.pageNumber * NRS.itemsPerPage
+				"firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+				"lastIndex": NRS.getCurrentPagination().getLastIndex()
 			};
 			NRS.sendRequest("getVoterPhasedTransactions", params, function(response) {
 				var rows = "";
-
+				NRS.getCurrentPagination().onResult(response.transactions);
 				if (response.transactions && response.transactions.length) {
-					if (response.transactions.length > NRS.itemsPerPage) {
-						NRS.hasMorePages = true;
-						response.transactions.pop();
-					}
 					var decimals = NRS.getTransactionsAmountDecimals(response.transactions);
 					for (var i = 0; i < response.transactions.length; i++) {
 						var t = response.transactions[i];
@@ -1222,7 +1212,7 @@ NRS.onSiteBuildDone().then(() => {
 			$('#transactions_type_navi').find('li.active').removeClass('active');
 			$(this).parent('li').addClass('active');
 			NRS.buildTransactionsSubTypeNavi();
-			NRS.pageNumber = 1;
+			NRS.getCurrentPagination().reset();
 			NRS.loadPage("transactions");
 		});
 
@@ -1230,7 +1220,7 @@ NRS.onSiteBuildDone().then(() => {
 			e.preventDefault();
 			$('#transactions_sub_type_navi').find('li.active').removeClass('active');
 			$(this).parent('li').addClass('active');
-			NRS.pageNumber = 1;
+			NRS.getCurrentPagination().reset();
 			NRS.loadPage("transactions");
 		});
 

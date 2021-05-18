@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Ledger Hardware Wallet Connector for Ardor",
   "dependencies": {
-    "@ledgerhq/hw-transport-webusb": "^5.13.1",
+    "@ledgerhq/hw-transport-webusb": "^5.40.0",
     "browser-resolve": "^1.11.3"
   },
   "devDependencies": {

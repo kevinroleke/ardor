@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2020 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2021 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -115,16 +115,12 @@ var NRS = (function(NRS, $, undefined) {
 	NRS.ledgerTrimKeep = 0;
 
 	NRS.lastBlockHeight = 0;
-	NRS.lastLocalBlockHeight = 0;
 	NRS.downloadingBlockchain = false;
 
 	NRS.rememberPassword = false;
 	NRS.selectedContext = null;
 
 	NRS.currentPage = "dashboard";
-	NRS.currentSubPage = "";
-	NRS.pageNumber = 1;
-	//NRS.itemsPerPage = 50;  /* Now set in nrs.settings.js */
 
 	NRS.pages = {};
 	NRS.incoming = {};
@@ -486,7 +482,7 @@ var NRS = (function(NRS, $, undefined) {
 		// downloading the blockchain. Used to update the downloading status
 		var lastDownloadedBlock = NRS.state.lastBlock;
 
-		//The actual blockchain height. May be after the lastDownloadedBlock if got from the proxy
+		//The actual blockchain height. May be after the lastDownloadedBlock if gotten from the proxy
 		var height = response.apiProxy ? NRS.lastProxyBlockHeight : NRS.state.numberOfBlocks - 1;
 
 		NRS.serverConnect = true;
@@ -494,7 +490,9 @@ var NRS = (function(NRS, $, undefined) {
 		$("#sidebar_block_link").html(NRS.getBlockLink(height));
 		if (firstTime) {
 			$("#nrs_version").html(NRS.state.version).removeClass("loading_dots");
-			NRS.getBlock(lastDownloadedBlock, NRS.handleInitialBlocks);
+			if (!NRS.state.isLightClient) {
+				NRS.getBlock(lastDownloadedBlock, NRS.handleInitialBlocks);
+			}
 			NRS.updateTimeToNextBlock();
 		} else if (NRS.state.isScanning) {
 			//do nothing but reset NRS.state so that when isScanning is done, everything is reset.
@@ -504,7 +502,9 @@ var NRS = (function(NRS, $, undefined) {
 			isScanning = false;
 			NRS.blocks = [];
 			NRS.tempBlocks = [];
-			NRS.getBlock(lastDownloadedBlock, NRS.handleInitialBlocks);
+			if (!NRS.state.isLightClient) {
+				NRS.getBlock(lastDownloadedBlock, NRS.handleInitialBlocks);
+			}
 			if (NRS.account) {
 				NRS.getInitialTransactions();
 				NRS.getAccountInfo();
@@ -514,7 +514,9 @@ var NRS = (function(NRS, $, undefined) {
 			if (NRS.account) {
 				NRS.getAccountInfo();
 			}
-			NRS.getBlock(lastDownloadedBlock, NRS.handleNewBlocks);
+			if (!NRS.state.isLightClient) {
+				NRS.getBlock(lastDownloadedBlock, NRS.handleNewBlocks);
+			}
 			if (NRS.account) {
 				NRS.getNewTransactions();
 				NRS.updateApprovalRequests();
@@ -575,7 +577,7 @@ var NRS = (function(NRS, $, undefined) {
 					var prevHeight = NRS.lastProxyBlockHeight;
 					NRS.lastProxyBlock = proxyBlocksResponse.blocks[0].block;
 					NRS.lastProxyBlockHeight = proxyBlocksResponse.blocks[0].height;
-					NRS.lastBlockHeight = NRS.lastProxyBlockHeight;
+					NRS.setLastBlockHeight(NRS.lastProxyBlockHeight, false);
 					NRS.incoming.updateDashboardBlocks(NRS.lastProxyBlockHeight - prevHeight);
 					NRS.updateDashboardLastBlock(proxyBlocksResponse.blocks[0]);
 					NRS.handleBlockchainStatus(response, previousLastBlock, callback);
@@ -667,9 +669,7 @@ var NRS = (function(NRS, $, undefined) {
 
 			//NRS.previousPage = NRS.currentPage;
 			NRS.currentPage = page;
-			NRS.currentSubPage = "";
-			NRS.pageNumber = 1;
-			NRS.showPageNumbers = false;
+			NRS.getCurrentPagination().reset();
 
 			if (NRS.pages[page]) {
 				NRS.pageLoading();
@@ -701,6 +701,10 @@ var NRS = (function(NRS, $, undefined) {
 	});
 
 	NRS.loadPage = function(page, callback, subpage) {
+		if (document.activeElement && document.activeElement.className === 'pagination-index-input') {
+			//Don't load the page if the Go To Item input is currently being edited
+			return;
+		}
 		NRS.pageLoading();
 		NRS.pages[page](callback, subpage);
 	};
@@ -724,9 +728,7 @@ var NRS = (function(NRS, $, undefined) {
 			NRS.resetNotificationState(page);
 		} else {
 			NRS.currentPage = page;
-			NRS.currentSubPage = "";
-			NRS.pageNumber = 1;
-			NRS.showPageNumbers = false;
+			NRS.getCurrentPagination().reset();
 
 			$("ul.sidebar-menu a.active").removeClass("active");
 			$(".page").hide();
@@ -740,7 +742,7 @@ var NRS = (function(NRS, $, undefined) {
 	};
 
 	NRS.pageLoading = function() {
-		NRS.hasMorePages = false;
+		NRS.getCurrentPagination().setResultSize(0);
 
 		var $pageHeader = $("#" + NRS.currentPage + "_page .content-header h1");
 		$pageHeader.find(".loading_dots").remove();
@@ -765,70 +767,6 @@ var NRS = (function(NRS, $, undefined) {
 		}
 	};
 
-	NRS.addPagination = function () {
-        var firstStartNr = 1;
-		var firstEndNr = NRS.itemsPerPage;
-		var currentStartNr = (NRS.pageNumber-1) * NRS.itemsPerPage + 1;
-		var currentEndNr = NRS.pageNumber * NRS.itemsPerPage;
-
-		var prevHTML = '<span style="display:inline-block;width:48px;text-align:right;">';
-		var firstHTML = '<span style="display:inline-block;min-width:48px;text-align:right;vertical-align:top;margin-top:4px;">';
-		var currentHTML = '<span style="display:inline-block;min-width:48px;text-align:left;vertical-align:top;margin-top:4px;">';
-		var nextHTML = '<span style="display:inline-block;width:48px;text-align:left;">';
-
-		if (NRS.pageNumber > 1) {
-			prevHTML += "<a href='#' data-page='" + (NRS.pageNumber - 1) + "' title='" + $.t("previous") + "' style='font-size:20px;'>";
-			prevHTML += "<i class='far fa-arrow-circle-left'></i></a>";
-		} else {
-			prevHTML += '&nbsp;';
-		}
-
-		if (NRS.hasMorePages) {
-			currentHTML += currentStartNr + "-" + currentEndNr + "&nbsp;";
-			nextHTML += "<a href='#' data-page='" + (NRS.pageNumber + 1) + "' title='" + $.t("next") + "' style='font-size:20px;'>";
-			nextHTML += "<i class='fa fa-arrow-circle-right'></i></a>";
-		} else {
-			if (NRS.pageNumber > 1) {
-				currentHTML += currentStartNr + "+";
-			} else {
-				currentHTML += "&nbsp;";
-			}
-			nextHTML += "&nbsp;";
-		}
-		if (NRS.pageNumber > 1) {
-			firstHTML += "&nbsp;<a href='#' data-page='1'>" + firstStartNr + "-" + firstEndNr + "</a>&nbsp;|&nbsp;";
-		} else {
-			firstHTML += "&nbsp;";
-		}
-
-		prevHTML += '</span>';
-		firstHTML += '</span>';
-		currentHTML += '</span>';
-		nextHTML += '</span>';
-
-		var output = prevHTML + firstHTML + currentHTML + nextHTML;
-		var $paginationContainer = $("#" + NRS.currentPage + "_page .data-pagination");
-
-		if ($paginationContainer.length) {
-			$paginationContainer.html(output);
-		}
-	};
-
-	$(document).on("click", ".data-pagination a", function(e) {
-		e.preventDefault();
-		NRS.goToPageNumber($(this).data("page"));
-	});
-
-	NRS.goToPageNumber = function(pageNumber) {
-		/*if (!pageLoaded) {
-			return;
-		}*/
-		NRS.pageNumber = pageNumber;
-
-		NRS.pageLoading();
-
-		NRS.pages[NRS.currentPage]();
-	};
 
 	function initUserDB() {
 		var deferrs = [];
@@ -872,15 +810,18 @@ var NRS = (function(NRS, $, undefined) {
 		if (page) {
 			page = page.escapeHTML();
 			if (NRS.pages[page]) {
-				NRS.goToPage(page);
+				NRS.goToPage(page, function () {
+					NRS.showUrlParameterModal("modal");
+				});
 			} else {
 				$.growl($.t("page") + " " + page + " " + $.t("does_not_exist"), {
 					"type": "danger",
 					"offset": 50
 				});
 			}
+		} else {
+			NRS.showUrlParameterModal("modal");
 		}
-		NRS.showUrlParameterModal("modal");
 
 		return $.when.apply(null, deferrs);
 	}

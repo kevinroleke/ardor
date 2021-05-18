@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2020 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2021 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -514,7 +514,6 @@ NRS.onSiteBuildDone().then(() => {
         NRS.loadCoin = function (coin, refresh) {
             var coinId = coin.id;
             currentCoin = coin;
-            NRS.currentSubPage = coinId;
 
             if (!refresh) {
                 var coinExchangeSidebar = $("#coin_exchange_sidebar");
@@ -1165,14 +1164,11 @@ NRS.onSiteBuildDone().then(() => {
             NRS.sendRequest("getCoinExchangeTrades+", {
                 "account": NRS.accountRS,
                 "includeChainInfo": false,
-                "firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-                "lastIndex": NRS.pageNumber * NRS.itemsPerPage
+                "firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+                "lastIndex": NRS.getCurrentPagination().getLastIndex()
             }, function (response) {
+                NRS.getCurrentPagination().onResult(response.trades);
                 if (response.trades && response.trades.length > 0) {
-                    if (response.trades.length > NRS.itemsPerPage) {
-                        NRS.hasMorePages = true;
-                        response.trades.pop();
-                    }
                     var trades = response.trades;
                     var exchangeDecimals = NRS.getChain(trades[0].exchange).decimals;
                     var amountDecimals = NRS.getNumberOfDecimals(trades, "quantityQNT", function(val) {
@@ -1214,14 +1210,11 @@ NRS.onSiteBuildDone().then(() => {
             $(".ask_rate").text($.t("coin") + " " + $.t("per") + " " + NRS.getActiveChainName());
             NRS.sendRequest("getCoinExchangeOrders", {
                 "account": NRS.account,
-                "firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-                "lastIndex": NRS.pageNumber * NRS.itemsPerPage
+                "firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+                "lastIndex": NRS.getCurrentPagination().getLastIndex()
             }, function (response) {
+                NRS.getCurrentPagination().onResult(response.orders);
                 if (response.orders && response.orders.length) {
-                    if (response.orders.length > NRS.itemsPerPage) {
-                        NRS.hasMorePages = true;
-                        response.orders.pop();
-                    }
                     var orders = response.orders;
                     orders.sort(function (a, b) {
                         if (a.exchange == b.exchange) {

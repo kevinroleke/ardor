@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2020 Jelurida IP B.V.
+ * Copyright © 2016-2021 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -104,8 +104,10 @@ public abstract class ChildTransactionType extends TransactionType {
         long fee = transaction.getFee();
         long deposit = 0;
         if (((ChildTransactionImpl)transaction).getReferencedTransactionId() != null) {
-            if (FxtChain.FXT.getBalanceHome().getBalance(senderAccount.getId()).getUnconfirmedBalance() < Constants.UNCONFIRMED_POOL_DEPOSIT_FQT) {
-                Logger.logInfoMessage("account %s must have enough %s to pay the unconfirmed pool deposit", Convert.rsAccount(senderAccount.getId()), FxtChain.FXT_NAME);
+            long unconfirmedBalance = FxtChain.FXT.getBalanceHome().getBalance(senderAccount.getId()).getUnconfirmedBalance();
+            if (unconfirmedBalance < Constants.UNCONFIRMED_POOL_DEPOSIT_FQT) {
+                Logger.logInfoMessage("account %s (with balance %d) must have enough %s to pay the unconfirmed pool deposit.",
+                        Convert.rsAccount(senderAccount.getId()), unconfirmedBalance, FxtChain.FXT_NAME);
                 return false;
             }
             deposit = Constants.UNCONFIRMED_POOL_DEPOSIT_FQT;

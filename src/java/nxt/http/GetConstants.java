@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2020 Jelurida IP B.V.
+ * Copyright © 2016-2021 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -70,6 +70,7 @@ public final class GetConstants extends APIServlet.APIRequestHandler {
                 response.put("maxEncryptedMessageLength", Constants.MAX_ENCRYPTED_MESSAGE_LENGTH);
                 response.put("maxPrunableMessageLength", Constants.MAX_PRUNABLE_MESSAGE_LENGTH);
                 response.put("maxPrunableEncryptedMessageLength", Constants.MAX_PRUNABLE_ENCRYPTED_MESSAGE_LENGTH);
+                response.put("maxSingletonAssetDescriptionLength", Constants.MAX_SINGLETON_ASSET_DESCRIPTION_LENGTH);
 
                 JSONObject lastKnownBlock = new JSONObject();
                 lastKnownBlock.put("id", Long.toUnsignedString(Constants.LAST_KNOWN_BLOCK_ID));
@@ -135,6 +136,8 @@ public final class GetConstants extends APIServlet.APIRequestHandler {
                 }
                 response.put("transactionTypes", transactionJSON);
                 response.put("transactionSubTypes", transactionSubTypesJSON);
+
+                response.put("defaultTransactionDeadline", Constants.DEFAULT_TRANSACTION_DEADLINE);
 
                 JSONObject currencyTypes = new JSONObject();
                 for (CurrencyType currencyType : CurrencyType.values()) {

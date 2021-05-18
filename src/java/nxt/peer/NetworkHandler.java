@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2020 Jelurida IP B.V.
+ * Copyright © 2016-2021 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -46,8 +46,10 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -96,6 +98,10 @@ public final class NetworkHandler implements Runnable {
 
     /** Maximum message size */
     static final int MAX_MESSAGE_SIZE = 1024 * 1024;
+
+    /** IOException messages that are common when a peer shuts down and should not cause blacklist */
+    private static final Set<String> NON_BLACKLISTING_MESSAGES = Collections.unmodifiableSet(new HashSet<>(
+            Arrays.asList("Connection reset by peer")));
 
     /** Server port */
     private static final int serverPort = Constants.isTestnet ? TESTNET_PEER_PORT :
@@ -664,7 +670,6 @@ public final class NetworkHandler implements Runnable {
                     Logger.logDebugMessage("Max inbound connections reached: Connection rejected from " + hostAddress);
                 } else if (peer.isBlacklisted()) {
                     channel.close();
-                    Logger.logDebugMessage("Peer is blacklisted: Connection rejected from " + hostAddress);
                 } else if (connectionMap.get(remoteAddress.getAddress()) != null) {
                     channel.close();
                     Logger.logDebugMessage("Connection already established with " + hostAddress + ", disconnecting");
@@ -873,13 +878,17 @@ public final class NetworkHandler implements Runnable {
         }
     }
 
-    private static void disconnectAndBlacklist(PeerImpl peer, Exception exc) {
+    private static void disconnectAndBlacklist(PeerImpl peer, IOException exc) {
         Logger.logDebugMessage(String.format("%s: Peer %s", exc.getMessage(), peer.getHost()));
         KeyEvent keyEvent = peer.getKeyEvent();
         if (keyEvent != null) {
             keyEvent.update(0, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
         }
-        peer.blacklist(exc);
+        if (NON_BLACKLISTING_MESSAGES.contains(exc.getMessage())) {
+            peer.disconnectPeer();
+        } else {
+            peer.blacklist(exc);
+        }
     }
 
     /**

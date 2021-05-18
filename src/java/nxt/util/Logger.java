@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2020 Jelurida IP B.V.
+ * Copyright © 2016-2021 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -17,10 +17,17 @@
 package nxt.util;
 
 import nxt.Nxt;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+import org.json.simple.parser.ParseException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.LogManager;
 
@@ -50,6 +57,8 @@ public final class Logger {
 
     /** Enable stack traces */
     private static final boolean enableStackTraces;
+
+    private static final Map<Class<? extends Throwable>, List<String>> disabledThrowableStackTraces = new HashMap<>();
 
     /** Enable log traceback */
     private static final boolean enableLogTraceback;
@@ -99,10 +108,38 @@ public final class Logger {
             }
         }
         log = org.slf4j.LoggerFactory.getLogger(nxt.Nxt.class);
+
         enableStackTraces = Nxt.getBooleanProperty("nxt.enableStackTraces");
+        setDisabledStackTraces(Nxt.getStringProperty("nxt.disabledThrowableStackTraces"));
+
         enableLogTraceback = Nxt.getBooleanProperty("nxt.enableLogTraceback");
         enableLogThreadName = Nxt.getBooleanProperty("nxt.enableLogThreadName");
         logInfoMessage("logging enabled");
+    }
+
+    // visible for test code
+    static void setDisabledStackTraces(String configurationJson) {
+        disabledThrowableStackTraces.clear();
+        JSONObject jsonObject;
+        try {
+            jsonObject = (JSONObject) JSONValue.parseWithException(configurationJson);
+        } catch (ParseException e) {
+            throw new RuntimeException("Error parsing disabled stack traces", e);
+        }
+        //noinspection unchecked
+        jsonObject.forEach((k, v) -> {
+            String className = (String) k;
+            JSONArray prefixes = (JSONArray) v;
+            try {
+                Class<? extends Throwable> clazz = Class.forName(className).asSubclass(Throwable.class);
+                //noinspection unchecked
+                disabledThrowableStackTraces.put(clazz, prefixes);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("Class not found " + className + ", specified in nxt.disabledThrowableStackTraces", e);
+            } catch (ClassCastException e) {
+                throw new RuntimeException("The class " + className + " does not extend Throwable");
+            }
+        });
     }
 
     /**
@@ -366,8 +403,25 @@ public final class Logger {
 
         // Format the stack trace if enabled
         if (e != null) {
-            if (!enableStackTraces) {
-                logMessage = logMessage + "\n" + exc.toString();
+            boolean logStackTrace = enableStackTraces;
+            if (logStackTrace) {
+                List<String> messagePrefixes = disabledThrowableStackTraces.get(e.getClass());
+                if (messagePrefixes != null) {
+                    if (messagePrefixes.isEmpty()) {
+                        logStackTrace = false;
+                    } else {
+                        String exceptionMessage = Convert.nullToEmpty(e.getMessage());
+                        for (String prefix : messagePrefixes) {
+                            if (exceptionMessage.startsWith(prefix)) {
+                                logStackTrace = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            if (!logStackTrace) {
+                logMessage = logMessage + "\n" + exc;
                 e = null;
             }
         }

@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2020 Jelurida IP B.V.
+ * Copyright © 2016-2021 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -62,7 +62,7 @@ import java.util.Properties;
 
 public final class Nxt {
 
-    public static final String VERSION = "2.3.3";
+    public static final String VERSION = "2.3.4";
     public static final String APPLICATION = "Ardor";
 
     private static volatile Time time = new Time.EpochTime();

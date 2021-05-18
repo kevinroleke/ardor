@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2020 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2021 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -401,6 +401,7 @@ NRS.onSiteBuildDone().then(() => {
 		};
 
 		function updateRecipientOptions(accountResponse, modal) {
+			modal.find("input[name=encrypt_message_hidden]").val("");
 			if (accountResponse.account) {
 				if (accountResponse.account.description) {
 					checkForMerchant(accountResponse.account.description, modal);
@@ -425,13 +426,17 @@ NRS.onSiteBuildDone().then(() => {
 							checkForMerchant("#merchant:" + NRS.escapeRespStr(options.message_format) + "#", modal);
 						}
 						var encryptMessageRadiobutton = modal.find("input[name=encrypt_message][value=1]");
-						var dontEncrypMessageRadiobutton = modal.find("input[name=encrypt_message][value=0]");
+						var dontEncryptMessageRadiobutton = modal.find("input[name=encrypt_message][value=0]");
 						if (typeof options.encrypt_message == "boolean") {
 							encryptMessageRadiobutton.prop("checked", options.encrypt_message);
-							dontEncrypMessageRadiobutton.prop("checked", !options.encrypt_message);
+							dontEncryptMessageRadiobutton.prop("checked", !options.encrypt_message);
 						}
 						if (options.encrypt_message_disabled === true) {
 							encryptMessageRadiobutton.attr('disabled', true);
+							dontEncryptMessageRadiobutton.attr('disabled', true);
+							if (typeof options.encrypt_message == "boolean") {
+								modal.find("input[name=encrypt_message_hidden]").val(options.encrypt_message ? "1" : "0");
+							}
 						}
 					}
 				);

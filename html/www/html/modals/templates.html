@@ -1,6 +1,6 @@
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ~ Copyright © 2013-2016 The Nxt Core Developers.                            ~
-  ~ Copyright © 2016-2020 Jelurida IP B.V.                                    ~
+  ~ Copyright © 2016-2021 Jelurida IP B.V.                                    ~
   ~                                                                           ~
   ~ See the LICENSE.txt file at the top-level directory of this distribution  ~
   ~ for licensing information.                                                ~
@@ -58,6 +58,7 @@
             <label for="{{name}}_false_encrypt_message" style="margin-left: 20px" class="radio-inline">
                 <input type="radio" name="encrypt_message" id="{{name}}_false_encrypt_message" value="0" tabindex="104"> <span data-i18n="dont_encrypt_message">Don't Encrypt Message</span>
             </label>
+            <input type="hidden" name="encrypt_message_hidden"/>
         </div>
         <div style="margin-top:3px;display:none" id="{{name}}_to_anyone_message_options">
             <label for="{{name}}_encrypt_message" data-i18n="message_is_not_encrypted">This message is not encrypted.</label>

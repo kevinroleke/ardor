@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2020 Jelurida IP B.V.
+ * Copyright © 2016-2021 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -456,6 +456,16 @@ public final class JSONResponses {
         PEERS_NETWORKING_DISABLED = JSON.prepare(response);
     }
 
+    public static final JSONStreamAware QUERY_TIME_OUT;
+    static {
+        JSONObject response = new JSONObject();
+        response.put("errorCode", 25);
+        response.put("errorDescription", String.format("Database query timed out. The nxt.openApiQueryTimeout is set to " +
+                        "%d second(s). Provide adminPassword to disable the timeout",
+                Constants.OPEN_API_QUERY_TIMEOUT));
+        QUERY_TIME_OUT = JSON.prepare(response);
+    }
+
     public static JSONStreamAware missing(String... paramNames) {
         JSONObject response = new JSONObject();
         response.put("errorCode", 3);
@@ -583,7 +593,7 @@ public final class JSONResponses {
         NO_TRADES_FOUND = JSON.prepare(response);
     }
 
-    public static final JSONStreamAware INCORRECT_RECIPIENTS_PUBLIC_KEY = incorrect("recipientsPublicKey",
+    public static final JSONStreamAware INCORRECT_RECIPIENT_PUBLIC_KEYS = incorrect("recipientPublicKeys",
             "all specified recipient accounts are used");
 
     public static final JSONStreamAware INCORRECT_PROCESS_FILE;

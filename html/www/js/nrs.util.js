@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2020 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2021 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -479,7 +479,8 @@
             var backLink = $(".back-link");
             if (NRS.modalStack.length > 0) {
                 var backModalInfo = NRS.modalStack[NRS.modalStack.length - 1];
-                backLink.removeClass("show_transaction_modal_action show_account_modal_action show_block_modal_action show_ledger_modal_action dgs_show_modal_action_purchase dgs_show_modal_action_product");
+                backLink.removeClass("show_transaction_modal_action show_account_modal_action show_block_modal_action " +
+                    "show_ledger_modal_action dgs_show_modal_action_purchase dgs_show_modal_action_product show_entity_modal_action");
                 backLink.addClass(backModalInfo.class);
                 backLink.data(backModalInfo.key, backModalInfo.value);
                 backLink.data("back", "true");
@@ -779,6 +780,8 @@
                 }
             }
 
+            let unescapedError = NRS.unescapeRespStr(response.errorDescription);
+
             switch (response.errorCode) {
                 case -1:
                     switch (response.errorDescription) {
@@ -869,7 +872,7 @@
                 case 2:
                     return response.errorDescription;
                 case 3:
-                    match = response.errorDescription.match(/"([^"]+)" not specified/i);
+                    match = unescapedError.match(/"([^"]+)" not specified/i);
                     if (match && match[1]) {
                         return $.t("error_not_specified", {
                             "name": NRS.getTranslatedFieldName(match[1]).toLowerCase()
@@ -894,11 +897,11 @@
                         return response.errorDescription;
                     }
                 case 4:
-                    match = response.errorDescription.match(/Incorrect "(.*)"(.*)/i);
+                    match = unescapedError.match(/Incorrect "(.*)"(.*)/i);
                     if (match && match[1] && match[2]) {
                         return $.t("error_incorrect_name", {
                             "name": NRS.getTranslatedFieldName(match[1]).toLowerCase(),
-                            "reason": match[2]
+                            "reason": match[2].escapeHTML()
                         }).capitalize();
                     } else {
                         return response.errorDescription;

@@ -166,6 +166,10 @@ function fromByteArray (uint8) {
 
 var base64 = require('base64-js')
 var ieee754 = require('ieee754')
+var customInspectSymbol =
+  (typeof Symbol === 'function' && typeof Symbol.for === 'function')
+    ? Symbol.for('nodejs.util.inspect.custom')
+    : null
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -202,7 +206,9 @@ function typedArraySupport () {
   // Can typed array instances can be augmented?
   try {
     var arr = new Uint8Array(1)
-    arr.__proto__ = { __proto__: Uint8Array.prototype, foo: function () { return 42 } }
+    var proto = { foo: function () { return 42 } }
+    Object.setPrototypeOf(proto, Uint8Array.prototype)
+    Object.setPrototypeOf(arr, proto)
     return arr.foo() === 42
   } catch (e) {
     return false
@@ -231,7 +237,7 @@ function createBuffer (length) {
   }
   // Return an augmented `Uint8Array` instance
   var buf = new Uint8Array(length)
-  buf.__proto__ = Buffer.prototype
+  Object.setPrototypeOf(buf, Buffer.prototype)
   return buf
 }
 
@@ -281,7 +287,7 @@ function from (value, encodingOrOffset, length) {
   }
 
   if (value == null) {
-    throw TypeError(
+    throw new TypeError(
       'The first argument must be one of type string, Buffer, ArrayBuffer, Array, ' +
       'or Array-like Object. Received type ' + (typeof value)
     )
@@ -333,8 +339,8 @@ Buffer.from = function (value, encodingOrOffset, length) {
 
 // Note: Change prototype *after* Buffer.from is defined to workaround Chrome bug:
 // https://github.com/feross/buffer/pull/148
-Buffer.prototype.__proto__ = Uint8Array.prototype
-Buffer.__proto__ = Uint8Array
+Object.setPrototypeOf(Buffer.prototype, Uint8Array.prototype)
+Object.setPrototypeOf(Buffer, Uint8Array)
 
 function assertSize (size) {
   if (typeof size !== 'number') {
@@ -438,7 +444,8 @@ function fromArrayBuffer (array, byteOffset, length) {
   }
 
   // Return an augmented `Uint8Array` instance
-  buf.__proto__ = Buffer.prototype
+  Object.setPrototypeOf(buf, Buffer.prototype)
+
   return buf
 }
 
@@ -760,6 +767,9 @@ Buffer.prototype.inspect = function inspect () {
   if (this.length > max) str += ' ... '
   return '<Buffer ' + str + '>'
 }
+if (customInspectSymbol) {
+  Buffer.prototype[customInspectSymbol] = Buffer.prototype.inspect
+}
 
 Buffer.prototype.compare = function compare (target, start, end, thisStart, thisEnd) {
   if (isInstance(target, Uint8Array)) {
@@ -885,7 +895,7 @@ function bidirectionalIndexOf (buffer, val, byteOffset, encoding, dir) {
         return Uint8Array.prototype.lastIndexOf.call(buffer, val, byteOffset)
       }
     }
-    return arrayIndexOf(buffer, [ val ], byteOffset, encoding, dir)
+    return arrayIndexOf(buffer, [val], byteOffset, encoding, dir)
   }
 
   throw new TypeError('val must be string, number or Buffer')
@@ -1214,7 +1224,7 @@ function hexSlice (buf, start, end) {
 
   var out = ''
   for (var i = start; i < end; ++i) {
-    out += toHex(buf[i])
+    out += hexSliceLookupTable[buf[i]]
   }
   return out
 }
@@ -1251,7 +1261,8 @@ Buffer.prototype.slice = function slice (start, end) {
 
   var newBuf = this.subarray(start, end)
   // Return an augmented `Uint8Array` instance
-  newBuf.__proto__ = Buffer.prototype
+  Object.setPrototypeOf(newBuf, Buffer.prototype)
+
   return newBuf
 }
 
@@ -1740,6 +1751,8 @@ Buffer.prototype.fill = function fill (val, start, end, encoding) {
     }
   } else if (typeof val === 'number') {
     val = val & 255
+  } else if (typeof val === 'boolean') {
+    val = Number(val)
   }
 
   // Invalid ranges are not set to a default, so can range check early.
@@ -1795,11 +1808,6 @@ function base64clean (str) {
     str = str + '='
   }
   return str
-}
-
-function toHex (n) {
-  if (n < 16) return '0' + n.toString(16)
-  return n.toString(16)
 }
 
 function utf8ToBytes (string, units) {
@@ -1931,6 +1939,20 @@ function numberIsNaN (obj) {
   // For IE11 support
   return obj !== obj // eslint-disable-line no-self-compare
 }
+
+// Create lookup table for `toString('hex')`
+// See: https://github.com/feross/buffer/issues/219
+var hexSliceLookupTable = (function () {
+  var alphabet = '0123456789abcdef'
+  var table = new Array(256)
+  for (var i = 0; i < 16; ++i) {
+    var i16 = i * 16
+    for (var j = 0; j < 16; ++j) {
+      table[i16 + j] = alphabet[i] + alphabet[j]
+    }
+  }
+  return table
+})()
 
 }).call(this,require("buffer").Buffer)
 },{"base64-js":1,"buffer":2,"ieee754":4}],3:[function(require,module,exports){
@@ -2551,6 +2573,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.getInfosForServiceUuid = exports.getBluetoothServiceUuids = exports.identifyProductName = exports.identifyUSBProductId = exports.getDeviceModel = exports.ledgerUSBVendorId = exports.IIWebUSB = exports.IICCID = exports.IIU2F = exports.IIKeyboardHID = exports.IIGenericHID = void 0;
+// import semver from "semver";
 
 /**
  * The USB product IDs will be defined as MMII, encoding a model (MM) and an interface bitfield (II)
@@ -2585,7 +2608,8 @@ const devices = {
     legacyUsbProductId: 0x0000,
     usbOnly: true,
     memorySize: 480 * 1024,
-    blockSize: 4 * 1024
+    blockSize: 4 * 1024,
+    getBlockSize: _firwareVersion => 4 * 1024
   },
   nanoS: {
     id: "nanoS",
@@ -2594,7 +2618,10 @@ const devices = {
     legacyUsbProductId: 0x0001,
     usbOnly: true,
     memorySize: 320 * 1024,
-    blockSize: 4 * 1024
+    blockSize: 4 * 1024,
+    getBlockSize: _firmwareVersion => 2 * 1024 // TODO (LL-4332)
+    // semver.lt(semver.coerce(firmwareVersion), "2.0.0") ? 4 * 1024 : 2 * 1024,
+
   },
   nanoX: {
     id: "nanoX",
@@ -2604,6 +2631,7 @@ const devices = {
     usbOnly: false,
     memorySize: 2 * 1024 * 1024,
     blockSize: 4 * 1024,
+    getBlockSize: _firwareVersion => 4 * 1024,
     bluetoothSpec: [{
       // this is the legacy one (prototype version). we will eventually drop it.
       serviceUuid: "d973f2e0-b19e-11e2-9e96-0800200c9a66",
@@ -2817,6 +2845,8 @@ exports.getAltStatusMessage = getAltStatusMessage;
 exports.serializeError = exports.deserializeError = exports.createCustomErrorClass = exports.addCustomErrorDeserializer = exports.WrongDeviceForAccount = exports.WrongAppForCurrency = exports.WebsocketConnectionFailed = exports.WebsocketConnectionError = exports.UserRefusedOnDevice = exports.UserRefusedFirmwareUpdate = exports.UserRefusedDeviceNameChange = exports.UserRefusedAllowManager = exports.UserRefusedAddress = exports.UpdateYourApp = exports.UpdateIncorrectSig = exports.UpdateIncorrectHash = exports.UpdateFetchFileFail = exports.UnknownMCU = exports.UnexpectedBootloader = exports.UnavailableTezosOriginatedAccountSend = exports.UnavailableTezosOriginatedAccountReceive = exports.TransportWebUSBGestureRequired = exports.TransportRaceCondition = exports.TransportOpenUserCancelled = exports.TransportInterfaceNotAvailable = exports.TimeoutTagged = exports.SyncError = exports.StatusCodes = exports.RecommendUndelegation = exports.RecommendSubAccountsToEmpty = exports.RecipientRequired = exports.PasswordsDontMatchError = exports.PasswordIncorrectError = exports.PairingFailed = exports.NotSupportedLegacyAddress = exports.NotEnoughSpendableBalance = exports.NotEnoughGas = exports.NotEnoughBalanceToDelegate = exports.NotEnoughBalanceInParentAccount = exports.NotEnoughBalanceBecauseDestinationNotCreated = exports.NotEnoughBalance = exports.NoDBPathGiven = exports.NoAddressesFound = exports.NoAccessToCamera = exports.NetworkDown = exports.ManagerUninstallBTCDep = exports.ManagerNotEnoughSpaceError = exports.ManagerFirmwareNotEnoughSpaceError = exports.ManagerDeviceLockedError = exports.ManagerAppRelyOnBTCError = exports.ManagerAppDepUninstallRequired = exports.ManagerAppDepInstallRequired = exports.ManagerAppAlreadyInstalledError = exports.MCUNotGenuineToDashboard = exports.LedgerAPINotAvailable = exports.LedgerAPIErrorWithMessage = exports.LedgerAPIError = exports.LedgerAPI5xx = exports.LedgerAPI4xx = exports.LatestMCUInstalledError = exports.InvalidXRPTag = exports.InvalidAddressBecauseDestinationIsAlsoSource = exports.InvalidAddress = exports.HardResetFail = exports.GenuineCheckFailed = exports.GasLessThanEstimate = exports.FirmwareOrAppUpdateRequired = exports.FirmwareNotRecognized = exports.FeeTooHigh = exports.FeeRequired = exports.FeeNotLoaded = exports.FeeEstimationFailed = exports.EthAppPleaseEnableContractData = exports.EnpointConfigError = exports.ETHAddressNonEIP = exports.DisconnectedDeviceDuringOperation = exports.DisconnectedDevice = exports.DeviceSocketNoBulkStatus = exports.DeviceSocketFail = exports.DeviceShouldStayInApp = exports.DeviceOnDashboardUnexpected = exports.DeviceOnDashboardExpected = exports.DeviceNotGenuineError = exports.DeviceNameInvalid = exports.DeviceInOSUExpected = exports.DeviceHalted = exports.DeviceGenuineSocketEarlyClose = exports.DeviceAppVerifyNotSupported = exports.DBWrongPassword = exports.DBNotReset = exports.CurrencyNotSupported = exports.CashAddrNotSupported = exports.CantScanQRCode = exports.CantOpenDevice = exports.BtcUnmatchedApp = exports.BluetoothRequired = exports.AmountRequired = exports.AccountNotSupported = exports.AccountNameRequiredError = void 0;
 
 /* eslint-disable no-continue */
+
+/* eslint-disable no-unused-vars */
 
 /* eslint-disable no-param-reassign */
 
@@ -3311,7 +3341,6 @@ class TransportWebUSB extends _hwTransport.default {
       const blocks = framing.makeBlocks(apdu);
 
       for (let i = 0; i < blocks.length; i++) {
-        (0, _logs.log)("hid-frame", "=> " + blocks[i].toString("hex"));
         await this.device.transferOut(endpointNumber, blocks[i]);
       } // Read...
 
@@ -3322,7 +3351,6 @@ class TransportWebUSB extends _hwTransport.default {
       while (!(result = framing.getReducedResult(acc))) {
         const r = await this.device.transferIn(endpointNumber, packetSize);
         const buffer = Buffer.from(r.data.buffer);
-        (0, _logs.log)("hid-frame", "<= " + buffer.toString("hex"));
         acc = framing.reduceResponse(acc, buffer);
       }
 
@@ -3377,7 +3405,7 @@ class TransportWebUSB extends _hwTransport.default {
       await device.selectConfiguration(configurationValue);
     }
 
-    await device.reset();
+    await gracefullyResetDevice(device);
     const iface = device.configurations[0].interfaces.find(({
       alternates
     }) => alternates.some(a => a.interfaceClass === 255));
@@ -3418,7 +3446,7 @@ class TransportWebUSB extends _hwTransport.default {
   async close() {
     await this.exchangeBusyPromise;
     await this.device.releaseInterface(this.interfaceNumber);
-    await this.device.reset();
+    await gracefullyResetDevice(this.device);
     await this.device.close();
   }
   /**
@@ -3464,6 +3492,14 @@ TransportWebUSB.listen = observer => {
     unsubscribe
   };
 };
+
+async function gracefullyResetDevice(device) {
+  try {
+    await device.reset();
+  } catch (err) {
+    console.warn(err);
+  }
+}
 
 }).call(this,require("buffer").Buffer)
 },{"./webusb":9,"@ledgerhq/devices":5,"@ledgerhq/devices/lib/hid-framing":6,"@ledgerhq/errors":7,"@ledgerhq/hw-transport":10,"@ledgerhq/logs":11,"buffer":2}],9:[function(require,module,exports){

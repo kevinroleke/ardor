@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2020 Jelurida IP B.V.
+ * Copyright © 2016-2021 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -148,14 +148,18 @@ public class JavaScriptBridge {
     public boolean isFileReaderSupported() {
         String version = System.getProperty("javafx.version");
         String[] tokens = version.split("\\.");
+
+        // Supported in JavaFX 11.0.6 or 12 and higher
+        int majorVersion = Integer.parseInt(tokens[0]);
+        if (majorVersion >= 12) {
+            return true;
+        }
         if (tokens.length < 3) {
             return false;
         }
-        // Supported in JavaFX 11.0.6 or 12 and higher
-        int majorVersion = Integer.parseInt(tokens[0]);
         int minorVersion = Integer.parseInt(tokens[1]);
         int hotFix = Integer.parseInt(tokens[2]);
-        return majorVersion >= 12 || majorVersion == 11 && minorVersion >=0 && hotFix >= 6;
+        return majorVersion == 11 && minorVersion >=0 && hotFix >= 6;
     }
 
     @SuppressWarnings("unused")

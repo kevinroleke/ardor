@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2020 Jelurida IP B.V.
+ * Copyright © 2016-2021 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -182,7 +182,7 @@ public class JDKToolsWrapper {
             return null;
         }
         String outputStr = output.toString();
-        String[] outputLines = outputStr.split("\r\n");
+        String[] outputLines = outputStr.split(System.lineSeparator());
         Map<String, byte[]> compiledClasses = new HashMap<>();
         for (String line : outputLines) {
             Path path;
@@ -250,14 +250,14 @@ public class JDKToolsWrapper {
         String tmpDir = System.getProperty("java.io.tmpdir");
         Path outputPath = Paths.get(tmpDir, "javapdata");
         Path classFile = outputPath.resolve("Temp.class");
-        if (!Files.exists(outputPath)) {
-            try {
-                Files.createDirectory(outputPath);
-                Files.write(classFile, classBytes);
-            } catch (IOException e) {
-                throw new IllegalStateException(e);
-            }
+
+        try {
+            Files.createDirectories(outputPath);
+            Files.write(classFile, classBytes);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
         }
+
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
         StringWriter output = new StringWriter();
         PrintWriter writer = new PrintWriter(output);
@@ -296,7 +296,8 @@ public class JDKToolsWrapper {
 
         // Convert major version to target release 52 --> 8, 54 --> 10 we assume that the difference will stay 44 in future Java releases.
         // Make sure our version and the compiler version used to compile the class are the same
-        int contractCompilerVersion = lines.stream().filter(line -> line.contains("major version:")).mapToInt(line -> Integer.parseInt(line.split(": ")[1]) - 44).findFirst().orElse(-1);
+        int contractCompilerVersion = lines.stream().filter(line -> line.contains("major version:")).
+                mapToInt(line -> Integer.parseInt(line.split(": ")[1]) - 44).findFirst().orElse(-1);
         String version = System.getProperty("java.version");
         String[] tokens = version.split("\\.");
         int myCompilerVersion = Integer.parseInt(tokens.length == 0 ? version : tokens[0].equals("1") ? tokens[1] : tokens[0]);

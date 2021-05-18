@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2020 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2021 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -689,6 +689,10 @@ body > .header .logo:hover {
   color: #f9f9f9;
 }
 
+.dropdown-menu .remove-account {
+  padding-left: 5px;
+}
+
 /*
    All form elements including input, select, textarea etc.
 -----------------------------------------------------------------
@@ -830,6 +834,7 @@ body > .header .logo:hover {
 
 .small-box > .inner {
   padding: 10px;
+  min-height: 101.8px;
 }
 
 .small-box > .small-box-footer {
@@ -857,8 +862,14 @@ body > .header .logo:hover {
   padding: 0;
 }
 
+#dashboard_blocks_div .small-box h3 {
+  white-space: normal;
+  font-size: 23px;
+}
+
 .small-box p {
   font-size: 14px;
+  margin-bottom: 0px;
 }
 
 .small-box p > small {
@@ -1225,6 +1236,10 @@ body > .header .logo:hover {
 .callout.callout-danger {
   background-color: #fcf2f2;
   border-color: #dfb5b4;
+  word-break: normal;
+}
+
+.callout.callout-danger.technical-data {
   word-break: break-all;
 }
 
@@ -2174,7 +2189,21 @@ table.purchase td {
 }
 
 .data-pagination {
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pagination-index-input {
+  border-style: solid;
+  border-width: 1px;
+  padding: 0px;
+  width: 100px
+}
+
+.pagination-index-input.invalid {
+  color: red;
+  border-color: red;
 }
 
 .advanced_info {

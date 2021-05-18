@@ -21,13 +21,6 @@ NRS.onSiteBuildDone().then(() => {
     NRS = (function (NRS, $) {
         var EXCHANGE_NAME = "changenow";
 
-        NRS.pageLoading = function () {
-            NRS.hasMorePages = false;
-            var $pageHeader = $("#" + NRS.currentPage + "_page .content-header h1");
-            $pageHeader.find(".loading_dots").remove();
-            $pageHeader.append("<span class='loading_dots'><span>.</span><span>.</span><span>.</span></span>");
-        };
-
         NRS.pages.exchange_changenow = function () {
             NRS.changelly.exchangePageInit(EXCHANGE_NAME);
             loadCoins();

@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2020 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2021 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -27,16 +27,12 @@ NRS.onSiteBuildDone().then(() => {
 
             NRS.sendRequest("getAliases+", {
                 "account": NRS.account,
-                "firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-                "lastIndex": NRS.pageNumber * NRS.itemsPerPage
+                "firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+                "lastIndex": NRS.getCurrentPagination().getLastIndex()
             }, function (response) {
                 var aliasesTable = $("#aliases_table");
+                NRS.getCurrentPagination().onResult(response.aliases);
                 if (response.aliases && response.aliases.length) {
-                    if (response.aliases.length > NRS.itemsPerPage) {
-                        NRS.hasMorePages = true;
-                        response.aliases.pop();
-                    }
-
                     var aliases = response.aliases;
                     aliases.sort(function (a, b) {
                         if (a.aliasName.toLowerCase() > b.aliasName.toLowerCase()) {

@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2020 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2021 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -531,7 +531,9 @@
                     });
                 } else {
                     if (response.errorCode || response.errorDescription || response.errorMessage || response.error) {
-                        response.errorDescription = NRS.translateServerError(response);
+                        let translatedErrorDesc = NRS.translateServerError(response);
+                        response.errorDescByServer = response.errorDescription;
+                        response.errorDescription = translatedErrorDesc;
                         delete response.fullHash;
                         if (!response.errorCode) {
                             response.errorCode = -1;
@@ -769,7 +771,8 @@
 
             function verifyFields(transaction, data, fieldNames) {
                 for (let fieldName of fieldNames) {
-                    if (transaction[fieldName] !== String(data[fieldName])) {
+                    if ((data[fieldName] === undefined && transaction[fieldName] !== '')
+                        || (fieldName in data && transaction[fieldName] !== String(data[fieldName]))) {
                         return verificationFailed(fieldName, data[fieldName], transaction[fieldName]);
                     }
                 }
@@ -1006,24 +1009,16 @@
                     }
                     length = byteArray[pos];
                     pos++;
-                    if (converters.byteArrayToString(byteArray, pos, length) !== data.property) {
-                        return {
-                            fail: true,
-                            param: requestType + "Key",
-                            actual: JSON.stringify(data),
-                            expected: JSON.stringify(transaction)
-                        };
+                    let accountProperty = converters.byteArrayToString(byteArray, pos, length);
+                    if (accountProperty !== data.property) {
+                        return verificationFailed("property", data.property, accountProperty);
                     }
                     pos += length;
                     length = byteArray[pos];
                     pos++;
-                    if (converters.byteArrayToString(byteArray, pos, length) !== data.value) {
-                        return {
-                            fail: true,
-                            param: requestType + "Value",
-                            actual: JSON.stringify(data),
-                            expected: JSON.stringify(transaction)
-                        };
+                    let accountPropertyValue = converters.byteArrayToString(byteArray, pos, length);
+                    if (accountPropertyValue !== (data.value === undefined ? '' : data.value)) {
+                        return verificationFailed("value", data.value, accountPropertyValue);
                     }
                     pos += length;
                     break;
@@ -1182,24 +1177,16 @@
                     pos += 8;
                     length = byteArray[pos];
                     pos++;
-                    if (converters.byteArrayToString(byteArray, pos, length) !== data.property) {
-                        return {
-                            fail: true,
-                            param: requestType + "Key",
-                            actual: JSON.stringify(data),
-                            expected: JSON.stringify(transaction)
-                        };
+                    let assetProperty = converters.byteArrayToString(byteArray, pos, length);
+                    if (assetProperty !== data.property) {
+                        return verificationFailed("property", data.property, assetProperty);
                     }
                     pos += length;
                     length = byteArray[pos];
                     pos++;
-                    if (converters.byteArrayToString(byteArray, pos, length) !== data.value) {
-                        return {
-                            fail: true,
-                            param: requestType + "Value",
-                            actual: JSON.stringify(data),
-                            expected: JSON.stringify(transaction)
-                        };
+                    let assetPropertyValue = converters.byteArrayToString(byteArray, pos, length);
+                    if (assetPropertyValue !== (data.value === undefined ? '' : data.value)) {
+                        return verificationFailed("value", data.value, assetPropertyValue);
                     }
                     pos += length;
                     break;

@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2020 Jelurida IP B.V.
+ * Copyright © 2016-2021 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -191,14 +191,17 @@ public class DesktopApplication extends Application {
             if (ENABLE_JAVASCRIPT_DEBUGGER) {
                 try {
                     // Add the javafx_webview_debugger and websocket-* test libs to the classpath
-                    // For more details, check https://github.com/mohamnag/javafx_webview_debugger
+                    // For more details, check https://gitlab.com/mohamnag/javafx-webview-debugger
+                    // In resent versions of chrome used "devtools://devtools/bundled/inspector.html?ws=localhost:51742"
+                    // instead of "chrome-devtools://" from mohamnag's instructions
                     Class<?> aClass = Class.forName("com.mohamnag.fxwebview_debugger.DevToolsDebuggerServer");
                     Class<?> webEngineClazz = WebEngine.class;
                     Field debuggerField = webEngineClazz.getDeclaredField("debugger");
                     debuggerField.setAccessible(true);
                     Object debugger = debuggerField.get(webEngine);
-                    //noinspection JavaReflectionMemberAccess
-                    Method startDebugServer = aClass.getMethod("startDebugServer", debugger.getClass(), int.class);
+                    Method startDebugServer = aClass.getMethod("startDebugServer",
+                            com.sun.javafx.scene.web.Debugger.class, int.class);
+
                     startDebugServer.invoke(null, debugger, 51742);
                 } catch (NoSuchFieldException | ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                     Logger.logInfoMessage("Cannot start JavaFx debugger", e);

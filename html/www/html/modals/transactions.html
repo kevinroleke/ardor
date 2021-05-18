@@ -1,6 +1,6 @@
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ~ Copyright © 2013-2016 The Nxt Core Developers.                            ~
-  ~ Copyright © 2016-2020 Jelurida IP B.V.                                    ~
+  ~ Copyright © 2016-2021 Jelurida IP B.V.                                    ~
   ~                                                                           ~
   ~ See the LICENSE.txt file at the top-level directory of this distribution  ~
   ~ for licensing information.                                                ~
@@ -258,7 +258,7 @@
                     <div id="raw_transaction_modal_unsigned_bytes_qr_code_container">
                         <label data-i18n="unsigned_bytes_qr_code">UNSIGNED BYTES QR CODE</label>
                         <div class="form-group">
-                            <div id="raw_transaction_modal_unsigned_bytes_qr_code"></div>
+                            <div id="raw_transaction_modal_unsigned_bytes_qr_code" class="qr-code-image"></div>
                         </div>
                     </div>
                     <label for="raw_transaction_modal_transaction_json" id="raw_transaction_modal_transaction_json_label"></label>
@@ -337,7 +337,7 @@
                     <div id="voucher_qr_code_container">
                         <label data-i18n="voucher_qr_code">VOUCHER QR CODE</label>
                         <div class="form-group">
-                            <div id="voucher_qr_code"></div>
+                            <div id="voucher_qr_code" class="qr-code-image"></div>
                         </div>
                     </div>
                 </form>
@@ -360,7 +360,7 @@
             </div>
             <div class="modal-body">
                 <form role="form" autocomplete="off">
-                    <div class="callout callout-danger error_message" style="display:none"></div>
+                    <div class="callout callout-danger error_message technical-data" style="display:none"></div>
                     <div class="callout callout-info info_message"></div>
                     <div class="form-group file-reader-support">
                         <div class="form-group">
@@ -471,7 +471,7 @@
                             <textarea class="form-control" id="transaction_signature" readonly rows="2"></textarea>
                             <label data-i18n="transaction_signature_qr_code">SIGNATURE QR CODE</label>
                             <div class="form-group">
-                                <div id="transaction_signature_qr_code"></div>
+                                <div id="transaction_signature_qr_code" class="qr-code-image"></div>
                             </div>
                         </div>
                         <div id="signed_json_output" class="output">
@@ -515,7 +515,11 @@
                         <div class="callout callout-danger error_message" style="display:none"></div>
                         <div class="form-group">
                             <label for="parse_transaction_transaction_bytes" data-i18n="transaction_bytes">TRANSACTION BYTES</label>
+                            <a href="#" class="qr_code_reader_link" id="parse_transaction_transaction_bytes_reader_link">
+                                <i class="far fa-qrcode"></i>
+                            </a>
                             <textarea class="form-control" name="transactionBytes" id="parse_transaction_transaction_bytes" rows="4" placeholder="Transaction Bytes" data-i18n="[placeholder]transaction_bytes"></textarea>
+                            <div id="parse_transaction_transaction_bytes_reader"></div>
                         </div>
                         <div class="form-group">
                             <label for="parse_transaction_json" data-i18n="transaction_json">TRANSACTION JSON</label>

@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2020 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2021 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -99,7 +99,6 @@ NRS.onSiteBuildDone().then(() => {
         }
 
         NRS.renderBundlersTable = function(type) {
-            NRS.hasMorePages = false;
             var view = NRS.simpleview.get('bundlers_section', {
                 errorMessage: null,
                 isLoading: true,
@@ -108,8 +107,6 @@ NRS.onSiteBuildDone().then(() => {
             });
             var params = {
                 "adminPassword": NRS.getAdminPassword(),
-                "firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-                "lastIndex": NRS.pageNumber * NRS.itemsPerPage,
                 "minBundlerBalanceFXT": 1
             };
             if (NRS.isParentChain()) {
@@ -133,10 +130,7 @@ NRS.onSiteBuildDone().then(() => {
                 }
                 function addMyBundlers() {
                     var response = $.extend({}, getBundlersResponse);
-                    if (response.bundlers.length > NRS.itemsPerPage) {
-                        NRS.hasMorePages = true;
-                        response.bundlers.pop();
-                    }
+                    NRS.getCurrentPagination().onResult(response.bundlers);
                     response.bundlers.forEach(
                         function (bundlerJson) {
                             view.bundlers.push(NRS.jsondata.bundlers(bundlerJson))

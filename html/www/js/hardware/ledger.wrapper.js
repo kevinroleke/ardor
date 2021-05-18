@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright © 2016-2020 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2021 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -262,6 +262,9 @@ let ledgerwallet = function() {
                 }
 
                 for (let i = 0; i < MIN_VERSION.length; i++) {
+                    if (parseInt(versionParts[i]) > MIN_VERSION[i]) {
+                        break;
+                    }
                     if (parseInt(versionParts[i]) < MIN_VERSION[i]) {
                         console.log("Version too low", versionParts);
                         notifyCallbacks(LEDGER_STATE.DEVICE_VERSION_BELOW_MINIMUM_SUPPORTED);

@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2020 Jelurida IP B.V.
+ * Copyright © 2016-2021 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -371,116 +371,130 @@ public final class BlockchainImpl implements Blockchain {
             throw new IllegalArgumentException("Number of confirmations required " + numberOfConfirmations
                     + " exceeds current blockchain height " + getHeight());
         }
+        int lastBlockTimestamp = height < Integer.MAX_VALUE ? getBlockTimestampAtHeight(height) : Integer.MAX_VALUE;
+        int subQueryLimit = to <= 0 || to < from || to == Integer.MAX_VALUE ? Integer.MAX_VALUE : to + 1;
+
         Connection con = null;
         try {
             StringBuilder buf = new StringBuilder();
-            buf.append("SELECT transaction.* FROM transaction ");
-            if (executedOnly && !nonPhasedOnly) {
-                buf.append(" LEFT JOIN phasing_poll_result ON transaction.id = phasing_poll_result.id ");
-                buf.append(" AND transaction.full_hash = phasing_poll_result.full_hash ");
-            }
-            buf.append("WHERE recipient_id = ? AND sender_id <> ? ");
-            if (blockTimestamp > 0) {
-                buf.append("AND block_timestamp >= ? ");
-            }
-            if (type >= 0) {
-                buf.append("AND type = ? ");
-                if (subtype >= 0) {
-                    buf.append("AND subtype = ? ");
-                }
-            }
-            if (height < Integer.MAX_VALUE) {
-                buf.append("AND transaction.height <= ? ");
-            }
-            if (withMessage) {
-                buf.append("AND (has_message = TRUE OR has_encrypted_message = TRUE ");
-                buf.append("OR ((has_prunable_message = TRUE OR has_prunable_encrypted_message = TRUE) AND timestamp > ?)) ");
-            }
-            if (phasedOnly) {
-                buf.append("AND phased = TRUE ");
-            } else if (nonPhasedOnly) {
-                buf.append("AND phased = FALSE ");
-            }
-            if (executedOnly && !nonPhasedOnly) {
-                buf.append("AND (phased = FALSE OR approved = TRUE) ");
-            }
-            buf.append("UNION ALL SELECT transaction.* FROM transaction ");
-            if (executedOnly && !nonPhasedOnly) {
-                buf.append(" LEFT JOIN phasing_poll_result ON transaction.id = phasing_poll_result.id ");
-                buf.append(" AND transaction.full_hash = phasing_poll_result.full_hash ");
-            }
-            buf.append("WHERE sender_id = ? ");
-            if (blockTimestamp > 0) {
-                buf.append("AND block_timestamp >= ? ");
-            }
-            if (type >= 0) {
-                buf.append("AND type = ? ");
-                if (subtype >= 0) {
-                    buf.append("AND subtype = ? ");
-                }
-            }
-            if (height < Integer.MAX_VALUE) {
-                buf.append("AND transaction.height <= ? ");
-            }
-            if (withMessage) {
-                buf.append("AND (has_message = TRUE OR has_encrypted_message = TRUE OR has_encrypttoself_message = TRUE ");
-                buf.append("OR ((has_prunable_message = TRUE OR has_prunable_encrypted_message = TRUE) AND timestamp > ?)) ");
-            }
-            if (phasedOnly) {
-                buf.append("AND phased = TRUE ");
-            } else if (nonPhasedOnly) {
-                buf.append("AND phased = FALSE ");
-            }
-            if (executedOnly && !nonPhasedOnly) {
-                buf.append("AND (phased = FALSE OR approved = TRUE) ");
-            }
+            buildTransactionsSubQuery(true, buf, blockTimestamp, lastBlockTimestamp, type, subtype,
+                    withMessage, phasedOnly, nonPhasedOnly, executedOnly, subQueryLimit);
+            buf.append("UNION ALL ");
+            buildTransactionsSubQuery(false, buf, blockTimestamp, lastBlockTimestamp, type, subtype,
+                    withMessage, phasedOnly, nonPhasedOnly, executedOnly, subQueryLimit);
 
             buf.append("ORDER BY block_timestamp DESC, transaction_index DESC");
             buf.append(DbUtils.limitsClause(from, to));
             con = Db.db.getConnection(childChain.getDbSchema());
-            PreparedStatement pstmt;
             int i = 0;
-            pstmt = con.prepareStatement(buf.toString());
-            pstmt.setLong(++i, accountId);
-            pstmt.setLong(++i, accountId);
-            if (blockTimestamp > 0) {
-                pstmt.setInt(++i, blockTimestamp);
-            }
-            if (type >= 0) {
-                pstmt.setByte(++i, type);
-                if (subtype >= 0) {
-                    pstmt.setByte(++i, subtype);
-                }
-            }
-            if (height < Integer.MAX_VALUE) {
-                pstmt.setInt(++i, height);
-            }
+            PreparedStatement pstmt = con.prepareStatement(buf.toString());
             int prunableExpiration = Math.max(0, Constants.INCLUDE_EXPIRED_PRUNABLE && includeExpiredPrunable ?
-                                        Nxt.getEpochTime() - Constants.MAX_PRUNABLE_LIFETIME :
-                                        Nxt.getEpochTime() - Constants.MIN_PRUNABLE_LIFETIME);
-            if (withMessage) {
-                pstmt.setInt(++i, prunableExpiration);
-            }
-            pstmt.setLong(++i, accountId);
-            if (blockTimestamp > 0) {
-                pstmt.setInt(++i, blockTimestamp);
-            }
-            if (type >= 0) {
-                pstmt.setByte(++i, type);
-                if (subtype >= 0) {
-                    pstmt.setByte(++i, subtype);
-                }
-            }
-            if (height < Integer.MAX_VALUE) {
-                pstmt.setInt(++i, height);
-            }
-            if (withMessage) {
-                pstmt.setInt(++i, prunableExpiration);
-            }
+                    Nxt.getEpochTime() - Constants.MAX_PRUNABLE_LIFETIME :
+                    Nxt.getEpochTime() - Constants.MIN_PRUNABLE_LIFETIME);
+            i = setTransactionsSubQueryParams(true, pstmt, i, accountId, blockTimestamp, lastBlockTimestamp, type, subtype,
+                    withMessage, prunableExpiration, subQueryLimit);
+            i = setTransactionsSubQueryParams(false, pstmt, i, accountId, blockTimestamp, lastBlockTimestamp, type, subtype,
+                    withMessage, prunableExpiration, subQueryLimit);
             DbUtils.setLimits(++i, pstmt, from, to);
             return getTransactions(childChain, con, pstmt);
         } catch (SQLException e) {
             DbUtils.close(con);
+            throw new RuntimeException(e.toString(), e);
+        }
+    }
+
+    private void buildTransactionsSubQuery(boolean isReceivedSubQuery, StringBuilder buf, int firstTimestamp, int lastTimestamp,
+                                           byte type, byte subtype, boolean withMessage, boolean phasedOnly,
+                                           boolean nonPhasedOnly, boolean executedOnly, int subQueryLimit) {
+        buf.append("(SELECT transaction.* FROM transaction ");
+        if (executedOnly && !nonPhasedOnly) {
+            buf.append(" LEFT JOIN phasing_poll_result ON transaction.id = phasing_poll_result.id ");
+            buf.append(" AND transaction.full_hash = phasing_poll_result.full_hash ");
+        }
+        if (isReceivedSubQuery) {
+            buf.append("WHERE recipient_id = ? AND sender_id <> ? ");
+        } else {
+            buf.append("WHERE sender_id = ? ");
+        }
+        if (firstTimestamp > 0) {
+            buf.append("AND block_timestamp >= ? ");
+        }
+        if (lastTimestamp < Integer.MAX_VALUE) {
+            buf.append("AND block_timestamp <= ? ");
+        }
+        if (type >= 0) {
+            buf.append("AND type = ? ");
+            if (subtype >= 0) {
+                buf.append("AND subtype = ? ");
+            }
+        }
+        if (withMessage) {
+            if (isReceivedSubQuery) {
+                buf.append("AND (has_message = TRUE OR has_encrypted_message = TRUE ");
+            } else {
+                buf.append("AND (has_message = TRUE OR has_encrypted_message = TRUE OR has_encrypttoself_message = TRUE ");
+            }
+            buf.append("OR ((has_prunable_message = TRUE OR has_prunable_encrypted_message = TRUE) AND timestamp > ?)) ");
+        }
+        if (phasedOnly) {
+            buf.append("AND phased = TRUE ");
+        } else if (nonPhasedOnly) {
+            buf.append("AND phased = FALSE ");
+        }
+        if (executedOnly && !nonPhasedOnly) {
+            buf.append("AND (phased = FALSE OR approved = TRUE)");
+        }
+        if (subQueryLimit < Integer.MAX_VALUE) {
+            if (isReceivedSubQuery) {
+                buf.append(" ORDER BY recipient_id, block_timestamp DESC LIMIT ? ");
+            } else {
+                buf.append(" ORDER BY sender_id, block_timestamp DESC LIMIT ? ");
+            }
+        }
+        buf.append(") ");
+    }
+
+    private int setTransactionsSubQueryParams(boolean isReceivedSubQuery, PreparedStatement pstmt, int i,
+                                              long accountId, int firstTimestamp, int lastTimestamp,
+                                              byte type, byte subtype, boolean withMessage,
+                                              int prunableExpiration, int subQueryLimit) throws SQLException {
+        if (isReceivedSubQuery) {
+            pstmt.setLong(++i, accountId);
+        }
+        pstmt.setLong(++i, accountId);
+        if (firstTimestamp > 0) {
+            pstmt.setInt(++i, firstTimestamp);
+        }
+        if (lastTimestamp < Integer.MAX_VALUE) {
+            pstmt.setInt(++i, lastTimestamp);
+        }
+        if (type >= 0) {
+            pstmt.setByte(++i, type);
+            if (subtype >= 0) {
+                pstmt.setByte(++i, subtype);
+            }
+        }
+        if (withMessage) {
+            pstmt.setInt(++i, prunableExpiration);
+        }
+        if (subQueryLimit < Integer.MAX_VALUE) {
+            pstmt.setInt(++i, subQueryLimit);
+        }
+        return i;
+    }
+
+    private int getBlockTimestampAtHeight(int height) {
+        try (Connection con = BlockDb.getConnection();
+             PreparedStatement pstmt = con.prepareStatement("SELECT timestamp FROM block WHERE height = ? LIMIT 1")) {
+            pstmt.setInt(1, height);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                } else {
+                    throw new RuntimeException("Can't get block timestamp at height " + height + ". Block is missing.");
+                }
+            }
+        } catch (SQLException e) {
             throw new RuntimeException(e.toString(), e);
         }
     }

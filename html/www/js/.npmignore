@@ -58,6 +58,7 @@ nrs.taggeddata.js
 nrs.tours.js
 nrs.transactions.js
 nrs.update.js
+nrs.pagination.js
 test
 3rdparty
 exchange

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2020 Jelurida IP B.V.
+ * Copyright © 2021 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -446,46 +446,44 @@ public class CoinExchangeTradingBot extends AbstractContract<Object, Object> {
         }
 
         private void loadExchangeRate() {
-            Map<String, String> parameters = new HashMap<>();
-            if (cmcFromSymbols == null) {
-                Logger.logInfoMessage("From symbols not specified, cannot load exchange rates");
-                return;
-            }
-            parameters.put("symbol", cmcFromSymbols);
-            if (cmcToSymbols == null) {
-                Logger.logInfoMessage("To symbols not specified, cannot load exchange rates");
-                return;
-            }
-            parameters.put("convert", cmcToSymbols);
-            JO jsonResponse;
             try {
-                jsonResponse = getLatestQuoteApiCall(cmcUrl, apiKey, parameters);
-            } catch (Exception e) {
-                Logger.logInfoMessage("Failed loading exchange rates", e);
-                quotes = Collections.emptyMap(); // Never leave old quotes
-                return;
-            }
-            System.out.println(jsonResponse.toJSONString());
-            JO data = jsonResponse.getJo("data");
-            String[] fromSymbols = cmcFromSymbols.split(",");
-            String[] toSymbols = cmcToSymbols.split(",");
-            Logger.logInfoMessage("Loading coinmarketcap rates");
-            Map<String, BigDecimal> newQuotes = new HashMap<>();
-            for (String fromSymbol : fromSymbols) {
-                for (String toSymbol : toSymbols) {
-                    if (fromSymbol.equals(toSymbol)) {
-                        continue;
-                    }
-                    JO baseChain = data.getJo(fromSymbol);
-                    JO quote = baseChain.getJo("quote");
-                    JO counterChain = quote.getJo(toSymbol);
-                    BigDecimal price = BigDecimal.valueOf(counterChain.getDouble("price"));
-                    newQuotes.put(fromSymbol + "_" + toSymbol, price);
-                    Logger.logInfoMessage("%s/%s %s", fromSymbol, toSymbol, price);
+                Map<String, String> parameters = new HashMap<>();
+                if (cmcFromSymbols == null) {
+                    Logger.logInfoMessage("From symbols not specified, cannot load exchange rates");
+                    return;
                 }
+                parameters.put("symbol", cmcFromSymbols);
+                if (cmcToSymbols == null) {
+                    Logger.logInfoMessage("To symbols not specified, cannot load exchange rates");
+                    return;
+                }
+                parameters.put("convert", cmcToSymbols);
+                JO jsonResponse = getLatestQuoteApiCall(cmcUrl, apiKey, parameters);
+                Logger.logInfoMessage("coinmarketcap response:" + jsonResponse.toJSONString());
+                JO data = jsonResponse.getJo("data");
+                String[] fromSymbols = cmcFromSymbols.split(",");
+                String[] toSymbols = cmcToSymbols.split(",");
+                Logger.logInfoMessage("Loading coinmarketcap rates");
+                Map<String, BigDecimal> newQuotes = new HashMap<>();
+                for (String fromSymbol : fromSymbols) {
+                    for (String toSymbol : toSymbols) {
+                        if (fromSymbol.equals(toSymbol)) {
+                            continue;
+                        }
+                        JO baseChain = data.getJo(fromSymbol);
+                        JO quote = baseChain.getJo("quote");
+                        JO counterChain = quote.getJo(toSymbol);
+                        BigDecimal price = BigDecimal.valueOf(counterChain.getDouble("price"));
+                        newQuotes.put(fromSymbol + "_" + toSymbol, price);
+                        Logger.logInfoMessage("%s/%s %s", fromSymbol, toSymbol, price);
+                    }
+                }
+                quotes = Collections.unmodifiableMap(newQuotes);
+                Logger.logInfoMessage("Coinmarketcap rates loaded");
+            } catch (Throwable t) {
+                Logger.logInfoMessage("Failed to load CMC rates", t);
+                quotes = Collections.emptyMap(); // Never leave old quotes
             }
-            quotes = Collections.unmodifiableMap(newQuotes);
-            Logger.logInfoMessage("Coinmarketcap rates loaded");
         }
 
         private static String getParameters(Map<String, String> data) {

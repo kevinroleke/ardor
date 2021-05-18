@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2020 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2021 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -68,7 +68,6 @@ NRS.onSiteBuildDone().then(() => {
 
         NRS.pages.funding_monitors = function () {
             NRS.preparePage();
-            NRS.hasMorePages = false;
             var view = NRS.simpleview.get('funding_monitors_page', {
                 errorMessage: null,
                 isLoading: true,
@@ -78,8 +77,6 @@ NRS.onSiteBuildDone().then(() => {
             var params = {
                 "account": NRS.accountRS,
                 "adminPassword": NRS.getAdminPassword(),
-                "firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-                "lastIndex": NRS.pageNumber * NRS.itemsPerPage,
                 "holding": NRS.getActiveChainId(),
                 "includeHoldingInfo": true
             };
@@ -92,10 +89,6 @@ NRS.onSiteBuildDone().then(() => {
                             isEmpty: false
                         });
                         return;
-                    }
-                    if (response.monitors.length > NRS.itemsPerPage) {
-                        NRS.hasMorePages = true;
-                        response.monitors.pop();
                     }
                     view.monitors.length = 0;
                     response.monitors.forEach(
@@ -213,10 +206,11 @@ NRS.onSiteBuildDone().then(() => {
         };
 
         NRS.pages.funding_monitor_status = function (callback) {
-            currentMonitor = callback();
+            if (callback) {
+                currentMonitor = callback();
+            }
             $("#monitor_funding_account").html(NRS.escapeRespStr(currentMonitor.account));
             $("#monitor_control_property").html(NRS.escapeRespStr(currentMonitor.property));
-            NRS.hasMorePages = false;
             var view = NRS.simpleview.get('funding_monitor_status_page', {
                 errorMessage: null,
                 isLoading: true,
@@ -226,11 +220,12 @@ NRS.onSiteBuildDone().then(() => {
             var params = {
                 "setter": currentMonitor.account,
                 "property": currentMonitor.property,
-                "firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-                "lastIndex": NRS.pageNumber * NRS.itemsPerPage
+                "firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+                "lastIndex": NRS.getCurrentPagination().getLastIndex()
             };
             NRS.sendRequest("getAccountProperties", params,
                 function (response) {
+                    NRS.getCurrentPagination().onResult(response.properties);
                     if (NRS.isErrorResponse(response)) {
                         view.render({
                             errorMessage: NRS.getErrorMessage(response),
@@ -238,10 +233,6 @@ NRS.onSiteBuildDone().then(() => {
                             isEmpty: false
                         });
                         return;
-                    }
-                    if (response.properties.length > NRS.itemsPerPage) {
-                        NRS.hasMorePages = true;
-                        response.properties.pop();
                     }
                     view.monitoredAccount.length = 0;
                     response.properties.forEach(

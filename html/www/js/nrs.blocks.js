@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2020 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2021 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -44,7 +44,7 @@ NRS.onSiteBuildDone().then(() => {
 			if (NRS.blocks.length < 10 && response.previousBlock) {
 				NRS.getBlock(response.previousBlock, NRS.handleInitialBlocks);
 			} else {
-				NRS.checkBlockHeight(NRS.blocks[0].height);
+				NRS.setLastBlockHeight(NRS.blocks[0].height, true);
 				if (NRS.state) {
 					//if no new blocks in 6 hours, show blockchain download progress..
 					var timeDiff = NRS.state.time - NRS.blocks[0].timestamp;
@@ -105,7 +105,7 @@ NRS.onSiteBuildDone().then(() => {
 				if (NRS.blocks.length > 100) {
 					NRS.blocks = NRS.blocks.slice(0, 100);
 				}
-				NRS.checkBlockHeight(NRS.blocks[0].height);
+				NRS.setLastBlockHeight(NRS.blocks[0].height, true);
 				NRS.incoming.updateDashboardBlocks(newBlocks.length);
 				if (!NRS.state.apiProxy) {
 					NRS.updateDashboardLastBlock(NRS.blocks[0]);
@@ -116,10 +116,10 @@ NRS.onSiteBuildDone().then(() => {
 			}
 		};
 
-		NRS.checkBlockHeight = function(blockHeight) {
+		NRS.setLastBlockHeight = function(blockHeight, isFromLocalServerOnly) {
 			if (blockHeight) {
-				if (NRS.state && NRS.state.apiProxy) {
-					NRS.lastLocalBlockHeight = blockHeight;
+				if (isFromLocalServerOnly && NRS.state && NRS.state.apiProxy) {
+					//ignore the local server height - we should use the height returned from proxy server
 				} else {
 					NRS.lastBlockHeight = blockHeight;
 				}
@@ -127,8 +127,8 @@ NRS.onSiteBuildDone().then(() => {
 		};
 
 		NRS.updateDashboardLastBlock = function(block) {
-			$("#nrs_current_block_time").empty().append(NRS.formatTimestamp(block.timestamp));
-			$(".nrs_current_block").empty().append(NRS.escapeRespStr(block.height));
+			$("#nrs_current_block_time").empty().append(NRS.formatTimestamp(block.timestamp)).removeClass("loading_dots");
+			$(".nrs_current_block").empty().append(NRS.escapeRespStr(block.height)).removeClass("loading_dots");
 		};
 
 		//we always update the dashboard page..
@@ -224,14 +224,11 @@ NRS.onSiteBuildDone().then(() => {
 				NRS.sendRequest("getAccountBlocks+", {
 					"account": NRS.account,
 					"includeTransactions": true,
-					"firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-					"lastIndex": NRS.pageNumber * NRS.itemsPerPage
+					"firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+					"lastIndex": NRS.getCurrentPagination().getLastIndex()
 				}, function(response) {
+					NRS.getCurrentPagination().onResult(response.blocks);
 					if (response.blocks && response.blocks.length) {
-						if (response.blocks.length > NRS.itemsPerPage) {
-							NRS.hasMorePages = true;
-							response.blocks.pop();
-						}
 						NRS.blocksPageLoaded(response.blocks);
 					} else {
 						NRS.blocksPageLoaded([]);
@@ -241,16 +238,15 @@ NRS.onSiteBuildDone().then(() => {
 				$("#forged_fees_total_box, #forged_blocks_total_box").hide();
 				$("#blocks_transactions_per_hour_box, #blocks_generation_time_box").show();
 
+				let requestFirstIndex = NRS.getCurrentPagination().getFirstIndex();
 				NRS.sendRequest("getBlocks+", {
 					"includeTransactions": true,
-					"firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-					"lastIndex": NRS.pageNumber * NRS.itemsPerPage
+					"firstIndex": requestFirstIndex,
+					"lastIndex": NRS.getCurrentPagination().getLastIndex()
 				}, function(response) {
+					NRS.getCurrentPagination().onResult(response.blocks);
 					if (response.blocks && response.blocks.length) {
-						if (response.blocks.length > NRS.itemsPerPage) {
-							NRS.hasMorePages = true;
-							response.blocks.pop();
-						}
+						NRS.setLastBlockHeight(response.blocks[0].height + requestFirstIndex, false);
 						NRS.blocksPageLoaded(response.blocks);
 					} else {
 						NRS.blocksPageLoaded([]);
@@ -258,6 +254,20 @@ NRS.onSiteBuildDone().then(() => {
 				});
 			}
 		};
+
+        NRS.pagination.blocks = $.extend({}, NRS.defaultPagination, {
+            indexToItemNumber: function(index) {
+                return NRS.lastBlockHeight - index;
+            },
+
+            itemNumberToIndex: function(itemNr) {
+                return NRS.lastBlockHeight - itemNr;
+            },
+
+            gotoPlaceholder: function() {
+                 return $.t("go_to_height");
+            }
+        });
 
 		NRS.incoming.blocks = function() {
 			NRS.loadPage("blocks");

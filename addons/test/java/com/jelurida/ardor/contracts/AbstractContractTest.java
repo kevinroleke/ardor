@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2020 Jelurida IP B.V.
+ * Copyright © 2016-2021 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -49,6 +49,7 @@ import static org.junit.Assert.assertTrue;
 @SuppressWarnings("SameParameterValue")
 public abstract class AbstractContractTest extends BlockchainTest {
 
+    public static final int CONTRACT_RUNNER_DEFAULT_DEADLINE = 25;
     private final Blockchain blockchain = AccessController.doPrivileged((PrivilegedAction<Blockchain>) Nxt::getBlockchain);
     private static final String runnerConfigFile = "./addons/test/java/com/jelurida/ardor/contracts/test_contracts.json";
 
@@ -61,6 +62,7 @@ public abstract class AbstractContractTest extends BlockchainTest {
             properties.put("addon.contractRunner.secretPhrase", BlockchainTest.aliceSecretPhrase);
             properties.put("addon.contractRunner.feeRateNQTPerFXT.IGNIS", "200000000");
             properties.put("addon.contractRunner.feeRateNQTPerFXT.AEUR", "20000");
+            properties.put("addon.contractRunner.defaultDeadline", String.valueOf(CONTRACT_RUNNER_DEFAULT_DEADLINE));
             properties.put("nxt.testnetLeasingDelay", "2");
             properties.put("nxt.isLightClient", "false");
             properties.put("contract.manager.secretPhrase", BlockchainTest.aliceSecretPhrase);

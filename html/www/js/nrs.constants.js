@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2020 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2021 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -66,6 +66,7 @@ var NRS = (function (NRS, $) {
         'SERVER': {},
         'MAX_TAGGED_DATA_DATA_LENGTH': 0,
         'MAX_PRUNABLE_MESSAGE_LENGTH': 0,
+        'MAX_SINGLETON_ASSET_DESCRIPTION_LENGTH': 160,
         'GENESIS': '',
         'GENESIS_RS': '',
         'EPOCH_BEGINNING': 0,
@@ -77,7 +78,7 @@ var NRS = (function (NRS, $) {
         'TESTNET_ACCELERATION_BLOCK': 455000,
         'SIGNATURE_POSITION': 69, // bytes before signature from TransactionImpl newTransactionBuilder()
         'SIGNATURE_LENGTH': 64,
-        'SECRET_WORDS_HASH': "f6523fcde10803c8847bbf34dae731335e5f6b6c52836bf7cb25716bf0dad535",
+        'SECRET_WORDS_HASHES': ["f6523fcde10803c8847bbf34dae731335e5f6b6c52836bf7cb25716bf0dad535", "f830a9c6296464b10a9aa0d7eabf1e6e4b528d51abfce2ff219ab10b98791e48"],
         'SECRET_WORDS': [],
         'SECRET_WORDS_MAP': {},
 
@@ -128,6 +129,9 @@ var NRS = (function (NRS, $) {
             NRS.constants.MINTING_HASH_ALGORITHMS = response.mintingHashAlgorithms;
             NRS.constants.MAX_TAGGED_DATA_DATA_LENGTH = response.maxTaggedDataDataLength;
             NRS.constants.MAX_PRUNABLE_MESSAGE_LENGTH = response.maxPrunableMessageLength;
+            if (response.maxSingletonAssetDescriptionLength) {
+                NRS.constants.MAX_SINGLETON_ASSET_DESCRIPTION_LENGTH = response.maxSingletonAssetDescriptionLength;
+            }
             NRS.constants.EPOCH_BEGINNING = response.epochBeginning;
             NRS.constants.REQUEST_TYPES = response.requestTypes;
             NRS.constants.API_TAGS = response.apiTags;
@@ -160,7 +164,14 @@ var NRS = (function (NRS, $) {
         sha256 = CryptoJS.algo.SHA256.create();
         sha256.update(converters.byteArrayToWordArrayEx(bytes));
         var hash = converters.byteArrayToHexString(converters.wordArrayToByteArrayEx(sha256.finalize()));
-        if (hash != NRS.constants.SECRET_WORDS_HASH) {
+        let isValidWordList = false;
+        for (let i=0; i<NRS.constants.SECRET_WORDS_HASHES.length; i++) {
+            if (hash === NRS.constants.SECRET_WORDS_HASHES[i]) {
+                isValidWordList = true;
+            }
+        }
+        if (!isValidWordList) {
+            console.log("invalid secret words list");
             throw "invalid secret words list";
         }
         var wordsStr = pako.inflate(bytes, { to: 'string' });

@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2020 Jelurida IP B.V.
+ * Copyright © 2016-2021 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -695,11 +695,11 @@ public abstract class TransactionImpl implements Transaction {
     final void validateEcBlock() throws NxtException.ValidationException {
         if (ecBlockId != 0) {
             if (Nxt.getBlockchain().getHeight() < ecBlockHeight) {
-                throw new NxtException.NotCurrentlyValidException("ecBlockHeight " + ecBlockHeight
-                        + " exceeds blockchain height " + Nxt.getBlockchain().getHeight());
+                throw new NxtException.NotCurrentlyValidException("ecBlockHeight exceeds blockchain height: " +
+                        ecBlockHeight + ">" +  Nxt.getBlockchain().getHeight());
             }
             if (BlockDb.findBlockIdAtHeight(ecBlockHeight) != ecBlockId) {
-                throw new NxtException.NotCurrentlyValidException("ecBlockHeight " + ecBlockHeight
+                throw new NxtException.NotCurrentlyValidException("Block ID at ecBlockHeight " + ecBlockHeight
                         + " does not match ecBlockId " + Long.toUnsignedString(ecBlockId)
                         + ", transaction was generated on a fork");
             }

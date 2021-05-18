@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2020 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2021 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -25,6 +25,7 @@ NRS.onSiteBuildDone().then(() => {
         const $forgingSaveModal = $('#m_save_forging_encrypted_modal');
         var accountSecrets = {};
         const forgingAccounts = [];
+        let emptyConfiguration = true;
 
         var addon_defaults = {
             save_modal            : "#m_save_node_process_config_modal",
@@ -119,7 +120,9 @@ NRS.onSiteBuildDone().then(() => {
                             return;
                         }
                         delete response.requestProcessingTime;
-                        $saveNodeProcessPayload.val(JSON.stringify(response, null, 2)).change();
+                        $saveNodeProcessPayload.val(JSON.stringify(response, null, 2));
+                        emptyConfiguration = addon.accountExtractor(addon).length === 0;
+                        $saveNodeProcessPayload.change();
                     });
             } else if (addon.requestType === 'ContractRunner') {
                 $genericSaveModal.find(".callout-info").text($.t("contract_runner_save_config_tip")).show();
@@ -129,7 +132,9 @@ NRS.onSiteBuildDone().then(() => {
                     "validator": false,
                     "params": {}
                 };
+                emptyConfiguration = false;
                 $saveNodeProcessPayload.val(JSON.stringify(template, null, 2)).change();
+                $saveNodeProcessPayload.one('change', () => $genericSaveModal.find(".callout-info").hide());
             }
         }).on("hidden.bs.modal", function() {
             accountSecrets = {}; // we don't want passphrases in memory for longer than strictly needed
@@ -210,6 +215,7 @@ NRS.onSiteBuildDone().then(() => {
          * This method controls the remaining passphrases required to the user and paints the list if necessary.
          * Otherwise it shows the encryption password inputs.
          *
+         * @param {boolean} isEmptyAccountList is the parsed account list empty?
          * @returns {boolean} do we have all required passphrases?
          */
         function updatePassphrasesStatus(isEmptyAccountList) {
@@ -220,14 +226,14 @@ NRS.onSiteBuildDone().then(() => {
                 return NRS.convertNumericToRSAccountFormat(account);
             });
 
+            $genericSaveModal.find('.panel').addClass("hidden");
+
             if (!!isEmptyAccountList) {
                 // no accounts, empty configuration
-                $genericSaveModal.find(".passphrasesPanel").addClass("hidden");
-                $genericSaveModal.find(".encryptionPanel").addClass("hidden");
                 $genericSaveModal.find(".modal-footer button.btn-primary").prop("disabled", true);
+                $genericSaveModal.find(emptyConfiguration ? '.empty-configuration' : '.no-accounts-detected').removeClass('hidden');
             } else if (pendingAccounts.length === 0) {
                 // if empty, then hide passphrases panel, show encryption passphrase panel and enable "Set" button
-                $genericSaveModal.find(".passphrasesPanel").addClass("hidden");
                 $genericSaveModal.find(".encryptionPanel").removeClass("hidden");
                 $genericSaveModal.find(".modal-footer button.btn-primary").prop("disabled", false);
                 return true;
@@ -238,7 +244,6 @@ NRS.onSiteBuildDone().then(() => {
                         return $('<li>').text(accountRS);
                     })
                 );
-                $genericSaveModal.find(".encryptionPanel").addClass("hidden");
                 $genericSaveModal.find(".modal-footer button.btn-primary").prop("disabled", true);
                 return false;
             }

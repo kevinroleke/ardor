@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2020 Jelurida IP B.V.
+ * Copyright © 2016-2021 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -515,6 +515,14 @@ public class ChildDbVersion extends DbVersion {
             case 167:
                 apply("CREATE INDEX IF NOT EXISTS bid_order_asset_id_price_idx ON bid_order (asset_id, latest, price DESC)");
             case 168:
+                apply("DROP INDEX IF EXISTS transaction_sender_id_idx");
+            case 169:
+                apply("CREATE INDEX IF NOT EXISTS transaction_sender_id_time_idx ON transaction (sender_id, block_timestamp DESC)");
+            case 170:
+                apply("DROP INDEX IF EXISTS transaction_recipient_id_idx");
+            case 171:
+                apply("CREATE INDEX IF NOT EXISTS transaction_recipient_id_time_idx ON transaction (recipient_id, block_timestamp DESC)");
+            case 172:
                 return;
             default:
                 throw new RuntimeException("Child chain " + schema + " database inconsistent with code, at update " + nextUpdate

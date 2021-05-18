@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2020 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2021 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -27,7 +27,6 @@ NRS.onSiteBuildDone().then(() => {
         };
 
         NRS.renderAssetProperties = function(asset) {
-            NRS.hasMorePages = false;
             var view = NRS.simpleview.get('asset_properties_section', {
                 errorMessage: null,
                 isLoading: true,
@@ -35,8 +34,8 @@ NRS.onSiteBuildDone().then(() => {
                 properties: []
             });
             var params = {
-                "firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-                "lastIndex": NRS.pageNumber * NRS.itemsPerPage
+                "firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+                "lastIndex": NRS.getCurrentPagination().getLastIndex()
             };
             if (asset) {
                 params.asset = asset;
@@ -45,10 +44,7 @@ NRS.onSiteBuildDone().then(() => {
             }
             NRS.sendRequest("getAssetProperties+", params,
                 function(response) {
-                    if (response.properties.length > NRS.itemsPerPage) {
-                        NRS.hasMorePages = true;
-                        response.properties.pop();
-                    }
+                    NRS.getCurrentPagination().onResult(response.properties);
                     view.properties.length = 0;
                     response.properties.forEach(
                         function (propertiesJson) {

@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2020 Jelurida IP B.V.
+ * Copyright © 2016-2021 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Writer;
+import java.sql.SQLTimeoutException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -50,6 +51,7 @@ import static nxt.http.JSONResponses.ERROR_INCORRECT_REQUEST;
 import static nxt.http.JSONResponses.ERROR_NOT_ALLOWED;
 import static nxt.http.JSONResponses.LIGHT_CLIENT_DISABLED_API;
 import static nxt.http.JSONResponses.POST_REQUIRED;
+import static nxt.http.JSONResponses.QUERY_TIME_OUT;
 import static nxt.http.JSONResponses.REQUIRED_BLOCK_NOT_FOUND;
 import static nxt.http.JSONResponses.REQUIRED_LAST_BLOCK_NOT_FOUND;
 
@@ -351,6 +353,10 @@ public final class APIServlet extends HttpServlet {
 
             if (apiRequestHandler.requirePassword()) {
                 API.verifyPassword(req);
+            } else {
+                if (!API.checkPassword(req)) {
+                    Db.db.setThreadQueryTimeout(Constants.OPEN_API_QUERY_TIMEOUT);
+                }
             }
             final long requireBlockId = apiRequestHandler.allowRequiredBlockParameters() ?
                     ParameterParser.getUnsignedLong(req, "requireBlock", false) : 0;
@@ -387,14 +393,20 @@ public final class APIServlet extends HttpServlet {
                 if (requireBlockId != 0 || requireLastBlockId != 0) {
                     Nxt.getBlockchain().readUnlock();
                 }
+                Db.db.setThreadQueryTimeout(0);
             }
         } catch (ParameterException e) {
             response = e.getErrorResponse();
         } catch (NxtException | RuntimeException e) {
-            Logger.logDebugMessage("Error processing API request", e);
-            JSONObject json = new JSONObject();
-            JSONData.putException(json, e);
-            response = JSON.prepare(json);
+            if (e.getCause() instanceof SQLTimeoutException) {
+                Logger.logDebugMessage("DB timeout: " + e.getCause().getMessage());
+                response = QUERY_TIME_OUT;
+            } else {
+                Logger.logDebugMessage("Error processing API request", e);
+                JSONObject json = new JSONObject();
+                JSONData.putException(json, e);
+                response = JSON.prepare(json);
+            }
         } catch (ExceptionInInitializerError err) {
             Logger.logErrorMessage("Initialization Error", err.getCause());
             response = ERROR_INCORRECT_REQUEST;

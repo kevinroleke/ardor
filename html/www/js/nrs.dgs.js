@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2020 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2021 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -19,7 +19,7 @@
  */
 NRS.onSiteBuildDone().then(() => {
 	NRS = (function(NRS, $) {
-		var _tagsPerPage = 34;
+		var _tagsPerPage = 36;
 		var _goodsToShow;
 		var _currentSearch = {
 			"page": "",
@@ -141,13 +141,8 @@ NRS.onSiteBuildDone().then(() => {
 			$("#dgs_listings").hide();
 			$("#dgs_search_top").show();
 
+			NRS.getCurrentPagination().onResult(response.goods);
 			if (response.goods && response.goods.length) {
-				if (response.goods.length > NRS.itemsPerPage) {
-					NRS.hasMorePages = true;
-					response.goods.pop();
-				} else {
-					NRS.hasMorePages = false;
-				}
 				for (var i = 0; i < response.goods.length; i++) {
 					content += NRS.getMarketplaceItemHTML(response.goods[i]);
 				}
@@ -160,12 +155,12 @@ NRS.onSiteBuildDone().then(() => {
 		NRS.dgs_load_tags = function() {
 			$('#dgs_tag_list').empty();
 			NRS.sendRequest("getDGSTags+", {
-					"firstIndex": NRS.pageNumber * _tagsPerPage - _tagsPerPage,
-					"lastIndex": NRS.pageNumber * _tagsPerPage
+					"firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+					"lastIndex": NRS.getCurrentPagination().getLastIndex()
 				}, function(response) {
 					var content = "";
+					NRS.getCurrentPagination().onResult(response.tags);
 					if (response.tags && response.tags.length) {
-						NRS.hasMorePages = response.tags.length > _tagsPerPage;
 						for (var i=0; i<response.tags.length; i++) {
 							content += '<div style="padding:5px 24px 5px 24px;text-align:center;background-color:#fff;font-size:16px;';
 							content += 'width:220px;display:inline-block;margin:2px;border:1px solid #f2f2f2;">';
@@ -188,8 +183,7 @@ NRS.onSiteBuildDone().then(() => {
 					"page": "seller",
 					"searchStr": seller
 				};
-				NRS.pageNumber = 1;
-				NRS.hasMorePages = false;
+				NRS.getCurrentPagination().reset();
 			}
 			$(".dgs_search_pageheader_addon").hide();
 			$(".dgs_search_pageheader_addon_seller_text").text(seller);
@@ -197,8 +191,8 @@ NRS.onSiteBuildDone().then(() => {
 			NRS.sendRequest("getDGSGoods+", {
 				"seller": seller,
 				"includeCounts": true,
-				"firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-				"lastIndex": NRS.pageNumber * NRS.itemsPerPage
+				"firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+				"lastIndex": NRS.getCurrentPagination().getLastIndex()
 			}, function(response) {
 				NRS.dgs_show_results(response);
 			});
@@ -212,8 +206,7 @@ NRS.onSiteBuildDone().then(() => {
 					"page": "fulltext",
 					"searchStr": query
 				};
-				NRS.pageNumber = 1;
-				NRS.hasMorePages = false;
+				NRS.getCurrentPagination().reset();
 			}
 			$(".dgs_search_pageheader_addon").hide();
 			$(".dgs_search_pageheader_addon_fulltext_text").text('"' + query + '"');
@@ -221,8 +214,8 @@ NRS.onSiteBuildDone().then(() => {
 			NRS.sendRequest("searchDGSGoods+", {
 				"query": query,
 				"includeCounts": true,
-				"firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-				"lastIndex": NRS.pageNumber * NRS.itemsPerPage
+				"firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+				"lastIndex": NRS.getCurrentPagination().getLastIndex()
 			}, function(response) {
 				NRS.dgs_show_results(response);
 			});
@@ -236,8 +229,7 @@ NRS.onSiteBuildDone().then(() => {
 					"page": "tag",
 					"searchStr": tag
 				};
-				NRS.pageNumber = 1;
-				NRS.hasMorePages = false;
+				NRS.getCurrentPagination().reset();
 			}
 			$(".dgs_search_pageheader_addon").hide();
 			$(".dgs_search_pageheader_addon_tag_text").text('"' + tag + '"');
@@ -245,8 +237,8 @@ NRS.onSiteBuildDone().then(() => {
 			NRS.sendRequest("searchDGSGoods+", {
 				"tag": tag,
 				"includeCounts": true,
-				"firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-				"lastIndex": NRS.pageNumber * NRS.itemsPerPage
+				"firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+				"lastIndex": NRS.getCurrentPagination().getLastIndex()
 			}, function(response) {
 				NRS.dgs_show_results(response);
 			});
@@ -254,8 +246,7 @@ NRS.onSiteBuildDone().then(() => {
 
 		NRS.dgs_search_main = function(callback) {
 			if (_currentSearch["page"] != "main") {
-				NRS.pageNumber = 1;
-				NRS.hasMorePages = false;
+				NRS.getCurrentPagination().reset();
 			}
 			_currentSearch = {
 				"page": "main",
@@ -344,18 +335,21 @@ NRS.onSiteBuildDone().then(() => {
 			}
 		};
 
+		NRS.pagination.dgs_search = $.extend({}, NRS.defaultPagination, {
+			getItemsPerPage: function() {
+				return _tagsPerPage;
+			}
+		});
+
 		NRS.pages.purchased_dgs = function() {
 			NRS.sendRequest("getDGSPurchases+", {
 				"buyer": NRS.account,
-				"firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-				"lastIndex": NRS.pageNumber * NRS.itemsPerPage
+				"firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+				"lastIndex": NRS.getCurrentPagination().getLastIndex()
 			}, function(response) {
 				var content = "";
+				NRS.getCurrentPagination().onResult(response.purchases);
 				if (response.purchases && response.purchases.length) {
-					if (response.purchases.length > NRS.itemsPerPage) {
-						NRS.hasMorePages = true;
-						response.purchases.pop();
-					}
 					for (var i = 0; i < response.purchases.length; i++) {
 						content += NRS.getMarketplacePurchaseHTML(response.purchases[i]);
 					}
@@ -426,17 +420,12 @@ NRS.onSiteBuildDone().then(() => {
 			NRS.sendRequest("getDGSPurchases+", {
 				"seller": NRS.account,
 				"completed": true,
-				"firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-				"lastIndex": NRS.pageNumber * NRS.itemsPerPage
+				"firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+				"lastIndex": NRS.getCurrentPagination().getLastIndex()
 			}, function(response) {
 				var content = "";
-
+				NRS.getCurrentPagination().onResult(response.purchases);
 				if (response.purchases && response.purchases.length) {
-					if (response.purchases.length > NRS.itemsPerPage) {
-						NRS.hasMorePages = true;
-						response.purchases.pop();
-					}
-
 					for (var i = 0; i < response.purchases.length; i++) {
 						content += NRS.getMarketplacePurchaseHTML(response.purchases[i], true);
 					}
@@ -461,15 +450,12 @@ NRS.onSiteBuildDone().then(() => {
 		NRS.pages.pending_orders_dgs = function() {
 			NRS.sendRequest("getDGSPendingPurchases+", {
 				"seller": NRS.account,
-				"firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-				"lastIndex": NRS.pageNumber * NRS.itemsPerPage
+				"firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+				"lastIndex": NRS.getCurrentPagination().getLastIndex()
 			}, function(response) {
 				var content = "";
+				NRS.getCurrentPagination().onResult(response.purchases);
 				if (response.purchases && response.purchases.length) {
-					if (response.purchases.length > NRS.itemsPerPage) {
-						NRS.hasMorePages = true;
-						response.purchases.pop();
-					}
 					for (var i = 0; i < response.purchases.length; i++) {
 						content += NRS.getMarketplacePendingOrderHTML(response.purchases[i]);
 					}
@@ -485,17 +471,14 @@ NRS.onSiteBuildDone().then(() => {
 		NRS.pages.my_dgs_listings = function() {
 			NRS.sendRequest("getDGSGoods+", {
 				"seller": NRS.account,
-				"firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-				"lastIndex": NRS.pageNumber * NRS.itemsPerPage,
+				"firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+				"lastIndex": NRS.getCurrentPagination().getLastIndex(),
 				"inStockOnly": "false",
 				"hideDelisted": "true"
 			}, function(response) {
 				var rows = "";
+				NRS.getCurrentPagination().onResult(response.goods);
 				if (response.goods && response.goods.length) {
-					if (response.goods.length > NRS.itemsPerPage) {
-						NRS.hasMorePages = true;
-						response.goods.pop();
-					}
 					var quantityDecimals = NRS.getNumberOfDecimals(response.goods, "quantity", function(val) {
 						return NRS.format(val.quantity);
 					});
@@ -1290,8 +1273,8 @@ NRS.onSiteBuildDone().then(() => {
 			var params;
 			if (full) {
 				params = {
-					"firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-					"lastIndex": NRS.pageNumber * NRS.itemsPerPage,
+					"firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+					"lastIndex": NRS.getCurrentPagination().getLastIndex(),
 					"completed": true
 				};
 			} else {
@@ -1316,9 +1299,8 @@ NRS.onSiteBuildDone().then(() => {
 					response = response.purchases;
 					accountKey = "buyer";
 				}
-				if (response.length > NRS.itemsPerPage) {
-					NRS.hasMorePages = true;
-					response.pop();
+				if (full) {
+					NRS.getCurrentPagination().onResult(response);
 				}
 				var priceDecimals = NRS.getNumberOfDecimals(response, "priceNQT", function(val) {
 					return NRS.formatAmount(val.priceNQT);

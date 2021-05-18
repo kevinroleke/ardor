@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2020 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2021 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -300,7 +300,6 @@ NRS.onSiteBuildDone().then(() => {
                     getShufflers(callback);
                 },
                 function(shufflers, callback) {
-                    NRS.hasMorePages = false;
                     var view = NRS.simpleview.get('active_shufflings', {
                         errorMessage: null,
                         isLoading: true,
@@ -312,12 +311,13 @@ NRS.onSiteBuildDone().then(() => {
                         })
                     });
                     var params = {
-                        "firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-                        "lastIndex": NRS.pageNumber * NRS.itemsPerPage,
+                        "firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+                        "lastIndex": NRS.getCurrentPagination().getLastIndex(),
                         "includeHoldingInfo": "true"
                     };
                     NRS.sendRequest("getAllShufflings", params,
                         function (response) {
+                            NRS.getCurrentPagination().onResult(response.shufflings);
                             if (NRS.isErrorResponse(response)) {
                                 view.render({
                                     errorMessage: NRS.getErrorMessage(response),
@@ -325,10 +325,6 @@ NRS.onSiteBuildDone().then(() => {
                                     isEmpty: false
                                 });
                                 return;
-                            }
-                            if (response.shufflings.length > NRS.itemsPerPage) {
-                                NRS.hasMorePages = true;
-                                response.shufflings.pop();
                             }
                             view.shufflings.length = 0;
                             var amountDecimals = NRS.getNumberOfDecimals(response.shufflings, "amount", function(shuffling) {
@@ -362,7 +358,6 @@ NRS.onSiteBuildDone().then(() => {
                     getShufflers(callback);
                 },
                 function(shufflers, callback) {
-                    NRS.hasMorePages = false;
                     var view = NRS.simpleview.get('my_shufflings_page', {
                         errorMessage: null,
                         isLoading: true,
@@ -374,14 +369,15 @@ NRS.onSiteBuildDone().then(() => {
                         })
                     });
                     var params = {
-                        "firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-                        "lastIndex": NRS.pageNumber * NRS.itemsPerPage,
+                        "firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+                        "lastIndex": NRS.getCurrentPagination().getLastIndex(),
                         "account": NRS.account,
                         "includeFinished": "true",
                         "includeHoldingInfo": "true"
                     };
                     NRS.sendRequest("getAccountShufflings", params,
                         function(response) {
+                            NRS.getCurrentPagination().onResult(response.shufflings);
                             if (NRS.isErrorResponse(response)) {
                                 view.render({
                                     errorMessage: NRS.getErrorMessage(response),
@@ -389,10 +385,6 @@ NRS.onSiteBuildDone().then(() => {
                                     isEmpty: false
                                 });
                                 return;
-                            }
-                            if (response.shufflings.length > NRS.itemsPerPage) {
-                                NRS.hasMorePages = true;
-                                response.shufflings.pop();
                             }
                             view.shufflings.length = 0;
                             var amountDecimals = NRS.getNumberOfDecimals(response.shufflings, "amount", function(shuffling) {
@@ -425,7 +417,7 @@ NRS.onSiteBuildDone().then(() => {
         };
 
         function renderStandbyShufflersPage(type) {
-            NRS.hasMorePages = false;
+            NRS.getCurrentPagination().setResultSize(0);
             let view = NRS.simpleview.get('standby_shufflers_section', {
                 errorMessage: null,
                 isLoading: true,
@@ -711,6 +703,24 @@ NRS.onSiteBuildDone().then(() => {
             NRS.loadPage(NRS.currentPage);
         };
 
+        NRS.forms.startStandbyShufflerError = function (error) {
+            if (typeof error === 'object' && (error.errorCode == 3 || error.errorCode == 4)
+                && error.errorDescByServer.indexOf("recipientPublicKeys") > 0) {
+                let message;
+                if (error.errorCode == 3) {
+                    message = $.t("error_not_specified", {
+                        "name": '"' + NRS.getTranslatedFieldName("recipient_passphrases") + '"'
+                    });
+                } else {
+                    message = $.t("error_incorrect_name", {
+                        "name": '"' + NRS.getTranslatedFieldName("recipient_passphrases") + '"',
+                        "reason": " All specified recipient accounts are used"
+                    });
+                }
+                $("#m_start_standbyshuffler_modal .error_message").html(message);
+            }
+        };
+
         NRS.forms.stopStandbyShufflerComplete = function (response) {
             if (response.stopped === 1) {
                 $.growl($.t("standbyshuffler_stopped"));
@@ -727,7 +737,6 @@ NRS.onSiteBuildDone().then(() => {
                     getShufflers(callback);
                 },
                 function(shufflers, callback) {
-                    NRS.hasMorePages = false;
                     var view = NRS.simpleview.get(table, {
                         errorMessage: null,
                         isLoading: true,
@@ -740,14 +749,15 @@ NRS.onSiteBuildDone().then(() => {
                         "includeHoldingInfo": "true"
                     };
                     if (full) {
-                        params["firstIndex"] = NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage;
-                        params["lastIndex"] = NRS.pageNumber * NRS.itemsPerPage;
+                        params["firstIndex"] = NRS.getCurrentPagination().getFirstIndex();
+                        params["lastIndex"] = NRS.getCurrentPagination().getLastIndex();
                     } else {
                         params["firstIndex"] = 0;
                         params["lastIndex"] = 9;
                     }
                     NRS.sendRequest("getAllShufflings", params,
                         function (response) {
+                            NRS.getCurrentPagination().onResult(response.shufflings);
                             if (NRS.isErrorResponse(response)) {
                                 view.render({
                                     errorMessage: NRS.getErrorMessage(response),
@@ -755,10 +765,6 @@ NRS.onSiteBuildDone().then(() => {
                                     isEmpty: false
                                 });
                                 return;
-                            }
-                            if (response.shufflings.length > NRS.itemsPerPage) {
-                                NRS.hasMorePages = true;
-                                response.shufflings.pop();
                             }
                             view.data.length = 0;
                             var amountDecimals = NRS.getNumberOfDecimals(response.shufflings, "amount", function(shuffling) {

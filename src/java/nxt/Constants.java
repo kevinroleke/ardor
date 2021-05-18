@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2020 Jelurida IP B.V.
+ * Copyright © 2016-2021 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -100,7 +100,10 @@ public final class Constants {
     public static final int DEFAULT_NUMBER_OF_FORK_CONFIRMATIONS = Nxt.getIntProperty(Constants.isTestnet
             ? "nxt.testnetNumberOfForkConfirmations" : "nxt.numberOfForkConfirmations");
 
+    public static final int DEFAULT_TRANSACTION_DEADLINE = 15;
+
     public static final int BATCH_COMMIT_SIZE = Nxt.getIntProperty("nxt.batchCommitSize", Integer.MAX_VALUE);
+    public static final int OPEN_API_QUERY_TIMEOUT = Nxt.getIntProperty("nxt.openApiQueryTimeout");
 
     public static final byte MAX_PHASING_VOTE_TRANSACTIONS = 10;
     public static final byte MAX_PHASING_WHITELIST_SIZE = 10;
@@ -208,12 +211,13 @@ public final class Constants {
     public static final long GPS_ASSET_ID = Convert.parseUnsignedLong(Constants.isTestnet ? "8016986501463341146" : "3123987739214429747");
     public static final int AUTO_CANCEL_DUST_ORDER_BLOCK = Constants.isAutomatedTest ? 0 : Integer.MAX_VALUE;
     public static final int CHECKSUM_BLOCK_6 = Constants.isTestnet ? 5666000 : 1453500;
+    public static final int CHECKSUM_BLOCK_7 = Constants.isTestnet ? 7464000 : 1797000;
 
-    public static final int LAST_CHECKSUM_BLOCK = CHECKSUM_BLOCK_6;
+    public static final int LAST_CHECKSUM_BLOCK = CHECKSUM_BLOCK_7;
 
-    public static final int LAST_KNOWN_BLOCK =  Constants.isAutomatedTest ? 0 : CHECKSUM_BLOCK_6;
+    public static final int LAST_KNOWN_BLOCK =  Constants.isAutomatedTest ? 0 : CHECKSUM_BLOCK_7;
     public static final long LAST_KNOWN_BLOCK_ID = Convert.parseUnsignedLong(
-            isTestnet ? Constants.isAutomatedTest ? "1318911886063902233" : "310146089847255748" : "2264241179859389954");
+            isTestnet ? Constants.isAutomatedTest ? "1318911886063902233" : "7415227029782994003" : "6321224929234284731");
 
     public static final int[] MIN_VERSION = new int[] {2, 3, 2};
     public static final int[] MIN_PROXY_VERSION = new int[] {2, 3, 2};

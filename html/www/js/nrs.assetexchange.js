@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2020 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2021 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -67,36 +67,45 @@ NRS.onSiteBuildDone().then(() => {
             return assetControlParams;
         };
 
-        function loadAssetFromURL() {
+        async function loadAssetFromURL() {
             var page = NRS.getUrlParameter("page");
             var asset = NRS.getUrlParameter("asset");
             if (!page || page != "asset_exchange") {
                 return;
             }
             if (!asset) {
-                $.growl($.t("missing_asset_param"), {
-                    "type": "danger"
-                });
-                return;
-            }
-            asset = asset.escapeHTML();
-            NRS.sendRequest("getAsset", {
-                "asset": asset
-            }, function(response) {
-                if (response.errorCode) {
-                    $.growl($.t("invalid_asset_param", { asset: asset }), {
+                asset = NRS.getUrlParameter("asset_id");
+                if (!asset) {
+                    $.growl($.t("missing_asset_param"), {
                         "type": "danger"
                     });
-                } else {
-                    updateAssetStorage(response);
-                    NRS.loadAsset(response, false);
+                    return;
                 }
+            }
+            asset = asset.escapeHTML();
+            let response = await NRS.sendRequestAndWait("getAsset", {
+                "asset": asset
             });
+            if (response.errorCode) {
+                $.growl($.t("invalid_asset_param", { asset: asset }), {
+                    "type": "danger"
+                });
+            } else {
+                updateAssetStorage(response);
+                NRS.loadAsset(response, false);
+            }
         }
 
-        NRS.pages.asset_exchange = function (callback) {
+        NRS.pages.asset_exchange = function (pageCallback) {
             assets = [];
             assetIds = [];
+            let callback = async function() {
+                await loadAssetFromURL();
+                if (pageCallback) {
+                    pageCallback();
+                }
+            };
+
             NRS.storageSelect("assets", null, function (error, assets) {
                 //select already bookmarked assets
                 $.each(assets, function (index, asset) {
@@ -138,7 +147,6 @@ NRS.onSiteBuildDone().then(() => {
                     NRS.loadAssetExchangeSidebar(callback);
                 }
             });
-            loadAssetFromURL();
         };
 
         NRS.cacheAsset = function (asset) {
@@ -566,7 +574,6 @@ NRS.onSiteBuildDone().then(() => {
         NRS.loadAsset = function (asset, refresh) {
             var assetId = asset.asset;
             currentAsset = asset;
-            NRS.currentSubPage = assetId;
 
             if (!refresh) {
                 var assetExchangeSidebar = $("#asset_exchange_sidebar");
@@ -584,8 +591,8 @@ NRS.onSiteBuildDone().then(() => {
                 $("#asset_name").html(NRS.escapeRespStr(asset.name));
                 $("#asset_description").html(String(asset.description).autoLink());
                 $(".asset_name").html(NRS.escapeRespStr(asset.name));
-                $("#sell_asset_button").data("asset", assetId);
-                $("#buy_asset_button").data("asset", assetId);
+                $("#sell_asset_button").data("asset_id", assetId);
+                $("#buy_asset_button").data("asset_id", assetId);
                 $("#view_asset_distribution_link").data("asset", assetId);
                 $("#asset_properties_link").data("asset", assetId);
                 $("#sell_asset_for_nxt").html($.t("sell_asset_for_coin", {
@@ -1059,13 +1066,20 @@ NRS.onSiteBuildDone().then(() => {
         $("#asset_order_modal").on("show.bs.modal", function (e) {
             var $invoker = $(e.relatedTarget);
             var orderType = $invoker.data("type");
-            var assetId = $invoker.data("asset");
+            var assetId = $invoker.data("asset_id");
             $("#asset_order_modal_button").html(orderType + " Asset").data("resetText", orderType + " Asset");
             $(".asset_order_modal_type").html(orderType);
 
             orderType = orderType.toLowerCase();
-            var quantity = String($("#" + orderType + "_asset_quantity").val());
-            var price = String($("#" + orderType + "_asset_price").val());
+            let quantity = $invoker.data("order_quantity");
+            if (quantity === undefined) {
+                quantity = String($("#" + orderType + "_asset_quantity").val());
+            }
+            let price = $invoker.data("order_price");
+            if (price === undefined) {
+                price = String($("#" + orderType + "_asset_price").val());
+            }
+
             try {
                 var quantityQNT = new BigInteger(NRS.convertToQNT(quantity, currentAsset.decimals));
                 var priceNQTPerShare = new BigInteger(NRS.convertToNQT(price));
@@ -1149,6 +1163,13 @@ NRS.onSiteBuildDone().then(() => {
         NRS.forms.issueAsset = function ($modal) {
             var data = NRS.getFormData($modal.find("form:first"));
             data.description = $.trim(data.description);
+
+            if ($modal.find("#issue_asset_singleton").prop('checked') && data.description.length > NRS.constants.MAX_SINGLETON_ASSET_DESCRIPTION_LENGTH) {
+                return {
+                    "error": $.t("error_singleton_asset_description_length", { maxLength : NRS.constants.MAX_SINGLETON_ASSET_DESCRIPTION_LENGTH })
+                };
+            }
+
             if (!data.description) {
                 return {
                     "error": $.t("error_description_required")
@@ -1368,14 +1389,11 @@ NRS.onSiteBuildDone().then(() => {
             NRS.sendRequest("getTrades+", {
                 "account": NRS.accountRS,
                 "includeAssetInfo": true,
-                "firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-                "lastIndex": NRS.pageNumber * NRS.itemsPerPage
+                "firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+                "lastIndex": NRS.getCurrentPagination().getLastIndex()
             }, function (response) {
+                NRS.getCurrentPagination().onResult(response.trades);
                 if (response.trades && response.trades.length) {
-                    if (response.trades.length > NRS.itemsPerPage) {
-                        NRS.hasMorePages = true;
-                        response.trades.pop();
-                    }
                     var trades = response.trades;
                     var quantityDecimals = NRS.getNumberOfDecimals(trades, "quantityQNT", function(val) {
                         return NRS.formatQuantity(val.quantityQNT, val.decimals);
@@ -1416,14 +1434,11 @@ NRS.onSiteBuildDone().then(() => {
             NRS.sendRequest("getAssetTransfers+", {
                 "account": NRS.accountRS,
                 "includeAssetInfo": true,
-                "firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-                "lastIndex": NRS.pageNumber * NRS.itemsPerPage
+                "firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+                "lastIndex": NRS.getCurrentPagination().getLastIndex()
             }, function (response) {
+                NRS.getCurrentPagination().onResult(response.transfers);
                 if (response.transfers && response.transfers.length) {
-                    if (response.transfers.length > NRS.itemsPerPage) {
-                        NRS.hasMorePages = true;
-                        response.transfers.pop();
-                    }
                     var transfers = response.transfers;
                     var quantityDecimals = NRS.getNumberOfDecimals(transfers, "quantityQNT", function(val) {
                         return NRS.formatQuantity(val.quantityQNT, val.decimals);
@@ -1453,14 +1468,11 @@ NRS.onSiteBuildDone().then(() => {
             NRS.sendRequest("getAssetHistory+", {
                 "account": NRS.accountRS,
                 "includeAssetInfo": true,
-                "firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-                "lastIndex": NRS.pageNumber * NRS.itemsPerPage
+                "firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+                "lastIndex": NRS.getCurrentPagination().getLastIndex()
             }, function (response) {
+                NRS.getCurrentPagination().onResult(response.assetHistory);
                 if (response.assetHistory && response.assetHistory.length) {
-                    if (response.assetHistory.length > NRS.itemsPerPage) {
-                        NRS.hasMorePages = true;
-                        response.assetHistory.pop();
-                    }
                     var changes = response.assetHistory;
                     var quantityDecimals = NRS.getNumberOfDecimals(changes, "quantityQNT", function(val) {
                         return NRS.formatQuantity(val.quantityQNT, val.decimals);
@@ -1483,23 +1495,63 @@ NRS.onSiteBuildDone().then(() => {
         };
 
         /* MY ASSETS PAGE */
-        NRS.pages.my_assets = function () {
+        NRS.pages.my_assets = async function () {
+            let response = await NRS.sendRequestAndWait("getAssetsByIssuer", {
+                "account": NRS.account
+            });
+
+            let myAssets = [];
+            if (response.assets && response.assets.length === 1) {
+                myAssets = response.assets[0]; // Assets of the NRS.account
+            }
+
             if (NRS.accountInfo.assetBalances && NRS.accountInfo.assetBalances.length) {
+                for (let i = 0; i < NRS.accountInfo.assetBalances.length; i++) {
+                    let assetBalance = NRS.accountInfo.assetBalances[i];
+                    let isIssuedByMe = false;
+                    for (let j = 0; j < myAssets.length; j++) {
+                        if (myAssets[j].asset == assetBalance.asset) {
+                            myAssets[j].balanceQNT = assetBalance.balanceQNT;
+                            isIssuedByMe = true;
+                            break;
+                        }
+                    }
+                    if (!isIssuedByMe) {
+                        myAssets.push({
+                            "asset": assetBalance.asset,
+                            "balanceQNT": assetBalance.balanceQNT,
+                            "isIssuedByMe": false
+                        });
+                    }
+                }
+            }
+
+            if (myAssets.length) {
                 var result = {
                     "assets": [],
                     "bid_orders": {},
                     "ask_orders": {}
                 };
                 var count = {
-                    "total_assets": NRS.accountInfo.assetBalances.length,
+                    "total_assets": myAssets.length,
                     "assets": 0,
                     "ignored_assets": 0,
                     "ask_orders": 0,
                     "bid_orders": 0
                 };
+                for (var i = 0; i < myAssets.length; i++) {
+                    if (myAssets[i].isIssuedByMe === undefined) {
+                        let asset = myAssets[i];
+                        asset.isIssuedByMe = true;
+                        updateAssetStorage(myAssets[i]);
+                        asset.balanceQNT = new BigInteger(asset.balanceQNT);
+                        asset.quantityQNT = new BigInteger(asset.quantityQNT);
+                        result.assets[count.assets] = asset;
+                        count.assets++;
+                        //don't checkMyAssetsPageLoaded here - need to get the best ask/bid for sure
+                    }
 
-                for (var i = 0; i < NRS.accountInfo.assetBalances.length; i++) {
-                    if (NRS.accountInfo.assetBalances[i].balanceQNT == "0") {
+                    if (!myAssets[i].isIssuedByMe && myAssets[i].balanceQNT == "0") {
                         count.ignored_assets++;
                         if (NRS.checkMyAssetsPageLoaded(count)) {
                             NRS.myAssetsPageLoaded(result);
@@ -1508,7 +1560,7 @@ NRS.onSiteBuildDone().then(() => {
                     }
 
                     NRS.sendRequest("getAskOrders+", {
-                        "asset": NRS.accountInfo.assetBalances[i].asset,
+                        "asset": myAssets[i].asset,
                         "firstIndex": 0,
                         "lastIndex": 1
                     }, function (response, input) {
@@ -1529,7 +1581,7 @@ NRS.onSiteBuildDone().then(() => {
                     });
 
                     NRS.sendRequest("getBidOrders+", {
-                        "asset": NRS.accountInfo.assetBalances[i].asset,
+                        "asset": myAssets[i].asset,
                         "firstIndex": 0,
                         "lastIndex": 1
                     }, function (response, input) {
@@ -1550,10 +1602,14 @@ NRS.onSiteBuildDone().then(() => {
                         }
                     });
 
+                    if (myAssets[i].isIssuedByMe) {
+                        continue;
+                    }
+
                     NRS.sendRequest("getAsset+", {
-                        "asset": NRS.accountInfo.assetBalances[i].asset,
+                        "asset": myAssets[i].asset,
                         "_extra": {
-                            "balanceQNT": NRS.accountInfo.assetBalances[i].balanceQNT
+                            "balanceQNT": myAssets[i].balanceQNT
                         }
                     }, function (asset, input) {
                         updateAssetStorage(asset);
@@ -1640,14 +1696,19 @@ NRS.onSiteBuildDone().then(() => {
                     "<td class='numeric'>" + (lowestAskOrder != -1 ? NRS.formatQuantity(lowestAskOrder, NRS.getActiveChainDecimals(), false, askDecimals) : "") + "</td>" +
                     "<td class='numeric'>" + (highestBidOrder != -1 ? NRS.formatQuantity(highestBidOrder, NRS.getActiveChainDecimals(), false, bidDecimals) : "") + "</td>" +
                     "<td class='numeric'>" + (highestBidOrder != -1 ? NRS.formatQuantity(totalNQT, asset.decimals + NRS.getActiveChainDecimals(), false, valueDecimals) : "") + "</td>";
-                rows += "<td><a href='#' class='btn btn-xs btn-default' data-toggle='modal' data-target='#transfer_asset_modal' data-asset='" + assetId + "' data-name='" + assetName + "' data-decimals='" + decimals + "' data-action='transfer_asset'>" + $.t("transfer") + "</a>";
+                rows += "<td>";
+                if (asset.balanceQNT != 0) {
+                    rows += "<a href='#' class='btn btn-xs btn-default' data-toggle='modal' data-target='#transfer_asset_modal' data-asset='" + assetId + "' data-name='" + assetName + "' data-decimals='" + decimals + "' data-action='transfer_asset'>" + $.t("transfer") + "</a>";
+                }
                 if (asset.account == NRS.account && NRS.isIgnisChain()) {
                     // Share increase is only allowed for non-singleton assets
                     if (asset.quantityQNT != 1 || asset.decimals != 0) {
                         rows += "<a href='#' class='btn btn-xs btn-default' data-toggle='modal' data-target='#transfer_asset_modal' data-asset='" + assetId + "' data-name='" + assetName + "' data-decimals='" + decimals + "' data-action='increase_shares'>" + $.t("increase_shares") + "</a>";
                     }
                 }
-                rows += "<a href='#' class='btn btn-xs btn-default' data-toggle='modal' data-target='#transfer_asset_modal' data-asset='" + assetId + "' data-name='" + assetName + "' data-decimals='" + decimals + "' data-action='delete_shares'>" + $.t("delete_shares") + "</a>";
+                if (asset.balanceQNT != 0) {
+                    rows += "<a href='#' class='btn btn-xs btn-default' data-toggle='modal' data-target='#transfer_asset_modal' data-asset='" + assetId + "' data-name='" + assetName + "' data-decimals='" + decimals + "' data-action='delete_shares'>" + $.t("delete_shares") + "</a>";
+                }
                 rows += "</td></tr>";
             }
             NRS.dataLoaded(rows);
@@ -2071,17 +2132,13 @@ NRS.onSiteBuildDone().then(() => {
                 var params = {
                     "asset": selectedApprovalAsset,
                     "withoutWhitelist": true,
-                    "firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-                    "lastIndex": NRS.pageNumber * NRS.itemsPerPage
+                    "firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+                    "lastIndex": NRS.getCurrentPagination().getLastIndex()
                 };
                 NRS.sendRequest("getAssetPhasedTransactions", params, function (response) {
                     var rows = "";
-
+                    NRS.getCurrentPagination().onResult(response.transactions);
                     if (response.transactions && response.transactions.length > 0) {
-                        if (response.transactions.length > NRS.itemsPerPage) {
-                            NRS.hasMorePages = true;
-                            response.transactions.pop();
-                        }
                         var decimals = NRS.getTransactionsAmountDecimals(response.transactions);
                         for (var i = 0; i < response.transactions.length; i++) {
                             var t = response.transactions[i];

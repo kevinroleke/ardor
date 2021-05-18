@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2020 Jelurida IP B.V.
+ * Copyright © 2016-2021 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -22,6 +22,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
+import java.util.List;
 
 public final class Hash extends APIServlet.APIRequestHandler {
 
@@ -75,4 +77,8 @@ public final class Hash extends APIServlet.APIRequestHandler {
         return false;
     }
 
+    @Override
+    protected List<String> getSensitiveParameters() {
+        return Collections.singletonList("secret");
+    }
 }

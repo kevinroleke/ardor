@@ -2651,5 +2651,12 @@
   "changehero": "ChangeHero",
   "changenow": "ChangeNOW",
   "exchange_deposit_message_warning": "Please don’t forget to indicate this __message_name__ before sending funds to __exchange__ address. If sending funds via QR code, you need to enter the __message_name__ manually.",
-  "exchange_default_message_name": "Message/Tag"
+  "exchange_default_message_name": "Message/Tag",
+  "error_singleton_asset_description_length": "The description of a singleton asset cannot contain more than __maxLength__ characters",
+  "go": "Go",
+  "go_to_item": "Go to item",
+  "go_to_height": "Go to height",
+  "no_results": "No results",
+  "node_processes_set_modal_no_running_configuration": "This process is currently not running on this node. The recommended usage to set a process configuration is from a running configuration. You should start and configure the process and then come back here.",
+  "node_processes_set_modal_no_accounts_detected": "No accounts where found on the JSON configuration (data field). You cannot set an empty configuration. If you want to delete an existing configuration use the Delete button from the main Processes page. Otherwise check the JSON to make sure the format is correct."
 }

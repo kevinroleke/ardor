@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2020 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2021 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -19,7 +19,15 @@
  */
 NRS.onSiteBuildDone().then(() => {
 	NRS = (function(NRS, $) {
-		var _tagsPerPage = 34;
+		var _tagsPagination = $.extend({}, NRS.defaultPagination, {
+			getContainer: function() {
+				return $("#tags_pagination");
+			},
+
+			getItemsPerPage: function() {
+				return 36;
+			},
+		});
 		var _currentSearch = {
 			"page": "",
 			"searchStr": ""
@@ -55,17 +63,14 @@ NRS.onSiteBuildDone().then(() => {
 			$("#tagged_data_search_center").hide();
 			$("#tagged_data_reset").show();
 
-			NRS.hasMorePages = false;
+			NRS.getCurrentPagination().onResult(response.data);
+
 			var view = NRS.simpleview.get('tagged_data_search_results_section', {
 				errorMessage: null,
 				isLoading: true,
 				isEmpty: false,
 				data: []
 			});
-			if (response.data.length > NRS.itemsPerPage) {
-				NRS.hasMorePages = true;
-				response.data.pop();
-			}
 			view.data.length = 0;
 			response.data.forEach(
 				function (dataJson) {
@@ -82,12 +87,12 @@ NRS.onSiteBuildDone().then(() => {
 		NRS.tagged_data_load_tags = function() {
 			$('#tagged_data_tag_list').empty();
 			NRS.sendRequest("getDataTags+", {
-				"firstIndex": NRS.pageNumber * _tagsPerPage - _tagsPerPage,
-				"lastIndex": NRS.pageNumber * _tagsPerPage
+				"firstIndex": _tagsPagination.getFirstIndex(),
+				"lastIndex": _tagsPagination.getLastIndex()
 			}, function(response) {
 				var content = "";
+				_tagsPagination.onResult(response.tags);
 				if (response.tags && response.tags.length) {
-					NRS.hasMorePages = response.tags.length > _tagsPerPage;
 					for (var i=0; i<response.tags.length; i++) {
 						content += '<div style="padding:5px 24px 5px 24px;text-align:center;background-color:#fff;font-size:16px;';
 						content += 'width:220px;display:inline-block;margin:2px;border:1px solid #f2f2f2;">';
@@ -97,7 +102,7 @@ NRS.onSiteBuildDone().then(() => {
 					}
 				}
 				$('#tagged_data_tag_list').html(content);
-				NRS.pageLoaded();
+				NRS.addPagination(_tagsPagination);
 			});
 		};
 
@@ -109,16 +114,16 @@ NRS.onSiteBuildDone().then(() => {
 					"page": "account",
 					"searchStr": account
 				};
-				NRS.pageNumber = 1;
-				NRS.hasMorePages = false;
+				NRS.getCurrentPagination().reset();
 			}
 			$(".tagged_data_search_pageheader_addon").hide();
 			$(".tagged_data_search_pageheader_addon_account_text").text(account);
 			$(".tagged_data_search_pageheader_addon_account").show();
+			NRS.tagged_data_load_tags();
 			NRS.sendRequest("getAccountTaggedData+", {
 				"account": account,
-				"firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-				"lastIndex": NRS.pageNumber * NRS.itemsPerPage
+				"firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+				"lastIndex": NRS.getCurrentPagination().getLastIndex()
 			}, function(response) {
 				NRS.tagged_data_show_results(response);
 			});
@@ -132,16 +137,16 @@ NRS.onSiteBuildDone().then(() => {
 					"page": "fulltext",
 					"searchStr": query
 				};
-				NRS.pageNumber = 1;
-				NRS.hasMorePages = false;
+				NRS.getCurrentPagination().reset();
 			}
 			$(".tagged_data_search_pageheader_addon").hide();
 			$(".tagged_data_search_pageheader_addon_fulltext_text").text('"' + query + '"');
 			$(".tagged_data_search_pageheader_addon_fulltext").show();
+			NRS.tagged_data_load_tags();
 			NRS.sendRequest("searchTaggedData+", {
 				"query": query,
-				"firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-				"lastIndex": NRS.pageNumber * NRS.itemsPerPage
+				"firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+				"lastIndex": NRS.getCurrentPagination().getLastIndex()
 			}, function(response) {
 				NRS.tagged_data_show_results(response);
 			});
@@ -155,16 +160,16 @@ NRS.onSiteBuildDone().then(() => {
 					"page": "tag",
 					"searchStr": tag
 				};
-				NRS.pageNumber = 1;
-				NRS.hasMorePages = false;
+				NRS.getCurrentPagination().reset();
 			}
 			$(".tagged_data_search_pageheader_addon").hide();
 			$(".tagged_data_search_pageheader_addon_tag_text").text('"' + tag + '"');
 			$(".tagged_data_search_pageheader_addon_tag").show();
+			NRS.tagged_data_load_tags();
 			NRS.sendRequest("searchTaggedData+", {
 				"tag": tag,
-				"firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-				"lastIndex": NRS.pageNumber * NRS.itemsPerPage
+				"firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+				"lastIndex": NRS.getCurrentPagination().getLastIndex()
 			}, function(response) {
 				NRS.tagged_data_show_results(response);
 			});
@@ -172,8 +177,7 @@ NRS.onSiteBuildDone().then(() => {
 
 		NRS.tagged_data_search_main = function(callback) {
 			if (_currentSearch["page"] != "main") {
-				NRS.pageNumber = 1;
-				NRS.hasMorePages = false;
+				NRS.getCurrentPagination().reset();
 			}
 			_currentSearch = {
 				"page": "main",
@@ -189,8 +193,8 @@ NRS.onSiteBuildDone().then(() => {
 			$("#tagged_data_reset").hide();
 			$("#tagged_data_search_results").hide();
 			NRS.sendRequest("getAllTaggedData+", {
-				"firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-				"lastIndex": NRS.pageNumber * NRS.itemsPerPage
+				"firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+				"lastIndex": NRS.getCurrentPagination().getLastIndex()
 			}, function (response) {
 				NRS.tagged_data_show_results(response);
 			});
@@ -213,6 +217,12 @@ NRS.onSiteBuildDone().then(() => {
 				NRS.tagged_data_search_main(callback);
 			}
 		};
+
+		NRS.pagination.tagged_data_search = $.extend({}, NRS.defaultPagination, {
+			getContainer: function() {
+				return $("#" + NRS.currentPage + "_page #tagged_data_search_results_section .data-pagination");
+			}
+		});
 
 		NRS.setup.tagged_data_search = function() {
 			var sidebarId = 'sidebar_tagged_data';

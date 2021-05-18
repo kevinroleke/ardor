@@ -51,7 +51,7 @@ if [ $authbind -eq 1 ]; then
     JAVACMD="authbind ${JAVACMD}"
 fi
 
-JVM_OPTS=-Xms256M
+JVM_OPTS=-Xms512M
 if [ -n "${ARDOR_JVM_OPTS}" ]; then
     echo "JVM options: ${ARDOR_JVM_OPTS}"
     JVM_OPTS=${ARDOR_JVM_OPTS}

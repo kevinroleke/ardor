@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2020 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2021 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -67,7 +67,7 @@ NRS.onSiteBuildDone().then(() => {
             if (data && data.refresh) {
                 refresh = true;
             }
-            NRS.pageNumber = 1;
+            NRS.getCurrentPagination().reset();
             var currencyCode = $.trim(search.find("input[name=q]").val());
             var chainId = $.trim(search.find("input[name=chain]").val());
             $("#buy_currency_with_nxt").html($.t("buy_currency_param", { currency: currencyCode}));
@@ -151,10 +151,10 @@ NRS.onSiteBuildDone().then(() => {
         /* Search on Currencies Page */
         $("#currencies_search").on("submit", async function (e) {
             e.preventDefault();
-            NRS.pageNumber = 1;
+            NRS.getCurrentPagination().reset();
             let params = {
-                "firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-                "lastIndex": NRS.pageNumber * NRS.itemsPerPage
+                "firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+                "lastIndex": NRS.getCurrentPagination().getLastIndex()
             };
             let requestType;
             let query = $.trim($("#currencies_search").find("input[name=searchquery]").val());
@@ -171,19 +171,13 @@ NRS.onSiteBuildDone().then(() => {
                 params["query"] = query;
             }
             let response = await NRS.sendRequestAndWait(requestType, params);
-            NRS.hasMorePages = false;
+            if (response.currencies) {
+                NRS.getCurrentPagination().onResult(response.currencies);
+            } else {
+                NRS.getCurrentPagination().onResult(response.accountCurrencies);
+            }
+
             if (response.currencies && response.currencies.length || response.accountCurrencies && response.accountCurrencies.length) {
-                if (response.currencies && response.currencies.length) {
-                    if (response.currencies.length > NRS.itemsPerPage) {
-                        NRS.hasMorePages = true;
-                        response.currencies.pop();
-                    }
-                } else {
-                    if (response.accountCurrencies.length > NRS.itemsPerPage) {
-                        NRS.hasMorePages = true;
-                        response.accountCurrencies.pop();
-                    }
-                }
                 let rows;
                 if (NRS.currenciesPageType == "my_currencies") {
                     if (requestType == "searchCurrencies+") {
@@ -315,10 +309,7 @@ NRS.onSiteBuildDone().then(() => {
         };
 
         function processOffers(offers, type, refresh) {
-            if (offers && offers.length > NRS.itemsPerPage) {
-                NRS.hasMorePages = true;
-                offers.pop();
-            }
+            NRS.getCurrentPagination().onResult(offers)
             var offersTable = $("#ms_open_" + type + "_orders_table");
             var entity = "currency";
             var rate = $("#" + (type == "sell" ? "buy" : "sell") + "_" + entity + "_rate");
@@ -485,14 +476,11 @@ NRS.onSiteBuildDone().then(() => {
                     "currency": currencyId,
                     "account": NRS.accountRS,
                     "includeCurrencyInfo": true,
-                    "firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-                    "lastIndex": NRS.pageNumber * NRS.itemsPerPage
+                    "firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+                    "lastIndex": NRS.getCurrentPagination().getLastIndex()
                 }, function (response) {
+                    NRS.getCurrentPagination().onResult(response.exchanges);
                     if (response.exchanges && response.exchanges.length) {
-                        if (response.exchanges.length > NRS.itemsPerPage) {
-                            NRS.hasMorePages = true;
-                            response.exchanges.pop();
-                        }
                         var rows = "";
                         var decimals = parseInt($("#currency_decimals").text(), 10);
                         var quantityDecimals = NRS.getNumberOfDecimals(response.exchanges, "unitsQNT", function(exchange) {
@@ -525,14 +513,11 @@ NRS.onSiteBuildDone().then(() => {
                 NRS.sendRequest("getExchanges+", {
                     "currency": currencyId,
                     "includeCurrencyInfo": true,
-                    "firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-                    "lastIndex": NRS.pageNumber * NRS.itemsPerPage
+                    "firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+                    "lastIndex": NRS.getCurrentPagination().getLastIndex()
                 }, function (response) {
+                    NRS.getCurrentPagination().onResult(response.exchanges);
                     if (response.exchanges && response.exchanges.length) {
-                        if (response.exchanges.length > NRS.itemsPerPage) {
-                            NRS.hasMorePages = true;
-                            response.exchanges.pop();
-                        }
                         var rows = "";
                         var decimals = parseInt($("#currency_decimals").text(), 10);
                         var quantityDecimals = NRS.getNumberOfDecimals(response.exchanges, "unitsQNT", function(exchange) {
@@ -576,11 +561,8 @@ NRS.onSiteBuildDone().then(() => {
 
         function processExchangeRequests(exchangeRequests, refresh) {
             var requestTable = $("#ms_exchange_requests_table");
+            NRS.getCurrentPagination().onResult(exchangeRequests);
             if (exchangeRequests && exchangeRequests.length) {
-                if (exchangeRequests.length > NRS.itemsPerPage) {
-                    NRS.hasMorePages = true;
-                    exchangeRequests.pop();
-                }
                 var rows = "";
                 var decimals = parseInt($("#currency_decimals").text(), 10);
                 var quantityDecimals = NRS.getNumberOfDecimals(exchangeRequests, "unitsQNT", function(exchangeRequest) {
@@ -617,8 +599,8 @@ NRS.onSiteBuildDone().then(() => {
                         NRS.sendRequest("getAccountExchangeRequests+", {
                             "currency": currencyId,
                             "account": NRS.accountRS,
-                            "firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-                            "lastIndex": NRS.pageNumber * NRS.itemsPerPage
+                            "firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+                            "lastIndex": NRS.getCurrentPagination().getLastIndex()
                         }, function (response) {
                             var requests = response["exchangeRequests"];
                             if (!requests) {
@@ -832,14 +814,11 @@ NRS.onSiteBuildDone().then(() => {
                 NRS.sendRequest("getAccountCurrencies+", {
                     "account": NRS.accountRS,
                     "includeCurrencyInfo": true,
-                    "firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-                    "lastIndex": NRS.pageNumber * NRS.itemsPerPage
+                    "firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+                    "lastIndex": NRS.getCurrentPagination().getLastIndex()
                 }, function (response) {
+                    NRS.getCurrentPagination().onResult(response.accountCurrencies);
                     if (response.accountCurrencies && response.accountCurrencies.length) {
-                        if (response.accountCurrencies.length > NRS.itemsPerPage) {
-                            NRS.hasMorePages = true;
-                            response.accountCurrencies.pop();
-                        }
                         var rows = getAccountCurrenciesRows(response);
                         NRS.dataLoaded(rows);
                     } else {
@@ -848,14 +827,11 @@ NRS.onSiteBuildDone().then(() => {
                 });
             } else {
                 NRS.sendRequest("getAllCurrencies+", {
-                    "firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-                    "lastIndex": NRS.pageNumber * NRS.itemsPerPage
+                    "firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+                    "lastIndex": NRS.getCurrentPagination().getLastIndex()
                 }, function (response) {
+                    NRS.getCurrentPagination().onResult(response.currencies);
                     if (response.currencies && response.currencies.length) {
-                        if (response.currencies.length > NRS.itemsPerPage) {
-                            NRS.hasMorePages = true;
-                            response.currencies.pop();
-                        }
                         var rows = getAllCurrenciesRows(response);
                         NRS.dataLoaded(rows);
                     } else {
@@ -1008,14 +984,11 @@ NRS.onSiteBuildDone().then(() => {
             NRS.sendRequest("getExchanges+", {
                 "account": NRS.accountRS,
                 "includeCurrencyInfo": true,
-                "firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-                "lastIndex": NRS.pageNumber * NRS.itemsPerPage
+                "firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+                "lastIndex": NRS.getCurrentPagination().getLastIndex()
             }, function (response) {
+                NRS.getCurrentPagination().onResult(response.exchanges);
                 if (response.exchanges && response.exchanges.length) {
-                    if (response.exchanges.length > NRS.itemsPerPage) {
-                        NRS.hasMorePages = true;
-                        response.exchanges.pop();
-                    }
                     var quantityDecimals = NRS.getNumberOfDecimals(response.exchanges, "unitsQNT", function(exchange) {
                         return NRS.formatQuantity(exchange.unitsQNT, exchange.decimals);
                     });
@@ -1051,14 +1024,11 @@ NRS.onSiteBuildDone().then(() => {
             NRS.sendRequest("getCurrencyTransfers+", {
                 "account": NRS.accountRS,
                 "includeCurrencyInfo": true,
-                "firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-                "lastIndex": NRS.pageNumber * NRS.itemsPerPage
+                "firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+                "lastIndex": NRS.getCurrentPagination().getLastIndex()
             }, function (response) {
+                NRS.getCurrentPagination().onResult(response.transfers);
                 if (response.transfers && response.transfers.length) {
-                    if (response.transfers.length > NRS.itemsPerPage) {
-                        NRS.hasMorePages = true;
-                        response.transfers.pop();
-                    }
                     var transfers = response.transfers;
                     var quantityDecimals = NRS.getNumberOfDecimals(transfers, "unitsQNT", function(transfer) {
                         return NRS.formatQuantity(transfer.unitsQNT, transfer.decimals);
@@ -1128,17 +1098,13 @@ NRS.onSiteBuildDone().then(() => {
                 var params = {
                     "currency": _selectedApprovalCurrency,
                     "withoutWhitelist": true,
-                    "firstIndex": NRS.pageNumber * NRS.itemsPerPage - NRS.itemsPerPage,
-                    "lastIndex": NRS.pageNumber * NRS.itemsPerPage
+                    "firstIndex": NRS.getCurrentPagination().getFirstIndex(),
+                    "lastIndex": NRS.getCurrentPagination().getLastIndex()
                 };
                 NRS.sendRequest("getCurrencyPhasedTransactions", params, function (response) {
                     var rows = "";
-
+                    NRS.getCurrentPagination().onResult(response.transactions);
                     if (response.transactions && response.transactions.length > 0) {
-                        if (response.transactions.length > NRS.itemsPerPage) {
-                            NRS.hasMorePages = true;
-                            response.transactions.pop();
-                        }
                         var decimals = NRS.getTransactionsAmountDecimals(response.transactions);
                         for (var i = 0; i < response.transactions.length; i++) {
                             var t = response.transactions[i];

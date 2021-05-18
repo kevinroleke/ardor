@@ -1,0 +1,39 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.intellij' version '0.7.2'
+}
+
+group 'com.jelurida.contract.manager.plugin'
+version '2.3.0'
+
+//sourceSets {
+//    main {
+//        java {
+//            srcDirs = ['src/main/java', '../../../src/java']
+//            exclude 'nxtdesktop'
+//        }
+//    }
+//}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':ardor-classes')
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}
+
+// See https://github.com/JetBrains/gradle-intellij-plugin/
+intellij {
+    version '2021.1'
+    plugins = ['com.intellij.java']
+}
+patchPluginXml {
+    changeNotes """
+"""
+}
+test {
+    useJUnitPlatform()
+}

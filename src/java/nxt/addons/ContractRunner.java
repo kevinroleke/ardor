@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2020 Jelurida IP B.V.
+ * Copyright © 2016-2021 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -283,6 +283,11 @@ public final class ContractRunner implements AddOn, ContractProvider {
                         "hex string value as a seed. A seed of less than 16 bytes can be easily brute forced so make " +
                         "sure your seed is longer. Keep your seed secret, it can be used in the future to validate " +
                         "your contract execution"));
+        l.add(ConfigPropertyBuilder.createIntegerProperty(ContractRunner.CONFIG_PROPERTY_PREFIX + "defaultDeadline",
+                0, "Deadline to use when creating a transaction if a deadline is not specified " +
+                        "by the contract. The transaction deadline is in minutes. If 0 or negative, no default deadline " +
+                        "is applied.")
+                .setMin(0).setMax((int) Short.MAX_VALUE));
         return l;
     }
 
@@ -543,7 +548,8 @@ public final class ContractRunner implements AddOn, ContractProvider {
                 try {
                     processBlockContract(block, contractName, true, false, null);
                 } catch (Throwable t) {
-                    throw new IllegalStateException("Contract " + contractName, t);
+                    Logger.logErrorMessage("Exception executing contract " + contractName);
+                    throw t;
                 }
             });
         } catch (Throwable t) {
@@ -776,6 +782,12 @@ public final class ContractRunner implements AddOn, ContractProvider {
         byte[] privateKey = config.getPrivateKey();
         if (privateKey == null) {
             return generateErrorResponse(1000, "Cannot submit transactions, contract runner private key not specified");
+        }
+        long numberOfRefTransactions = transactions.stream().filter(t -> t.getJo("transactionJSON").isExist("referencedTransaction")).count();
+        if (FxtChain.FXT.getBalanceHome().getBalance(config.getAccountId()).getUnconfirmedBalance() <
+                numberOfRefTransactions * Constants.UNCONFIRMED_POOL_DEPOSIT_FQT) {
+            return generateErrorResponse(1000, "Cannot submit transactions, contract runner will run out " +
+                    " of ARDR for transaction referencing deposit");
         }
         int counter = 0;
         int errorsCounter = 0;

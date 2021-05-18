@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2020 Jelurida IP B.V.
+ * Copyright © 2016-2021 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -47,6 +47,7 @@ class ActiveContractRunnerConfig implements ContractRunnerConfig {
     private long minBundlerBalanceFXT;
     private long minBundlerFeeLimitFQT;
     private Map<Integer, Long> feeRatePerChain;
+    private short defaultDeadline;
     private JO params;
     private boolean isValidator;
     private byte[] validatorPrivateKey;
@@ -61,6 +62,7 @@ class ActiveContractRunnerConfig implements ContractRunnerConfig {
     public void init(JO config) {
         initAccount(config);
         initFee(config);
+        initDeadline(config);
         initParams(config);
         initValidation(config);
         initRandomSeed(config);
@@ -123,6 +125,13 @@ class ActiveContractRunnerConfig implements ContractRunnerConfig {
         }
         if (privateKey != null && !autoFeeRate && feeRatePerChain.size() == 0) {
             throw new IllegalArgumentException(ERROR_PREFIX + "feeRateNQTPerFXT not specified for any chain and autoFeeRate isn't enabled");
+        }
+    }
+
+    private void initDeadline(JO config) {
+        String defaultDeadlineStr = getProperty(config, "defaultDeadline");
+        if (defaultDeadlineStr != null) {
+            defaultDeadline = Short.parseShort(defaultDeadlineStr);
         }
     }
 
@@ -287,6 +296,10 @@ class ActiveContractRunnerConfig implements ContractRunnerConfig {
             feeRatio = getFeeRateNQTPerFXT(chainId);
         }
         return feeRatio;
+    }
+
+    public short getDefaultDeadline() {
+        return defaultDeadline;
     }
 
     @Override

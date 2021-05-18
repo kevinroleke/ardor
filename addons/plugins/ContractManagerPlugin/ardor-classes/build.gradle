@@ -1,0 +1,29 @@
+plugins {
+    id 'java'
+}
+
+group 'com.jelurida.contract.manager.plugin'
+version '2.3.0'
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['../../../../src/java']
+            exclude 'nxtdesktop'
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly fileTree(dir: '../../../../lib', include: ['*.jar'])
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}
+
+test {
+    useJUnitPlatform()
+}
