@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -152,28 +152,33 @@ NRS.onSiteBuildDone().then(() => {
             NRS.simpleview.get('configuration_page_content', {
                 errorMessage: null,
                 isLoading: false,
-                isEmpty: viewProperties.length == 0,
+                isEmpty: viewProperties.length === 0,
                 properties: viewProperties
             });
         }
 
         function mustSetAdminPassword() {
             let adminPasswordProperty = null;
+            let adminPasswordHashProperty = null;
             let apiServerHostProperty = null;
-            for (let i = 0; i < configProperties.length && (adminPasswordProperty === null || apiServerHostProperty === null); i++) {
+            for (let i = 0; i < configProperties.length && (adminPasswordProperty === null || adminPasswordHashProperty === null || apiServerHostProperty === null); i++) {
                 if (configProperties[i].name === 'nxt.adminPassword') {
                     adminPasswordProperty = configProperties[i];
+                } else if (configProperties[i].name === 'nxt.adminPasswordHash') {
+                    adminPasswordHashProperty = configProperties[i];
                 } else if (configProperties[i].name === 'nxt.apiServerHost') {
                     apiServerHostProperty = configProperties[i];
                 }
             }
-            if (adminPasswordProperty === null || apiServerHostProperty === null) {
+            if (adminPasswordProperty === null || adminPasswordHashProperty === null || apiServerHostProperty === null) {
                 return false;
             }
             const apiServerHost = apiServerHostProperty.newValue !== null ? apiServerHostProperty.newValue : apiServerHostProperty.currentValue;
-            const adminPasswordSet = (adminPasswordProperty.newValue !== null && adminPasswordProperty.newValue !== '') ||
-                (adminPasswordProperty.newValue === null && adminPasswordProperty.currentValue === '');
-            return apiServerHost !== '127.0.0.1' && apiServerHost !== '' && !adminPasswordSet;
+            const adminPasswordSet = (adminPasswordProperty.isWithNewValue && adminPasswordProperty.newValue !== '') ||
+                (!adminPasswordProperty.isWithNewValue && adminPasswordProperty.configuredValue === '');
+            const adminPasswordHashSet = (adminPasswordHashProperty.isWithNewValue && adminPasswordHashProperty.newValue !== '') ||
+                (!adminPasswordHashProperty.isWithNewValue && adminPasswordHashProperty.configuredValue === '');
+            return apiServerHost !== '127.0.0.1' && apiServerHost !== '' && !(adminPasswordSet || adminPasswordHashSet);
         }
 
         $configurationPage.on('click', ' .content-header .btn[data-show-all]', function (e) {
@@ -247,7 +252,7 @@ NRS.onSiteBuildDone().then(() => {
 
             $modal.find('.type-information').text(configProperty.formattedType);
 
-            $('#configuration_restore_property_checkbox').prop('disabled', value === '');
+            $('#configuration_restore_property_checkbox').prop('disabled', configProperty.configuredValue === null || configProperty.isWithNewValue);
             $('#configuration_discard_property_checkbox').prop('disabled', !configProperty.isWithNewValue);
         });
 

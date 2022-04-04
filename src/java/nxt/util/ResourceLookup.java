@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -95,6 +96,26 @@ public class ResourceLookup {
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
+    }
+
+    public static Path getResourceAbsolutePath(String resourceName) {
+        URL url = Thread.currentThread().getContextClassLoader().getResource(resourceName);
+        if (url != null) {
+            try {
+                return Paths.get(url.toURI()).toAbsolutePath();
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e.getMessage(), e);
+            }
+        }
+        Path path = Paths.get(Nxt.getUserHomeDir(), resourceName);
+        if (Files.isReadable(path)) {
+            return path.toAbsolutePath();
+        }
+        path = Paths.get(resourceName);
+        if (Files.isReadable(path)) {
+            return path.toAbsolutePath();
+        }
+        return null;
     }
 
     public static InputStream getSystemResourceAsStream(String resourceName) {

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -27,6 +27,7 @@ import nxt.http.callers.StartBundlerCall;
 import nxt.util.Convert;
 import nxt.util.JSONAssert;
 import nxt.util.Logger;
+import nxt.util.Time;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -58,6 +59,8 @@ public class RulesTest extends BundlerTest {
         long minFeeNQT = getMinFeeNQT(publicRate);
 
         List<String> fullHashes = new ArrayList<>(Constants.MAX_NUMBER_OF_CHILD_TRANSACTIONS);
+        int now = Nxt.getEpochTime();
+        Nxt.setTime(new Time.ConstantTime(now));
         for (int i = 0; i < Constants.MAX_NUMBER_OF_CHILD_TRANSACTIONS; i++) {
             fullHashes.add(createTransaction(BOB, 0, null));
             if (i % 2 == 0) {
@@ -66,6 +69,7 @@ public class RulesTest extends BundlerTest {
                 createTransaction(ALICE, minFeeNQT * 2, null);
             }
         }
+        Nxt.setTime(new Time.CounterTime(now));
 
         //To speed up the test, the bundler start is moved after the transactions are created
         //TODO move it back if the bundler is not run for each unconfirmed transaction

@@ -1,3 +1,19 @@
+nxt-client-1.12.3, released 2022-03-25:
+
+This is a stable maintenance release with minor bugfixes only.
+
+Table trimming improvements. Fixed decryption of some Marketplace messages.
+
+Added a contrib/nxt-ramdisk.sh script to enable running Nxt with the database
+stored in memory on tmpfs. Run the script with no arguments for more help.
+
+Support NXT_JVM_OPTS and NXT_PID_FILE environment variables in run.sh and
+stop.sh scripts.
+
+Updated Jetty to version 9.3.30 and Bouncy Castle to 1.70.
+
+
+--------------------------------------------------------------------------------
 nxt-client-1.12.2, released 2020-04-26:
 
 This is a stable release, an optional but recommended update for both mainnet
@@ -197,7 +213,7 @@ from the bootstrap node.
 
 Performance and stability improvements and bugfixes.
 
-Windows and Mac installations now use by default an embedded Open JDK 11
+Windows and Mac installations now use by default an embedded Open JDK 11 
 installation.
 
 The H2 database now uses the newer MV_STORE format by default. Conversion to

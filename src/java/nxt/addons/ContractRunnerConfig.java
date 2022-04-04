@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -19,6 +19,12 @@ import nxt.crypto.EncryptedData;
 import nxt.peer.FeeRateCalculator;
 
 public interface ContractRunnerConfig {
+    enum RunnerMode {
+        NOT_INITIALIZED,
+        NORMAL,
+        VALIDATOR,
+        READ_ONLY
+    }
 
     byte[] getPublicKey();
 
@@ -45,6 +51,8 @@ public interface ContractRunnerConfig {
     short getDefaultDeadline();
 
     JO getParams();
+
+    RunnerMode getRunnerMode();
 
     boolean isValidator();
 

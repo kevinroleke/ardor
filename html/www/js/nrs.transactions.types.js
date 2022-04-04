@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2021 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2022 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -186,6 +186,12 @@
                         'title': "Delete Asset Property",
                         'i18nKeyTitle': 'delete_asset_property',
                         'iconHTML': '<i class="far fa-eraser"></i>',
+                        'receiverPage': "transactions"
+                    },
+                    12: {
+                        'title': "Set Trading Royalties",
+                        'i18nKeyTitle': 'set_trading_royalties',
+                        'iconHTML': '<i class="far fa-percentage"></i>',
                         'receiverPage': "transactions"
                     }
                 }

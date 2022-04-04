@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -22,7 +22,7 @@ public class InitializationContext extends AbstractContractContext {
 
     public InitializationContext(ContractRunnerConfig config, ContractAndSetupParameters contractAndSetupParameters, EventSource source) {
         super(config, contractAndSetupParameters.getName());
-        this.contractSetupParameters = contractAndSetupParameters.getParams();
+        this.contractSetupParameters = contractAndSetupParameters.getParamsRo();
         this.source = source;
     }
 

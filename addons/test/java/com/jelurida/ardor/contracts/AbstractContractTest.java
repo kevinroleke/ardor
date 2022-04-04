@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -98,6 +98,11 @@ public abstract class AbstractContractTest extends BlockchainTest {
                 .config(configBytes)
                 .callNoError();
         assertTrue(response.getBoolean("configLoaded"));
+    }
+
+    protected static void setRunnerConfig(JO botConfig) {
+        final byte[] bytes = botConfig.toJSONString().getBytes();
+        setRunnerConfig(bytes);
     }
 
     public int getHeight() {

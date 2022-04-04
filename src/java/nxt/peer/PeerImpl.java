@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -45,6 +45,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -153,7 +154,7 @@ final class PeerImpl implements Peer {
     private ByteBuffer inputBuffer;
 
     /** Input message count */
-    private volatile int inputCount;
+    private final AtomicInteger inputCount = new AtomicInteger();
 
     /** Output buffer */
     private ByteBuffer outputBuffer;
@@ -844,21 +845,12 @@ final class PeerImpl implements Peer {
     }
 
     /**
-     * Get the input message count (used by NetworkHandler)
-     *
-     * @return                          Input message count
-     */
-    synchronized int getInputCount() {
-        return inputCount;
-    }
-
-    /**
      * Increment the input message count (used by NetworkHandler)
      *
      * @return                          Updated message count
      */
-    synchronized int incrementInputCount() {
-        return ++inputCount;
+    int incrementInputCount() {
+        return inputCount.incrementAndGet();
     }
 
     /**
@@ -866,9 +858,8 @@ final class PeerImpl implements Peer {
      *
      * @return                          Updated message count
      */
-    synchronized int decrementInputCount() {
-        inputCount = (inputCount > 0 ? --inputCount : 0);
-        return inputCount;
+    int decrementInputCount() {
+        return inputCount.updateAndGet(i -> Math.max(i - 1, 0));
     }
 
     /**
@@ -1103,7 +1094,7 @@ final class PeerImpl implements Peer {
             uploadedVolume = 0;
             inputBuffer = null;
             outputBuffer = null;
-            inputCount = 0;
+            inputCount.set(0);
             channel = null;
             keyEvent = null;
             connectionAddress = null;

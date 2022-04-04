@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2021 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2022 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -246,7 +246,16 @@ NRS.onSiteBuildDone().then(() => {
 								if (options.publicKey !== undefined) {
 									publicKeyHex = options.publicKey;
 								} else if (options.account !== undefined) {
-									publicKeyHex = await NRS.getPublicKeyFromAccountId(options.account);
+									try {
+										publicKeyHex = await NRS.getPublicKeyFromAccountId(options.account);
+									} catch(err) {
+										if (typeof err === "string") {
+											throw { "message": err };
+										} else {
+											throw err;
+										}
+									}
+
 								} else {
 									throw {message: "cannot encrypt using hardware wallet without recipient public key"};
 								}

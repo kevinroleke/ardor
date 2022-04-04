@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2021 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2022 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -64,6 +64,8 @@
 
         let sessionPrivateKey;
         NRS.requestId = 0;
+
+        NRS.currentServerError = null;
 
         NRS.setServerPrivateKey = function (privateKey) {
             sessionPrivateKey = privateKey;
@@ -199,12 +201,12 @@
             }
 
             let hasAccountControl = requestType != "approveTransaction" && NRS.hasAccountControl();
-            let hasAssetControl = NRS.isSubjectToAssetControl && NRS.isSubjectToAssetControl(requestType);
-            if (hasAccountControl && hasAssetControl
+            let currentAssetControl = NRS.getAssetControlForRequest(requestType);
+            if (hasAccountControl && currentAssetControl
                 && (NRS.accountInfo.phasingOnly.controlParams.phasingVotingModel == NRS.constants.VOTING_MODELS.COMPOSITE
-                    || NRS.getCurrentAssetControl().phasingVotingModel == NRS.constants.VOTING_MODELS.COMPOSITE)) {
+                    || currentAssetControl.phasingVotingModel == NRS.constants.VOTING_MODELS.COMPOSITE)) {
                 //User should have set the phasing manually
-            } else if (hasAccountControl || hasAssetControl) {
+            } else if (hasAccountControl || currentAssetControl) {
                 //Fill phasing parameters when account control or asset control are enabled
                 let phasingControl;
                 if (hasAccountControl) {
@@ -233,7 +235,7 @@
                         });
                         return;
                     }
-                    if (hasAssetControl) {
+                    if (currentAssetControl) {
                         //Build composite phasing that satisfies both controls
                         let compositePhasingParameters = {
                             "phasingHolding": "0",
@@ -243,7 +245,7 @@
                             "phasingExpression": "ACC&ASC",
                             "phasingSubPolls": {
                                 "ACC": phasingControl.controlParams,
-                                "ASC": NRS.getCurrentAssetControl()
+                                "ASC": currentAssetControl
                             },
                             "phasingVotingModel": 6
                         };
@@ -252,7 +254,7 @@
                         data.phasingParams = JSON.stringify(phasingControl.controlParams);
                     }
                 } else {
-                    data.phasingParams = JSON.stringify(NRS.getCurrentAssetControl());
+                    data.phasingParams = JSON.stringify(currentAssetControl);
                 }
 
                 data.phased = true;
@@ -300,7 +302,17 @@
                         data["privateKey"] = privateKey;
                     }
                 }
-                if (accountId && accountId != NRS.account && !data.isVoucher && !NRS.isPrivateKeyStoredOnHardware()) {
+                let expectedAccount;
+                if (data.isVoucher) {
+                    if (data.recipient) {
+                        let recipientAddress = NRS.createRsAddress();
+                        recipientAddress.set(data.recipient);
+                        expectedAccount = recipientAddress.account_id();
+                    }
+                } else {
+                    expectedAccount = NRS.account;
+                }
+                if (accountId && expectedAccount && accountId != expectedAccount && !NRS.isPrivateKeyStoredOnHardware()) {
                     if (!data.privateKey) {
                         callback({
                             "errorCode": 1,
@@ -315,6 +327,10 @@
                         return;
                     }
                 }
+            }
+            let adminPassword = NRS.getAdminPassword();
+            if (adminPassword) {
+                data["adminPassword"] = adminPassword;
             }
             NRS.processAjaxRequest(requestType, data, callback, options);
         };
@@ -538,7 +554,16 @@
                         if (!response.errorCode) {
                             response.errorCode = -1;
                         }
-                        callback(response, data);
+                        NRS.currentServerError = {
+                            errorCode: response.errorCode,
+                            errorDescription: response.errorDescription,
+                            errorDescByServer: response.errorDescByServer
+                        };
+                        try {
+                            callback(response, data);
+                        } finally {
+                            NRS.currentServerError = null;
+                        }
                     } else {
                         if (response.broadcasted == false && !extra.calculateFee) {
                             addMissingData(data);
@@ -561,7 +586,11 @@
                                     return;
                                 }
                             }
-                            NRS.showRawTransactionModal(response);
+                            if (extra.isBytesBuilding) {
+                                callback(response, data);
+                            } else {
+                                NRS.showRawTransactionModal(response);
+                            }
                         } else {
                             if (extra) {
                                 data["_extra"] = extra;
@@ -1155,6 +1184,25 @@
                         };
                     }
                     pos += 8;
+
+                    let attachmentVersion = attachment['version.SetPhasingAssetControl'];
+                    if (attachmentVersion > 1) {
+                        let typesBitSetLength = byteArray[pos++];
+                        let typesBitSet = converters.byteArrayToBitSet(byteArray.slice(pos, pos + typesBitSetLength));
+                        pos += typesBitSetLength;
+                        for (let code = 0; code < NRS.constants.ASSET_CONTROL_TYPES_ORDERED_BY_CODE.length; code++) {
+                            let type = NRS.constants.ASSET_CONTROL_TYPES_ORDERED_BY_CODE[code];
+                            if (typesBitSet[code]) {
+                                if (!data.transactionType.includes(type)) {
+                                    return verificationFailed('transactionType', '<' + type + ' is set>', '<' + type + ' is unset>');
+                                }
+                            } else {
+                                if (data.transactionType.includes(type)) {
+                                    return verificationFailed('transactionType', '<' + type + ' is unset>', '<' + type + ' is set>');
+                                }
+                            }
+                        }
+                    }
                     result = validateControlPhasingData(data, byteArray, pos, false);
                     if (result.fail) {
                         return result;
@@ -1197,6 +1245,28 @@
                     // no way to validate the property id, just skip it
                     String(converters.byteArrayToBigInteger(byteArray, pos));
                     pos += 8;
+                    break;
+                case "setAssetTradeRoyalties":
+                    if (NRS.notOfType(transaction, "SetAssetTradeRoyalties")) {
+                        return notOfTypeError;
+                    }
+                    if (data.asset !== String(converters.byteArrayToBigInteger(byteArray, pos))) {
+                        return {
+                            fail: true,
+                            param: requestType + "Asset",
+                            actual: JSON.stringify(data),
+                            expected: String(converters.byteArrayToBigInteger(byteArray, pos))
+                        };
+                    }
+                    pos += 8;
+
+                    transaction.royaltiesPercentage = NRS.fixedPrecisionIntToNum(
+                        converters.byteArrayToSignedInt32(byteArray, pos)).toFixed(7);
+                    pos += 4;
+
+                    if (transaction.royaltiesPercentage !== new Big(data.royaltiesPercentage).toFixed(7)) {
+                        return verificationFailed('royaltiesPercentage', data.royaltiesPercentage, transaction.royaltiesPercentage);
+                    }
                     break;
                 case "dgsListing":
                     if (NRS.notOfType(transaction, "DigitalGoodsListing")) {
@@ -2097,8 +2167,44 @@
          */
         NRS.buildDataFromTransactionJSON = function(requestType, transactionJSON) {
             let data = $.extend({}, transactionJSON);
+            if (data.attachment) {
+                let hasEncryptedMessage = !!data.attachment["version.EncryptedMessage"];
+                let hasPrunableEncryptedMessage = !!data.attachment["version.PrunableEncryptedMessage"];
+                let hasPrunablePlainMessage = !!data.attachment["version.PrunablePlainMessage"];
+                let hasPlainMessage = !!data.attachment["version.Message"];
+                if (hasEncryptedMessage || hasPrunableEncryptedMessage) {
+                    data.encryptedMessageIsPrunable = "" + hasPrunableEncryptedMessage;
+                    data.encryptedMessageData = data.attachment.encryptedMessage.data;
+                    data.encryptedMessageNonce = data.attachment.encryptedMessage.nonce;
+                    data.compressMessageToEncrypt = "" + data.attachment.encryptedMessage.isCompressed;
+                    data.messageToEncryptIsText = "" + data.attachment.encryptedMessage.isText;
+                } else if (hasPrunablePlainMessage || hasPlainMessage) {
+                    //flattening does the rest correctly
+                    data.messageIsPrunable = "" + hasPrunablePlainMessage;
+                }
+
+                if (!!data.attachment["version.EncryptToSelfMessage"]) {
+                    data.encryptToSelfMessageData = data.attachment.encryptToSelfMessage.data;
+                    data.encryptToSelfMessageNonce = data.attachment.encryptToSelfMessage.nonce;
+                    data.compressMessageToEncryptToSelf = "" + data.attachment.encryptToSelfMessage.isCompressed;
+                    data.messageToEncryptToSelfIsText = "" + data.attachment.encryptToSelfMessage.isText;
+                }
+
+                if (data.phased) {
+                    let paramsJson = {};
+                    $.each(data.attachment, function(key, value) {
+                        if (key.substr(0, "phasing".length) === "phasing" && key !== "phasingFinishHeight") {
+                            paramsJson[key] = value;
+                        }
+                    });
+                    data.phasingParams = JSON.stringify(paramsJson);
+                }
+            }
             data = NRS.flattenObject(data, ["version."]);
             data.exchange = data.exchangeChain;
+            if (data.phased) {
+                data.phasingFinishHeight = "" + data.phasingFinishHeight;
+            }
             switch(requestType) {
                 case "setAlias":
                 case "sellAlias":

@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -27,6 +27,7 @@ import nxt.db.DbKey;
 import nxt.db.DbUtils;
 import nxt.db.VersionedEntityDbTable;
 import nxt.util.Convert;
+import nxt.util.FixedPrecisionPercentage;
 import nxt.util.Listener;
 import nxt.util.Listeners;
 
@@ -165,6 +166,7 @@ public final class Asset {
     private long quantityQNT;
     private final byte decimals;
     private boolean hasPhasingControl;
+    private FixedPrecisionPercentage royaltiesPercentage;
 
     private Asset(Transaction transaction, AssetIssuanceAttachment attachment) {
         this.assetId = transaction.getId();
@@ -186,6 +188,7 @@ public final class Asset {
         this.quantityQNT = rs.getLong("quantity");
         this.decimals = rs.getByte("decimals");
         this.hasPhasingControl = rs.getBoolean("has_control_phasing");
+        this.royaltiesPercentage = FixedPrecisionPercentage.read(rs, "royalties_percentage");
     }
 
     private Asset(long assetId, long issuerId, String name, String description, byte decimals, long quantityQNT) {
@@ -200,9 +203,9 @@ public final class Asset {
 
     private void save(Connection con) throws SQLException {
         try (PreparedStatement pstmt = con.prepareStatement("MERGE INTO asset "
-                + "(id, account_id, name, description, quantity, decimals, has_control_phasing, height, latest) "
+                + "(id, account_id, name, description, quantity, decimals, has_control_phasing, royalties_percentage, height, latest) "
                 + "KEY(id, height) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, TRUE)")) {
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE)")) {
             int i = 0;
             pstmt.setLong(++i, this.assetId);
             pstmt.setLong(++i, this.accountId);
@@ -211,6 +214,7 @@ public final class Asset {
             pstmt.setLong(++i, this.quantityQNT);
             pstmt.setByte(++i, this.decimals);
             pstmt.setBoolean(++i, this.hasPhasingControl);
+            i = FixedPrecisionPercentage.setToPreparedStatement(this.royaltiesPercentage, pstmt, i);
             pstmt.setInt(++i, Nxt.getBlockchain().getHeight());
             pstmt.executeUpdate();
         }
@@ -249,6 +253,15 @@ public final class Asset {
             this.hasPhasingControl = hasPhasingControl;
             assetTable.insert(this);
         }
+    }
+
+    public FixedPrecisionPercentage getRoyaltiesPercentage() {
+        return royaltiesPercentage;
+    }
+
+    void setRoyaltiesPercentage(FixedPrecisionPercentage royaltiesPercentage) {
+        this.royaltiesPercentage = royaltiesPercentage;
+        assetTable.insert(this);
     }
 
     public DbIterator<Account.AccountAsset> getAccounts(int from, int to) {

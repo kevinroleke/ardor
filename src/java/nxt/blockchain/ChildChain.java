@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -87,6 +87,9 @@ public class ChildChain extends Chain {
     private static final Long[] aeurAdminAccounts = Constants.isAutomatedTest || Constants.isAutomatedTestChildChainPermissions
             ? defaultAdminAccounts : Constants.isTestnet ? new Long[]{Convert.parseAccountId("ARDOR-XNBG-5TB4-SC4R-B73ZW")} : new Long[0];
 
+    private static final Long[] mpgAdminAccounts = Constants.isAutomatedTest || Constants.isAutomatedTestChildChainPermissions
+            ? defaultAdminAccounts : new Long[0];
+
     public static final ChildChain IGNIS = new ChildChainBuilder(2, "IGNIS")
             .setTotalAmount(Constants.isTestnet ? 999_724_847_29793502L : 999_449_694_59860052L)
             .setShufflingDepositNQT(Constants.isTestnet ? 7 * 1_00000000 : 10 * 1_00000000)
@@ -123,6 +126,8 @@ public class ChildChain extends Chain {
                     MonetarySystemTransactionType.RESERVE_CLAIM, TaggedDataTransactionType.TAGGED_DATA_UPLOAD,
                     AliasTransactionType.ALIAS_ASSIGNMENT)
             .setDisabledAPITags(APITag.SHUFFLING, APITag.DGS, APITag.MS, APITag.DATA, APITag.ALIASES)
+            .setNextPermissionPolicy(PermissionPolicyType.CHILD_CHAIN, Constants.isAutomatedTestChildChainPermissions ? 0 : Constants.TRANSACTION_TYPE_SPECIFIC_ASSET_CONTROL)
+            .setMasterAdminAccounts(mpgAdminAccounts)
             .setIsEnabled(() -> Nxt.getBlockchain().getHeight() >= Constants.MPG_BLOCK)
             .build();
 

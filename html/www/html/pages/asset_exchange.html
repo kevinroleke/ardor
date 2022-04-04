@@ -1,6 +1,6 @@
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ~ Copyright © 2013-2016 The Nxt Core Developers.                            ~
-  ~ Copyright © 2016-2021 Jelurida IP B.V.                                    ~
+  ~ Copyright © 2016-2022 Jelurida IP B.V.                                    ~
   ~                                                                           ~
   ~ See the LICENSE.txt file at the top-level directory of this distribution  ~
   ~ for licensing information.                                                ~
@@ -228,9 +228,13 @@
                     </div>
                     <h3 style="margin-top:0" id="asset_name"></h3>
 
-                    <div style="color:#838383;margin-bottom:5px">
+                    <div class="asset_controls">
                         <strong data-i18n="total_available">Total Available</strong>: <span id="asset_quantity"></span> | 
-                        <strong data-i18n="asset_decimals">Asset Decimals</strong>: <span id="asset_decimals"></span> | 
+                        <strong data-i18n="asset_decimals">Asset Decimals</strong>: <span id="asset_decimals"></span> |
+                        <span id="trading_royalties">
+                            <strong data-i18n="trading_royalties">Trading Royalties</strong>:
+                            <span id="royalties_percentage">0.00%</span> |
+                        </span>
                         <a href="#" data-toggle="modal" data-target="#asset_distribution_modal" data-i18n="view_asset_distribution" data-asset="" id="view_asset_distribution_link">View Asset Distribution</a> |
                         <a href="#" data-toggle="modal" data-target="#asset_dividend_modal" data-i18n="view_asset_dividend_history" data-asset="" id="view_asset_dividend_link">View Asset Dividend History</a> |
                         <a href="#" class="goto-page" data-page="asset_properties" data-i18n="asset_properties" data-asset="" id="asset_properties_link">Asset Properties</a>
@@ -242,6 +246,9 @@
                             <span id="setup_asset_control_link">
                                 <a href="#" data-toggle="modal" data-target="#set_asset_control_modal" data-i18n="setup_asset_control">Setup Asset Control</a>
                             </span>
+                        </span>
+                        <span id="set_royalties_link"> |
+                            <a href="#" data-toggle="modal" data-target="#set_trading_royalties_modal" data-i18n="set_trading_royalties">Set Trading Royalties</a>
                         </span>
                     </div>
 

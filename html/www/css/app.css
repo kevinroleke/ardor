@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2021 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2022 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -2122,6 +2122,15 @@ body.loading {
   left: 0 !important;
 }
 
+#asset_exchange_page .asset_controls {
+  color:#838383;
+  margin-bottom:5px
+}
+
+#asset_exchange_page .asset_controls a {
+  white-space:nowrap
+}
+
 .goods_info,
 .purchase_info {
   padding: 5px;
@@ -2581,6 +2590,13 @@ div.fee-calculation-container {
   margin-bottom: 5px;
   display: flex;
   align-items: start;
+}
+
+.transaction-types-checkboxes {
+}
+
+.transaction-types-checkboxes span {
+  white-space: nowrap
 }
 
 /* start of media queries */

@@ -118,16 +118,16 @@ echo >> ${CHANGELOG}
 cat changelogs/${CHANGELOG} >> ${CHANGELOG}
 echo >> ${CHANGELOG}
 
-gpg --detach-sign --armour --sign-with 0xC654D7FCFF18FD55 ${PACKAGE}.zip
-gpg --detach-sign --armour --sign-with 0xC654D7FCFF18FD55 ${PACKAGE}.sh
-#gpg --detach-sign --armour --sign-with 0xC654D7FCFF18FD55 ${PACKAGE}.exe
+gpg2 --detach-sign --armour --sign-with 0xC654D7FCFF18FD55 ${PACKAGE}.zip
+gpg2 --detach-sign --armour --sign-with 0xC654D7FCFF18FD55 ${PACKAGE}.sh
+#gpg2 --detach-sign --armour --sign-with 0xC654D7FCFF18FD55 ${PACKAGE}.exe
 
-gpg --clearsign --sign-with 0xC654D7FCFF18FD55 ${CHANGELOG}
+gpg2 --clearsign --sign-with 0xC654D7FCFF18FD55 ${CHANGELOG}
 rm -f ${CHANGELOG}
-gpgv ${PACKAGE}.zip.asc ${PACKAGE}.zip
-gpgv ${PACKAGE}.sh.asc ${PACKAGE}.sh
-#gpgv ${PACKAGE}.exe.asc ${PACKAGE}.exe
-gpgv ${CHANGELOG}.asc
+gpg2 --verify ${PACKAGE}.zip.asc ${PACKAGE}.zip
+gpg2 --verify ${PACKAGE}.sh.asc ${PACKAGE}.sh
+#gpg2 --verify ${PACKAGE}.exe.asc ${PACKAGE}.exe
+gpg2 --verify ${CHANGELOG}.asc
 sha256sum -c ${CHANGELOG}.asc
 #jarsigner -verify ${PACKAGE}.zip
 #jarsigner -verify ${PACKAGE}.sh

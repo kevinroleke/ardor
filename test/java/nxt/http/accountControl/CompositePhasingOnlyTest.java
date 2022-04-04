@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -17,6 +17,7 @@
  package nxt.http.accountControl;
 
 import nxt.BlockchainTest;
+import nxt.Helper;
 import nxt.Nxt;
 import nxt.Tester;
 import nxt.account.AccountRestrictions;
@@ -339,6 +340,55 @@ public class CompositePhasingOnlyTest extends BlockchainTest {
                 .toJSONString());
         jsonAssert = new JSONAssert(txBuilder.call());
         jsonAssert.str("fullHash");
+    }
+
+    @Test
+    public void testSubPollsDeletion() {
+        PhasingParamsBuilder controlParamsBuilder = PhasingParamsBuilder.create()
+                .phasingVotingModel(VotingModel.COMPOSITE.getCode())
+                .phasingQuorum(1)
+                .phasingExpression("A | B")
+                .setSubPoll("A", PhasingParamsHelper.accountSubpoll(BOB))
+                .setSubPoll("B", PhasingParamsHelper.accountSubpoll(CHUCK));
+        SetPhasingOnlyControlCall setPhasingOnlyControlCall = SetPhasingOnlyControlCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN).controlParams(controlParamsBuilder.toJSONString())
+                .controlMaxFees(IGNIS.getId() + ":" + 10 * IGNIS.ONE_COIN)
+                .controlMinDuration(5)
+                .controlMaxDuration(1440);
+        setPhasingOnlyControlCall.callNoError();
+
+        generateBlock();
+
+        Assert.assertEquals(2, Helper.getCount("account_control_phasing_sub_poll WHERE account_id = " + ALICE.getId()));
+
+        JSONAssert updateResult = new JSONAssert(SetPhasingOnlyControlCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN).controlVotingModel(VotingModel.NONE.getCode())
+                .phased(true).phasingFinishHeight(Nxt.getBlockchain().getHeight() + 5)
+                .phasingParams(controlParamsBuilder.toJSONString()).callNoError());
+        generateBlock();
+
+        approveUpdate(updateResult);
+        generateBlock();
+
+        Assert.assertTrue(new JSONAssert(GetPhasingOnlyControlCall.create().account(ALICE.getId()).callNoError())
+                .getJson().isEmpty());
+
+        Assert.assertEquals(4, Helper.getCount("account_control_phasing_sub_poll " +
+                " WHERE account_id = " + ALICE.getId() + " AND latest = FALSE"));
+
+        Assert.assertEquals(0, Helper.getCount("account_control_phasing_sub_poll " +
+                " WHERE account_id = " + ALICE.getId() + " AND latest = TRUE"));
+
+        setPhasingOnlyControlCall.callNoError();
+        generateBlock();
+
+        Assert.assertEquals(4, Helper.getCount("account_control_phasing_sub_poll " +
+                " WHERE account_id = " + ALICE.getId() + " AND latest = FALSE"));
+
+        Assert.assertEquals(2, Helper.getCount("account_control_phasing_sub_poll " +
+                " WHERE account_id = " + ALICE.getId() + " AND latest = TRUE"));
     }
 
     private void setSimpleCompositeControl(String variableName, Tester whitelisted) {

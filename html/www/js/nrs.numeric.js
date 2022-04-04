@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2021 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2022 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -69,6 +69,10 @@
             var result = a.div(b).times(new Big("100")).toFixed(2);
             Big.RM = 1;
             return NRS.format(result.toString());
+        };
+
+        NRS.fixedPrecisionIntToNum = function (fixedPrecPercentage) {
+            return new Big(fixedPrecPercentage).div(10000000);
         };
 
         NRS.convertToNXT = function (amount, returnAsObject) {
@@ -161,7 +165,7 @@
             var result = amount + "" + fraction;
             if (!/^\d+$/.test(result)) {
                 //in case there's a comma or something else in there.. at this point there should only be numbers
-                throw $.t("error_invalid_input", {input: "currency " + currency + " decimals " + decimals});
+                throw $.t("error_invalid_input_numbers", {input: "'" + currency + "'"});
             }
             //remove leading zeroes
             result = result.replace(/^0+/, "");

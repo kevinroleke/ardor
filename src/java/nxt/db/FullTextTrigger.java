@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -500,7 +500,7 @@ public class FullTextTrigger implements Trigger, TransactionalDb.TransactionCall
             }
         } catch (ParseException exc) {
             Logger.logDebugMessage("Lucene parse exception for query: " + queryText + "\n" + exc.getMessage());
-            throw new SQLException("Lucene parse exception for query: " + queryText + "\n" + exc.getMessage());
+            throw new SQLException("Lucene parse exception for query: " + queryText + "\n" + exc.getMessage(), exc);
         } catch (IOException exc) {
             Logger.logErrorMessage("Unable to search Lucene index", exc);
             throw new SQLException("Unable to search Lucene index", exc);

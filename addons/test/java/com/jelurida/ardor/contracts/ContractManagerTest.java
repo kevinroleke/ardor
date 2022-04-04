@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -18,8 +18,11 @@ package com.jelurida.ardor.contracts;
 import nxt.BlockchainTest;
 import nxt.addons.AddOns;
 import nxt.addons.ContractRunner;
+import nxt.addons.JA;
 import nxt.addons.JO;
 import nxt.http.callers.GetExecutedTransactionsCall;
+import nxt.http.callers.GetTransactionCall;
+import nxt.http.callers.TriggerContractByRequestCall;
 import nxt.http.responses.TransactionResponse;
 import nxt.tools.ContractManager;
 import nxt.util.Convert;
@@ -115,6 +118,8 @@ public class ContractManagerTest extends AbstractContractTest {
             contractManager.init(contractName);
             ContractManager.ContractData contractData = contractManager.upload(contractName, packageName);
             byte[] fullHash = contractData.getResponse().parseHexString("fullHash");
+            JO attachment = GetTransactionCall.create().fullHash(fullHash).callNoError().getJo("attachment");
+            Assert.assertTrue(attachment.getString("filename").endsWith(".jar"));
             contractManager.reference(contractData, fullHash);
             generateBlock(); // Contract upload and reference are confirmed
             List<TransactionResponse> transactionList = GetExecutedTransactionsCall.create(2).height(getHeight()).sender(ALICE.getId()).type(6).getTransactions();
@@ -130,6 +135,30 @@ public class ContractManagerTest extends AbstractContractTest {
             new IgnisArdorRatesTest().executeContract(contractName);
             ContractRunner contractRunner = (ContractRunner) AddOns.getAddOn(ContractRunner.class);
             contractRunner.reset();
+            return null;
+        });
+    }
+
+    @Test
+    public void testUploadJarForNestedClasses() {
+        AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+            ContractManager contractManager = new ContractManager();
+            String contractName = NestedClassesContract.class.getSimpleName();
+            String packageName = NestedClassesContract.class.getPackage().getName();
+            contractManager.init(contractName);
+            ContractManager.ContractData contractData = contractManager.upload(contractName, packageName);
+            byte[] fullHash = contractData.getResponse().parseHexString("fullHash");
+            JO attachment = GetTransactionCall.create().fullHash(fullHash).callNoError().getJo("attachment");
+            Assert.assertTrue(attachment.getString("filename").endsWith(".jar"));
+            contractManager.reference(contractData, fullHash);
+            generateBlock();
+            JO result = TriggerContractByRequestCall.create().contractName(contractName).setParamValidation(false).
+                    param("json", "{ \"list\": [ { \"type\": \"A\"}, { \"type\": \"B\"} ] }").callNoError();
+            JA list = result.getArray("list");
+            Assert.assertNotNull(list);
+            Assert.assertEquals(2, list.size());
+            Assert.assertEquals("A", list.get(0).getString("type"));
+            Assert.assertEquals("B", list.get(1).getString("type"));
             return null;
         });
     }

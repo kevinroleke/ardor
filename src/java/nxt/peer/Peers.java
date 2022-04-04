@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -94,6 +94,7 @@ public final class Peers {
 
     /** Bundler rate broadcast interval */
     static final int BUNDLER_RATE_BROADCAST_INTERVAL = 30 * 60;
+    static final int BUNDLER_RATE_EXPIRATION = BUNDLER_RATE_BROADCAST_INTERVAL + 15 * 60;
 
     /** Communication log levels */
     public static final int LOG_LEVEL_NAMES = 1;
@@ -1064,7 +1065,7 @@ public final class Peers {
             while (it.hasNext()) {
                 Map.Entry<Long, List<BundlerRate>> entry = it.next();
                 List<BundlerRate> rates = entry.getValue();
-                rates.removeIf(rate -> rate.getTimestamp() < now - (BUNDLER_RATE_BROADCAST_INTERVAL + 15 * 60));
+                rates.removeIf(rate -> rate.getTimestamp() < now - BUNDLER_RATE_EXPIRATION);
                 if (rates.isEmpty()) {
                     it.remove();
                 }
@@ -1148,7 +1149,7 @@ public final class Peers {
                 Iterator<BundlerRate> rit = rates.iterator();
                 while (rit.hasNext()) {
                     BundlerRate rate = rit.next();
-                    if (rate.getTimestamp() < now - (BUNDLER_RATE_BROADCAST_INTERVAL + 15 * 60)) {
+                    if (rate.getTimestamp() < now - BUNDLER_RATE_EXPIRATION) {
                         rit.remove();
                         continue;
                     }
@@ -1215,7 +1216,7 @@ public final class Peers {
                         break;
                     }
                     BundlerRate rate = rit.next();
-                    if (rate.getTimestamp() < now - (BUNDLER_RATE_BROADCAST_INTERVAL + (15 * 60))) {
+                    if (rate.getTimestamp() < now - BUNDLER_RATE_EXPIRATION) {
                         rit.remove();
                         continue;
                     }

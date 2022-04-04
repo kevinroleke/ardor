@@ -1,0 +1,7 @@
+This is a mandatory upgrade for all Ardor mainnet nodes. A hardfork has been
+scheduled at block 2307000, expected on May 1st, 2022, in order to activate
+on mainnet the new features that were recently enabled on testnet:
+per-transaction-type asset control, asset trade royalties, deactivation of
+MPG child chain. There are no other notable changes since 2.4.0e, see the
+release notes for that version for all technical details.
+

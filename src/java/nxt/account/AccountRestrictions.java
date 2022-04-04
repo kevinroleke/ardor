@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -88,11 +88,11 @@ public final class AccountRestrictions {
                 //no voting - remove the control
                 senderAccount.removeControl(Account.ControlType.PHASING_ONLY);
                 PhasingOnly phasingOnly = get(accountId);
-                phasingOnly.params = phasingParams;
-                phasingControlTable.delete(phasingOnly);
                 if (!phasingOnly.params.getSubPolls().isEmpty()) {
                     phasingControlSubPollTable.delete(phasingOnly);
                 }
+                phasingOnly.params = phasingParams;
+                phasingControlTable.delete(phasingOnly);
             } else {
                 senderAccount.addControl(Account.ControlType.PHASING_ONLY);
                 PhasingOnly phasingOnly = get(accountId);

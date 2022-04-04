@@ -31,6 +31,7 @@
 -keep class * extends nxt.http.CustomAPISetup
 -keep class nxt.blockchain.Bundler$FeeCalculator
 -keep class * extends nxt.blockchain.Bundler$FeeCalculator
+-keep class nxt.NxtException$NotCurrentlyValidException
 
 -keep,includedescriptorclasses class nxtdesktop.JavaScriptBridge, nxtdesktop.DesktopApplication, nxtdesktop.WalletContextMenu, nxt.env.service.ArdorService_ServiceManagement {
     <methods>;

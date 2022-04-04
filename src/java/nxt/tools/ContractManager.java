@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -77,6 +77,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class ContractManager {
 
@@ -360,7 +362,16 @@ public class ContractManager {
         if (mimeType == null) {
             throw new IllegalStateException("Cannot determine contract mime type i.e. class or jar file");
         }
-        ContractData tempContractData = loadContract(fullName, resourceBytes, mimeType, filePath);
+        if (ContractLoader.CLASS_FILE_MIME_TYPE.equals(mimeType)) {
+            byte[] jarBytes = packNestedClassesInJarIfNeeded(filePath, packageName, resourceBytes);
+            if (jarBytes != null) {
+                resourceBytes = jarBytes;
+                mimeType = ContractLoader.JAR_FILE_MIME_TYPE;
+                fileName = fileName.replaceFirst("\\.class$", ".jar");
+            }
+        }
+
+        ContractData tempContractData = loadContract(fullName, resourceBytes, mimeType);
         Contract<?,?> contract = tempContractData.getContract();
 
         // Log contract annotations
@@ -409,69 +420,80 @@ public class ContractManager {
         return new ContractData(contractName, tempContractData.getFullName(), uploadContractTransaction, tempContractData.getBytes(), tempContractData.getMimeType(), tempContractData.getContract(), taggedDataHash);
     }
 
-    private ContractData loadContract(String fullName, byte[] resourceBytes, String mimeType, String filePath) {
+    private byte[] packNestedClassesInJarIfNeeded(String filePath, String packageName, byte[] mainClassBytes) {
+        if (filePath == null) {
+            return null;
+        }
+        Path packagePath = Paths.get(packageName.replace('.', '/'));
+        Path absolutePath = ResourceLookup.getResourceAbsolutePath(filePath);
+        if (absolutePath == null) {
+            throw new IllegalArgumentException("filePath not found in resources");
+        }
+        Path fileNamePath = absolutePath.getFileName();
+        try (Stream<Path> list = Files.list(absolutePath.getParent())) {
+            String nestedClassesPathPrefix = fileNamePath.toString().replaceFirst("\\.class$", "") + "$";
+            List<Path> nestedClassPaths = list.
+                    filter(path -> {
+                        String fileName = path.getFileName().toString();
+                        return fileName.startsWith(nestedClassesPathPrefix) && fileName.endsWith(".class");
+                    }).
+                    collect(Collectors.toList());
+            if (!nestedClassPaths.isEmpty()) {
+                // Contract has nested classes, need to package and deploy it as a Jar file
+                Manifest manifest = new Manifest();
+                manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+                ByteArrayOutputStream jarStream = new ByteArrayOutputStream();
+                JarOutputStream target = new ReproducibleJarOutputStream(jarStream, manifest, Constants.EPOCH_BEGINNING);
+
+                // Add the sub-directories to Jar
+                for (int i = 1; i <= packagePath.getNameCount(); i++) {
+                    String dirName = packagePath.subpath(0, i).toString();
+                    dirName = dirName.replace("\\", "/");
+                    if (!dirName.endsWith("/")) {
+                        dirName += "/";
+                    }
+                    JarEntry entry = new JarEntry(dirName);
+                    target.putNextEntry(entry);
+                    target.closeEntry();
+                }
+
+                // Add the original contract class to the Jar
+                JarEntry contractEntry = new JarEntry(pathToJarEntryName(packagePath.resolve(fileNamePath)));
+                target.putNextEntry(contractEntry);
+                target.write(mainClassBytes);
+
+                nestedClassPaths.forEach(nestedClassAbsolutePath -> {
+                    try {
+                        byte[] innerClassBytes = Files.readAllBytes(nestedClassAbsolutePath);
+                        JarEntry entry = new JarEntry(pathToJarEntryName(packagePath.resolve(nestedClassAbsolutePath.getFileName())));
+                        target.putNextEntry(entry);
+                        target.write(innerClassBytes);
+                        target.closeEntry();
+                    } catch (IOException e) {
+                        throw new IllegalStateException();
+                    }
+                });
+                target.close();
+                return jarStream.toByteArray();
+            } else {
+                return null;
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private String pathToJarEntryName(Path resolve) {
+        return StreamSupport.stream(resolve.spliterator(), false).map(Path::toString).collect(Collectors.joining("/"));
+    }
+
+    private ContractData loadContract(String fullName, byte[] resourceBytes, String mimeType) {
         Contract<?,?> contract;
         switch (mimeType) {
             case ContractLoader.CLASS_FILE_MIME_TYPE: {
                 contract = ContractLoader.loadContract(fullName, resourceBytes, null, null);
                 if (contract == null) {
                     throw new IllegalStateException("Cannot load contract from file " + fullName);
-                }
-                Class<?>[] classes = contract.getClass().getDeclaredClasses();
-                if (classes.length > 0 && filePath != null) {
-                    try {
-                        // Contract has inner classes, need to package and deploy it as a Jar file
-                        Manifest manifest = new Manifest();
-                        manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
-                        ByteArrayOutputStream jarStream = new ByteArrayOutputStream();
-                        JarOutputStream target = new ReproducibleJarOutputStream(jarStream, manifest, Constants.EPOCH_BEGINNING);
-
-                        // Add the sub-directories to Jar
-                        Path path = Paths.get(filePath);
-                        if (path.getNameCount() > 1) {
-                            for (int i=1; i<path.getNameCount(); i++) {
-                                String dirName = path.subpath(0, i).toString();
-                                dirName = dirName.replace("\\", "/");
-                                if (!dirName.endsWith("/")) {
-                                    dirName += "/";
-                                }
-                                JarEntry entry = new JarEntry(dirName);
-                                target.putNextEntry(entry);
-                                target.closeEntry();
-                            }
-                        }
-
-                        // Add the original contract class to the Jar
-                        JarEntry contractEntry = new JarEntry(filePath);
-                        target.putNextEntry(contractEntry);
-                        target.write(resourceBytes);
-
-                        // Add all inner classes
-                        Arrays.stream(classes).forEach(c -> {
-                            String innerClassName = c.getCanonicalName();
-                            String[] tokens = filePath.split(".class");
-                            String innerClassFilePath = tokens[0] + "$" + c.getSimpleName() + ".class";
-                            Logger.logInfoMessage("Loading inner class %s resource from %s", innerClassName, innerClassFilePath);
-                            byte[] innerClassBytes = ResourceLookup.getResourceBytes(innerClassFilePath);
-                            if (innerClassBytes == null) {
-                                throw new IllegalStateException("Cannot load inner class from " + innerClassFilePath);
-                            }
-                            JarEntry entry = new JarEntry(innerClassFilePath);
-                            try {
-                                target.putNextEntry(entry);
-                                target.write(innerClassBytes);
-                                target.closeEntry();
-                            } catch (IOException e) {
-                                throw new IllegalStateException();
-                            }
-                        });
-                        target.close();
-                        resourceBytes = jarStream.toByteArray();
-                        mimeType = ContractLoader.JAR_FILE_MIME_TYPE;
-                        contract = ContractLoader.loadContractFromJar(fullName, resourceBytes, null, null, null);
-                    } catch (IOException e) {
-                        throw new IllegalStateException(e);
-                    }
                 }
                 break;
             }
@@ -499,7 +521,7 @@ public class ContractManager {
         if (contract == null) {
             JO response = GetTaggedDataCall.create(ChildChain.IGNIS.getId()).transactionFullHash(fullHash).includeData(true).retrieve(true).remote(getUrl()).call();
             TaggedDataResponse taggedDataResponse = TaggedDataResponse.create(response);
-            contract = loadContract(taggedDataResponse.getName(), taggedDataResponse.getData(), taggedDataResponse.getType(), null).getContract();
+            contract = loadContract(taggedDataResponse.getName(), taggedDataResponse.getData(), taggedDataResponse.getType()).getContract();
         }
         JO contractParams;
         if (uploaderParams != null) {
@@ -546,6 +568,7 @@ public class ContractManager {
         }
         Logger.logInfoMessage("Registering contract reference from account %s to contract %s registered with params '%s' for contract %s",
                 Convert.rsAccount(Account.getId(Crypto.getPublicKey(privateKey))), attachment.getContractName(), attachment.getContractParams(), attachment.getContractId().toString());
+        Logger.logInfoMessage("Set Contract Reference transaction fullHash: " + contractReferenceTransaction.getString("fullHash"));
         return contractReferenceTransaction;
     }
 
@@ -565,6 +588,7 @@ public class ContractManager {
             return;
         }
         Logger.logInfoMessage("Contract reference %s deleted for account %s contract name %s", Long.toUnsignedString(attachment.getContractReferenceId()), account, contractName);
+        Logger.logInfoMessage("Delete Contract Reference transaction fullHash: " + contractReferenceDeleteTransaction.getString("fullHash"));
     }
 
     /**
@@ -608,6 +632,7 @@ public class ContractManager {
         // Determine the javac options to use by running javap on the compiled contract class
         String javacOptions = JDKToolsWrapper.javap(contractBytes);
         if (javacOptions == null) {
+            Logger.logInfoMessage("Javap failed to load javac options, verification cannot continue");
             return false;
         }
         Logger.logInfoMessage("Use the following javac option: " + javacOptions);

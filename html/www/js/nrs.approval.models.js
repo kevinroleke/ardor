@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2021 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2022 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -102,7 +102,7 @@ NRS.onSiteBuildDone().then(() => {
                         error += " " + $.t("for_sub_poll") + " " + response.subPoll;
                     }
                     rc = { error: error };
-                    return
+                    return rc;
                 }
                 delete response.requestProcessingTime;
                 if (response.variables) {
@@ -111,15 +111,15 @@ NRS.onSiteBuildDone().then(() => {
                         var variable = response.variables[i].trim();
                         if (variable == name) {
                             rc = { error: $.t("composite_model_reference_to_itself", { variable: variable }) };
-                            return;
+                            return rc;
                         }
                         if (!approvalModels[variable]) {
                             rc = { error: $.t("composite_model_unknown_variable", { variable: variable }) };
-                            return;
+                            return rc;
                         }
                         if (approvalModels[variable].phasingVotingModel == NRS.constants.VOTING_MODELS.COMPOSITE) {
                             rc = { error: $.t("composite_model_recursive_reference", { variable: variable }) };
-                            return;
+                            return rc;
                         }
                         subPolls[variable] = JSON.stringify(approvalModels[variable]);
                     }
@@ -136,7 +136,7 @@ NRS.onSiteBuildDone().then(() => {
                     error += " " + $.t("for_sub_poll") + " " + response.subPoll;
                 }
                 rc = { error: error };
-                return
+                return rc;
             }
             delete response.requestProcessingTime;
             response.description = description;
@@ -160,7 +160,10 @@ NRS.onSiteBuildDone().then(() => {
             var model = $invoker.data("model");
             if (!model) {
                 if ($invoker.data("show-asset-control")) {
-                    model = NRS.getCurrentAssetControl();
+                    model = NRS.getAssetControls();
+                    if (model && model.length == 1) {
+                        model = model[0];
+                    }
                 } else {
                     model = approvalModels[name];
                 }
@@ -212,7 +215,7 @@ NRS.onSiteBuildDone().then(() => {
             let model = {
                 "ASC": $.extend({
                     "description": $.t("imported_from_asset_description", { id: response.asset }  )
-                }, response.controlParams)
+                }, response.controls[0])
             };
             NRS.importApprovalModels(model);
             loadApprovalModels();

@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -454,6 +454,8 @@ public class AccountLedger {
             ASSET_SET_PHASING_CONTROL(62, true),
             ASSET_PROPERTY_SET(65, true),
             ASSET_PROPERTY_DELETE(66, true),
+            ASSET_SET_TRADING_ROYALTIES(71, true),
+            ASSET_TRADING_ROYALTIES(72, true),
 
         // TYPE_DIGITAL_GOODS
             DIGITAL_GOODS_DELISTED(27, true),

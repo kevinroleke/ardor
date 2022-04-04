@@ -3,7 +3,7 @@ keystore "NONE", "Blockchain", "Jelurida";
 
 // Basic permissions for untrusted contract
 grant codeBase "file://untrustedContractCode" {
-    permission java.io.FilePermission "${java.io.tmpdir}*", "read,write,delete";
+    permission java.io.FilePermission "${java.io.tmpdir}/*", "read,write,delete";
     permission java.util.PropertyPermission "java.io.tmpdir", "read";
 	permission java.net.URLPermission "http:*", "*:*";
     permission java.net.URLPermission "https:*", "*:*";
@@ -92,6 +92,7 @@ grant codeBase "file:classes/-" {
 	permission java.lang.RuntimePermission "accessClassInPackage.jdk.internal.reflect";
 	permission java.lang.RuntimePermission "accessClassInPackage.com.sun.org.apache.xerces.internal.util";
     permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
+    permission java.lang.reflect.ReflectPermission "newProxyInPackage.nxt.addons";
     permission java.security.SecurityPermission "getPolicy";
     permission java.security.SecurityPermission "insertProvider";
     permission java.security.SecurityPermission "putProviderProperty.Jelurida";
@@ -128,6 +129,7 @@ grant codeBase "file:out/production/-" {
     permission java.lang.RuntimePermission "accessClassInPackage.sun.reflect";
     permission java.lang.RuntimePermission "reflectionFactoryAccess";
     permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
+    permission java.lang.reflect.ReflectPermission "newProxyInPackage.nxt.addons";
     permission java.security.SecurityPermission "getPolicy";
     permission java.security.SecurityPermission "insertProvider";
     permission java.security.SecurityPermission "putProviderProperty.Jelurida";
@@ -166,6 +168,7 @@ grant codeBase "file:lib/*" {
 	permission java.lang.RuntimePermission "accessClassInPackage.jdk.internal.reflect";
 	permission java.lang.RuntimePermission "accessClassInPackage.com.sun.org.apache.xerces.internal.util";
     permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
+    permission java.lang.reflect.ReflectPermission "newProxyInPackage.nxt.addons";
     permission java.security.SecurityPermission "getPolicy";
     permission java.security.SecurityPermission "insertProvider";
     permission java.security.SecurityPermission "putProviderProperty.Jelurida";
@@ -204,6 +207,7 @@ grant codeBase "file:ardor.jar" {
 	permission java.lang.RuntimePermission "accessClassInPackage.jdk.internal.reflect";
 	permission java.lang.RuntimePermission "accessClassInPackage.com.sun.org.apache.xerces.internal.util";
     permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
+    permission java.lang.reflect.ReflectPermission "newProxyInPackage.nxt.addons";
     permission java.security.SecurityPermission "getPolicy";
     permission java.security.SecurityPermission "insertProvider";
     permission java.security.SecurityPermission "putProviderProperty.Jelurida";
@@ -242,6 +246,7 @@ grant codeBase "file:ardorservice.jar" {
 	permission java.lang.RuntimePermission "accessClassInPackage.jdk.internal.reflect";
 	permission java.lang.RuntimePermission "accessClassInPackage.com.sun.org.apache.xerces.internal.util";
     permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
+    permission java.lang.reflect.ReflectPermission "newProxyInPackage.nxt.addons";
     permission java.security.SecurityPermission "getPolicy";
     permission java.security.SecurityPermission "insertProvider";
     permission java.security.SecurityPermission "putProviderProperty.Jelurida";

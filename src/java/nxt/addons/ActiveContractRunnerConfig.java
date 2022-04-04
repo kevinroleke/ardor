@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -27,12 +27,14 @@ import nxt.util.Convert;
 import nxt.util.Logger;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
 class ActiveContractRunnerConfig implements ContractRunnerConfig {
 
     private static final String ERROR_PREFIX = "contract runner config error: ";
+    public static final String SECRET_NOT_SPECIFIED_ERR = "Secret Not Specified";
 
     private final ContractProvider contractProvider;
 
@@ -49,7 +51,7 @@ class ActiveContractRunnerConfig implements ContractRunnerConfig {
     private Map<Integer, Long> feeRatePerChain;
     private short defaultDeadline;
     private JO params;
-    private boolean isValidator;
+    private RunnerMode mode = RunnerMode.NOT_INITIALIZED;
     private byte[] validatorPrivateKey;
     private int catchUpInterval;
     private int maxSubmittedTransactionsPerInvocation;
@@ -60,6 +62,7 @@ class ActiveContractRunnerConfig implements ContractRunnerConfig {
     }
 
     public void init(JO config) {
+        initRunnerMode(config);
         initAccount(config);
         initFee(config);
         initDeadline(config);
@@ -93,6 +96,9 @@ class ActiveContractRunnerConfig implements ContractRunnerConfig {
         } else {
             publicKey = Crypto.getPublicKey(privateKey);
             accountId = Account.getId(publicKey);
+            if (getRunnerMode() == RunnerMode.READ_ONLY) {
+                privateKey = null;
+            }
         }
         publicKeyHexString = Convert.toHexString(publicKey);
         account = Long.toUnsignedString(accountId);
@@ -144,9 +150,26 @@ class ActiveContractRunnerConfig implements ContractRunnerConfig {
         }
     }
 
+    private void initRunnerMode(JO config) {
+        String modeStr = getProperty(config, "mode");
+        if (modeStr != null) {
+            try {
+                this.mode = RunnerMode.valueOf(modeStr);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException(ERROR_PREFIX + String.format("runner mode '%s' not in supported values %s",
+                        modeStr, Arrays.toString(RunnerMode.values())));
+            }
+        } else {
+            boolean isValidator = Boolean.parseBoolean(getProperty(config, "validator"));
+            if (isValidator) {
+                Logger.logWarningMessage("The 'validator' configuration is deprecated in favor of the new 'mode' property");
+            }
+            this.mode = isValidator ? RunnerMode.VALIDATOR : RunnerMode.NORMAL;
+        }
+    }
+
     private void initValidation(JO config) {
-        isValidator = Boolean.parseBoolean(getProperty(config, "validator"));
-        if (isValidator) {
+        if (isValidator()) {
             byte[] oldValidatorPrivateKey = validatorPrivateKey;
             String validatorPrivateKeyStr = getProperty(config, "validatorPrivateKey");
             if (validatorPrivateKeyStr != null) {
@@ -308,8 +331,13 @@ class ActiveContractRunnerConfig implements ContractRunnerConfig {
     }
 
     @Override
+    public RunnerMode getRunnerMode() {
+        return mode;
+    }
+
+    @Override
     public boolean isValidator() {
-        return isValidator;
+        return mode == RunnerMode.VALIDATOR;
     }
 
     @Override
@@ -358,12 +386,15 @@ class ActiveContractRunnerConfig implements ContractRunnerConfig {
 
     @Override
     public String getStatus() {
-        if (privateKey != null && !isValidator) {
-            return "Running";
-        } else if(validatorPrivateKey != null && isValidator) {
-            return "Validating";
-        } else {
-            return "Secret Not Specified";
+        switch (mode) {
+            case NORMAL:
+                return privateKey != null ? "Running" : SECRET_NOT_SPECIFIED_ERR;
+            case VALIDATOR:
+                return validatorPrivateKey != null ? "Validating" : SECRET_NOT_SPECIFIED_ERR;
+            case READ_ONLY:
+                return "Running read-only";
+            default:
+                return "Error: mode=" + mode;
         }
     }
 }

@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -24,13 +24,13 @@ import java.util.function.Supplier;
 public class ContractAndSetupParameters {
     private final String name;
     private final Contract<?,?> contract;
-    private final JO params;
+    private final JO paramsRo;
     private final AtomicBoolean initialized = new AtomicBoolean();
 
     public ContractAndSetupParameters(String name, Contract<?,?> contract, JO params) {
         this.name = name;
         this.contract = contract;
-        this.params = params;
+        this.paramsRo = JO.unmodifiable(params);
     }
 
     public String getName() {
@@ -41,8 +41,20 @@ public class ContractAndSetupParameters {
         return (Contract<I,O>) contract;
     }
 
+    /**
+     * Returns a {@link JO#copy(JO) copy} of the contract parameters
+     * @return A JSON object
+     */
     public JO getParams() {
-        return params;
+        return JO.copy(paramsRo);
+    }
+
+    /**
+     * Returns an {@link JO#unmodifiable(JO) unmodifiable} version of the contract parameters
+     * @return An unmodifiable JSON object
+     */
+    public JO getParamsRo() {
+        return paramsRo;
     }
 
     void init(Supplier<InitializationContext> contextSupplier) {

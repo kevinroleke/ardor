@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -147,7 +147,7 @@ public class ForgingReward extends AbstractContract {
         // Invoke the random distribution contract to randomly select one of the forgers based on their number of blocks generated
         ContractAndSetupParameters contractAndParameters = context.loadContract("DistributedRandomNumberGenerator");
         Contract<Map<String, Long>, String> distributedRandomNumberGenerator = contractAndParameters.getContract();
-        DelegatedContext delegatedContext = new DelegatedContext(context, distributedRandomNumberGenerator.getClass().getName(), contractAndParameters.getParams());
+        DelegatedContext delegatedContext = new DelegatedContext(context, distributedRandomNumberGenerator.getClass().getName(), contractAndParameters.getParamsRo());
         String selectedAccount = distributedRandomNumberGenerator.processInvocation(delegatedContext, collect);
 
         // Distribute the reward to the selected forger

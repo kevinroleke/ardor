@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -90,7 +90,7 @@ public class AllForOnePayment extends AbstractContract {
         Map<String, Long> collect = payments.stream().collect(Collectors.groupingBy(TransactionResponse::getSender, Collectors.summingLong(TransactionResponse::getAmount)));
         ContractAndSetupParameters contractAndParameters = context.loadContract("DistributedRandomNumberGenerator");
         Contract<Map<String, Long>, String> distributedRandomNumberGenerator = contractAndParameters.getContract();
-        DelegatedContext delegatedContext = new DelegatedContext(context, distributedRandomNumberGenerator.getClass().getName(), contractAndParameters.getParams());
+        DelegatedContext delegatedContext = new DelegatedContext(context, distributedRandomNumberGenerator.getClass().getName(), contractAndParameters.getParamsRo());
         distributedRandomNumberGenerator.processInvocation(delegatedContext, collect);
         String selectedAccount = distributedRandomNumberGenerator.processInvocation(delegatedContext, collect);
         context.logInfoMessage("paying amount %d to account %s", payment, context.rsAccount(Long.parseUnsignedLong(selectedAccount)));

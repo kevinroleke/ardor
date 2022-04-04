@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -20,8 +20,12 @@ import nxt.NxtException;
 
 import java.nio.ByteBuffer;
 
-class ByteArrayRw implements ObjectRw<byte[]> {
+public class ByteArrayRw implements ObjectRw<byte[]> {
     private final LengthRw lengthRw;
+
+    public ByteArrayRw(int maxLength) {
+        this(LengthRwPrimitiveType.getByMaxLength(maxLength));
+    }
 
     ByteArrayRw(LengthRw lengthRw) {
         this.lengthRw = lengthRw;

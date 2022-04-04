@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021 Jelurida IP B.V.
+ * Copyright © 2021-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -71,7 +71,7 @@ public class CloudDataClassLoader extends SecureClassLoader {
     }
 
     @Override
-    protected Class<?> findClass(String name) {
+    protected Class<?> findClass(String name) throws ClassNotFoundException {
         // Prevent usage of internal packages by this class loader
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
@@ -88,6 +88,9 @@ public class CloudDataClassLoader extends SecureClassLoader {
         } else {
             // Define the class based on blockchain data
             byte[] bytes = classFileData.get(name);
+            if (bytes == null) {
+                throw new ClassNotFoundException(name);
+            }
             return defineClass(name, bytes, 0, bytes.length, protectionDomain);
         }
     }

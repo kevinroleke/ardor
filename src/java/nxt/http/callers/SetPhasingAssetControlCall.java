@@ -45,6 +45,10 @@ public class SetPhasingAssetControlCall extends CreateOneSideTransactionCallBuil
         return param("controlRecipientPropertyName", controlRecipientPropertyName);
     }
 
+    public SetPhasingAssetControlCall transactionType(String... transactionType) {
+        return param("transactionType", transactionType);
+    }
+
     public SetPhasingAssetControlCall controlHolding(String controlHolding) {
         return param("controlHolding", controlHolding);
     }

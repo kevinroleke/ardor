@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -18,6 +18,8 @@ package nxt.dbschema;
 
 import nxt.Constants;
 import nxt.Nxt;
+import nxt.ae.AssetControl;
+import nxt.ae.AssetControlTxTypesEnum;
 import nxt.ae.AssetFreezeMonitor;
 import nxt.ae.AssetMigrateMonitor;
 import nxt.blockchain.BlockDb;
@@ -599,6 +601,49 @@ public class FxtDbVersion extends DbVersion {
             case 178:
                 apply("CREATE INDEX IF NOT EXISTS coin_trade_fxt_height_idx ON coin_trade_fxt (height)");
             case 179:
+                apply("ALTER TABLE asset_control_phasing ADD COLUMN id BIGINT BEFORE asset_id");
+            case 180:
+                apply("ALTER TABLE asset_control_phasing_sub_poll ADD COLUMN id BIGINT BEFORE asset_id");
+            case 181:
+                Db.db.runInDbTransaction(() -> {
+                    AssetControl.setIdsForDbUpdate();
+                    apply(null);
+                });
+            case 182:
+                //Due to a bug fixed with commit 81ef502a, sub-polls are not deleted properly, so we delete the extra
+                // ones now. Or else we cannot change asset_control_phasing_sub_poll.id to NOT NULL.
+                //If a full rescan is going to be scheduled, delete all sub-polls and don't use AssetControl.setIdsForDbUpdate
+                apply("DELETE FROM asset_control_phasing_sub_poll WHERE id IS NULL");
+            case 183:
+                apply("ALTER TABLE asset_control_phasing ALTER COLUMN id SET NOT NULL");
+            case 184:
+                apply("ALTER TABLE asset_control_phasing_sub_poll ALTER COLUMN id SET NOT NULL");
+            case 185:
+                apply("DROP INDEX IF EXISTS asset_control_phasing_sub_poll_id_height_idx");
+            case 186:
+                apply("DROP INDEX IF EXISTS asset_control_phasing_sub_poll_height_id_idx");
+            case 187:
+                apply("ALTER TABLE asset_control_phasing_sub_poll DROP COLUMN asset_id");
+            case 188:
+                apply("CREATE INDEX IF NOT EXISTS asset_control_phasing_sub_poll_id_height_idx ON asset_control_phasing_sub_poll (id, height DESC)");
+            case 189:
+                apply("CREATE INDEX IF NOT EXISTS asset_control_phasing_sub_poll_height_id_idx ON asset_control_phasing_sub_poll (height, id)");
+            case 190:
+                apply("DROP INDEX IF EXISTS asset_control_phasing_id_height_idx");
+            case 191:
+                apply("DROP INDEX IF EXISTS asset_control_phasing_height_id_idx");
+            case 192:
+                apply("CREATE INDEX IF NOT EXISTS asset_control_phasing_id_height_idx ON asset_control_phasing (id, height DESC)");
+            case 193:
+                apply("CREATE INDEX IF NOT EXISTS asset_control_phasing_height_id_idx ON asset_control_phasing (height, id)");
+            case 194:
+                apply("CREATE INDEX IF NOT EXISTS asset_control_phasing_asset_id_idx ON asset_control_phasing (asset_id)");
+            case 195:
+                apply("ALTER TABLE asset_control_phasing ADD COLUMN transaction_types_bitmask BIGINT NOT NULL DEFAULT " +
+                        AssetControlTxTypesEnum.longBitmaskFromSet(AssetControlTxTypesEnum.DEFAULT_TYPES) + " AFTER asset_id");
+            case 196:
+                apply("ALTER TABLE asset ADD COLUMN royalties_percentage INT AFTER has_control_phasing");
+            case 197:
                 return;
             default:
                 throw new RuntimeException("Forging chain database inconsistent with code, at update " + nextUpdate

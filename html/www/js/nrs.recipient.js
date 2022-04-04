@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2021 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2022 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -113,7 +113,8 @@ NRS.onSiteBuildDone().then(() => {
 		}
 
 		$allModals.on("click", "span.recipient_selector button, span.plain_address_selector button", function(e) {
-			if (!Object.keys(NRS.contacts).length && !NRS.getStrItem("savedNxtAccounts")) {
+		    let savedNxtAccounts = NRS.getStrItem("savedNxtAccounts");
+			if (!Object.keys(NRS.contacts).length && !savedNxtAccounts && !NRS.bip32Accounts.length) {
 				e.preventDefault();
 				e.stopPropagation();
 				return;
@@ -126,11 +127,11 @@ NRS.onSiteBuildDone().then(() => {
 				}
 				$list.append("<li><a href='#' data-contact-id='" + accountId + "' data-contact='" + String(NRS.contacts[accountId].name).escapeHTML() + "'>" + String(NRS.contacts[accountId].name).escapeHTML() + "</a></li>");
 			}
-			let accounts = NRS.getStrItem("savedNxtAccounts").split(";");
+			let accounts = savedNxtAccounts ? savedNxtAccounts.split(";") : [];
 			for (let i=0; i < NRS.bip32Accounts.length; i++) {
 				appendAccount($list, NRS.bip32Accounts[i].getAccount());
 			}
-			if (NRS.bip32Accounts.length > 0) {
+			if (NRS.bip32Accounts.length > 0 && accounts.length > 0) {
 				$list.append($("<li role='presentation' class='divider'></li>"));
 			}
 			for (let i=0; i < accounts.length; i++) {

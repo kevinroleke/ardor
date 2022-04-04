@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2021 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2022 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -28,7 +28,7 @@ NRS.onSiteBuildDone().then(() => {
         var assetTradeHistoryType;
         var currentAssetID;
         var selectedApprovalAsset;
-        var assetControlParams;
+        var assetControls;
 
         NRS.resetAssetExchangeState = function () {
             assets = [];
@@ -40,7 +40,7 @@ NRS.onSiteBuildDone().then(() => {
             assetTradeHistoryType = "everyone";
             currentAssetID = 0;
             selectedApprovalAsset = "";
-            assetControlParams = false;
+            assetControls = false;
         };
         NRS.resetAssetExchangeState();
 
@@ -52,19 +52,32 @@ NRS.onSiteBuildDone().then(() => {
             return currentAsset;
         };
 
-        NRS.isSubjectToAssetControl = function(requestType) {
-            if ($.inArray(requestType, NRS.constants.ASSET_EXCHANGE_REQUEST_TYPES) > -1) {
-                if ("hasPhasingAssetControl" in currentAsset) {
-                    return currentAsset.hasPhasingAssetControl;
-                } else if (assetControlParams) {
-                    return assetControlParams.phasingVotingModel >= 0;
+        NRS.getAssetControlTransactionType = function(requestType) {
+            for (let t in NRS.constants.ASSET_CONTROL_TRANSACTION_TYPES) {
+                if (NRS.constants.ASSET_CONTROL_TRANSACTION_TYPES[t].requestType === requestType) {
+                    return t;
                 }
             }
-            return false;
+            return null;
+        }
+
+        NRS.getAssetControls = function(requestType) {
+            return assetControls;
         };
 
-        NRS.getCurrentAssetControl = function() {
-            return assetControlParams;
+        NRS.getAssetControlForRequest = function(requestType) {
+            if (!assetControls) {
+                return null;
+            }
+            let transactionType = NRS.getAssetControlTransactionType(requestType);
+            if (transactionType) {
+                for (let i = 0; i < assetControls.length; i++) {
+                    if ($.inArray(transactionType, assetControls[i].transactionTypes) > -1) {
+                        return assetControls[i];
+                    }
+                }
+            }
+            return null;
         };
 
         async function loadAssetFromURL() {
@@ -167,6 +180,7 @@ NRS.onSiteBuildDone().then(() => {
                 "accountRS": String(asset.accountRS),
                 "quantityQNT": String(asset.quantityQNT),
                 "hasPhasingAssetControl": (asset.hasPhasingAssetControl ? 1 : 0),
+                "royaltiesPercentage": String(asset.royaltiesPercentage),
                 "decimals": parseInt(asset.decimals, 10)
             };
             assets.push(cachedAsset);
@@ -281,6 +295,7 @@ NRS.onSiteBuildDone().then(() => {
                     "quantityQNT": String(asset.quantityQNT),
                     "decimals": parseInt(asset.decimals, 10),
                     "hasPhasingAssetControl": (asset.hasPhasingAssetControl ? 1 : 0),
+                    "royaltiesPercentage": String(asset.royaltiesPercentage),
                     "groupName": ""
                 };
                 newAssets.push(newAsset);
@@ -674,13 +689,22 @@ NRS.onSiteBuildDone().then(() => {
                 $("#view_asset_control_link").hide();
             }
 
+            if (asset.royaltiesPercentage) {
+                $("#trading_royalties").show();
+                $("#royalties_percentage").text(asset.royaltiesPercentage + "%");
+            } else {
+                $("#trading_royalties").hide();
+            }
+
             // Only asset issuers have the ability to pay dividends and change asset control
             if (asset.accountRS == NRS.accountRS) {
                 $("#dividend_payment_link").show();
                 $("#setup_asset_control_link").show();
+                $("#set_royalties_link").show();
             } else {
                 $("#dividend_payment_link").hide();
                 $("#setup_asset_control_link").hide();
+                $("#set_royalties_link").hide();
             }
 
             if (NRS.accountInfo.unconfirmedBalanceNQT == "0") {
@@ -715,7 +739,7 @@ NRS.onSiteBuildDone().then(() => {
             NRS.loadAssetOrders("ask", assetId, refresh);
             NRS.loadAssetOrders("bid", assetId, refresh);
             if (asset.hasPhasingAssetControl) {
-                NRS.loadAssetControl(assetId);
+                NRS.loadAssetControls(assetId);
             }
             NRS.getAssetTradeHistory(assetId, refresh);
             NRS.getAssetDividendHistory(assetId, "asset_dividend");
@@ -871,12 +895,16 @@ NRS.onSiteBuildDone().then(() => {
             });
         };
 
-        NRS.loadAssetControl = function(assetId, callback) {
+        NRS.loadAssetControls = function(assetId, callback) {
             NRS.sendRequest("getPhasingAssetControl", { 'asset': assetId }, function (response) {
-                if (response.controlParams && response.controlParams.phasingExpression !== undefined) {
-                    response.controlParams.phasingExpression = NRS.unescapeRespStr(response.controlParams.phasingExpression);
+                if (response.controls && response.controls.length) {
+                    for (let i = 0; i < response.controls.length; i++) {
+                        if (response.controls[i].phasingExpression !== undefined) {
+                            response.controls[i].phasingExpression = NRS.unescapeRespStr(response.controls[i].phasingExpression);
+                        }
+                    }
                 }
-                assetControlParams = response.controlParams; 
+                assetControls = response.controls;
                 if (callback) {
                     callback();
                 }
@@ -1374,6 +1402,18 @@ NRS.onSiteBuildDone().then(() => {
             if (data.holdingType == "0") {
                 data.holding = NRS.getActiveChainId();
             }
+
+            data.transactionType = [];
+            for (key in data) {
+                let match = key.match(/^control-transaction-type-(.*)/);
+                if (match) {
+                    delete data[key];
+                    data.transactionType.push(match[1]);
+                }
+            }
+            if (data.transactionType.length == 0) {
+                return { error: NRS.isSettingAssetControl() ? $.t("error_select_transaction_types_to_set") : $.t("error_select_transaction_types_to_unset") }
+            }
             data.asset = NRS.getCurrentAsset().asset;
             return {
                 "data": data
@@ -1811,9 +1851,11 @@ NRS.onSiteBuildDone().then(() => {
             }
             $("#transfer_asset_available").html(availableAssetsMessage);
 
-            var $modal = $(this);
+            NRS.loadAndSetupAssetControl($(this), assetId);
+        });
 
-            NRS.loadAssetControl(assetId, function() {
+        NRS.loadAndSetupAssetControl = function($modal, assetId) {
+            NRS.loadAssetControls(assetId, function() {
                 if ($modal.hasClass('in')) {
                     //already shown
                     NRS.setupModalMandatoryApproval($modal);
@@ -1823,7 +1865,7 @@ NRS.onSiteBuildDone().then(() => {
                     });
                 }
             });
-        });
+        };
 
         $('#transfer_asset_quantity').on('input', function() {
             let qnt = 0;
@@ -2038,7 +2080,9 @@ NRS.onSiteBuildDone().then(() => {
                     "<td>" + NRS.formatQuantity(completeOrder.quantityQNT, completeOrder.decimals) + "</td>" +
                     "<td>" + NRS.formatQuantity(completeOrder.priceNQTPerShare, NRS.getActiveChainDecimals()) + "</td>" +
                     "<td>" + NRS.formatQuantity(completeOrder.totalNQT, completeOrder.decimals + NRS.getActiveChainDecimals()) + "</td>" +
-                    "<td class='cancel'><a href='#' data-toggle='modal' data-target='#cancel_order_modal' data-order='" + NRS.escapeRespStr(completeOrder.order) + "' data-type='" + type + "'>" + $.t("cancel") + "</a></td>" +
+                    "<td class='cancel'><a href='#' data-toggle='modal' data-target='#cancel_order_modal' " +
+                        "data-order='" + NRS.escapeRespStr(completeOrder.order) + "' data-type='" + type + "' " +
+                        "data-asset='" + NRS.escapeRespStr(completeOrder.asset) + "'>" + $.t("cancel") + "</a></td>" +
                     "</tr>";
             }
             openOrdersTable.find("tbody").empty().append(rows);
@@ -2062,6 +2106,8 @@ NRS.onSiteBuildDone().then(() => {
                 $("#cancel_order_type").val("cancelAskOrder");
             }
             $("#cancel_order_order").val(orderId);
+
+            NRS.loadAndSetupAssetControl($(this), $invoker.data("asset"));
         });
 
         NRS.forms.cancelOrder = function ($modal) {
@@ -2166,6 +2212,48 @@ NRS.onSiteBuildDone().then(() => {
             $('#issue_asset_quantity, #issue_asset_decimals').prop("readonly", false);
         });
 
+        $("#set_asset_control_modal").on("show.bs.modal", function () {
+            $(".transaction-types-checkboxes").html("");
+            for (let i = 0; i < NRS.constants.ASSET_CONTROL_TYPES_ORDERED_BY_CODE.length; i++) {
+                let t = NRS.constants.ASSET_CONTROL_TYPES_ORDERED_BY_CODE[i];
+                $(".transaction-types-checkboxes").append(
+                    `<div><input type="checkbox" id="control-transaction-type-${t}" name="control-transaction-type-${t}"/>
+                        <label for="control-transaction-type-${t}" style="font-weight:normal;">${t}</label>
+                    </div> `);
+            }
+        });
+
+        $("#set_trading_royalties_modal").on("show.bs.modal", function (e) {
+            let $invoker = $(e.relatedTarget);
+            let asset = $invoker.data("asset");
+            if (!asset) {
+                asset = NRS.getCurrentAsset().asset;
+            }
+            let assetInput = $("#set_trading_royalties_asset");
+            if (asset) {
+                assetInput.val(asset);
+                assetInput.prop('readonly', true);
+            } else {
+                assetInput.prop('readonly', false);
+            }
+        });
+
+        $(document).on('change', "#controlApprovalModel_id", function(){
+            NRS.updateAssetControlTransactionTypes();
+        });
+
+        NRS.isSettingAssetControl = function() {
+            return !!$("#controlApprovalModel_id").find('option:selected').attr('value');
+        };
+
+        NRS.updateAssetControlTransactionTypes = function() {
+            if (NRS.isSettingAssetControl()) {
+                $("#transaction_types_label").text($.t("transaction_types_set_control"));
+            } else {
+                $("#transaction_types_label").text($.t("transaction_types_unset_control"));
+            }
+        };
+
         $('#issue_asset_singleton').change(function () {
             var assetQuantity = $('#issue_asset_quantity');
             var assetDecimals = $('#issue_asset_decimals');
@@ -2252,7 +2340,8 @@ NRS.onSiteBuildDone().then(() => {
         function updateAssetStorage(asset) {
             NRS.storageUpdate("assets", {
                 quantityQNT: asset.quantityQNT,
-                hasPhasingAssetControl: asset.hasPhasingAssetControl
+                hasPhasingAssetControl: asset.hasPhasingAssetControl,
+                royaltiesPercentage: asset.royaltiesPercentage
             }, [{
                 asset: asset.asset
             }]);

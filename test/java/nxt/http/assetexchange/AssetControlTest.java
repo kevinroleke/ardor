@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -17,10 +17,14 @@
 package nxt.http.assetexchange;
 
 import nxt.BlockchainTest;
+import nxt.Constants;
+import nxt.Helper;
 import nxt.Nxt;
 import nxt.RequireNonePermissionPolicyTestsCategory;
 import nxt.account.HoldingType;
+import nxt.addons.JA;
 import nxt.addons.JO;
+import nxt.ae.AssetControlTxTypesEnum;
 import nxt.blockchain.ChildChain;
 import nxt.http.APICall;
 import nxt.http.PhasingParamsBuilder;
@@ -39,12 +43,17 @@ import nxt.http.twophased.TestPropertyVoting;
 import nxt.util.JSONAssert;
 import nxt.voting.VoteWeighting;
 import nxt.voting.VoteWeighting.VotingModel;
+import org.json.simple.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 
+import static nxt.ae.AssetControlTxTypesEnum.ASSET_TRANSFER;
+import static nxt.ae.AssetControlTxTypesEnum.SET_ASSET_CONTROL;
 import static nxt.blockchain.ChildChain.IGNIS;
 
 public class AssetControlTest extends BlockchainTest {
@@ -69,7 +78,9 @@ public class AssetControlTest extends BlockchainTest {
 
         generateBlock();
 
-        JSONAssert controlParams = new JSONAssert(GetPhasingAssetControlCall.create().asset(assetId).call()).subObj("controlParams");
+        List<JSONObject> controls = new JSONAssert(GetPhasingAssetControlCall.create().asset(assetId).call()).array("controls");
+        Assert.assertEquals(1, controls.size());
+        JSONAssert controlParams = new JSONAssert(controls.get(0));
         Assert.assertEquals(VotingModel.ACCOUNT.getCode(), ((Long) controlParams.integer("phasingVotingModel")).byteValue());
     }
 
@@ -394,6 +405,153 @@ public class AssetControlTest extends BlockchainTest {
 
         AssetExchangeTest.transfer(controlledAssetId, ALICE, BOB, 10*10000);
 
+    }
+
+    @Test
+    public void testChangeControlForSomeTypes() {
+        generateBlocks(Constants.TRANSACTION_TYPE_SPECIFIC_ASSET_CONTROL + 1);
+
+        String assetId = AssetExchangeTest.issueAsset(ALICE, "AssetC").getAssetIdString();
+
+        PhasingParamsBuilder controlParamsBuilder = PhasingParamsBuilder.create()
+                .phasingVotingModel(VotingModel.ACCOUNT.getCode())
+                .phasingWhitelisted(CHUCK.getStrId())
+                .phasingQuorum(1);
+
+        SetPhasingAssetControlCall builder = SetPhasingAssetControlCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(2 * IGNIS.ONE_COIN)
+                .controlParams(controlParamsBuilder.toJSONString())
+                .asset(assetId);
+
+        new JSONAssert(builder.call()).str("fullHash");
+
+        generateBlock();
+
+        controlParamsBuilder.phasingWhitelisted(DAVE.getStrId());
+        builder.controlParams(controlParamsBuilder.toJSONString()).
+                transactionType(ASSET_TRANSFER.toString(), SET_ASSET_CONTROL.toString());
+        new JSONAssert(builder.call()).str("fullHash");
+
+        generateBlock();
+
+        JO result = GetPhasingAssetControlCall.create().asset(assetId).callNoError();
+        JA controls = result.getArray("controls");
+        Assert.assertEquals(2, controls.size());
+
+        int amount = 100 * 10000;
+
+        TransferAssetCall transferAssetCall = TransferAssetCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .phased(true)
+                .phasingFinishHeight(Nxt.getBlockchain().getHeight() + 5)
+                .phasingVotingModel(VotingModel.ACCOUNT.getCode())
+                .phasingWhitelisted(CHUCK.getStrId())
+                .phasingQuorum(1)
+                .recipient(BOB.getRsAccount())
+                .asset(assetId)
+                .quantityQNT(amount);
+
+        String errorDescription = transferAssetCall.build().invokeWithError().getErrorDescription();
+        Assert.assertTrue(errorDescription.startsWith("Phasing parameters do not match phasing asset control"));
+
+        transferAssetCall.phasingWhitelisted(DAVE.getStrId());
+
+        String fullHash = new JSONAssert(transferAssetCall.call()).str("fullHash");
+
+        generateBlock();
+
+        ACTestUtils.approve(fullHash, DAVE, null);
+
+        generateBlocks(4);
+
+        Assert.assertEquals(amount, BOB.getAssetQuantityDiff(Long.parseUnsignedLong(assetId)));
+
+        builder = SetPhasingAssetControlCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(2 * IGNIS.ONE_COIN)
+                .controlVotingModel(VotingModel.NONE.getCode())
+                .transactionType(Arrays.stream(AssetControlTxTypesEnum.values())
+                        .map(AssetControlTxTypesEnum::toString).toArray(String[]::new))
+                .asset(assetId);
+
+        //can't change the control without Dave's permission
+        Assert.assertEquals("Non-phased transaction when phasing asset control is enabled",
+                builder.build().invokeWithError().getErrorDescription());
+
+        fullHash = new JSONAssert(builder.phased(true).phasingFinishHeight(Nxt.getBlockchain().getHeight() + 5)
+                .phasingParams(controlParamsBuilder.toJSONString()).call()).fullHash();
+
+        generateBlock();
+
+        ACTestUtils.approve(fullHash, DAVE, null);
+
+        generateBlock();
+
+        Assert.assertTrue(new JSONAssert(GetPhasingAssetControlCall.create().asset(assetId).callNoError())
+                .getJson().isEmpty());
+    }
+
+    @Test
+    public void testSubPolls() {
+        String assetId = AssetExchangeTest.issueAsset(ALICE, "AssetC").getAssetIdString();
+
+        PhasingParamsBuilder controlParamsBuilder = PhasingParamsBuilder.create()
+                .phasingVotingModel(VotingModel.COMPOSITE.getCode())
+                .phasingQuorum(1)
+                .phasingExpression("A | B")
+                .setSubPoll("A", PhasingParamsHelper.accountSubpoll(BOB))
+                .setSubPoll("B", PhasingParamsHelper.accountSubpoll(CHUCK));
+
+        SetPhasingAssetControlCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .controlParams(controlParamsBuilder.toJSONString())
+                .asset(assetId).callNoError();
+
+        generateBlock();
+
+        Assert.assertEquals(2, Helper.getCount("asset_control_phasing_sub_poll"));
+
+        int amount = 100 * 10000;
+        String fullHash = new JSONAssert(TransferAssetCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .phased(true)
+                .phasingFinishHeight(Nxt.getBlockchain().getHeight() + 5)
+                .phasingParams(controlParamsBuilder.toJSONString())
+                .recipient(BOB.getRsAccount())
+                .asset(assetId)
+                .quantityQNT(amount).call()).fullHash();
+
+        generateBlock();
+
+        ACTestUtils.approve(fullHash, CHUCK, null);
+
+        generateBlock();
+
+        Assert.assertEquals(amount, BOB.getAssetQuantityDiff(Long.parseUnsignedLong(assetId)));
+
+        SetPhasingAssetControlCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .controlVotingModel(VotingModel.NONE.getCode())
+                .asset(assetId).callNoError();
+
+        generateBlock();
+
+        Assert.assertEquals(4, Helper.getCount("asset_control_phasing_sub_poll WHERE latest = FALSE"));
+
+        Assert.assertEquals(0, Helper.getCount("asset_control_phasing_sub_poll WHERE latest = TRUE"));
+
+        //check that there is not asset control
+        TransferAssetCall.create(IGNIS.getId())
+                .secretPhrase(BOB.getSecretPhrase())
+                .feeNQT(IGNIS.ONE_COIN)
+                .recipient(ALICE.getRsAccount())
+                .asset(assetId)
+                .quantityQNT(amount).callNoError();
     }
 
     private SetPhasingAssetControlCall createByPropertyPhasingBuilder(String propertyName, String propertyValue, String assetId) {

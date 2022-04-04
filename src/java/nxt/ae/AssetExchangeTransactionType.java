@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -38,6 +38,7 @@ import nxt.blockchain.TransactionType;
 import nxt.ms.Currency;
 import nxt.ms.CurrencyType;
 import nxt.util.Convert;
+import nxt.util.FixedPrecisionPercentage;
 import nxt.voting.VoteWeighting;
 import org.json.simple.JSONObject;
 
@@ -63,6 +64,7 @@ public abstract class AssetExchangeTransactionType<Att extends Attachment> exten
     private static final byte SUBTYPE_ASSET_EXCHANGE_SET_PHASING_CONTROL = 9;
     private static final byte SUBTYPE_ASSET_EXCHANGE_PROPERTY_SET = 10;
     private static final byte SUBTYPE_ASSET_EXCHANGE_PROPERTY_DELETE = 11;
+    private static final byte SUBTYPE_ASSET_EXCHANGE_SET_ROYALTIES = 12;
 
     public static TransactionType findTransactionType(byte subtype) {
         switch (subtype) {
@@ -90,6 +92,8 @@ public abstract class AssetExchangeTransactionType<Att extends Attachment> exten
                 return ASSET_PROPERTY_SET;
             case SUBTYPE_ASSET_EXCHANGE_PROPERTY_DELETE:
                 return ASSET_PROPERTY_DELETE;
+            case SUBTYPE_ASSET_EXCHANGE_SET_ROYALTIES:
+                return AssetExchangeTransactionType.SET_ASSET_TRADE_ROYALTIES;
             default:
                 return null;
         }
@@ -1134,6 +1138,13 @@ public abstract class AssetExchangeTransactionType<Att extends Attachment> exten
         }
 
         @Override
+        protected void validateId(ChildTransactionImpl transaction) throws NxtException.NotCurrentlyValidException {
+            if (AssetControl.PhasingOnly.getById(transaction.getId()) != null) {
+                throw new NxtException.NotCurrentlyValidException("Duplicate asset_control_phasing id " + transaction.getStringId());
+            }
+        }
+
+        @Override
         public boolean isDuplicate(Transaction transaction, Map<TransactionType, Map<String, Integer>> duplicates) {
             SetPhasingAssetControlAttachment attachment = (SetPhasingAssetControlAttachment) transaction.getAttachment();
             return TransactionType.isDuplicate(SET_PHASING_CONTROL, Long.toUnsignedString(attachment.getAssetId()), duplicates, true);
@@ -1147,7 +1158,7 @@ public abstract class AssetExchangeTransactionType<Att extends Attachment> exten
         @Override
         protected void applyAttachment(ChildTransactionImpl transaction, Account senderAccount, Account recipientAccount) {
             SetPhasingAssetControlAttachment attachment = (SetPhasingAssetControlAttachment) transaction.getAttachment();
-            AssetControl.PhasingOnly.set(attachment);
+            AssetControl.PhasingOnly.set(transaction, attachment);
         }
 
         @Override
@@ -1352,6 +1363,119 @@ public abstract class AssetExchangeTransactionType<Att extends Attachment> exten
         @Override
         public boolean isPhasingSafe() {
             return true;
+        }
+    };
+
+    public static final TransactionType SET_ASSET_TRADE_ROYALTIES = new AssetExchangeTransactionType<SetAssetTradeRoyaltiesAttachment>() {
+        @Override
+        public byte getSubtype() {
+            return SUBTYPE_ASSET_EXCHANGE_SET_ROYALTIES;
+        }
+
+        @Override
+        public AccountLedger.LedgerEvent getLedgerEvent() {
+            return AccountLedger.LedgerEvent.ASSET_SET_TRADING_ROYALTIES;
+        }
+
+        @Override
+        public Attachment.AbstractAttachment parseAttachment(ByteBuffer buffer) throws NotValidException {
+            return new SetAssetTradeRoyaltiesAttachment(buffer);
+        }
+
+        @Override
+        public Attachment.AbstractAttachment parseAttachment(JSONObject attachmentData) throws NotValidException {
+            return new SetAssetTradeRoyaltiesAttachment(attachmentData);
+        }
+
+        @Override
+        public boolean canHaveRecipient() {
+            return false;
+        }
+
+        @Override
+        public boolean isPhasingSafe() {
+            return false;
+        }
+
+        @Override
+        public final boolean isGlobal() {
+            return true;
+        }
+
+        @Override
+        public String getName() {
+            return "SetAssetTradeRoyalties";
+        }
+
+        @Override
+        protected boolean applyAttachmentUnconfirmed(ChildTransactionImpl transaction, Account senderAccount) {
+            return true;
+        }
+
+        @Override
+        protected void applyAttachment(ChildTransactionImpl transaction, Account senderAccount, Account recipientAccount) {
+            SetAssetTradeRoyaltiesAttachment attachment = (SetAssetTradeRoyaltiesAttachment) transaction.getAttachment();
+            Asset asset = Asset.getAsset(attachment.getAssetId());
+            FixedPrecisionPercentage percentage = attachment.getRoyaltiesPercentage();
+            if (percentage.compareTo(0) == 0) {
+                asset.setRoyaltiesPercentage(null);
+            } else {
+                asset.setRoyaltiesPercentage(percentage);
+            }
+        }
+
+        @Override
+        protected void undoAttachmentUnconfirmed(ChildTransactionImpl transaction, Account senderAccount) {
+
+        }
+
+        @Override
+        protected void validateAttachment(ChildTransactionImpl transaction, SetAssetTradeRoyaltiesAttachment attachment) throws ValidationException {
+            if (Nxt.getBlockchain().getHeight() < Constants.TRANSACTION_TYPE_SPECIFIC_ASSET_CONTROL) {
+                throw new NxtException.NotYetEnabledException("Asset royalties feature not yet enabled");
+            }
+            FixedPrecisionPercentage newPercentage = attachment.getRoyaltiesPercentage();
+            if (!newPercentage.validate()) {
+                throw new NxtException.NotValidException("Royalties percentage not valid: " + newPercentage);
+            }
+            Asset asset = Asset.getAsset(attachment.getAssetId());
+            if (asset == null) {
+                throw new NxtException.NotCurrentlyValidException("Asset " + Long.toUnsignedString(attachment.getAssetId()) +
+                        " does not exist yet");
+            }
+
+            if (asset.getAccountId() != transaction.getSenderId()) {
+                throw new NxtException.NotValidException("Royalties can only be set by the asset issuer");
+            }
+
+            if (newPercentage.compareTo(0) > 0) {
+                if (newPercentage.compareTo(Constants.MAX_ASSET_TRADE_ROYALTIES_PERCENTAGE) > 0) {
+                    throw new NxtException.NotValidException("Royalties percentage cannot be higher than " +
+                            Constants.MAX_ASSET_TRADE_ROYALTIES_PERCENTAGE + ": " + newPercentage);
+                }
+                Account.AccountAsset accountAsset = Account.getAccountAsset(transaction.getSenderId(), attachment.getAssetId());
+                long totalAssetQuantity = asset.getQuantityQNT();
+                if (accountAsset == null || accountAsset.getQuantityQNT() < totalAssetQuantity || accountAsset.getUnconfirmedQuantityQNT() < totalAssetQuantity) {
+                    throw new NxtException.NotCurrentlyValidException("Setting royalties requires the asset issuer to own all asset units");
+                }
+            }
+            if (asset.getRoyaltiesPercentage() == null) {
+                if (newPercentage.compareTo(0) <= 0) {
+                    throw new NxtException.NotValidException("Royalties percentage are already unset");
+                }
+            }
+        }
+
+        @Override
+        public boolean isDuplicate(Transaction transaction, Map<TransactionType, Map<String, Integer>> duplicates) {
+            SetAssetTradeRoyaltiesAttachment attachment = (SetAssetTradeRoyaltiesAttachment) transaction.getAttachment();
+            return TransactionType.isDuplicate(SET_ASSET_TRADE_ROYALTIES, Long.toUnsignedString(attachment.getAssetId()), duplicates, true);
+        }
+
+        @Override
+        public long getAssetId(ChildTransaction transaction) {
+            SetAssetTradeRoyaltiesAttachment attachment = (SetAssetTradeRoyaltiesAttachment) transaction.getAttachment();
+            return attachment.getAssetId();
         }
     };
 }

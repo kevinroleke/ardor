@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -17,6 +17,7 @@
 package nxt.addons;
 
 import nxt.util.Logger;
+import org.joor.Reflect;
 
 import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandles.Lookup;
@@ -54,17 +55,7 @@ class ParamInvocationHandler implements InvocationHandler {
     private Object getDefaultValue(Object proxy, Method method, Object[] args) throws ReflectiveOperationException {
         if (method.isDefault()) {
             Class<?> declaringClass = method.getDeclaringClass();
-            Constructor<Lookup> constructor = Lookup.class.getDeclaredConstructor(Class.class);
-            constructor.setAccessible(true);
-            try {
-                return constructor.newInstance(declaringClass)
-                        .in(declaringClass)
-                        .unreflectSpecial(method, declaringClass)
-                        .bindTo(proxy)
-                        .invokeWithArguments(args);
-            } catch (Throwable t) {
-                throw new IllegalStateException(t);
-            }
+            return method.invoke(Reflect.on(new Object()).as(declaringClass), args);
         }
         return typeDefault(method.getReturnType());
     }

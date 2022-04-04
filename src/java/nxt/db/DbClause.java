@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -253,4 +253,19 @@ public abstract class DbClause {
 
     }
 
+    public static final class BitmaskCheckClause extends DbClause {
+
+        private final long bitmask;
+
+        public BitmaskCheckClause(String columnName, long bitmask) {
+            super(" BITAND(" + columnName + ", ?) <> 0 ");
+            this.bitmask = bitmask;
+        }
+
+        @Override
+        public int set(PreparedStatement pstmt, int index) throws SQLException {
+            pstmt.setLong(index++, bitmask);
+            return index;
+        }
+    }
 }

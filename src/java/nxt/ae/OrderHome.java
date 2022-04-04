@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -487,8 +487,14 @@ public final class OrderHome {
             AccountLedger.LedgerEventId askEventId =
                     AccountLedger.newEventId(askOrder.getId(), askOrder.getFullHash(), childChain);
             if (amountNQT > 0) {
+                long royaltiesNQT = 0;
+                if (asset.getRoyaltiesPercentage() != null) {
+                    royaltiesNQT = asset.getRoyaltiesPercentage().calcPercentageOfAmount(amountNQT);
+                    childChain.getBalanceHome().getBalance(asset.getAccountId()).addToBalanceAndUnconfirmedBalance(
+                            LedgerEvent.ASSET_TRADING_ROYALTIES, askEventId, royaltiesNQT);
+                }
                 BalanceHome.Balance askBalance = childChain.getBalanceHome().getBalance(askOrder.getAccountId());
-                askBalance.addToBalanceAndUnconfirmedBalance(LedgerEvent.ASSET_TRADE, askEventId, amountNQT);
+                askBalance.addToBalanceAndUnconfirmedBalance(LedgerEvent.ASSET_TRADE, askEventId, amountNQT - royaltiesNQT);
                 askAccount.addToAssetBalanceQNT(LedgerEvent.ASSET_TRADE, askEventId,
                         assetId, -quantityQNT);
             }

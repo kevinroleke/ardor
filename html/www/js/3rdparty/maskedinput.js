@@ -272,8 +272,28 @@
                         input.val("").mask(NRS.getAccountMask("*"))./*unbind(".remask").*/trigger("focus");
                     }
                 }).bind("paste.remask", function(e) {
+                    let adjustedInput = null;
+                    if (e.originalEvent && e.originalEvent.clipboardData) {
+                        let pastedText = e.originalEvent.clipboardData.getData("text");
+                        if (NRS.isRsAccount(pastedText)) {
+                            adjustedInput = pastedText;
+                        } else {
+                            let prePasteValue = input.val();
+                            let prefixLength = prePasteValue.indexOf("-") + 1;
+                            let caret = input.caret();
+                            //move the caret after the prefix
+                            caret.begin = Math.max(caret.begin, prefixLength);
+                            caret.end = Math.max(caret.end, prefixLength);
+                            adjustedInput = prePasteValue.slice(0, caret.begin) + pastedText + prePasteValue.slice(caret.end);
+                        }
+                    }
                     setTimeout(function() {
-                        var newInput = input.val();
+                        let newInput;
+                        if (adjustedInput !== null) {
+                            newInput = adjustedInput;
+                        } else {
+                            newInput = input.val();
+                        }
                         newInput = NRS.nxtToAccountPrefix(newInput);
                         input.val(newInput);
                         var myRegexStr = NRS.constants.ACCOUNT_REGEX_STR.substring(1);

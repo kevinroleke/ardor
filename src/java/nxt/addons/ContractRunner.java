@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -374,7 +374,7 @@ public final class ContractRunner implements AddOn, ContractProvider {
             }
             return context.generateInfoResponse("Method %s not implemented by contract %s", invocationType.getMethodName(), contract.getClass().getSimpleName());
         }
-        context.setContractSetupParameters(contractAndParameters.getParams());
+        context.setContractSetupParameters(contractAndParameters.getParamsRo());
         if (invocationType == BLOCK || invocationType == REQUEST) {
             return invokeContract(contract, contractMethod, invocationType, context);
         }
@@ -783,7 +783,8 @@ public final class ContractRunner implements AddOn, ContractProvider {
         if (privateKey == null) {
             return generateErrorResponse(1000, "Cannot submit transactions, contract runner private key not specified");
         }
-        long numberOfRefTransactions = transactions.stream().filter(t -> t.getJo("transactionJSON").isExist("referencedTransaction")).count();
+        long numberOfRefTransactions = transactions.stream().filter(t ->
+                t.getJo("transactionJSON") != null && t.getJo("transactionJSON").isExist("referencedTransaction")).count();
         if (FxtChain.FXT.getBalanceHome().getBalance(config.getAccountId()).getUnconfirmedBalance() <
                 numberOfRefTransactions * Constants.UNCONFIRMED_POOL_DEPOSIT_FQT) {
             return generateErrorResponse(1000, "Cannot submit transactions, contract runner will run out " +
@@ -840,7 +841,8 @@ public final class ContractRunner implements AddOn, ContractProvider {
         if (config instanceof NullContractRunnerConfig) {
             return true;
         }
-        if (FxtChain.FXT.getBalanceHome().getBalance(config.getAccountId()).getUnconfirmedBalance() < Constants.UNCONFIRMED_POOL_DEPOSIT_FQT) {
+        if (config.getRunnerMode() != ContractRunnerConfig.RunnerMode.READ_ONLY &&
+                FxtChain.FXT.getBalanceHome().getBalance(config.getAccountId()).getUnconfirmedBalance() < Constants.UNCONFIRMED_POOL_DEPOSIT_FQT) {
             Logger.logErrorMessage(String.format("contract runner account %s must have enough %s to pay the unconfirmed pool deposit of %d FQT", Convert.rsAccount(config.getAccountId()), FxtChain.FXT_NAME, Constants.UNCONFIRMED_POOL_DEPOSIT_FQT));
             return true;
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2021 Jelurida IP B.V.
+ * Copyright © 2021-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -202,7 +202,7 @@ public class TrimmableDbTable<T> extends DerivedDbTable {
         private int trimHeight;
         private Value[] prevRowKey;
         private boolean isDeleted;
-        private boolean isHighestRowBeforeTrimSkipped;
+        private int highestRowsBeforeTrim;
         private long lastBatchMarker;
     }
 
@@ -225,7 +225,7 @@ public class TrimmableDbTable<T> extends DerivedDbTable {
                      " AND CAN_BE_TRIMMED(height, latest, " + dbKeyFactory.getPKColumns() + ") LIMIT " + Constants.BATCH_COMMIT_SIZE)) {
             int deleted;
             do {
-                context.isHighestRowBeforeTrimSkipped = false;
+                context.highestRowsBeforeTrim = Integer.MIN_VALUE;
                 pstmt.setLong(1, context.lastBatchMarker);
                 deleted = pstmt.executeUpdate();
                 db.commitTransaction();
@@ -242,16 +242,16 @@ public class TrimmableDbTable<T> extends DerivedDbTable {
         if (!Arrays.equals(context.prevRowKey, key)) {
             context.prevRowKey = key;
             context.isDeleted = height < context.trimHeight && !latest;
-            context.isHighestRowBeforeTrimSkipped = false;
+            context.highestRowsBeforeTrim = Integer.MIN_VALUE;
         }
         if (height < context.trimHeight && height >= 0) {
             if (context.isDeleted) {
                 result = true;
             } else {
-                if (context.isHighestRowBeforeTrimSkipped) {
+                if (height < context.highestRowsBeforeTrim) {
                     result = true;
                 } else {
-                    context.isHighestRowBeforeTrimSkipped = true;
+                    context.highestRowsBeforeTrim = height;
                 }
             }
         }

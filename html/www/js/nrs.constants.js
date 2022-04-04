@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2021 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2022 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -61,12 +61,12 @@ var NRS = (function (NRS, $) {
         "REQUEST_TYPES": {},
         "API_TAGS": {},
         'LAST_KNOWN_BLOCK': {},
-        "ASSET_EXCHANGE_REQUEST_TYPES": ["transferAsset", "deleteAssetShares", "increaseAssetShares", "placeAskOrder", "placeBidOrder"],
 
         'SERVER': {},
         'MAX_TAGGED_DATA_DATA_LENGTH': 0,
         'MAX_PRUNABLE_MESSAGE_LENGTH': 0,
         'MAX_SINGLETON_ASSET_DESCRIPTION_LENGTH': 160,
+        'MAX_SHUFFLING_REGISTRATION_PERIOD': 1440 * 7,
         'GENESIS': '',
         'GENESIS_RS': '',
         'EPOCH_BEGINNING': 0,
@@ -137,6 +137,7 @@ var NRS = (function (NRS, $) {
             NRS.constants.API_TAGS = response.apiTags;
             NRS.constants.SHUFFLING_STAGES = response.shufflingStages;
             NRS.constants.SHUFFLING_PARTICIPANTS_STATES = response.shufflingParticipantStates;
+            NRS.constants.MAX_SHUFFLING_REGISTRATION_PERIOD = response.shufflingRegistrationPeriod;
             NRS.constants.DISABLED_APIS = response.disabledAPIs;
             NRS.constants.DISABLED_API_TAGS = response.disabledAPITags;
             NRS.constants.PEER_STATES = response.peerStates;
@@ -151,6 +152,11 @@ var NRS = (function (NRS, $) {
             NRS.constants.INITIAL_BASE_TARGET = parseInt(response.initialBaseTarget);
             NRS.constants.LEASING_DELAY = parseInt(response.leasingDelay);
             NRS.constants.BIP32_PATH_PREFIX = response.bip32PathPrefix;
+            NRS.constants.ASSET_CONTROL_TRANSACTION_TYPES = response.assetControlTransactionTypes;
+            NRS.constants.ASSET_CONTROL_TYPES_ORDERED_BY_CODE = [];
+            for (let t in NRS.constants.ASSET_CONTROL_TRANSACTION_TYPES) {
+                NRS.constants.ASSET_CONTROL_TYPES_ORDERED_BY_CODE[NRS.constants.ASSET_CONTROL_TRANSACTION_TYPES[t].code] = t;
+            }
             getSecretWords(response.secretPhraseWords);
             console.log("done loading server constants");
             if (resolve) {

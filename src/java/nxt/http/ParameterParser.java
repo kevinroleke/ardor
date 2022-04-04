@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -51,6 +51,7 @@ import nxt.taggeddata.TaggedDataAttachment;
 import nxt.util.Bip32Path;
 import nxt.util.BooleanExpression;
 import nxt.util.Convert;
+import nxt.util.FixedPrecisionPercentage;
 import nxt.util.JSON;
 import nxt.util.Logger;
 import nxt.util.Search;
@@ -70,6 +71,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -261,6 +263,31 @@ public final class ParameterParser {
             return BigInteger.ZERO;
         }
         return new BigInteger(paramValue);
+    }
+
+    public static FixedPrecisionPercentage getPercentage(HttpServletRequest req, String name,
+                                                         BigDecimal min, BigDecimal max, boolean isMandatory) throws ParameterException {
+        String paramValue = Convert.emptyToNull(req.getParameter(name));
+        BigDecimal decimalValue;
+        try {
+            if (paramValue == null) {
+                if (isMandatory) {
+                    throw new ParameterException(missing(name));
+                }
+                decimalValue = BigDecimal.ZERO;
+            } else {
+                decimalValue = new BigDecimal(paramValue);
+                min = min == null ? BigDecimal.ZERO : min;
+                max = max == null ? BigDecimal.valueOf(100) : max;
+                if (decimalValue.compareTo(min) < 0 || decimalValue.compareTo(max) > 0) {
+                    throw new ParameterException(incorrect(name,
+                            String.format("percentage %s not in range [%s-%s]", decimalValue, min, max)));
+                }
+            }
+            return FixedPrecisionPercentage.fromBigDecimal(decimalValue);
+        } catch (RuntimeException ae) {
+            throw new ParameterException(incorrect(name, ae.getMessage()));
+        }
     }
 
     public static byte[] getBytes(HttpServletRequest req, String name, boolean isMandatory) throws ParameterException {
@@ -761,7 +788,7 @@ public final class ParameterParser {
                 lastIndex = Integer.MAX_VALUE;
             }
         } catch (NumberFormatException ignored) {}
-        if (!API.checkPassword(req)) {
+        if (!API.isUnlimitedHost(req.getRemoteHost()) && !API.checkPassword(req)) {
             int firstIndex = Math.min(getFirstIndex(req), Integer.MAX_VALUE - API.maxRecords + 1);
             lastIndex = Math.min(lastIndex, firstIndex + API.maxRecords - 1);
         }

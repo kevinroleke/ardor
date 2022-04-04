@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2021 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2022 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -45,6 +45,9 @@
 		};
 
 		NRS.getPublicKeyFromAccountId = async function(id) {
+			if ((id === NRS.account || id === NRS.accountRS || NRS.isSameAccountAddress(id, NRS.accountRS)) && NRS.publicKey) {
+				return NRS.publicKey;
+			}
 			let response = await NRS.sendRequestAndWait("getAccountPublicKey", { "account": id });
 			if (!response.publicKey) {
 				throw $.t("error_no_public_key");
@@ -365,10 +368,10 @@
 					if (typeof title != "string") {
 						title = title.title;
 					}
-					if (key in decryptedTransaction) {
+					if (key in decryptedTransaction && !decryptedTransaction[key]._decryptionError) {
 						output += formatMessageArea(title, nrFields, decryptedTransaction[key], options, transaction);
 					} else {
-						//if a specific key was not found, the cache is outdated..
+						//if a specific key was not found, or contains error, the cache is outdated..
 						output = "";
 						delete _decryptedTransactions[identifier];
 						return false;
@@ -602,7 +605,10 @@
 						decryptedFields[key] = data;
 					} catch (err) {
 						if (useSharedKey) {
-							data = { message: $.t("error_could_not_decrypt_message") };
+							data = {
+								message: $.t("error_could_not_decrypt_message"),
+								_decryptionError: true
+							};
 							decryptedFields[key] = data;
 						} else {
 							decryptionError = true;

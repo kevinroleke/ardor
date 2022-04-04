@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -15,9 +15,12 @@
  */
 package nxt.peer;
 
+import nxt.Constants;
 import nxt.Nxt;
+import nxt.NxtException;
 import nxt.account.Account;
 import nxt.blockchain.ChildChain;
+import nxt.blockchain.chaincontrol.PermissionType;
 import nxt.crypto.Crypto;
 import nxt.util.Logger;
 
@@ -45,6 +48,7 @@ public final class BundlerRate {
      * @return                          Response message
      */
     static NetworkMessage processRequest(PeerImpl peer, NetworkMessage.BundlerRateMessage request) {
+        int now = Nxt.getEpochTime();
         List<BundlerRate> rates = request.getRates();
         //
         // Verify the bundler accounts
@@ -73,6 +77,18 @@ public final class BundlerRate {
                 currentAccountId = accountId;
             }
             if (publicKey == null || Peers.isBundlerBlacklisted(accountId)) {
+                continue;
+            }
+            if (rate.getTimestamp() > now + Constants.MAX_TIMEDRIFT) {
+                Logger.logDebugMessage("Bundler rate by " + Long.toUnsignedString(accountId) + " is from the future: " +
+                        rate.getTimestamp());
+                continue;
+            }
+            try {
+                rate.getChain().getPermissionChecker().checkPermission(accountId, PermissionType.CHAIN_USER);
+            } catch (NxtException.NotCurrentlyValidException e) {
+                Logger.logDebugMessage("Bundler rate by " + Long.toUnsignedString(accountId) + ", who doesn't have " +
+                        "permission for " + rate.getChain());
                 continue;
             }
             if (!Crypto.verify(rate.getSignature(), rate.getUnsignedBytes(), rate.getPublicKey()) ||

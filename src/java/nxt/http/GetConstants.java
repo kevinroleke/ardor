@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -19,6 +19,7 @@ package nxt.http;
 import nxt.Constants;
 import nxt.Nxt;
 import nxt.account.HoldingType;
+import nxt.ae.AssetControlTxTypesEnum;
 import nxt.blockchain.Chain;
 import nxt.blockchain.ChildChain;
 import nxt.blockchain.ChildTransactionType;
@@ -232,6 +233,8 @@ public final class GetConstants extends APIServlet.APIRequestHandler {
                 }
                 response.put("shufflingParticipantStates", shufflingParticipantStates);
 
+                response.put("shufflingRegistrationPeriod", Constants.MAX_SHUFFLING_REGISTRATION_PERIOD);
+
                 JSONObject apiTags = new JSONObject();
                 for (APITag apiTag : APITag.values()) {
                     JSONObject tagJSON = new JSONObject();
@@ -304,6 +307,19 @@ public final class GetConstants extends APIServlet.APIRequestHandler {
                 JSONArray jsonArray = new JSONArray();
                 jsonArray.addAll(Arrays.stream(Constants.getBip32RootPath().toPathArray()).boxed().map(i -> i & 0x00000000FFFFFFFFL).collect(Collectors.toList())); // use unsigned int values
                 response.put("bip32PathPrefix", jsonArray);
+
+                JSONObject assetControlTypes = new JSONObject();
+                for (AssetControlTxTypesEnum t : AssetControlTxTypesEnum.values()) {
+                    JSONObject detailsJson = new JSONObject();
+                    detailsJson.put("code", t.getCode());
+                    APIEnum apiEnum = Arrays.stream(APIEnum.values()).
+                            filter(api -> api.getHandler().getCreateTransactionTypes().contains(t.getTransactionType())).
+                            findFirst().orElseThrow(() -> new RuntimeException("Request type not found for some of the transaction types"));
+                    detailsJson.put("requestType", apiEnum.getName());
+                    detailsJson.put("isDefault", AssetControlTxTypesEnum.DEFAULT_TYPES.contains(t));
+                    assetControlTypes.put(t.toString(), detailsJson);
+                }
+                response.put("assetControlTransactionTypes", assetControlTypes);
                 CONSTANTS = JSON.prepare(response);
             } catch (Exception e) {
                 Logger.logErrorMessage(e.toString(), e);

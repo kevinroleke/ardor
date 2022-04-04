@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2021 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2022 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -180,10 +180,15 @@ NRS.onSiteBuildDone().then(() => {
             }
             if (transactionJSON.sender != NRS.account) {
                 let senderAccountLink = NRS.getAccountLink({ account: transactionJSON.sender }, "account", undefined, undefined, true);
-                msg = $.t("invalid_voucher_sender", { senderAccountLink });
-                $modal.find(".error_message").text(msg).show();
-                NRS.logConsole(msg);
-                return;
+                if (transactionJSON.attachment.encryptedMessage) {
+                    msg = $.t("invalid_voucher_sender", { senderAccountLink });
+                    $modal.find(".error_message").html(msg).show();
+                    NRS.logConsole(msg);
+                    return;
+                } else {
+                    msg = $.t("voucher_sender_mismatch", { senderAccountLink });
+                    $modal.find(".info_message").html(msg).show();
+                }
             }
             if (transactionJSON.chain != NRS.getActiveChainId()) {
                 let voucherChainName = NRS.getChainName(transactionJSON.chain);
@@ -213,6 +218,10 @@ NRS.onSiteBuildDone().then(() => {
             var feeNXT = NRS.convertToNXT(voucher.transactionJSON.feeNQT);
             delete voucher.transactionJSON.feeNQT;
             $("#load_voucher_fee").val(feeNXT);
+            details.sender = NRS.convertNumericToRSAccountFormat(details.sender);
+            if (details.recipient) {
+                details.recipient = NRS.convertNumericToRSAccountFormat(details.recipient);
+            }
             $("#parse_voucher_output_table").find("tbody").empty().append(NRS.createInfoTable(details));
             $("#parse_voucher_output").show();
             $("#voucher_submit_btn").prop("disabled", false);
@@ -236,12 +245,14 @@ NRS.onSiteBuildDone().then(() => {
             var voucherJson = JSON.parse(data.voucher);
             delete data.voucher;
             var transactionJSON = voucherJson.transactionJSON;
+            transactionJSON.sender = NRS.account;
+            transactionJSON.senderPublicKey = NRS.publicKey;
             transactionJSON.timestamp = NRS.toEpochTime();
             transactionJSON.deadline = parseInt(data.deadline);
             delete data.deadline;
             var rc = {};
             try {
-                NRS.processNoteToSelf(data);
+                await NRS.processNoteToSelf(data);
             } catch (e) {
                 rc.error = e.message;
                 return rc;
@@ -253,6 +264,24 @@ NRS.onSiteBuildDone().then(() => {
                 Object.assign(transactionJSON.attachment, attachment);
             }
             transactionJSON.feeNQT = NRS.convertToNQT($("#load_voucher_fee").val());
+            if (transactionJSON.phased) {
+                transactionJSON.attachment.phasingFinishHeight = data.phasingFinishHeight;
+            }
+            let toBytesData = NRS.buildDataFromTransactionJSON(voucherJson.requestType, transactionJSON);
+            toBytesData.broadcast = false;
+            toBytesData.publicKey = toBytesData.senderPublicKey;
+            toBytesData._extra = { isBytesBuilding: true }
+            let unsignedBytesResponse = await NRS.sendRequestAndWait(voucherJson.requestType, toBytesData);
+            if (NRS.isErrorResponse(unsignedBytesResponse)) {
+                rc.error = NRS.translateServerError(unsignedBytesResponse);
+                return rc;
+            }
+            if (!data.encryptToSelfMessageData && voucherJson.unsignedTransactionBytes.length != unsignedBytesResponse.unsignedTransactionBytes.length) {
+                //Sanity check: length should be equal - we should have only changed fee, timestamp, etc. but not added/removed attachments
+                return { error: "Error during bytes rebuild: result length is not equal to the voucher length " +
+                    voucherJson.unsignedTransactionBytes + " " + unsignedBytesResponse.unsignedTransactionBytes };
+            }
+            voucherJson.unsignedTransactionBytes = unsignedBytesResponse.unsignedTransactionBytes;
             data.unsignedTransactionJSON = JSON.stringify(transactionJSON);
             if ($btn.attr("id") == "voucher_submit_btn") {
                 let signature;
@@ -593,14 +622,17 @@ NRS.onSiteBuildDone().then(() => {
 
         NRS.setupModalMandatoryApproval = function($modal) {
             var requestType = $modal.find('input[name="request_type"]').val();
+            if (requestType == "cancelOrder") {
+                requestType = $("#cancel_order_type").val();
+            }
             var hasAccountControl = requestType != "approveTransaction" && NRS.hasAccountControl();
             if (requestType == "orderAsset") {
                 requestType = $modal.find('input[name="asset_order_type"]').val();
             }
-            var hasAssetControl = NRS.isSubjectToAssetControl(requestType);
-            if (hasAccountControl && hasAssetControl
+            let assetControl = NRS.getAssetControlForRequest(requestType);
+            if (hasAccountControl && assetControl
                 && (NRS.accountInfo.phasingOnly.controlParams.phasingVotingModel == 6
-                    || NRS.getCurrentAssetControl().phasingVotingModel == 6)) {
+                    || assetControl.phasingVotingModel == 6)) {
                 //If both asset and account control are set, and if one or both requires composite phasing,
                 //it is not trivial to build phasing parameters that satisfy both controls. So require the user to
                 //do this manually
@@ -609,7 +641,7 @@ NRS.onSiteBuildDone().then(() => {
                 $modal.find('.phasing_finish_height_group input').prop('disabled', false);
                 $modal.find('#auto_phasing_possible_group').hide();
                 $modal.find('#auto_phasing_not_possible_group').show();
-            } else if (hasAccountControl || hasAssetControl) {
+            } else if (hasAccountControl || assetControl) {
                 $modal.find('.advanced_mandatory_approval input').prop('disabled', false);
                 $modal.find('.advanced_mandatory_approval').show();
                 $modal.find('.phasing_finish_height_group input').prop('disabled', true);

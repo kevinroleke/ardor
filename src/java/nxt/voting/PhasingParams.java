@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -615,10 +615,10 @@ public class PhasingParams {
 
         if (voteWeighting.getVotingModel() == NONE) {
             if (quorum != 0) {
-                throw new NxtException.NotValidException("Quorum must be 0 for no-voting phased transaction");
+                throw new NxtException.NotValidException("Quorum must be 0 for no-voting phasing parameters");
             }
             if (whitelist.length != 0) {
-                throw new NxtException.NotValidException("No whitelist needed for no-voting phased transaction");
+                throw new NxtException.NotValidException("No whitelist needed for no-voting phasing parameters");
             }
         }
 

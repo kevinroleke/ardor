@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -17,7 +17,6 @@ package com.jelurida.ardor.integration.wallet.ledger.application;
 
 import nxt.BlockchainTest;
 import nxt.Constants;
-import nxt.account.Token;
 import nxt.crypto.DecryptedData;
 import nxt.crypto.EncryptedData;
 import nxt.crypto.KeyDerivation;
@@ -123,30 +122,6 @@ public class ArdorAppBridgeHeadlessTest extends AbstractArdorAppBridgeTest {
         EncryptedData encryptedData = EncryptedData.encrypt(Convert.compress(DATA_TO_ENCRYPT), BlockchainTest.ALICE.getPrivateKey(), recipientPublicKey);
         DecryptedData decryptedData = ((ArdorAppBridge)app).decryptBuffer(Bip32Path.bip32StrToPath(PATH_STR_3), BlockchainTest.ALICE.getPublicKey(), encryptedData);
         Assert.assertArrayEquals(decryptedData.getData(), DATA_TO_ENCRYPT);
-    }
-
-    @Test
-    public void generateToken() {
-        int timestamp = Convert.toEpochTime(System.currentTimeMillis());
-        String tokenData = "Token Data";
-        String tokenStr = app.signToken(PATH_STR_0, timestamp, Convert.toHexString(Convert.toBytes(tokenData)));
-        Token token = Token.parseToken(tokenStr, tokenData);
-        Assert.assertTrue(token.isValid());
-        Assert.assertEquals(token.getTimestamp(), timestamp);
-        Assert.assertArrayEquals(token.getPublicKey(), app.getWalletPublicKeys(PATH_STR_0, false));
-    }
-
-    @Test
-    public void generateTokenFromLargeDataSet() {
-        Random r = new Random(1);
-        int timestamp = r.nextInt();
-        byte[] blob = new byte[40000];
-        r.nextBytes(blob);
-        String tokenStr = app.signToken(PATH_STR_3, timestamp, Convert.toHexString(blob));
-        Token token = Token.parseToken(tokenStr, blob);
-        Assert.assertTrue(token.isValid());
-        Assert.assertEquals(token.getTimestamp(), timestamp);
-        Assert.assertArrayEquals(token.getPublicKey(), app.getWalletPublicKeys(PATH_STR_3, false));
     }
 
     @SuppressWarnings("PointlessArithmeticExpression")

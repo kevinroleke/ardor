@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -16,6 +16,7 @@
 package com.jelurida.ardor.integration.wallet.ledger.application;
 
 import nxt.account.Account;
+import nxt.account.Token;
 import nxt.addons.JO;
 import nxt.http.callers.BroadcastTransactionCall;
 import nxt.http.callers.GetBalanceCall;
@@ -27,6 +28,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.util.Random;
 
 /**
  * To run these tests, you must have a ledger device connected and an Ardor app installed.
@@ -88,4 +91,27 @@ public class ArdorAppBridgeInteractiveTest extends AbstractArdorAppBridgeTest {
         Assert.assertTrue(true);
     }
 
+    @Test
+    public void generateToken() {
+        int timestamp = Convert.toEpochTime(System.currentTimeMillis());
+        String tokenData = "Token Data";
+        String tokenStr = app.signToken(PATH_STR_0, timestamp, Convert.toHexString(Convert.toBytes(tokenData)));
+        Token token = Token.parseToken(tokenStr, tokenData);
+        Assert.assertTrue(token.isValid());
+        Assert.assertEquals(token.getTimestamp(), timestamp);
+        Assert.assertArrayEquals(token.getPublicKey(), app.getWalletPublicKeys(PATH_STR_0, false));
+    }
+
+    @Test
+    public void generateTokenFromLargeDataSet() {
+        Random r = new Random(1);
+        int timestamp = r.nextInt();
+        byte[] blob = new byte[40000];
+        r.nextBytes(blob);
+        String tokenStr = app.signToken(PATH_STR_3, timestamp, Convert.toHexString(blob));
+        Token token = Token.parseToken(tokenStr, blob);
+        Assert.assertTrue(token.isValid());
+        Assert.assertEquals(token.getTimestamp(), timestamp);
+        Assert.assertArrayEquals(token.getPublicKey(), app.getWalletPublicKeys(PATH_STR_3, false));
+    }
 }

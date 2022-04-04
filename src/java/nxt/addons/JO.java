@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -88,6 +88,11 @@ public class JO extends AbstractMap {
 
     public void put(String key, Object o) {
         jo.put(key, o);
+    }
+
+    @Override
+    public Object put(Object key, Object o) {
+        return jo.put(key, o);
     }
 
     public JA getArray(String key) {
@@ -312,4 +317,63 @@ public class JO extends AbstractMap {
         return jo.get(key) != null;
     }
 
+    /**
+     * Returns a non-deep copy of the provided JO.
+     * @param jo JSON object
+     * @return Copied object
+     */
+    public static JO copy(JO jo) {
+        if (jo == null) {
+            return null;
+        }
+        return new JO(new JSONObject(jo.jo));
+    }
+
+    /**
+     * Returns an unmodifiable version of a JSON object. The result is not deeply unmodifiable - sub-objects or
+     * sub-arrays can be modified.
+     *
+     * @param jo The {@link JO} to make unmodifiable
+     *
+     * @return An unmodifiable JO with same content as the provided JO
+     */
+    public static JO unmodifiable(JO jo) {
+        return new UnmodifiableJO(jo);
+    }
+
+    private static class UnmodifiableJO extends JO {
+        private UnmodifiableJO(JO jo) {
+            super(jo);
+        }
+
+        @Override
+        public Set<Entry> entrySet() {
+            return Collections.unmodifiableSet(super.entrySet());
+        }
+
+        @Override
+        public List<JO> getJoList(String key) {
+            return Collections.unmodifiableList(super.getJoList(key));
+        }
+
+        @Override
+        public JA getArray(String key) {
+            throw new UnsupportedOperationException("use the getJoList() method instead");
+        }
+
+        @Override
+        public Object put(Object key, Object o) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void put(String key, Object o) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public JSONObject toJSONObject() {
+            return new JSONObject(super.toJSONObject());
+        }
+    }
 }

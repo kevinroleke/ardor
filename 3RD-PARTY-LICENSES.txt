@@ -133,3 +133,8 @@ Pure Java HID-API:
 https://github.com/nyholku/purejavahidapi is licensed under the BSD license:
 https://github.com/nyholku/purejavahidapi/blob/master/LICENSE.md
 (using patched version https://github.com/jelurida-dev/purejavahidapi)
+
+
+JOOR:
+https://github.com/jOOQ/jOOR licensed under the
+Apache License 2.0: http://www.apache.org/licenses/LICENSE-2.0

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -165,6 +165,7 @@ class ContractRunnerAPIs {
             response.put("contractRunnerAccount", config.getAccount());
             response.put("contractRunnerAccountRS", config.getAccountRs());
             response.put("hasPrivateKey", config.getPrivateKey() != null);
+            response.put("mode", config.getRunnerMode());
             response.put("isValidator", config.isValidator());
             response.put("hasValidatorPrivateKey", config.getValidatorPrivateKey() != null);
             response.put("hasRandomSeed", !Arrays.equals(config.getRunnerSeed(), config.getPublicKey()));
@@ -189,7 +190,7 @@ class ContractRunnerAPIs {
                 JO contractJson = new JO();
                 contractJson.put("name", name);
                 ContractAndSetupParameters contractAndSetupParameters = contractRunner.getContract(name);
-                contractJson.put("setupParams", contractAndSetupParameters.getParams().toJSONObject());
+                contractJson.put("setupParams", contractAndSetupParameters.getParamsRo().toJSONObject());
                 if (API.checkPassword(req)) {
                     JO params = config.getParams();
                     JO runnerParams = params != null ? params.getJo(name) : null;

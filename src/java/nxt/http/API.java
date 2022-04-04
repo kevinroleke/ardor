@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -101,8 +101,8 @@ public final class API {
     private static List<APIEnum> disabledAPIs;
     private static List<APITag> disabledAPITags;
 
-    private static final Set<String> allowedBotHosts;
-    private static final List<NetworkAddress> allowedBotNets;
+    private static final HostsSet allowedBotHosts;
+    private static final HostsSet unlimitedBotHosts;
     private static final Map<String, PasswordCount> incorrectPasswords = new HashMap<>();
     private static final String adminPassword = Nxt.getStringProperty("nxt.adminPassword", "", true);
     private static final String adminPasswordHash = Nxt.getStringProperty("nxt.adminPasswordHash", "", true);
@@ -126,28 +126,8 @@ public final class API {
         if (!adminPassword.isEmpty() && !adminPasswordHash.isEmpty()) {
             Logger.logWarningMessage("admin password and admin password hash are both defined");
         }
-        List<String> allowedBotHostsList = Nxt.getStringListProperty("nxt.allowedBotHosts");
-        if (!allowedBotHostsList.contains("*")) {
-            Set<String> hosts = new HashSet<>();
-            List<NetworkAddress> nets = new ArrayList<>();
-            for (String host : allowedBotHostsList) {
-                if (host.contains("/")) {
-                    try {
-                        nets.add(new NetworkAddress(host));
-                    } catch (UnknownHostException e) {
-                        Logger.logErrorMessage("Unknown network " + host, e);
-                        throw new RuntimeException(e.toString(), e);
-                    }
-                } else {
-                    hosts.add(host);
-                }
-            }
-            allowedBotHosts = Collections.unmodifiableSet(hosts);
-            allowedBotNets = Collections.unmodifiableList(nets);
-        } else {
-            allowedBotHosts = null;
-            allowedBotNets = null;
-        }
+        allowedBotHosts = new HostsSet("nxt.allowedBotHosts");
+        unlimitedBotHosts = new HostsSet("nxt.unlimitedBotHosts");
 
         boolean enableAPIServer = Nxt.getBooleanProperty("nxt.enableAPIServer");
         if (enableAPIServer) {
@@ -246,8 +226,8 @@ public final class API {
             } catch (URISyntaxException e) {
                 Logger.logInfoMessage("Cannot resolve browser URI", e);
             }
-            openAPIPort = !Constants.isLightClient && "0.0.0.0".equals(host) && allowedBotHosts == null && (!enableSSL || port != sslPort) ? port : 0;
-            openAPISSLPort = !Constants.isLightClient && "0.0.0.0".equals(host) && allowedBotHosts == null && enableSSL ? sslPort : 0;
+            openAPIPort = !Constants.isLightClient && "0.0.0.0".equals(host) && allowedBotHosts.isAnyHost() && (!enableSSL || port != sslPort) ? port : 0;
+            openAPISSLPort = !Constants.isLightClient && "0.0.0.0".equals(host) && allowedBotHosts.isAnyHost() && enableSSL ? sslPort : 0;
             isOpenAPI = openAPIPort > 0 || openAPISSLPort > 0;
 
             HandlerList apiHandlers = new HandlerList();
@@ -363,7 +343,6 @@ public final class API {
             isOpenAPI = false;
             Logger.logMessage("API server not enabled");
         }
-
     }
 
     public static void init() {
@@ -563,23 +542,15 @@ public final class API {
     }
 
     static boolean isForbiddenHost(String remoteHost) {
-        if (API.allowedBotHosts == null || API.allowedBotHosts.contains(remoteHost)) {
-            return false;
+        boolean isAllowed = allowedBotHosts.contains(remoteHost);
+        if (!isAllowed) {
+            Logger.logDebugMessage("Not allowing " + remoteHost);
         }
-        try {
-            BigInteger hostAddressToCheck = new BigInteger(InetAddress.getByName(remoteHost).getAddress());
-            for (NetworkAddress network : API.allowedBotNets) {
-                if (network.contains(hostAddressToCheck)) {
-                    return false;
-                }
-            }
-        } catch (UnknownHostException e) {
-            // can't resolve, disallow
-            Logger.logMessage("Unknown remote host " + remoteHost);
-        }
-        Logger.logDebugMessage("Not allowing " + remoteHost);
-        return true;
+        return !isAllowed;
+    }
 
+    static boolean isUnlimitedHost(String remoteHost) {
+        return unlimitedBotHosts.contains(remoteHost);
     }
 
     private static void disableHttpMethods(ServletContextHandler servletContext) {
@@ -644,6 +615,58 @@ public final class API {
             return hostAddressToCheck.and(netMask).equals(netAddress);
         }
 
+    }
+
+    private static class HostsSet {
+        private final Set<String> hosts;
+        private final List<NetworkAddress> networks;
+
+        private HostsSet(String property) {
+            List<String> hostsList = Nxt.getStringListProperty(property);
+            if (!hostsList.contains("*")) {
+                Set<String> hosts = new HashSet<>();
+                List<NetworkAddress> nets = new ArrayList<>();
+                for (String host : hostsList) {
+                    if (host.contains("/")) {
+                        try {
+                            nets.add(new NetworkAddress(host));
+                        } catch (UnknownHostException e) {
+                            Logger.logErrorMessage("Unknown network " + host, e);
+                            throw new RuntimeException(e.toString(), e);
+                        }
+                    } else {
+                        hosts.add(host);
+                    }
+                }
+                this.hosts = Collections.unmodifiableSet(hosts);
+                this.networks = Collections.unmodifiableList(nets);
+            } else {
+                this.hosts = null;
+                this.networks = null;
+            }
+        }
+
+        private boolean contains(String host) {
+            if (hosts == null || hosts.contains(host)) {
+                return true;
+            }
+            try {
+                BigInteger hostAddressToCheck = new BigInteger(InetAddress.getByName(host).getAddress());
+                for (NetworkAddress network : networks) {
+                    if (network.contains(hostAddressToCheck)) {
+                        return true;
+                    }
+                }
+            } catch (UnknownHostException e) {
+                // can't resolve, disallow
+                Logger.logMessage("Unknown host " + host);
+            }
+            return false;
+        }
+
+        private boolean isAnyHost() {
+            return hosts == null;
+        }
     }
 
     public static final class XFrameOptionsFilter implements Filter {

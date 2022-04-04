@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2021 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2022 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -62,7 +62,11 @@ NRS.onSiteBuildDone().then(() => {
 					});
 				} else {
 					$("#no_message_selected").hide();
-					$("#no_messages_available").show();
+					if (response.errorCode) {
+						$("#message_details").text(response.errorDescription);
+					} else {
+						$("#no_messages_available").show();
+					}
 					$messagesSidebar.empty();
 					NRS.pageLoaded(callback);
 				}
@@ -159,8 +163,14 @@ NRS.onSiteBuildDone().then(() => {
 				async function (response) {
 					NRS.getCurrentPagination().onResult(response.transactions);
 					view.messages.length = 0;
-					for (let i=0; i < response.transactions.length; i++) {
-						view.messages.push(await NRS.jsondata.messages(response.transactions[i]));
+					if (response.transactions) {
+						for (let i=0; i < response.transactions.length; i++) {
+							view.messages.push(await NRS.jsondata.messages(response.transactions[i]));
+						}
+					} else {
+						if (response.errorCode) {
+							$.growl(NRS.escapeRespStr(response.errorDescription), { "type": "danger" });
+						}
 					}
 					view.render({
 						isLoading: false,
@@ -449,7 +459,10 @@ NRS.onSiteBuildDone().then(() => {
 
 		NRS.forms.decryptMessages = async function($modal) {
 			var data = NRS.getFormData($modal.find("form:first"));
-			let privateKey = NRS.getPrivateKey(data.secretPhrase);
+			let privateKey;
+			if (data.secretPhrase) {
+				privateKey = NRS.getPrivateKey(data.secretPhrase);
+			}
 			var success = false;
 			try {
 				var messagesToDecrypt = [];

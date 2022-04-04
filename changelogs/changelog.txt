@@ -1,3 +1,132 @@
+ardor-client-2.4.0e, released 2022-03-17:
+
+This experimental release is a mandatory upgrade for the Ardor 2.0 testnet.
+It can also be used on mainnet. A testnet hardfork has been scheduled for
+block 9800000, expected on March 20, 2022.
+
+The new features to be enabled at the hardfork on testnet are Per-Transaction
+Type Asset Control, and Asset Trade Royalties.
+
+Per-transaction type asset control. When setting up asset control, it is now
+possible to specify different phasing requirements for different transaction
+types. The setPhasingAssetControl API now accepts a multivalue transactionType
+parameter specifying the types to which the asset control will be applied (or
+removed, if voting model is NONE). Possible values are: ASSET_TRANSFER,
+ASSET_DELETE, ASK_ORDER_PLACEMENT, BID_ORDER_PLACEMENT,
+ASK_ORDER_CANCELLATION, BID_ORDER_CANCELLATION, DIVIDEND_PAYMENT,
+ASSET_PROPERTY_SET, ASSET_PROPERTY_DELETE, SET_ASSET_CONTROL. If no types are
+specified, by default the asset control is applied to the following types:
+ASSET_TRANSFER, ASSET_DELETE, ASK_ORDER_PLACEMENT, BID_ORDER_PLACEMENT,
+DIVIDEND_PAYMENT, consistent with the original asset control implementation.
+Setting control for some transaction type removes any previous control for
+that specific transaction type. At any time, there is at most one control per
+transaction type, while the same control can apply to multiple transaction
+types.
+
+The asset control can still be set only by the asset issuer, and the initial
+setting, when no transaction types have been set under control yet, still
+requires that the asset issuer holds all asset shares. Once asset control
+has been set for at least one transaction types, it is not required that the
+issuer holds all shares, but the SET_ASSET_CONTROL transaction type itself
+could be restricted by specifying asset control phasing requirements for it.
+
+An API change was necessary, the getPhasingAssetControl API now returns an
+array of controls objects instead of a single controlParams.
+
+Asset trade royalties. The asset issuer can now receive royalties, calculated
+as a fixed percentage from each trade of the asset, which is subtracted from
+the amount (in child chain coins) that the asset seller receives and gets
+added automatically to the asset issuer account.
+
+Setting or changing the royalties percentage can be done only be the asset
+issuer and requires that he owns all shares of the asset. The asset issuer
+can also disable royalties by setting the percentage to 0, and disabling
+does not require ownership of all shares.
+
+The new setAssetTradeRoyalties API is used to configure royalties, with the
+percentage specified in royaltiesPercentage parameter. The maximum allowed
+is 50%.
+
+For open API public nodes, the default API result size limits and database
+query timeouts can now be bypassed for hosts as configured in the new
+nxt.unlimitedBotHosts property. The default is to ignore the limits for
+localhost, set to * to allow all hosts, but be aware of potential DoS issues.
+
+The MPG child chain will be disabled on testnet at this hardfork, and on
+mainnet at the mainnet hardfork which is to be scheduled with the next
+release. MPG balances and transaction history will be preserved for now, but
+no more transactions of any type will be possible with MPG tokens.
+
+A shell script contrib/ardor-ramdisk.sh has been added, for running Ardor with
+the database stored in memory on tmpfs, backed up and restored to/from
+persistent storage under contrib/ramdisk-backups. Run the script with no
+arguments for more help.
+
+Bugfixes in Contract Manager, Transaction voucher processing, and others.
+
+Added support for READ_ONLY mode of the ContractRunner.
+
+Added support for Ledger Speculos emulator, use the nxt.ledger.speculosHostname
+and nxt.ledger.speculosPort parameters to configure.
+
+Updated Jetty to version 9.4.45.
+
+
+--------------------------------------------------------------------------------
+ardor-client-2.3.4, released 2021-05-18:
+
+This stable release is an optional but recommended upgrade for all users.
+
+The Ledger Nano X and S hardware wallets are now identified correctly by both
+the desktop wallet and the browser wallet.
+
+When a contract processTransaction invocation submits multiple transactions,
+and the contract runner account ARDR balance is lower than the balance needed
+to cover the referenced transaction deposit for all transactions, the contract
+runner will not submit any transaction in order to prevent partial expiry of
+transactions.
+
+The default deadline for transactions submitted by the contract runner is now
+configurable using the defaultDeadline contract runner attribute.
+
+Fixed running the contracts unit tests from an Ardor installation.
+
+The IntelliJ ContractManagerPlugin has been updated and is now being built
+using gradle. See addons/plugins/ContractManagerPlugin/README for details.
+
+The content of a loaded voucher is now properly escaped.
+
+Verification of transaction bytes when locally signing transactions of type
+setAssetProperty and setAccountProperty now works properly.
+
+The table paging widget has a new "Go To ..." numeric field to enable locating
+historical records without paging.
+
+Fixed connectivity issues: don't blacklist peers on normal shutdown.
+
+Added tool for creating Genesis JSONs from current blockchain balances. See
+nxt.tools.GenesisCreator for usage instructions.
+
+Added tool to print shuffling recipients, run
+"com.jelurida.ardor.client.api.ShufflingRecipients" (edit serverUrl and
+adminPassword if necessary).
+
+To prevent DoS or performance issues, database queries executed during API
+calls on open API nodes when adminPassword is not provided will timeout and
+fail with errorCode 25 if the query exceeds a preset number of seconds.
+This can be set with the new nxt property nxt.openApiQueryTimeout, default is
+1 second, set to 0 to disable the timeout.
+
+Allow filtering of logged stacktraces by exception class and message prefix,
+configurable using the nxt.disabledThrowableStackTraces property, see the
+nxt-default.properties file for the exact syntax.
+
+Various UI fixes.
+
+Updated Jetty to version 9.4.40.
+
+
+--------------------------------------------------------------------------------
 ardor-client-2.3.3, released 2020-12-01:
 
 This stable release is an optional but recommended upgrade for all users.

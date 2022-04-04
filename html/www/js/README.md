@@ -1,9 +1,7 @@
 <h2>Sample Ardor APIs for Node JS</h2>
 
 <h3>What's new?</h3>
-This release is compatible with the Ardor 2.3.2 APIs.<br>
-A new configuration parameter disableSslCertificateVerification was added to config.json.<br> 
-Use it to enable https communication with a node when using a self signed certificate. 
+This release is compatible with the Ardor 2.3.4 APIs.<br>
 
 <h3>General Information</h3>
 

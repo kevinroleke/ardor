@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -26,21 +26,16 @@ import org.apache.commons.cli.ParseException;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
-import javax.tools.DiagnosticListener;
 import javax.tools.JavaCompiler;
-import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.InputStream;
 import java.io.StringWriter;
-import java.io.Writer;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -50,6 +45,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -73,8 +69,8 @@ public class JDKToolsWrapper {
 
         private final char opt;
         private final String longOpt;
-        private boolean hasArgs;
-        private String description;
+        private final boolean hasArgs;
+        private final String description;
 
         OPTION(char opt, String longOpt, boolean hasArgs, String description) {
             this.opt = opt;
@@ -153,7 +149,7 @@ public class JDKToolsWrapper {
             }
         }
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
-        StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, Charset.forName("UTF8"));
+        StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, StandardCharsets.UTF_8);
         try {
             fileManager.setLocation(StandardLocation.CLASS_OUTPUT, Collections.singletonList(outputPath.toFile()));
         } catch (IOException e) {
@@ -177,7 +173,7 @@ public class JDKToolsWrapper {
         List<Diagnostic<? extends JavaFileObject>> diagnosticList = diagnostics.getDiagnostics();
         String messages = diagnosticList.stream().map(Object::toString).collect(Collectors.joining("\n"));
         System.out.println("Compilation messages: " + messages);
-        System.out.println("Output: " + output.toString());
+        System.out.println("Output: " + output);
         if (!result) {
             return null;
         }
@@ -227,7 +223,7 @@ public class JDKToolsWrapper {
             this.identifier = identifier;
         }
 
-        private String identifier;
+        private final String identifier;
 
         public String getIdentifier() {
             return identifier;
@@ -241,7 +237,7 @@ public class JDKToolsWrapper {
      * @param classBytes the byte array representing the class bytes
      * @return the javac -g command line options
      */
-    static String javap(byte[] classBytes) {
+     static String javap(byte[] classBytes) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
             sm.checkPermission(new BlockchainPermission("tools"));
@@ -258,41 +254,47 @@ public class JDKToolsWrapper {
             throw new IllegalStateException(e);
         }
 
-        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
-        StringWriter output = new StringWriter();
-        PrintWriter writer = new PrintWriter(output);
+        String output;
         boolean result;
-        try {
-            // JavapFileManager fileManager = JavapFileManager.create(diagnostics, writer);
-            Class<?> javapFileManagerClass = Class.forName("com.sun.tools.javap.JavapFileManager");
-            Method create = javapFileManagerClass.getMethod("create", DiagnosticListener.class, PrintWriter.class);
-            JavaFileManager fileManager = (JavaFileManager)create.invoke(null, diagnostics, writer);
-
-            // JavapTask javapTask = new JavapTask(writer, fileManager, diagnostics, Collections.singletonList("-v"), Collections.singletonList(classFile.toString()));
-            Class<?> javapTaskClass = Class.forName("com.sun.tools.javap.JavapTask");
-            Constructor<?> constructor = javapTaskClass.getConstructor(Writer.class, JavaFileManager.class, DiagnosticListener.class, Iterable.class, Iterable.class);
-            Object javapTask = constructor.newInstance(writer, fileManager, diagnostics, Collections.singletonList("-v"), Collections.singletonList(classFile.toString()));
-
-            // boolean result = javapTask.call();
-            Method call = javapTaskClass.getMethod("call");
-            result = (Boolean)call.invoke(javapTask);
-        } catch (Throwable t) {
-            if (t instanceof ClassNotFoundException) {
-                System.out.println("Javap tool is not supported when running JRE use JDK instead");
-                return null;
-            } else {
-                throw new IllegalStateException(t);
+        System.out.println("Invoking javap command line");
+        Path javapPath = Paths.get(System.getProperty("java.home"), "bin", "javap");
+        if (!Files.exists(javapPath)) {
+            javapPath = Paths.get(System.getProperty("java.home")).getParent().resolve("bin").resolve("javap");
+        }
+        if (!Files.exists(javapPath)) {
+            if (System.getenv("JAVA_HOME") != null) {
+                javapPath = Paths.get(System.getenv("JAVA_HOME"), "bin", "javap");
             }
         }
+        String[] command = new String[]{javapPath.toString(), "-v", classFile.toString()};
+        try {
+            Process process = Runtime.getRuntime().exec(command);
+            try (InputStream inputStream = process.getInputStream();
+                 Scanner s = new Scanner(inputStream).useDelimiter("\\A")) {
+                if (s.hasNext()) {
+                    output = s.next();
+                } else {
+                    System.out.println("Javap returned empty output");
+                    return null;
+                }
+            }
+            result = process.waitFor() == 0;
+        } catch (IOException e) {
+            System.out.println("Cannot run javap, make sure to run this program using Java JDK not JRE, " + e.getMessage());
+            return null;
+        } catch (InterruptedException e) {
+            throw new IllegalStateException(e);
+        }
+        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
         List<Diagnostic<? extends JavaFileObject>> diagnosticList = diagnostics.getDiagnostics();
         String messages = diagnosticList.stream().map(Object::toString).collect(Collectors.joining("\n"));
         System.out.println("Javap messages: " + messages);
-        System.out.println("Javap Output: " + output.toString());
+        System.out.println("Javap Output: " + output);
         if (!result) {
             System.out.println("Javap failed");
             return null;
         }
-        List<String> lines = Arrays.asList(output.toString().split("\\r?\\n"));
+        List<String> lines = Arrays.asList(output.split("\\r?\\n"));
 
         // Convert major version to target release 52 --> 8, 54 --> 10 we assume that the difference will stay 44 in future Java releases.
         // Make sure our version and the compiler version used to compile the class are the same

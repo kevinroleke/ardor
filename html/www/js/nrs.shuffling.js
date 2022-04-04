@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2021 Jelurida IP B.V.                                     *
+ * Copyright © 2016-2022 Jelurida IP B.V.                                     *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -260,6 +260,12 @@ NRS.onSiteBuildDone().then(() => {
             }
             if (data.finishHeight) {
                 data.registrationPeriod = parseInt(data.finishHeight) - NRS.lastBlockHeight;
+                if (data.registrationPeriod <= 0 || data.registrationPeriod > NRS.constants.MAX_SHUFFLING_REGISTRATION_PERIOD) {
+                    return {
+                        "error": $.t("finish_height_out_of_range", { "min": NRS.lastBlockHeight + 1,
+                                    "max": NRS.lastBlockHeight + NRS.constants.MAX_SHUFFLING_REGISTRATION_PERIOD})
+                    };
+                }
                 delete data.finishHeight;
             }
             return {

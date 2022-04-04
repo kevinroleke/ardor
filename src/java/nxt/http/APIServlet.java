@@ -1,6 +1,6 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -353,10 +353,8 @@ public final class APIServlet extends HttpServlet {
 
             if (apiRequestHandler.requirePassword()) {
                 API.verifyPassword(req);
-            } else {
-                if (!API.checkPassword(req)) {
-                    Db.db.setThreadQueryTimeout(Constants.OPEN_API_QUERY_TIMEOUT);
-                }
+            } else if (!API.isUnlimitedHost(req.getRemoteHost()) && !API.checkPassword(req)) {
+                Db.db.setThreadQueryTimeout(Constants.OPEN_API_QUERY_TIMEOUT);
             }
             final long requireBlockId = apiRequestHandler.allowRequiredBlockParameters() ?
                     ParameterParser.getUnsignedLong(req, "requireBlock", false) : 0;

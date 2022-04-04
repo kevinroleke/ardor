@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -176,7 +176,8 @@ public class ContractLoader {
             contractClass = cloudDataClassLoader.findClass(name);
             Constructor<?> constructor = contractClass.getConstructor();
             instance = constructor.newInstance();
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | InstantiationException | NoClassDefFoundError e) {
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | InstantiationException |
+                NoClassDefFoundError | ClassNotFoundException e) {
             Logger.logErrorMessage(String.format("Error loading contract %s - %s", name, e.getMessage()), e);
             return NULL_CONTRACT;
         }

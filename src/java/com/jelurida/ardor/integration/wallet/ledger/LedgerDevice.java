@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2021 Jelurida IP B.V.
+ * Copyright © 2016-2022 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -15,6 +15,7 @@
 
 package com.jelurida.ardor.integration.wallet.ledger;
 
+import nxt.Nxt;
 import nxt.env.RuntimeEnvironment;
 import nxt.util.Logger;
 import purejavahidapi.HidDeviceInfo;
@@ -23,8 +24,9 @@ import purejavahidapi.PureJavaHidApi;
 public abstract class LedgerDevice {
 
     private static final int VENDOR_LEDGER = 0x2c97;
-    private static final int INTERFACE_NUMBER = 0;
     private static final int USAGE_PAGE_LEDGER = 0xffffffa0;
+    private static final String SPECULOS_HOSTNAME = Nxt.getStringProperty("nxt.ledger.speculosHostname");
+    private static final int SPECULOS_PORT = Nxt.getIntProperty("nxt.ledger.speculosPort", 9999);
 
     private static LedgerDevice findLedgerDeviceHIDAPI() {
         return PureJavaHidApi.enumerateDevices().stream()
@@ -33,6 +35,8 @@ public abstract class LedgerDevice {
     }
 
     public static LedgerDevice findLedgerDevice() {
+        if (SPECULOS_HOSTNAME != null)
+            return new LedgerSpeculos(SPECULOS_HOSTNAME, SPECULOS_PORT);
         return findLedgerDeviceHIDAPI();
     }
 
