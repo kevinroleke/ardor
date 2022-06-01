@@ -89,6 +89,8 @@ public final class Constants {
     public static final int MIN_BLOCKTIME_DELTA = 7;
     public static final int MAX_BLOCKTIME_DELTA = 7;
     public static final int BASE_TARGET_GAMMA = 64;
+
+    public static final int FORK_BASE_TARGET_PERCENTAGE = Nxt.getIntProperty("nxt.forkBaseTargetPercentage", 2000);
     public static final int MAX_ROLLBACK = Math.max(Nxt.getIntProperty("nxt.maxRollback"), 720);
     public static final int GUARANTEED_BALANCE_CONFIRMATIONS = isTestnet ? Nxt.getIntProperty("nxt.testnetGuaranteedBalanceConfirmations", 1440) : 1440;
     public static final int LEASING_DELAY = isTestnet ? Nxt.getIntProperty("nxt.testnetLeasingDelay", 1440) : 1440;
@@ -213,15 +215,17 @@ public final class Constants {
     public static final int TRANSACTION_TYPE_SPECIFIC_ASSET_CONTROL = Constants.isTestnet ? Constants.isAutomatedTest ? 20 : 9800000 : 2307000;
     public static final int CHECKSUM_BLOCK_6 = Constants.isTestnet ? 5666000 : 1453500;
     public static final int CHECKSUM_BLOCK_7 = Constants.isTestnet ? 7464000 : 1797000;
+    public static final int CHECKSUM_BLOCK_8 = Constants.isTestnet ? 10360000 : 2351000;
 
-    public static final int LAST_CHECKSUM_BLOCK = CHECKSUM_BLOCK_7;
 
-    public static final int LAST_KNOWN_BLOCK =  Constants.isAutomatedTest ? 0 : CHECKSUM_BLOCK_7;
+    public static final int LAST_CHECKSUM_BLOCK = CHECKSUM_BLOCK_8;
+
+    public static final int LAST_KNOWN_BLOCK =  Constants.isAutomatedTest ? 0 : CHECKSUM_BLOCK_8;
     public static final long LAST_KNOWN_BLOCK_ID = Convert.parseUnsignedLong(
-            isTestnet ? Constants.isAutomatedTest ? "1318911886063902233" : "7415227029782994003" : "6321224929234284731");
+            isTestnet ? Constants.isAutomatedTest ? "1318911886063902233" : "6397903228091951829" : "12430465704212719921");
 
-    public static final int[] MIN_VERSION = Constants.isTestnet ? new int[] {2, 4} : new int[] {2, 3, 2};
-    public static final int[] MIN_PROXY_VERSION = Constants.isTestnet ? new int[] {2, 4} : new int[] {2, 3, 2};
+    public static final int[] MIN_VERSION = new int[] {2, 4, 1};
+    public static final int[] MIN_PROXY_VERSION = new int[] {2, 4, 2};
 
     public static final long UNCONFIRMED_POOL_DEPOSIT_FQT = 10 * ONE_FXT;
 

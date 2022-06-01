@@ -37,6 +37,8 @@ import nxt.blockchain.Chain;
 import nxt.blockchain.ChildChain;
 import nxt.blockchain.Transaction;
 import nxt.blockchain.TransactionProcessor;
+import nxt.env.DesktopMode;
+import nxt.env.ServerStatus;
 import nxt.http.API;
 import nxt.messaging.PrunableMessageHome;
 import nxt.taggeddata.TaggedDataHome;
@@ -164,6 +166,15 @@ public class DesktopApplication extends Application {
         loadWorker.stateProperty().addListener((ov, oldState, newState) -> AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
             Logger.logDebugMessage("loadWorker old state " + oldState + " new state " + newState);
             if (newState == Worker.State.FAILED) {
+                Path htmlPath = getDesktopHtmlPath();
+                if (htmlPath != null) {
+                    try {
+                        webEngine.load(htmlPath.resolve("no-server.html").toUri().toURL().toString());
+                        return null;
+                    } catch (MalformedURLException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
                 Logger.logInfoMessage("Desktop wallet failed to start", loadWorker.getException());
                 return null;
             }
@@ -178,6 +189,10 @@ public class DesktopApplication extends Application {
             Locale locale = Locale.getDefault();
             String language = locale.getLanguage().toLowerCase() + "-" + locale.getCountry().toUpperCase();
             window.setMember("javaFxLanguage", language);
+            if ("errorPage".equals(window.getMember("nrsPageType"))) {
+                stage.setTitle("Ardor server not available");
+                return null;
+            }
             stage.setTitle("Ardor Desktop - " + webEngine.getLocation());
             nrs = (JSObject) webEngine.executeScript("NRS");
             updateClientState("Desktop Wallet started");
@@ -237,7 +252,32 @@ public class DesktopApplication extends Application {
         stage.setScene(scene);
         stage.sizeToScene();
         stage.show();
-        Platform.setImplicitExit(false); // So that we can reopen the application in case the user closed it
+        if (Nxt.getRuntimeMode() instanceof DesktopMode) {
+            Platform.setImplicitExit(false); // So that we can reopen the application in case the user closed it
+        } else {
+            Logger.logErrorMessage("DesktopApplication not run from the Ardor process. Use the system tray or " +
+                    "set the system property nxt.simulate.desktop.app.show to true");
+        }
+    }
+
+    private Path getDesktopHtmlPath() {
+        URL location = this.getClass().getProtectionDomain().getCodeSource().getLocation();
+        if ("file".equals(location.getProtocol())) {
+            Path path = Paths.get(location.getPath());
+            if (path.endsWith("classes")) {
+                path = path.getParent();
+            }
+            return path.resolve("html").resolve("desktop");
+        }
+        return null;
+    }
+
+    public ServerStatus checkServerStatus() {
+        ServerStatus serverStatus = Nxt.getServerStatus();
+        if (serverStatus == ServerStatus.STARTED) {
+            webEngine.load(getUrl());
+        }
+        return serverStatus;
     }
 
     private void updateClientState(Block block) {

@@ -2666,7 +2666,6 @@
   "error_select_transaction_types_to_unset": "Please select the transaction types for which to unset the control",
   "error_select_transaction_types_to_set": "Please select the transaction types for which to set the control",
   "asset_control_transaction_types_help": "The asset control will be applied only to the specified transaction types (or removed only for them)",
-  "db_query_timeout": "Database query timed out and was canceled by the server. Set the Administrator Password in Device Settings to get unlimited query processing time",
   "set_trading_royalties": "Set Trading Royalties",
   "trading_royalties": "Trading Royalties",
   "royalties_percentage": "Royalties Percentage",

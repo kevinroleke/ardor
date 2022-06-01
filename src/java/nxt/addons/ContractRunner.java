@@ -71,6 +71,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -113,8 +114,8 @@ public final class ContractRunner implements AddOn, ContractProvider {
         private final String methodName;
         private final Class contextClass;
 
-        Map<String, SummaryStatistics> normalMeasurements = new HashMap<>();
-        Map<String, SummaryStatistics> errorMeasurements = new HashMap<>();
+        Map<String, SummaryStatistics> normalMeasurements = new ConcurrentHashMap<>();
+        Map<String, SummaryStatistics> errorMeasurements = new ConcurrentHashMap<>();
 
         INVOCATION_TYPE(String methodName, Class contextClass) {
             this.methodName = methodName;

@@ -294,13 +294,14 @@ public final class GetConstants extends APIServlet.APIRequestHandler {
                     json.put("disabledTransactionTypes", disabledTransactionTypes);
 
                     JSONArray disabledAPITagsForChain = new JSONArray();
-                    chain.getDisabledAPITags().forEach(tag -> disabledAPITagsForChain.add(tag.name()));
+                    disabledAPITagsForChain.addAll(chain.getDisabledAPITags().stream().map(Enum::name).sorted().collect(Collectors.toList()));
                     json.put("disabledAPITags", disabledAPITagsForChain);
 
                     chainPropertiesJSON.put(chain.getId(), json);
                 });
                 response.put("chainProperties", chainPropertiesJSON);
                 response.put("initialBaseTarget", Long.toUnsignedString(Constants.INITIAL_BASE_TARGET));
+                response.put("forkBaseTargetPercentage", Integer.toUnsignedString(Constants.FORK_BASE_TARGET_PERCENTAGE));
                 response.put("secretPhraseWords", Constants.COMPRESSED_SECRET_PHRASE_WORDS);
 
                 // We prefer to send the path as array since the client corrupts the path string when escaping the response

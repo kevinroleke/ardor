@@ -19,9 +19,11 @@ package nxt.peer;
 import nxt.Nxt;
 import nxt.blockchain.ChainTransactionId;
 import nxt.blockchain.Transaction;
+import nxt.util.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 final class GetTransactions {
 
@@ -58,6 +60,9 @@ final class GetTransactions {
                 transaction.getAppendages(true);
                 transactions.add(transaction);
             }
+        }
+        if (Peers.isLogLevelEnabled(Peers.LOG_LEVEL_NAMES)) {
+            Logger.logDebugMessage("Sending transactions " + transactions.stream().map(Transaction::getStringId).collect(Collectors.joining(", ")));
         }
         return new NetworkMessage.TransactionsMessage(request.getMessageId(), transactions);
     }

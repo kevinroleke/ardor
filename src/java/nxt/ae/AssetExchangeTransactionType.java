@@ -1431,9 +1431,6 @@ public abstract class AssetExchangeTransactionType<Att extends Attachment> exten
 
         @Override
         protected void validateAttachment(ChildTransactionImpl transaction, SetAssetTradeRoyaltiesAttachment attachment) throws ValidationException {
-            if (Nxt.getBlockchain().getHeight() < Constants.TRANSACTION_TYPE_SPECIFIC_ASSET_CONTROL) {
-                throw new NxtException.NotYetEnabledException("Asset royalties feature not yet enabled");
-            }
             FixedPrecisionPercentage newPercentage = attachment.getRoyaltiesPercentage();
             if (!newPercentage.validate()) {
                 throw new NxtException.NotValidException("Royalties percentage not valid: " + newPercentage);

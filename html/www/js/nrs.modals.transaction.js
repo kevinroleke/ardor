@@ -1410,6 +1410,19 @@ NRS.onSiteBuildDone().then(() => {
                     };
                     infoTable.find("tbody").append(NRS.createInfoTable(data, { chain: transaction.chain }));
                     infoTable.show();
+                } else if (NRS.isOfType(transaction, "SetAssetTradeRoyalties")) {
+                    NRS.sendRequest("getAsset", {
+                        "asset": transaction.attachment.asset
+                    }, function (asset) {
+                        data = {
+                            "type": $.t("set_trading_royalties"),
+                            "asset_formatted_html": NRS.getEntityLink({ request: "getAsset", key: "asset", id: transaction.attachment.asset }),
+                            "asset_name": asset.name,
+                            "royalties_percentage": transaction.attachment.percentage
+                        };
+                        infoTable.find("tbody").append(NRS.createInfoTable(data, { chain: transaction.chain }));
+                        infoTable.show();
+                    });
                 }
                 if (!NRS.isOfType(transaction, "ArbitraryMessage")) {
                     if (transaction.attachment) {

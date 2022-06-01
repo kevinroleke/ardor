@@ -74,6 +74,7 @@ var NRS = (function (NRS, $) {
         'NOT_FORGING': 'not_forging',
         'UNKNOWN': 'unknown',
         'INITIAL_BASE_TARGET': 153722867,
+        'FORK_BASE_TARGET_PERCENTAGE': 1500,
         'TESTNET_ACCELERATION': 6,
         'TESTNET_ACCELERATION_BLOCK': 455000,
         'SIGNATURE_POSITION': 69, // bytes before signature from TransactionImpl newTransactionBuilder()
@@ -150,6 +151,7 @@ var NRS = (function (NRS, $) {
             NRS.constants.PROXY_NOT_FORWARDED_REQUESTS = response.proxyNotForwardedRequests;
             NRS.loadTransactionTypeConstants(response);
             NRS.constants.INITIAL_BASE_TARGET = parseInt(response.initialBaseTarget);
+            NRS.constants.FORK_BASE_TARGET_PERCENTAGE = parseInt(response.forkBaseTargetPercentage);
             NRS.constants.LEASING_DELAY = parseInt(response.leasingDelay);
             NRS.constants.BIP32_PATH_PREFIX = response.bip32PathPrefix;
             NRS.constants.ASSET_CONTROL_TRANSACTION_TYPES = response.assetControlTransactionTypes;

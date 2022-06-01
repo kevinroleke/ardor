@@ -422,7 +422,7 @@ public class APIProxy {
         return Constants.isLightClient || (enableAPIProxy && Nxt.getBlockchainProcessor().isDownloading());
     }
 
-    boolean blacklistHost(String host) {
+    public boolean blacklistHost(String host) {
         if (blacklistedPeers.size() > 2000) {
             Logger.logInfoMessage("Too many blacklisted peers");
             return false;

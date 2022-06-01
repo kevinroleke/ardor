@@ -1959,7 +1959,8 @@ var NRS = (function(NRS, $, undefined) {
 				});
 			}
 
-            if (NRS.blocks && NRS.blocks.length > 0 && NRS.baseTargetPercent(NRS.blocks[0]) > 1500 && !NRS.isTestNet) {
+            if (NRS.blocks && NRS.blocks.length > 0
+                    && NRS.baseTargetPercent(NRS.blocks[0]) > NRS.constants.FORK_BASE_TARGET_PERCENTAGE && !NRS.isTestNet) {
                 $.growl($.t("fork_warning_base_target"), {
                     "type": "danger"
                 });

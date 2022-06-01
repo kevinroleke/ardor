@@ -740,6 +740,8 @@ NRS.onSiteBuildDone().then(() => {
             NRS.loadAssetOrders("bid", assetId, refresh);
             if (asset.hasPhasingAssetControl) {
                 NRS.loadAssetControls(assetId);
+            } else {
+                assetControls = false;
             }
             NRS.getAssetTradeHistory(assetId, refresh);
             NRS.getAssetDividendHistory(assetId, "asset_dividend");

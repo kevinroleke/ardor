@@ -21,8 +21,10 @@ import com.jelurida.ardor.integration.wallet.ledger.application.ArdorAppInterfac
 import javafx.application.Platform;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import netscape.javascript.JSObject;
 import nxt.addons.JO;
 import nxt.crypto.Crypto;
+import nxt.env.ServerStatus;
 import nxt.http.API;
 import nxt.util.Convert;
 import nxt.util.Logger;
@@ -58,6 +60,28 @@ public class JavaScriptBridge {
 
     public void error(String message) {
         Logger.logInfoMessage("console.error: " + message);
+    }
+
+    public static class ServerStatusJS {
+        public final String code;
+        public final String message;
+        private ServerStatusJS(String code, String message) {
+            this.code = code;
+            this.message = message;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+    }
+    @SuppressWarnings("unused")
+    public ServerStatusJS checkServerStatus() {
+        ServerStatus status = application.checkServerStatus();
+        return new ServerStatusJS(status.toString(), status.getMessage());
     }
 
     @SuppressWarnings("unused")

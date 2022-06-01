@@ -75,6 +75,7 @@ fi
 rm -f addons.tmp
 
 find test/java/ -name "*.java" > tests.tmp
+find addons/test/java/ -name "*.java" >> tests.tmp
 if [ -s tests.tmp ]; then
     echo "compiling tests..."
     /bin/rm -rf test/classes

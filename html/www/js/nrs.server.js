@@ -328,9 +328,11 @@
                     }
                 }
             }
-            let adminPassword = NRS.getAdminPassword();
-            if (adminPassword) {
-                data["adminPassword"] = adminPassword;
+            if (options.noProxy || !NRS.state || !NRS.state.apiProxy) {
+                let adminPassword = NRS.getAdminPassword();
+                if (adminPassword) {
+                    data["adminPassword"] = adminPassword;
+                }
             }
             NRS.processAjaxRequest(requestType, data, callback, options);
         };
@@ -2316,14 +2318,14 @@
 
         NRS.broadcastTransactionBytes = function (transactionBytes, callback, originalResponse, originalData, prunableAttachment) {
             if (NRS.state && NRS.state.apiProxy) {
-                function sendTransactionCallback(response, data) {
+                function broadcastTransactionCallback(response, data) {
                     if (response.errorCode) {
                         callback(response, data);
                     } else {
-                        sendBroadcastRequest("broadcastTransaction", transactionBytes, callback, originalResponse, originalData, prunableAttachment);
+                        sendBroadcastRequest("sendTransaction", transactionBytes, callback, originalResponse, originalData, prunableAttachment);
                     }
                 };
-                sendBroadcastRequest("sendTransaction", transactionBytes, sendTransactionCallback, originalResponse, originalData, prunableAttachment);
+                sendBroadcastRequest("broadcastTransaction", transactionBytes, broadcastTransactionCallback, originalResponse, originalData, prunableAttachment);
             } else {
                 sendBroadcastRequest("broadcastTransaction", transactionBytes, callback, originalResponse, originalData, prunableAttachment);
             }

@@ -39,7 +39,6 @@ import nxt.util.Logger;
 import nxt.voting.PhasingAppendix;
 import nxt.voting.PhasingControl;
 import nxt.voting.PhasingParams;
-import nxt.voting.VoteWeighting;
 import nxt.voting.VoteWeighting.VotingModel;
 
 import java.sql.Connection;
@@ -47,7 +46,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -325,11 +323,11 @@ public class AssetControl {
     public static void setIdsForDbUpdate() {
         if (PhasingOnly.getCount() > 0) {
             Set<Long> previousIds = new HashSet<>();
-            Map<Long, byte[]> fullHashes = getLastSetPhasingTransactionFullHashPerAssetId();
-            fullHashes.forEach((assetId, fullHash) -> {
-                long id = Convert.fullHashToId(fullHash);
+            Map<Long, SetPhasingTx> transactions = getLastSetPhasingTransactionFullHashPerAssetId();
+            transactions.forEach((assetId, transaction) -> {
+                long id = Convert.fullHashToId(transaction.fullHash);
                 if (!previousIds.add(id)) {
-                    throw new RuntimeException("Transaction hash " + Convert.toHexString(fullHash) + " converts to " +
+                    throw new RuntimeException("Transaction hash " + Convert.toHexString(transaction.fullHash) + " converts to " +
                             Long.toUnsignedString(id) + " which is already known");
                 }
                 try (Connection con = phasingControlTable.getConnection();
@@ -341,7 +339,7 @@ public class AssetControl {
                     pstmt.setLong(++i, id);
                     pstmt.setLong(++i, assetId);
                     int updatesCount = pstmt.executeUpdate();
-                    if (updatesCount == 0) {
+                    if (updatesCount == 0 && !transaction.isDeletion) {
                         throw new RuntimeException("Asset control not found for asset ID " + assetId);
                     }
                     if (updatesCount > 1) {
@@ -361,7 +359,16 @@ public class AssetControl {
         }
     }
 
-    private static Map<Long, byte[]> getLastSetPhasingTransactionFullHashPerAssetId() {
+    private static class SetPhasingTx {
+        final byte[] fullHash;
+        final boolean isDeletion;
+        private SetPhasingTx(byte[] fullHash, boolean isDeletion) {
+            this.fullHash = fullHash;
+            this.isDeletion = isDeletion;
+        }
+    }
+
+    private static Map<Long, SetPhasingTx> getLastSetPhasingTransactionFullHashPerAssetId() {
         try (Connection con = Db.db.getConnection(ChildChain.IGNIS.getDbSchema());
              PreparedStatement pstmt = con.prepareStatement("SELECT transaction.* from transaction " +
                      "  LEFT JOIN phasing_poll_result ON transaction.id = phasing_poll_result.id" +
@@ -371,15 +378,12 @@ public class AssetControl {
             int i = 0;
             pstmt.setByte(++i, AssetExchangeTransactionType.SET_PHASING_CONTROL.getType());
             pstmt.setByte(++i, AssetExchangeTransactionType.SET_PHASING_CONTROL.getSubtype());
-            Map<Long, byte[]> result = new HashMap<>();
+            Map<Long, SetPhasingTx> result = new HashMap<>();
             try (DbIterator<? extends Transaction> it = Nxt.getBlockchain().getTransactions(ChildChain.IGNIS, con, pstmt)) {
                 for (Transaction t : it) {
                     SetPhasingAssetControlAttachment attachment = (SetPhasingAssetControlAttachment) t.getAttachment();
-                    if (attachment.getPhasingParams().getVoteWeighting().getVotingModel() == VotingModel.NONE) {
-                        result.remove(attachment.getAssetId());
-                    } else {
-                        result.put(attachment.getAssetId(), t.getFullHash());
-                    }
+                    result.put(attachment.getAssetId(), new SetPhasingTx(t.getFullHash(),
+                                attachment.getPhasingParams().getVoteWeighting().getVotingModel() == VotingModel.NONE));
                 }
             }
             return result;

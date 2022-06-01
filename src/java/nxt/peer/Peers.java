@@ -1031,9 +1031,12 @@ public final class Peers {
                 (Nxt.getBlockchainProcessor().isDownloading() ||
                         Nxt.getBlockchain().getLastBlockTimestamp() < Nxt.getEpochTime() - 600) ?
                     Peer.BlockchainState.DOWNLOADING :
-                        (Nxt.getBlockchain().getLastBlock().getBaseTarget() / Constants.INITIAL_BASE_TARGET > 10 &&
-                                !Constants.isTestnet) ? Peer.BlockchainState.FORK :
-                        Peer.BlockchainState.UP_TO_DATE;
+                        (getLastBaseTargetPercentage() > Constants.FORK_BASE_TARGET_PERCENTAGE && !Constants.isTestnet) ?
+                                Peer.BlockchainState.FORK : Peer.BlockchainState.UP_TO_DATE;
+    }
+
+    private static long getLastBaseTargetPercentage() {
+        return Nxt.getBlockchain().getLastBlock().getBaseTarget() / Constants.INITIAL_BASE_TARGET * 100;
     }
 
     /**

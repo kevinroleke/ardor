@@ -15,6 +15,7 @@
 package nxt.http.proxy;
 
 import nxt.Nxt;
+import nxt.http.APIProxy;
 import nxt.util.Listener;
 import nxt.util.Listeners;
 import nxt.util.Logger;
@@ -24,6 +25,7 @@ import org.eclipse.jetty.client.util.BufferingResponseListener;
 import org.eclipse.jetty.client.util.BytesContentProvider;
 
 import javax.servlet.http.HttpServletRequest;
+import java.net.ConnectException;
 import java.net.URI;
 import java.util.List;
 
@@ -101,6 +103,9 @@ public class ResponseConfirmation {
                 }
             } else {
                 Logger.logDebugMessage("Remote node %s connection failed for request %s: %s", nodeUrl, requestType, result.getFailure());
+                if (result.getFailure() instanceof ConnectException) {
+                    APIProxy.getInstance().blacklistHost(nodeUrl.getHost());
+                }
             }
         }
     }

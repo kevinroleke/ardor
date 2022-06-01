@@ -56,6 +56,11 @@ class DesktopSystemTray {
     void createAndShowGUI() {
         if (!SystemTray.isSupported()) {
             Logger.logInfoMessage("SystemTray is not supported");
+
+            if ("true".equalsIgnoreCase(System.getProperty("nxt.simulate.desktop.app.show"))) {
+                //Hack to simulate desktop application launch before the DB was initialized
+                Nxt.getRuntimeMode().launchDesktopApplication();
+            }
             return;
         }
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
