@@ -1,18 +1,19 @@
-/******************************************************************************
- * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2022 Jelurida IP B.V.                                     *
- *                                                                            *
- * See the LICENSE.txt file at the top-level directory of this distribution   *
- * for licensing information.                                                 *
- *                                                                            *
- * Unless otherwise agreed in a custom licensing agreement with Jelurida B.V.,*
- * no part of this software, including this file, may be copied, modified,    *
- * propagated, or distributed except according to the terms contained in the  *
- * LICENSE.txt file.                                                          *
- *                                                                            *
- * Removal or modification of this copyright notice is prohibited.            *
- *                                                                            *
- ******************************************************************************/
+/*
+ * Copyright © 2013-2016 The Nxt Core Developers.
+ * Copyright © 2016-2023 Jelurida IP B.V.
+ * Copyright © 2023-2024 Jelurida Swiss SA
+ *
+ * See the LICENSE.txt file at the top-level directory of this distribution
+ * for licensing information.
+ *
+ * Unless otherwise agreed in a custom licensing agreement with Jelurida
+ * Swiss SA, no part of this software, including this file, may be copied,
+ * modified, propagated, or distributed except according to the terms
+ * contained in the LICENSE.txt file.
+ *
+ * Removal or modification of this copyright notice is prohibited.
+ *
+ */
 
 /**
  * @depends {nrs.js}
@@ -1409,7 +1410,11 @@
                     if (NRS.notOfType(transaction, "EffectiveBalanceLeasing")) {
                         return notOfTypeError;
                     }
-                    transaction.period = String(converters.byteArrayToSignedShort(byteArray, pos));
+                    if (attachment['version.EffectiveBalanceLeasing'] > 1) {
+                        transaction.period = String(converters.byteArrayToSignedInt32(byteArray, pos));
+                    } else {
+                        transaction.period = String(converters.byteArrayToSignedShort(byteArray, pos));
+                    }
                     pos += 2;
                     if (transaction.period !== String(data.period)) {
                         return verificationFailed('period', data.period, transaction.period);

@@ -1,18 +1,19 @@
-/******************************************************************************
- * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2022 Jelurida IP B.V.                                     *
- *                                                                            *
- * See the LICENSE.txt file at the top-level directory of this distribution   *
- * for licensing information.                                                 *
- *                                                                            *
- * Unless otherwise agreed in a custom licensing agreement with Jelurida B.V.,*
- * no part of this software, including this file, may be copied, modified,    *
- * propagated, or distributed except according to the terms contained in the  *
- * LICENSE.txt file.                                                          *
- *                                                                            *
- * Removal or modification of this copyright notice is prohibited.            *
- *                                                                            *
- ******************************************************************************/
+/*
+ * Copyright © 2013-2016 The Nxt Core Developers.
+ * Copyright © 2016-2023 Jelurida IP B.V.
+ * Copyright © 2023-2024 Jelurida Swiss SA
+ *
+ * See the LICENSE.txt file at the top-level directory of this distribution
+ * for licensing information.
+ *
+ * Unless otherwise agreed in a custom licensing agreement with Jelurida
+ * Swiss SA, no part of this software, including this file, may be copied,
+ * modified, propagated, or distributed except according to the terms
+ * contained in the LICENSE.txt file.
+ *
+ * Removal or modification of this copyright notice is prohibited.
+ *
+ */
 
 /**
  * @depends {nrs.js}
@@ -46,6 +47,24 @@ NRS.onSiteBuildDone().then(() => {
             };
         };
 
+        function _initDividendModal($modal) {
+            $modal.find('.aam_ue_asset_decimals_input').prop("disabled", true);
+            $modal.find('.acm_ue_currency_decimals_input').prop("disabled", true);
+            var holdingType = $("#dividend_payment_holding_type");
+            if(holdingType.val() == "0") {
+                $("#dividend_payment_asset_id_group").css("display", "none");
+                $("#dividend_payment_ms_currency_group").css("display", "none");
+            } if(holdingType.val() == "1") {
+                $modal.find('.aam_ue_asset_decimals_input').prop("disabled", false);
+                $("#dividend_payment_asset_id_group").css("display", "inline");
+                $("#dividend_payment_ms_currency_group").css("display", "none");
+            } else if(holdingType.val() == "2") {
+                $modal.find('.acm_ue_currency_decimals_input').prop("disabled", false);
+                $("#dividend_payment_asset_id_group").css("display", "none");
+                $("#dividend_payment_ms_currency_group").css("display", "inline");
+            }
+        }
+
         var dividendPaymentModal = $("#dividend_payment_modal");
         dividendPaymentModal.on("show.bs.modal", function() {
             var context = {
@@ -66,6 +85,8 @@ NRS.onSiteBuildDone().then(() => {
                 helpI18n: "add_asset_modal_help"
             };
             NRS.initModalUIElement($(this), '.dividend_payment_holding_asset', 'add_asset_modal_ui_element', context);
+
+            _initDividendModal($(this));
 
             // Activating context help popovers - from some reason this code is activated
             // after the same event in nrs.modals.js which doesn't happen for create pool thus it's necessary
@@ -157,17 +178,8 @@ NRS.onSiteBuildDone().then(() => {
         });
 
         $('#dividend_payment_holding_type').change(function () {
-            var holdingType = $("#dividend_payment_holding_type");
-            if(holdingType.val() == "0") {
-                $("#dividend_payment_asset_id_group").css("display", "none");
-                $("#dividend_payment_ms_currency_group").css("display", "none");
-            } if(holdingType.val() == "1") {
-                $("#dividend_payment_asset_id_group").css("display", "inline");
-                $("#dividend_payment_ms_currency_group").css("display", "none");
-            } else if(holdingType.val() == "2") {
-                $("#dividend_payment_asset_id_group").css("display", "none");
-                $("#dividend_payment_ms_currency_group").css("display", "inline");
-            }
+            var $modal = $(this).closest(".modal");
+            _initDividendModal($modal)
         });
 
         NRS.getAssetDividendHistory = function (assetId, table) {

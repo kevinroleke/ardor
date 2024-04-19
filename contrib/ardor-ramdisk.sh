@@ -30,17 +30,17 @@ BASE_LOG_NAME=ardor
 
 if grep -e "^nxt.isTestnet=true$" "${PRODUCT_DIR}/conf/nxt.properties" > /dev/null; then
   IS_TESTNET=1
-  BACKUPS_DIR=$PRODUCT_DIR/contrib/ramdisk-backups/testnet
+  BACKUPS_DIR=$PRODUCT_DIR/ramdisk-backups/testnet
 else
   IS_TESTNET=0
-  BACKUPS_DIR=$PRODUCT_DIR/contrib/ramdisk-backups/mainnet
+  BACKUPS_DIR=$PRODUCT_DIR/ramdisk-backups/mainnet
 fi
 log_msg "IS_TESTNET=$IS_TESTNET"
 
 if [ $IS_TESTNET -eq 1 ]; then
-  RAMDISK_SIZE=7000M
+  RAMDISK_SIZE=7500M
 else
-  RAMDISK_SIZE=5400M
+  RAMDISK_SIZE=7400M
 fi
 
 if [ $IS_TESTNET -eq 1 ]; then

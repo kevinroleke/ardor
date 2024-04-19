@@ -1,14 +1,15 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2022 Jelurida IP B.V.
+ * Copyright © 2016-2023 Jelurida IP B.V.
+ * Copyright © 2023-2024 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
  *
- * Unless otherwise agreed in a custom licensing agreement with Jelurida B.V.,
- * no part of this software, including this file, may be copied, modified,
- * propagated, or distributed except according to the terms contained in the
- * LICENSE.txt file.
+ * Unless otherwise agreed in a custom licensing agreement with Jelurida
+ * Swiss SA, no part of this software, including this file, may be copied,
+ * modified, propagated, or distributed except according to the terms
+ * contained in the LICENSE.txt file.
  *
  * Removal or modification of this copyright notice is prohibited.
  *
@@ -23,10 +24,16 @@ import nxt.env.RuntimeEnvironment;
 import nxt.http.APIServlet;
 import nxt.http.APITag;
 import nxt.util.Logger;
+import nxt.util.ResourceLookup;
 import nxt.util.security.BlockchainPermission;
 import nxt.util.security.BlockchainSecurityProvider;
 
 import java.io.FilePermission;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.AccessController;
 import java.security.Permission;
 import java.security.PrivilegedAction;
@@ -44,6 +51,8 @@ import java.util.stream.Collectors;
 public final class AddOns {
 
     private static final List<AddOn> addOns;
+
+    private static List<String> pluginIds = Collections.emptyList();
 
     static {
         List<AddOn> addOnsList = new ArrayList<>();
@@ -144,6 +153,31 @@ public final class AddOns {
                 map.put(requestType, requestHandler);
             }
         }
+        initUIPlugins();
+    }
+
+    public static void initUIPlugins() {
+        List<String> plugins = new ArrayList<>();
+        for (AddOn addOn : addOns) {
+            for (String pluginId : addOn.getUIPlugins()) {
+                if (checkManifest(pluginId)) {
+                    plugins.add(pluginId);
+                } else {
+                    Logger.logErrorMessage("AddOn " + addOn + " declared UI plug-in " + pluginId + " but the plugin" +
+                            " manifest was not found in the resources");
+                }
+            }
+        }
+        pluginIds = Collections.unmodifiableList(plugins);
+    }
+
+    private static boolean checkManifest(String pluginId) {
+        try (InputStream ignored = ResourceLookup.getSystemResourceAsStream(
+                Constants.ADDON_PLUGINS_RESOURCE_BASE + "/" + pluginId + "/manifest.json")) {
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     public static AddOn getAddOn(Class<? extends AddOn> addOnType) {
@@ -159,6 +193,10 @@ public final class AddOns {
                 .map(AddOn::getConfigProperties)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
+    }
+
+    public static List<String> getPluginIds() {
+        return pluginIds;
     }
 
     private AddOns() {

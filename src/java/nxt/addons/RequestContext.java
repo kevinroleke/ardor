@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2022 Jelurida IP B.V.
+ * Copyright © 2016-2023 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -152,11 +152,6 @@ public class RequestContext extends AbstractContractContext {
 
     public boolean isSecure() {
         return req.isSecure();
-    }
-
-    @Override
-    protected String getReferencedTransaction() {
-        return null;
     }
 
     @Override

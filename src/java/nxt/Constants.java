@@ -1,14 +1,15 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2022 Jelurida IP B.V.
+ * Copyright © 2016-2023 Jelurida IP B.V.
+ * Copyright © 2023-2024 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
  *
- * Unless otherwise agreed in a custom licensing agreement with Jelurida B.V.,
- * no part of this software, including this file, may be copied, modified,
- * propagated, or distributed except according to the terms contained in the
- * LICENSE.txt file.
+ * Unless otherwise agreed in a custom licensing agreement with Jelurida
+ * Swiss SA, no part of this software, including this file, may be copied,
+ * modified, propagated, or distributed except according to the terms
+ * contained in the LICENSE.txt file.
  *
  * Removal or modification of this copyright notice is prohibited.
  *
@@ -94,6 +95,9 @@ public final class Constants {
     public static final int MAX_ROLLBACK = Math.max(Nxt.getIntProperty("nxt.maxRollback"), 720);
     public static final int GUARANTEED_BALANCE_CONFIRMATIONS = isTestnet ? Nxt.getIntProperty("nxt.testnetGuaranteedBalanceConfirmations", 1440) : 1440;
     public static final int LEASING_DELAY = isTestnet ? Nxt.getIntProperty("nxt.testnetLeasingDelay", 1440) : 1440;
+    public static final int SHORT_LEASE_PERIOD_LIMIT = 65535;
+    public static final int LONG_LEASE_PERIOD_LIMIT = 32_000_000;
+
     public static final long MIN_FORGING_BALANCE_FQT = 1000 * ONE_FXT;
 
     public static final int MAX_TIMEDRIFT = 15; // allow up to 15 s clock difference
@@ -213,16 +217,26 @@ public final class Constants {
     public static final long GPS_ASSET_ID = Convert.parseUnsignedLong(Constants.isTestnet ? "8016986501463341146" : "3123987739214429747");
     public static final int AUTO_CANCEL_DUST_ORDER_BLOCK = Constants.isTestnet ? Constants.isAutomatedTest ? 0 : 9800000 : 2307000;
     public static final int TRANSACTION_TYPE_SPECIFIC_ASSET_CONTROL = Constants.isTestnet ? Constants.isAutomatedTest ? 20 : 9800000 : 2307000;
+    public static final int LEASING_PERIOD_INCREASE = Constants.isTestnet ? Constants.isAutomatedTest ? 20 : 15660000 : Integer.MAX_VALUE;
+    public static final int PREVENT_APPROVAL_OF_EARLY_FINISHED = Constants.isTestnet ? Constants.isAutomatedTest ? 0 : 15660000 : Integer.MAX_VALUE;
     public static final int CHECKSUM_BLOCK_6 = Constants.isTestnet ? 5666000 : 1453500;
     public static final int CHECKSUM_BLOCK_7 = Constants.isTestnet ? 7464000 : 1797000;
     public static final int CHECKSUM_BLOCK_8 = Constants.isTestnet ? 10360000 : 2351000;
+    public static final int CHECKSUM_BLOCK_9 = Constants.isTestnet ? 15290000 : 3313000;
 
 
-    public static final int LAST_CHECKSUM_BLOCK = CHECKSUM_BLOCK_8;
+    public static final int LAST_CHECKSUM_BLOCK = CHECKSUM_BLOCK_9;
 
-    public static final int LAST_KNOWN_BLOCK =  Constants.isAutomatedTest ? 0 : CHECKSUM_BLOCK_8;
+    public static final int LAST_KNOWN_BLOCK =  Constants.isAutomatedTest ? 0 : CHECKSUM_BLOCK_9;
     public static final long LAST_KNOWN_BLOCK_ID = Convert.parseUnsignedLong(
-            isTestnet ? Constants.isAutomatedTest ? "1318911886063902233" : "6397903228091951829" : "12430465704212719921");
+            isTestnet ? Constants.isAutomatedTest ? "1318911886063902233" : "11185094792726422988" : "13362589706114495070");
+
+    public static final byte[][] MPG_TRANSACTIONS_BEFORE_MPG_BLOCK = new byte[][] {
+            Convert.parseHexString("fea6ae643033812ee9329eb8d5d09de9be6279fdc2d13130878bef5b95314c32"),
+            Convert.parseHexString("d58c37d5352d3c8109040dfb9d3d02958f2a8f88937b000ed988bf94edac318b"),
+            Convert.parseHexString("719b0304b594262ea6d0121e098e5829d4ba875996fb6d28166f7eb2ed683e48"),
+            Convert.parseHexString("e0c762473a4f1d397cc9ac8c2f3d73665bde6026f5ad4ecbcc9817887d7227e7"),
+    };
 
     public static final int[] MIN_VERSION = new int[] {2, 4, 1};
     public static final int[] MIN_PROXY_VERSION = new int[] {2, 4, 2};
@@ -241,6 +255,8 @@ public final class Constants {
     public static final boolean DISABLE_METADATA_DETECTION = Nxt.getBooleanProperty("nxt.disableMetadataDetection");
 
     public static final int MAX_ASSET_TRADE_ROYALTIES_PERCENTAGE = 50;
+
+    public static final String ADDON_PLUGINS_RESOURCE_BASE = "addon_plugins";
 
     private Constants() {
     } // never

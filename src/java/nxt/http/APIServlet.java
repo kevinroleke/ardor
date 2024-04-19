@@ -1,14 +1,15 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2022 Jelurida IP B.V.
+ * Copyright © 2016-2023 Jelurida IP B.V.
+ * Copyright © 2023-2024 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
  *
- * Unless otherwise agreed in a custom licensing agreement with Jelurida B.V.,
- * no part of this software, including this file, may be copied, modified,
- * propagated, or distributed except according to the terms contained in the
- * LICENSE.txt file.
+ * Unless otherwise agreed in a custom licensing agreement with Jelurida
+ * Swiss SA, no part of this software, including this file, may be copied,
+ * modified, propagated, or distributed except according to the terms
+ * contained in the LICENSE.txt file.
  *
  * Removal or modification of this copyright notice is prohibited.
  *
@@ -20,6 +21,7 @@ import nxt.Constants;
 import nxt.Nxt;
 import nxt.NxtException;
 import nxt.addons.AddOns;
+import nxt.blockchain.BlockchainImpl;
 import nxt.blockchain.Chain;
 import nxt.blockchain.ChildChain;
 import nxt.blockchain.TransactionType;
@@ -152,6 +154,16 @@ public final class APIServlet extends HttpServlet {
 
         protected boolean allowRequiredBlockParameters() {
             return true;
+        }
+
+        /**
+         * Obtain update lock on the blockchain when a required block parameter is provided instead of read lock.
+         * Should be set for APIs that need write lock during execution
+         *
+         * @return true if an update lock is to be obtained
+         */
+        protected boolean requiredBlockUpdateLock() {
+            return false;
         }
 
         protected boolean requireBlockchain() {
@@ -360,8 +372,13 @@ public final class APIServlet extends HttpServlet {
                     ParameterParser.getUnsignedLong(req, "requireBlock", false) : 0;
             final long requireLastBlockId = apiRequestHandler.allowRequiredBlockParameters() ?
                     ParameterParser.getUnsignedLong(req, "requireLastBlock", false) : 0;
+            boolean requiredBlockUpdateLock = apiRequestHandler.requiredBlockUpdateLock();
             if (requireBlockId != 0 || requireLastBlockId != 0) {
-                Nxt.getBlockchain().readLock();
+                if (requiredBlockUpdateLock) {
+                    BlockchainImpl.getInstance().updateLock();
+                } else {
+                    Nxt.getBlockchain().readLock();
+                }
             }
             try {
                 boolean startedTransaction = false;
@@ -389,7 +406,11 @@ public final class APIServlet extends HttpServlet {
                 }
             } finally {
                 if (requireBlockId != 0 || requireLastBlockId != 0) {
-                    Nxt.getBlockchain().readUnlock();
+                    if (requiredBlockUpdateLock) {
+                        BlockchainImpl.getInstance().updateUnlock();
+                    } else {
+                        Nxt.getBlockchain().readUnlock();
+                    }
                 }
                 Db.db.setThreadQueryTimeout(0);
             }

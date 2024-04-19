@@ -23,7 +23,7 @@ export JAVA_HOME=`/usr/libexec/java_home -v 1.8`
 export JAVA_TOOL_OPTIONS="$JAVA_TOOL_OPTIONS -Dfile.encoding=UTF8"
 
 FILES="changelogs conf html lib testlib resource contrib"
-FILES="${FILES} ardor.exe ardorservice.exe"
+FILES="${FILES} ardor.cmd"
 FILES="${FILES} 3RD-PARTY-LICENSES.txt LICENSE.txt"
 FILES="${FILES} DEVELOPERS-GUIDE.md OPERATORS-GUIDE.md README.md README.txt USERS-GUIDE.md"
 FILES="${FILES} mint.bat mint.sh run.bat run.sh run-desktop.sh start.sh stop.sh compact.sh compact.bat sign.sh sign.bat"
@@ -53,8 +53,6 @@ echo javadoc
 ./javadoc.sh
 fi
 echo copy resources
-cp installer/lib/JavaExe.exe ardor.exe
-cp installer/lib/JavaExe.exe ardorservice.exe
 cp -a ${FILES} ardor
 cp -a logs/placeholder.txt ardor/logs
 echo gzip

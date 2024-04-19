@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2022 Jelurida IP B.V.
+ * Copyright © 2016-2023 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -114,6 +114,11 @@ public class NullContractRunnerConfig implements ContractRunnerConfig {
 
     @Override
     public byte[] getRunnerSeed() {
+        return new byte[0];
+    }
+
+    @Override
+    public byte[] getManagedAccountPrivateKey(int index) {
         return new byte[0];
     }
 

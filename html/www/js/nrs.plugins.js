@@ -1,18 +1,19 @@
-/******************************************************************************
- * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2022 Jelurida IP B.V.                                     *
- *                                                                            *
- * See the LICENSE.txt file at the top-level directory of this distribution   *
- * for licensing information.                                                 *
- *                                                                            *
- * Unless otherwise agreed in a custom licensing agreement with Jelurida B.V.,*
- * no part of this software, including this file, may be copied, modified,    *
- * propagated, or distributed except according to the terms contained in the  *
- * LICENSE.txt file.                                                          *
- *                                                                            *
- * Removal or modification of this copyright notice is prohibited.            *
- *                                                                            *
- ******************************************************************************/
+/*
+ * Copyright © 2013-2016 The Nxt Core Developers.
+ * Copyright © 2016-2023 Jelurida IP B.V.
+ * Copyright © 2023-2024 Jelurida Swiss SA
+ *
+ * See the LICENSE.txt file at the top-level directory of this distribution
+ * for licensing information.
+ *
+ * Unless otherwise agreed in a custom licensing agreement with Jelurida
+ * Swiss SA, no part of this software, including this file, may be copied,
+ * modified, propagated, or distributed except according to the terms
+ * contained in the LICENSE.txt file.
+ *
+ * Removal or modification of this copyright notice is prohibited.
+ *
+ */
 
 /**
  * @depends {nrs.js}
@@ -25,8 +26,24 @@ NRS.onSiteBuildDone().then(() => {
         NRS.activePlugins = false;
         NRS.numRunningPlugins = 0;
 
+        NRS.getPluginPath = function(pluginId) {
+            if (pluginId.indexOf('addon/') == 0) {
+                return 'addon-plugins/' + pluginId.substring('addon/'.length) + '/';
+            } else {
+                return 'plugins/' + pluginId + '/';
+            }
+        }
+
+        NRS.getPluginFileName = function(pluginId) {
+            if (pluginId.indexOf('addon/') == 0) {
+                return pluginId.substring('addon/'.length);
+            } else {
+                return pluginId;
+            }
+        }
+
         NRS.checkForPluginManifest = async function(pluginId) {
-            let response = await fetch('plugins/' + pluginId + '/manifest.json', {cache: "no-store"});
+            let response = await fetch(NRS.getPluginPath(pluginId) + 'manifest.json', {cache: "no-store"});
             return await response.json();
         };
 
@@ -100,13 +117,14 @@ NRS.onSiteBuildDone().then(() => {
                 return false;
             }
 
-            var pluginPath = 'plugins/' + pluginId + '/';
+            var pluginPath = NRS.getPluginPath(pluginId);
+            var pluginFile = NRS.getPluginFileName(pluginId);
             var notFound = undefined;
             var mandatoryFiles = [
-                pluginPath + 'html/pages/' + pluginId + '.html',
-                pluginPath + 'html/modals/' + pluginId + '.html',
-                pluginPath + 'js/nrs.' + pluginId + '.js',
-                pluginPath + 'css/' + pluginId + '.css'
+                pluginPath + 'html/pages/' + pluginFile + '.html',
+                pluginPath + 'html/modals/' + pluginFile + '.html',
+                pluginPath + 'js/nrs.' + pluginFile + '.js',
+                pluginPath + 'css/' + pluginFile + '.css'
             ];
             jQuery.ajaxSetup({ async: false });
             for (i=0; i<mandatoryFiles.length; i++) {
@@ -152,12 +170,12 @@ NRS.onSiteBuildDone().then(() => {
                     plugin['nrs_compatibility'] = NRS.constants.PNC_COMPATIBILITY_CLIENT_VERSION_TOO_OLD;
                     plugin['nrs_compatibility_msg'] = $.t('pnc_compatibility_build_for_newer_client_msg', 'Plugin build for newer client version');
                 } else {
-                    if (pvList[0] == cvList[0] && pvList[1] == cvList[1]) {
+                    if (pvList[0] == cvList[0] && pvList[1] == cvList[1]) {
                         plugin['nrs_compatibility'] = NRS.constants.PNC_COMPATIBILITY_MINOR_RELEASE_DIFF;
                         plugin['nrs_compatibility_msg'] = $.t('pnc_compatibility_minor_release_diff_msg', 'Plugin build for another minor release version');
                     } else {
                         plugin['nrs_compatibility'] = NRS.constants.PNC_COMPATIBILITY_MAJOR_RELEASE_DIFF;
-                        plugin['nrs_compatibility_msg'] = $.t('pnc_compatibility_minor_release_diff_msg', 'Plugin build for another major release version');
+                        plugin['nrs_compatibility_msg'] = $.t('pnc_compatibility_major_release_diff_msg', 'Plugin build for another major release version');
                     }
                 }
             }
@@ -177,27 +195,36 @@ NRS.onSiteBuildDone().then(() => {
             }
         };
 
+        NRS.initializePlugin = async function(pluginId) {
+            let manifest = await NRS.checkForPluginManifest(pluginId);
+            if (manifest) {
+                NRS.plugins[pluginId] = {
+                    'validity': NRS.constants.PV_NOT_VALID,
+                    'validity_msg': $.t('pv_not_valid_msg', 'Plugin invalid'),
+                    'nrs_compatibility': NRS.constants.PNC_COMPATIBILITY_UNKNOWN,
+                    'nrs_compatibility_msg': $.t('pnc_compatible_unknown_msg', 'Plugin compatibility with NRS version unknown'),
+                    'launch_status': NRS.constants.PL_HALTED,
+                    'launch_status_msg': $.t('plugin_halted', 'Halted'),
+                    'manifest': undefined
+                };
+                if (NRS.checkPluginValidity(pluginId, manifest)) {
+                    NRS.plugins[pluginId]['manifest'] = manifest;
+                    NRS.checkPluginNRSCompatibility(pluginId);
+                    NRS.determinePluginLaunchStatus(pluginId);
+                }
+            }
+        }
+
         NRS.initializePlugins = function() {
             NRS.sendRequest("getPlugins", {}, async function (response) {
                 if(response.plugins && response.plugins.length >= 0) {
                     for (var i=0; i<response.plugins.length; i++) {
-                        let manifest = await NRS.checkForPluginManifest(response.plugins[i]);
-                        if (manifest) {
-                            NRS.plugins[response.plugins[i]] = {
-                                'validity': NRS.constants.PV_NOT_VALID,
-                                'validity_msg': $.t('pv_not_valid_msg', 'Plugin invalid'),
-                                'nrs_compatibility': NRS.constants.PNC_COMPATIBILITY_UNKNOWN,
-                                'nrs_compatibility_msg': $.t('pnc_compatible_unknown_msg', 'Plugin compatibility with NRS version unknown'),
-                                'launch_status': NRS.constants.PL_HALTED,
-                                'launch_status_msg': $.t('plugin_halted', 'Halted'),
-                                'manifest': undefined
-                            };
-                            if (NRS.checkPluginValidity(response.plugins[i], manifest)) {
-                                NRS.plugins[response.plugins[i]]['manifest'] = manifest;
-                                NRS.checkPluginNRSCompatibility(response.plugins[i]);
-                                NRS.determinePluginLaunchStatus(response.plugins[i]);
-                            }
-                        }
+                        NRS.initializePlugin(response.plugins[i]);
+                    }
+                }
+                if(response.addonPlugins && response.addonPlugins.length >= 0) {
+                    for (var i=0; i<response.addonPlugins.length; i++) {
+                        NRS.initializePlugin('addon/' + response.addonPlugins[i]);
                     }
                 }
                 NRS.initPluginWarning();
@@ -230,18 +257,19 @@ NRS.onSiteBuildDone().then(() => {
         NRS.loadPlugin = function(pluginId) {
             var plugin = NRS.plugins[pluginId];
             var manifest = NRS.plugins[pluginId]['manifest'];
-            var pluginPath = 'plugins/' + pluginId + '/';
+            var pluginPath = NRS.getPluginPath(pluginId);
+            var pluginFile = NRS.getPluginFileName(pluginId);
             async.series([
                 function(callback){
-                    NRS.asyncLoadPageHTML(pluginPath + 'html/pages/' + pluginId + '.html');
+                    NRS.asyncLoadPageHTML(pluginPath + 'html/pages/' + pluginFile + '.html');
                     callback(null);
                 },
                 function(callback){
-                    NRS.asyncLoadPageHTML(pluginPath + 'html/modals/' + pluginId + '.html');
+                    NRS.asyncLoadPageHTML(pluginPath + 'html/modals/' + pluginFile + '.html');
                     callback(null);
                 },
                 function(callback){
-                    $.getScript(pluginPath + 'js/nrs.' + pluginId + '.js').done(function() {
+                    $.getScript(pluginPath + 'js/nrs.' + pluginFile + '.js').done(function() {
                         if (!manifest['sidebarOptOut']) {
                             var sidebarId = 'sidebar_plugins';
                             var options = {
@@ -252,7 +280,7 @@ NRS.onSiteBuildDone().then(() => {
                             NRS.appendMenuItemToTSMenuItem(sidebarId, options);
                             $(".sidebar .treeview").tree();
                         }
-                        var cssURL = pluginPath + 'css/' + pluginId + '.css';
+                        var cssURL = pluginPath + 'css/' + pluginFile + '.css';
                         if (document.createStyleSheet) {
                             document.createStyleSheet(cssURL);
                         } else {

@@ -4,7 +4,7 @@
 	<programGroup defaultName="Ardor" location="startMenu"/>
 	<shortcut
 		name="Ardor Server"
-		target="$INSTALL_PATH\ardor.exe"
+		target="$INSTALL_PATH\ardor.cmd"
 		commandLine=""
 		workingDirectory="$INSTALL_PATH"
         description="Start Ardor server"

@@ -47,11 +47,6 @@ grant codeBase "file:ardor.jar" {
     permission java.security.AllPermission;
 };
 
-// For Ardor code in installation running as a Windows service
-grant codeBase "file:ardorservice.jar" {
-    permission java.security.AllPermission;
-};
-
 // Test class during development
 grant codeBase "file:test/classes/-" {
     permission java.security.AllPermission;

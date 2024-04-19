@@ -1,18 +1,19 @@
-/******************************************************************************
- * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2022 Jelurida IP B.V.                                     *
- *                                                                            *
- * See the LICENSE.txt file at the top-level directory of this distribution   *
- * for licensing information.                                                 *
- *                                                                            *
- * Unless otherwise agreed in a custom licensing agreement with Jelurida B.V.,*
- * no part of this software, including this file, may be copied, modified,    *
- * propagated, or distributed except according to the terms contained in the  *
- * LICENSE.txt file.                                                          *
- *                                                                            *
- * Removal or modification of this copyright notice is prohibited.            *
- *                                                                            *
- ******************************************************************************/
+/*
+ * Copyright © 2013-2016 The Nxt Core Developers.
+ * Copyright © 2016-2023 Jelurida IP B.V.
+ * Copyright © 2023-2024 Jelurida Swiss SA
+ *
+ * See the LICENSE.txt file at the top-level directory of this distribution
+ * for licensing information.
+ *
+ * Unless otherwise agreed in a custom licensing agreement with Jelurida
+ * Swiss SA, no part of this software, including this file, may be copied,
+ * modified, propagated, or distributed except according to the terms
+ * contained in the LICENSE.txt file.
+ *
+ * Removal or modification of this copyright notice is prohibited.
+ *
+ */
 
 /**
  * @depends {nrs.js}
@@ -141,7 +142,7 @@ NRS.onSiteBuildDone().then(() => {
             let calculatedAccount = NRS.getAccountId(privateKey);
             if (accountId === calculatedAccount) {
                 $(".btn-passphrase-validation").removeClass("btn-danger").addClass("btn-success");
-                var publicKey = NRS.getPublicKeyFromSecretPhrase(secretPhrase);
+                let publicKey = NRS.getPublicKeyFromPrivateKey(NRS.getPrivateKey(secretPhrase));
                 $("#passphrae_validation_public_key").val(publicKey);
                 $modal.find("button.btn-primary").hide();
                 $modal.find("input[name=secretPhrase]").attr("readonly", true);

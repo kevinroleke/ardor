@@ -1,14 +1,15 @@
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ~ Copyright © 2013-2016 The Nxt Core Developers.                            ~
-  ~ Copyright © 2016-2022 Jelurida IP B.V.                                    ~
+  ~ Copyright © 2016-2023 Jelurida IP B.V.                                    ~
+  ~ Copyright © 2023-2024 Jelurida Swiss SA                                   ~
   ~                                                                           ~
   ~ See the LICENSE.txt file at the top-level directory of this distribution  ~
   ~ for licensing information.                                                ~
   ~                                                                           ~
-  ~ Unless otherwise agreed in a custom licensing agreement with Jelurida B.V.,
-  ~ no part of this software, including this file, may be copied, modified,   ~
-  ~ propagated, or distributed except according to the terms contained in the ~
-  ~ LICENSE.txt file.                                                         ~
+  ~ Unless otherwise agreed in a custom licensing agreement with Jelurida     ~
+  ~ Swiss SA, no part of this software, including this file, may be copied,   ~
+  ~ modified, propagated, or distributed except according to the terms        ~
+  ~ contained in the LICENSE.txt file.                                        ~
   ~                                                                           ~
   ~ Removal or modification of this copyright notice is prohibited.           ~
   ~                                                                           ~
@@ -105,7 +106,7 @@
                 <div class="form-group">
                     <label for="login_password" data-i18n="passphrase_or_private_key">Passphrase or Private Key</label>
                     <div class="input-group">
-                        <input type="password" class="form-control" id="login_password" placeholder="Your Passphrase" data-i18n="[placeholder]your_passphrase"/>
+                        <input type="password" class="form-control" id="login_password" placeholder="Your Passphrase" data-i18n="[placeholder]your_passphrase" spellcheck="false"/>
                         <span class="input-group-addon">
                             <a class="scan-qr-code" href="#" data-reader="login_password_reader" data-id="login_password" tabindex="-1">
                                 <i class="far fa-qrcode"></i>
@@ -175,7 +176,7 @@
                 <div class="form-group">
                     <div class="input-group">
                         <span class="input-group-addon" data-i18n="seed">Seed</span>
-                        <input type="password" class="form-control" id="login_seed" placeholder="Your Seed" data-i18n="[placeholder]your_seed" autofocus />
+                        <input type="password" class="form-control" id="login_seed" placeholder="Your Seed" data-i18n="[placeholder]your_seed" autofocus spellcheck="false"/>
                         <span class="input-group-btn">
                             <a class="scan-qr-code btn btn-default" href="#" data-reader="login_seed_reader" data-id="login_seed" tabindex="-1">
                                 <i class="far fa-qrcode"></i>
@@ -284,11 +285,11 @@
 
             <div class="form-group">
                 <label for="registration_password" data-i18n="passphrase">Passphrase</label>
-                <input type="password" name="registration_password" class="form-control" id="registration_password" placeholder="" />
+                <input type="password" name="registration_password" class="form-control" id="registration_password" placeholder="" spellcheck="false"/>
             </div>
             <div class="form-group">
                 <label for="registration_password_repeat" data-i18n="repeat">Repeat</label>
-                <input type="password" name="registration_password_repeat" class="form-control" id="registration_password_repeat" placeholder="" />
+                <input type="password" name="registration_password_repeat" class="form-control" id="registration_password_repeat" placeholder="" spellcheck="false"/>
             </div>
 
             <div style="text-align:right">&nbsp;&nbsp;
@@ -309,7 +310,7 @@
             <div class="step_2 account_phrase_generator_steps">
                 <div class="form-group">
                     <label for="step_2_generated_secret" class="entity_generated_secret"></label>
-                    <textarea class="form-control" style="color: blue; font-family: monospace" id="step_2_generated_secret" rows="2" tabindex="-1"></textarea>
+                    <textarea class="form-control" style="color: blue; font-family: monospace" id="step_2_generated_secret" rows="2" tabindex="-1" spellcheck="false"></textarea>
                     <div class="callout callout-warning memorize_passphrase_help"></div>
                     <div class="form-group">
                         <label for="secret_generator_wordlist_length">Secret length</label>
@@ -363,7 +364,7 @@
 
                 <div class="form-group">
                     <label for="step_3_confirm_secret" id="step_3_confirm_secret_header"></label>
-                    <textarea class="form-control" id="step_3_confirm_secret" rows="2"></textarea>
+                    <textarea class="form-control" id="step_3_confirm_secret" rows="2" spellcheck="false"></textarea>
                 </div>
 
                 <div style="text-align:right">&nbsp;&nbsp;

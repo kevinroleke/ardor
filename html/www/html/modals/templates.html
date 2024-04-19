@@ -1,14 +1,15 @@
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ~ Copyright © 2013-2016 The Nxt Core Developers.                            ~
-  ~ Copyright © 2016-2022 Jelurida IP B.V.                                    ~
+  ~ Copyright © 2016-2023 Jelurida IP B.V.                                    ~
+  ~ Copyright © 2023-2024 Jelurida Swiss SA                                   ~
   ~                                                                           ~
   ~ See the LICENSE.txt file at the top-level directory of this distribution  ~
   ~ for licensing information.                                                ~
   ~                                                                           ~
-  ~ Unless otherwise agreed in a custom licensing agreement with Jelurida B.V.,
-  ~ no part of this software, including this file, may be copied, modified,   ~
-  ~ propagated, or distributed except according to the terms contained in the ~
-  ~ LICENSE.txt file.                                                         ~
+  ~ Unless otherwise agreed in a custom licensing agreement with Jelurida     ~
+  ~ Swiss SA, no part of this software, including this file, may be copied,   ~
+  ~ modified, propagated, or distributed except according to the terms        ~
+  ~ contained in the LICENSE.txt file.                                        ~
   ~                                                                           ~
   ~ Removal or modification of this copyright notice is prohibited.           ~
   ~                                                                           ~
@@ -78,7 +79,7 @@
         <button id="{{name}}_secret_phrase_scan" type="button" data-reader="{{name}}_secret_phrase_reader" data-result="{{name}}_password" class="scan-qr-code btn btn-default btn-xs ">
             <i class="far fa-qrcode"></i>
         </button>
-        <input type="password" name="secretPhrase" id="{{name}}_password" class="form-control secret-phrase-input" placeholder="" tabindex="111">
+        <input type="password" name="secretPhrase" id="{{name}}_password" class="form-control secret-phrase-input" placeholder="" tabindex="111" spellcheck="false">
         <div class="form-group">
             <div class="shared-secret-container">
                 <label for="{{name}}_is_shared_secret" class="checkbox-inline">
@@ -106,7 +107,7 @@
 <div id="admin_password_modal_template">
     <div class="form-group">
         <label for="{{name}}_admin_password" data-i18n="admin_password">ADMIN PASSWORD</label>
-        <input type="password" name="adminPassword" id="{{name}}_admin_password" class="form-control" placeholder="" tabindex="112">
+        <input type="password" name="adminPassword" id="{{name}}_admin_password" class="form-control" placeholder="" tabindex="112" spellcheck="false">
     </div>
 </div>
 

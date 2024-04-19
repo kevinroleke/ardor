@@ -12,7 +12,5 @@ fi
 ${JAVA} -cp classes nxt.tools.ManifestGenerator
 /bin/rm -f ardor.jar
 ${JAR} cfm ardor.jar resource/ardor.manifest.mf -C classes . || exit 1
-/bin/rm -f ardorservice.jar
-${JAR} cfm ardorservice.jar resource/ardorservice.manifest.mf -C classes . || exit 1
 
-echo "jar files generated successfully"
+echo "jar file generated successfully"

@@ -1,14 +1,15 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2022 Jelurida IP B.V.
+ * Copyright © 2016-2023 Jelurida IP B.V.
+ * Copyright © 2023-2024 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
  *
- * Unless otherwise agreed in a custom licensing agreement with Jelurida B.V.,
- * no part of this software, including this file, may be copied, modified,
- * propagated, or distributed except according to the terms contained in the
- * LICENSE.txt file.
+ * Unless otherwise agreed in a custom licensing agreement with Jelurida
+ * Swiss SA, no part of this software, including this file, may be copied,
+ * modified, propagated, or distributed except according to the terms
+ * contained in the LICENSE.txt file.
  *
  * Removal or modification of this copyright notice is prohibited.
  *
@@ -21,6 +22,7 @@ import nxt.Nxt;
 import nxt.crypto.Crypto;
 import nxt.util.Convert;
 import nxt.util.Logger;
+import nxt.util.MultiJarResourceHandler;
 import nxt.util.SslKeyStoreGenerator;
 import nxt.util.ThreadPool;
 import nxt.util.UPnP;
@@ -254,6 +256,15 @@ public final class API {
                 docFileHandler.setWelcomeFiles(new String[]{"index.html"});
                 docFileHandler.setResourceBase(javadocResourceBase);
                 contextHandler.setHandler(docFileHandler);
+                apiHandlers.addHandler(contextHandler);
+            }
+
+            {
+                ContextHandler contextHandler = new ContextHandler("/addon-plugins");
+                MultiJarResourceHandler pluginsHandler = new MultiJarResourceHandler();
+                pluginsHandler.setDirectoriesListed(false);
+                pluginsHandler.setResourceBase(Constants.ADDON_PLUGINS_RESOURCE_BASE);
+                contextHandler.setHandler(pluginsHandler);
                 apiHandlers.addHandler(contextHandler);
             }
 

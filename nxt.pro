@@ -15,7 +15,7 @@
 -verbose
 
 -keepattributes EnclosingMethod,Signature,*Annotation*
--keep,allowshrinking class nxt.util.NxtLogManager,nxt.util.MemoryHandler
+-keep class nxt.util.NxtLogManager,nxt.util.MemoryHandler
 -keep,includedescriptorclasses class nxt.peer.PeerWebSocket,nxt.db.FullTextTrigger {
     <methods>;
 }
@@ -81,6 +81,23 @@
 # along with the special 'createUI' method.
 -keep class * extends javax.swing.plaf.ComponentUI {
     public static javax.swing.plaf.ComponentUI createUI(javax.swing.JComponent);
+}
+
+# Keep the "instance" fields in the APIRequestHandler
+-keep class * extends nxt.http.APIServlet$APIRequestHandler {
+    static <fields>;
+    final static <fields>;
+}
+
+# or else it changes package and cannot access the "instance" field of the APIRequestHandler
+-keep class nxt.http.APIEnum
+
+-keepclassmembers class * extends javax.servlet.Filter {
+    public <init>();
+}
+
+-keepclassmembers class * extends javax.servlet.http.HttpServlet {
+    public <init>();
 }
 
 # Keep names - Native method names. Keep all native class/method names.

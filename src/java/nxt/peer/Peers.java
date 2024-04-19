@@ -1,14 +1,15 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2022 Jelurida IP B.V.
+ * Copyright © 2016-2023 Jelurida IP B.V.
+ * Copyright © 2023-2024 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
  *
- * Unless otherwise agreed in a custom licensing agreement with Jelurida B.V.,
- * no part of this software, including this file, may be copied, modified,
- * propagated, or distributed except according to the terms contained in the
- * LICENSE.txt file.
+ * Unless otherwise agreed in a custom licensing agreement with Jelurida
+ * Swiss SA, no part of this software, including this file, may be copied,
+ * modified, propagated, or distributed except according to the terms
+ * contained in the LICENSE.txt file.
  *
  * Removal or modification of this copyright notice is prohibited.
  *
@@ -122,6 +123,8 @@ public final class Peers {
 
     /** Save peers */
     private static final boolean savePeers = Nxt.getBooleanProperty("nxt.savePeers");
+
+    private static final boolean preventLocalConnection = Nxt.getBooleanProperty("nxt.preventLocalPeersConnection", true);
 
     /** Hide error details */
     static final boolean hideErrorDetails = Nxt.getBooleanProperty("nxt.hideErrorDetails");
@@ -525,7 +528,7 @@ public final class Peers {
      * @return                          Peer or null if the peer could not be created
      */
     private static PeerImpl findOrCreatePeer(InetAddress inetAddress, String announcedAddress, boolean create) {
-        if (inetAddress.isAnyLocalAddress() || inetAddress.isLoopbackAddress() || inetAddress.isLinkLocalAddress()) {
+        if (preventLocalConnection && (inetAddress.isAnyLocalAddress() || inetAddress.isLoopbackAddress() || inetAddress.isLinkLocalAddress())) {
             return null;
         }
         PeerImpl peer;

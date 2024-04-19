@@ -16,7 +16,7 @@ FILES="${FILES} DEVELOPERS-GUIDE.md OPERATORS-GUIDE.md README.md README.txt USER
 FILES="${FILES} mint.bat mint.sh run.bat run.sh run-desktop.sh start.sh stop.sh compact.sh compact.bat sign.sh sign.bat"
 FILES="${FILES} passphraseRecovery.sh passphraseRecovery.bat contractManager.sh contractManager.bat pem.to.pkcs12.keystore.certbot.hook.sh"
 FILES="${FILES} run-taxreport.sh run-taxreport.bat"
-FILES="${FILES} ardor.policy ardordesktop.policy contractManager.policy Ardor_Wallet.url"
+FILES="${FILES} ardor.policy ardordesktop.policy contractManager.policy Ardor_Wallet.url ArdorMacOS.command"
 
 unix2dos *.bat
 echo compile
@@ -44,8 +44,6 @@ echo javadoc
 ./javadoc.sh
 fi
 echo copy resources
-cp installer/lib/JavaExe.exe ardor.exe
-cp installer/lib/JavaExe.exe ardorservice.exe
 cp -a ${FILES} ardor
 cp -a logs/placeholder.txt ardor/logs
 echo gzip

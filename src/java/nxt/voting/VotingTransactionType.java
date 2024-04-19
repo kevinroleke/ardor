@@ -1,14 +1,15 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2022 Jelurida IP B.V.
+ * Copyright © 2016-2023 Jelurida IP B.V.
+ * Copyright © 2023-2024 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
  *
- * Unless otherwise agreed in a custom licensing agreement with Jelurida B.V.,
- * no part of this software, including this file, may be copied, modified,
- * propagated, or distributed except according to the terms contained in the
- * LICENSE.txt file.
+ * Unless otherwise agreed in a custom licensing agreement with Jelurida
+ * Swiss SA, no part of this software, including this file, may be copied,
+ * modified, propagated, or distributed except according to the terms
+ * contained in the LICENSE.txt file.
  *
  * Removal or modification of this copyright notice is prohibited.
  *
@@ -17,6 +18,7 @@
 package nxt.voting;
 
 import nxt.Constants;
+import nxt.Nxt;
 import nxt.NxtException;
 import nxt.account.Account;
 import nxt.account.AccountLedger;
@@ -385,6 +387,11 @@ public abstract class VotingTransactionType extends ChildTransactionType {
                 if (poll == null) {
                     throw new NxtException.NotCurrentlyValidException("Invalid phased transaction " + phasedTransactionId.getStringId()
                             + ", or phasing is finished");
+                }
+                if (Nxt.getBlockchain().getHeight() >= Constants.PREVENT_APPROVAL_OF_EARLY_FINISHED
+                        && poll.allowEarlyFinish()
+                        && PhasingPollHome.getResult(phasedTransactionId.getFullHash()) != null) {
+                    throw new NxtException.NotCurrentlyValidException("Phasing already finished " + phasedTransactionId.getStringId());
                 }
                 if (!poll.getParams().acceptsVotes()) {
                     throw new NxtException.NotValidException("This phased transaction does not require or accept voting");

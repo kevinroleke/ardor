@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2022 Jelurida IP B.V.
+ * Copyright © 2016-2023 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -326,8 +326,6 @@ public abstract class AbstractContractContext {
         return jo;
     }
 
-    protected abstract String getReferencedTransaction();
-
     /**
      * Submit a transaction to the blockchain
      * @param builder the API caller for the specific transaction type
@@ -428,10 +426,6 @@ public abstract class AbstractContractContext {
         builder.param("ecBlockHeight", lastBlock.getHeight());
         builder.param("ecBlockId", Long.toUnsignedString(lastBlock.getId()));
         builder.param("timestamp", lastBlock.getTimestamp());
-        String referencedTransaction = getReferencedTransaction();
-        if (referencedTransaction != null && !isParentTransaction(builder)) {
-            builder.param("referencedTransaction", referencedTransaction);
-        }
         AccountRestrictions.PhasingOnly phasingOnly =
                 AccessController.doPrivileged((PrivilegedAction<AccountRestrictions.PhasingOnly>) () ->
                         AccountRestrictions.PhasingOnly.get(config.getAccountId()));
@@ -690,7 +684,7 @@ public abstract class AbstractContractContext {
      * @param privateKey the secret phrase
      * @return the public key
      */
-    private byte[] getPublicKey(byte[] privateKey) {
+    public byte[] getPublicKey(byte[] privateKey) {
         return Crypto.getPublicKey(privateKey);
     }
 

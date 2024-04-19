@@ -1,14 +1,15 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2022 Jelurida IP B.V.
+ * Copyright © 2016-2023 Jelurida IP B.V.
+ * Copyright © 2023-2024 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
  *
- * Unless otherwise agreed in a custom licensing agreement with Jelurida B.V.,
- * no part of this software, including this file, may be copied, modified,
- * propagated, or distributed except according to the terms contained in the
- * LICENSE.txt file.
+ * Unless otherwise agreed in a custom licensing agreement with Jelurida
+ * Swiss SA, no part of this software, including this file, may be copied,
+ * modified, propagated, or distributed except according to the terms
+ * contained in the LICENSE.txt file.
  *
  * Removal or modification of this copyright notice is prohibited.
  *
@@ -41,6 +42,7 @@ import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 
+import java.io.File;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
@@ -60,6 +62,10 @@ public abstract class BlockchainTest extends AbstractBlockchainTest {
     public static final DoPrivilegedTestRule DO_PRIVILEGED_TEST_RULE = new DoPrivilegedTestRule();
 
     static {
+        if (!new File("conf/unit-tests-nxt.properties").exists()) {
+            throw new RuntimeException("Current directory is incorrect. " +
+                    "Ardor tests must be run with current directory set to the Ardor installation directory");
+        }
         System.setProperty(Nxt.NXT_PROPERTIES, "conf/unit-tests-nxt.properties");
     }
 
@@ -93,25 +99,7 @@ public abstract class BlockchainTest extends AbstractBlockchainTest {
     public static void initNxt(Map<String, String> additionalProperties) {
         if (!isNxtInitialized) {
             AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
-                Properties properties = ManualForgingTest.newTestProperties();
-                properties.setProperty("nxt.isTestnet", "true");
-                properties.setProperty("nxt.isAutomatedTest", "true");
-                properties.setProperty("nxt.isOffline", "true");
-                properties.setProperty("nxt.enableFakeForging", "true");
-                properties.setProperty("nxt.fakeForgingPublicKeys", forgerPublicKey + ";" + rikerPublicKey);
-                properties.setProperty("nxt.timeMultiplier", "1");
-                properties.setProperty("nxt.testnetGuaranteedBalanceConfirmations", "1");
-                properties.setProperty("nxt.testnetLeasingDelay", "1");
-                properties.setProperty("nxt.disableProcessTransactionsThread", "true");
-                properties.setProperty("nxt.deleteFinishedShufflings", "false");
-                properties.setProperty("nxt.disableAdminPassword", "true");
-                properties.setProperty("nxt.testDbDir", "./nxt_unit_test_db/nxt");
-                properties.setProperty("nxt.secretPhrasePieces.ARDOR-XK4R-7VJU-6EQG-7R335", "1:9999:3:2:0:2:01d8ce9df0a2bbc29140a56211262d9449d501508b1c5547e5");
-                properties.setProperty("nxt.privateKeyPieces.ARDOR-EVHD-5FLM-3NMQ-G46NR", "3:1539292261:3:2:0:1:6d07741e869f03ccd4837d7c33984bc5abf149e6049a498fc8d5a70897ed5838");
-                properties.setProperty("nxt.addOns", "nxt.http.CustomSensitiveParameterAddOn;nxt.addons.TaxReportAddOn");
-                properties.setProperty("nxt.apiSSL", "false");
-                properties.setProperty("nxt.ledgerTrimKeep", "0"); // required by nxt.addons.taxreport.TaxReportAddOnTest
-                properties.setProperty("nxt.ledgerLogUnconfirmed", "0"); // required by nxt.addons.taxreport.TaxReportAddOnTest
+                Properties properties = createTestProperties();
 
                 additionalProperties.forEach(properties::setProperty);
                 AbstractForgingTest.init(properties);
@@ -119,6 +107,29 @@ public abstract class BlockchainTest extends AbstractBlockchainTest {
                 return null;
             });
         }
+    }
+
+    protected static Properties createTestProperties() {
+        Properties properties = ManualForgingTest.newTestProperties();
+        properties.setProperty("nxt.isTestnet", "true");
+        properties.setProperty("nxt.isAutomatedTest", "true");
+        properties.setProperty("nxt.isOffline", "true");
+        properties.setProperty("nxt.enableFakeForging", "true");
+        properties.setProperty("nxt.fakeForgingPublicKeys", forgerPublicKey + ";" + rikerPublicKey);
+        properties.setProperty("nxt.timeMultiplier", "1");
+        properties.setProperty("nxt.testnetGuaranteedBalanceConfirmations", "1");
+        properties.setProperty("nxt.testnetLeasingDelay", "1");
+        properties.setProperty("nxt.disableProcessTransactionsThread", "true");
+        properties.setProperty("nxt.deleteFinishedShufflings", "false");
+        properties.setProperty("nxt.disableAdminPassword", "true");
+        properties.setProperty("nxt.testDbDir", "./nxt_unit_test_db/nxt");
+        properties.setProperty("nxt.secretPhrasePieces.ARDOR-XK4R-7VJU-6EQG-7R335", "1:9999:3:2:0:2:01d8ce9df0a2bbc29140a56211262d9449d501508b1c5547e5");
+        properties.setProperty("nxt.privateKeyPieces.ARDOR-EVHD-5FLM-3NMQ-G46NR", "3:1539292261:3:2:0:1:6d07741e869f03ccd4837d7c33984bc5abf149e6049a498fc8d5a70897ed5838");
+        properties.setProperty("nxt.addOns", "nxt.http.CustomSensitiveParameterAddOn;nxt.addons.TaxReportAddOn");
+        properties.setProperty("nxt.apiSSL", "false");
+        properties.setProperty("nxt.ledgerTrimKeep", "0"); // required by nxt.addons.taxreport.TaxReportAddOnTest
+        properties.setProperty("nxt.ledgerLogUnconfirmed", "0"); // required by nxt.addons.taxreport.TaxReportAddOnTest
+        return properties;
     }
 
     @BeforeClass

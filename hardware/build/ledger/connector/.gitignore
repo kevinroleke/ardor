@@ -1,2 +1,3 @@
 ledger.connector.js
 node_modules/*
+.parcel-cache

@@ -1,13 +1,14 @@
 /*
- * Copyright © 2021-2022 Jelurida IP B.V.
+ * Copyright © 2021-2023 Jelurida IP B.V.
+ * Copyright © 2023-2024 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
  *
- * Unless otherwise agreed in a custom licensing agreement with Jelurida B.V.,
- * no part of this software, including this file, may be copied, modified,
- * propagated, or distributed except according to the terms contained in the
- * LICENSE.txt file.
+ * Unless otherwise agreed in a custom licensing agreement with Jelurida
+ * Swiss SA, no part of this software, including this file, may be copied,
+ * modified, propagated, or distributed except according to the terms
+ * contained in the LICENSE.txt file.
  *
  * Removal or modification of this copyright notice is prohibited.
  *
@@ -43,7 +44,7 @@ public class TrimmableDbTable<T> extends DerivedDbTable {
                             pair -> Integer.valueOf(pair[1])));
     final boolean multiversion;
     protected final DbKey.Factory<T> dbKeyFactory;
-    private boolean isFastTrimEnabled;
+    boolean isFastTrimEnabled;
     private String[] keyColumns;
     private final int trimFrequency;
     private int trimCounter = 0;
@@ -206,7 +207,7 @@ public class TrimmableDbTable<T> extends DerivedDbTable {
         private long lastBatchMarker;
     }
 
-    private static ThreadLocal<TrimContext> trimContext = ThreadLocal.withInitial(TrimContext::new);
+    private static final ThreadLocal<TrimContext> trimContext = ThreadLocal.withInitial(TrimContext::new);
 
     /**
      * Uses a stored procedure. Requires an index on (< key column(s) > ASC, height DESC)
@@ -243,6 +244,11 @@ public class TrimmableDbTable<T> extends DerivedDbTable {
             context.prevRowKey = key;
             context.isDeleted = height < context.trimHeight && !latest;
             context.highestRowsBeforeTrim = Integer.MIN_VALUE;
+        }
+        if (context.isDeleted && latest) {
+            //An entry may be deleted and then inserted on same height, in which case the LATEST entry(ies) may not be
+            // the first seen after the key changes
+            context.isDeleted = false;
         }
         if (height < context.trimHeight && height >= 0) {
             if (context.isDeleted) {

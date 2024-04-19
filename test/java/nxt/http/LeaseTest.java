@@ -1,14 +1,15 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2022 Jelurida IP B.V.
+ * Copyright © 2016-2023 Jelurida IP B.V.
+ * Copyright © 2023-2024 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
  *
- * Unless otherwise agreed in a custom licensing agreement with Jelurida B.V.,
- * no part of this software, including this file, may be copied, modified,
- * propagated, or distributed except according to the terms contained in the
- * LICENSE.txt file.
+ * Unless otherwise agreed in a custom licensing agreement with Jelurida
+ * Swiss SA, no part of this software, including this file, may be copied,
+ * modified, propagated, or distributed except according to the terms
+ * contained in the LICENSE.txt file.
  *
  * Removal or modification of this copyright notice is prohibited.
  *
@@ -98,5 +99,36 @@ public class LeaseTest extends BlockchainTest {
         Logger.logDebugMessage("getLesseeAccount: " + lesseeResponse);
         Assert.assertEquals((ALICE.getInitialFxtBalance()) / Constants.ONE_FXT,
                 lesseeResponse.get("effectiveBalanceFXT"));
+    }
+
+    @Test
+    public void testLeasePeriodIncrease() {
+        generateBlock();
+        LeaseBalanceCall leaseBalanceCall = LeaseBalanceCall.create(FxtChain.FXT.getId()).
+                secretPhrase(BOB.getSecretPhrase()).
+                recipient(ALICE.getStrId()).
+                period(80_000).
+                feeNQT(Constants.ONE_FXT * 2);
+        APICall.InvocationError invocationError = leaseBalanceCall.build().invokeWithError();
+        Assert.assertEquals("Incorrect \"period\" value 80000 not in range [1-65535]", invocationError.getErrorDescription());
+
+        generateBlocks(Constants.LEASING_PERIOD_INCREASE);
+
+        invocationError = leaseBalanceCall.period(Constants.LONG_LEASE_PERIOD_LIMIT + 1).build().invokeWithError();
+        Assert.assertEquals("Incorrect \"period\" value 32000001 not in range [1-32000000]", invocationError.getErrorDescription());
+
+        leaseBalanceCall.period(Constants.LONG_LEASE_PERIOD_LIMIT).callNoError();
+
+        generateBlock();
+
+        JO leasedResponse = GetAccountCall.create().
+                account(BOB.getRsAccount()).
+                callNoError();
+        Logger.logDebugMessage("getLeasedAccount: " + leasedResponse);
+        Assert.assertEquals(ALICE.getRsAccount(), leasedResponse.get("currentLesseeRS"));
+        Assert.assertEquals(baseHeight + 1 + Constants.LEASING_PERIOD_INCREASE + 2,
+                leasedResponse.getLong("currentLeasingHeightFrom"));
+        Assert.assertEquals(baseHeight + 1 + Constants.LEASING_PERIOD_INCREASE + 2 + Constants.LONG_LEASE_PERIOD_LIMIT,
+                leasedResponse.getLong("currentLeasingHeightTo"));
     }
 }

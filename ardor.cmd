@@ -1,0 +1,1 @@
+start .\jdk\bin\javaw -Dnxt.redirect.system.out=true -Dnxt.redirect.system.err=true -jar ardor.jar

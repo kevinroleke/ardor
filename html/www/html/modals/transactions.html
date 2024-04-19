@@ -1,14 +1,15 @@
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ~ Copyright © 2013-2016 The Nxt Core Developers.                            ~
-  ~ Copyright © 2016-2022 Jelurida IP B.V.                                    ~
+  ~ Copyright © 2016-2023 Jelurida IP B.V.                                    ~
+  ~ Copyright © 2023-2024 Jelurida Swiss SA                                   ~
   ~                                                                           ~
   ~ See the LICENSE.txt file at the top-level directory of this distribution  ~
   ~ for licensing information.                                                ~
   ~                                                                           ~
-  ~ Unless otherwise agreed in a custom licensing agreement with Jelurida B.V.,
-  ~ no part of this software, including this file, may be copied, modified,   ~
-  ~ propagated, or distributed except according to the terms contained in the ~
-  ~ LICENSE.txt file.                                                         ~
+  ~ Unless otherwise agreed in a custom licensing agreement with Jelurida     ~
+  ~ Swiss SA, no part of this software, including this file, may be copied,   ~
+  ~ modified, propagated, or distributed except according to the terms        ~
+  ~ contained in the LICENSE.txt file.                                        ~
   ~                                                                           ~
   ~ Removal or modification of this copyright notice is prohibited.           ~
   ~                                                                           ~
@@ -32,7 +33,7 @@
                         <div id="at_revealed_secret_div" class="form-group">
                             <div class="form-group">
                                 <label for="at_revealed_secret" data-i18n="reveal_secret">Reveal Secret</label>
-                                <input type="password" class="form-control" id="at_revealed_secret" name="revealedSecret" placeholder="Leave empty if no secret" data-i18n="[placeholder]leave_empty_if_no_secret" value="" tabindex="1"/>
+                                <input type="password" class="form-control" id="at_revealed_secret" name="revealedSecret" placeholder="Leave empty if no secret" data-i18n="[placeholder]leave_empty_if_no_secret" value="" tabindex="1" spellcheck="false"/>
                             </div>
                             <div class="form-group">
                                 <input type="checkbox" id="at_revealed_secret_is_text" name="revealedSecretIsText" value="true" data-default="checked" tabindex="2"/>
@@ -81,7 +82,7 @@
                     <div class="callout callout-danger error_message" style="display:none"></div>
                     <div class="form-group">
                         <label for="reveal_secret_secret" data-i18n="secret">Secret</label>
-                        <input type="password" class="form-control" id="reveal_secret_secret" name="revealedSecret" tabindex="1">
+                        <input type="password" class="form-control" id="reveal_secret_secret" name="revealedSecret" tabindex="1" spellcheck="false">
                     </div>
                     <div data-replace-with-modal-template="add_message_modal_template"></div>
                     <div data-replace-with-modal-template="fee_calculation_modal_template"></div>

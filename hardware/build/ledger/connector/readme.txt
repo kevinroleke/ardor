@@ -4,6 +4,6 @@ The scripts in this folder make the connectors browser compatible and includes
 all the necessary dependencies.
 
 Required Utilities:
-Latest version of Node, NPM, Browserify
+Latest version of Node, NPM
 
 To build on Windows run build.bat

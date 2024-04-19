@@ -1,18 +1,19 @@
-/******************************************************************************
- * Copyright © 2013-2016 The Nxt Core Developers.                             *
- * Copyright © 2016-2022 Jelurida IP B.V.                                     *
- *                                                                            *
- * See the LICENSE.txt file at the top-level directory of this distribution   *
- * for licensing information.                                                 *
- *                                                                            *
- * Unless otherwise agreed in a custom licensing agreement with Jelurida B.V.,*
- * no part of this software, including this file, may be copied, modified,    *
- * propagated, or distributed except according to the terms contained in the  *
- * LICENSE.txt file.                                                          *
- *                                                                            *
- * Removal or modification of this copyright notice is prohibited.            *
- *                                                                            *
- ******************************************************************************/
+/*
+ * Copyright © 2013-2016 The Nxt Core Developers.
+ * Copyright © 2016-2023 Jelurida IP B.V.
+ * Copyright © 2023-2024 Jelurida Swiss SA
+ *
+ * See the LICENSE.txt file at the top-level directory of this distribution
+ * for licensing information.
+ *
+ * Unless otherwise agreed in a custom licensing agreement with Jelurida
+ * Swiss SA, no part of this software, including this file, may be copied,
+ * modified, propagated, or distributed except according to the terms
+ * contained in the LICENSE.txt file.
+ *
+ * Removal or modification of this copyright notice is prohibited.
+ *
+ */
 
 /**
  * @depends {nrs.js}
@@ -35,12 +36,12 @@ NRS.onSiteBuildDone().then(() => {
         $("#lease_balance_modal").on("show.bs.modal", function() {
             var leaseBalancePeriod = $("#lease_balance_period");
             leaseBalancePeriod.attr('min', NRS.constants.LEASING_DELAY);
-            leaseBalancePeriod.attr('max', NRS.constants.MAX_UNSIGNED_SHORT_JAVA);
+            leaseBalancePeriod.attr('max', NRS.constants.LEASE_PERIOD_LIMIT);
             setLeaseBalanceHelp(NRS.constants.MAX_UNSIGNED_SHORT_JAVA);
         });
 
         $("#lease_balance_period").on("change", function() {
-            if (this.value > NRS.constants.MAX_UNSIGNED_SHORT_JAVA) {
+            if (this.value > NRS.constants.LEASE_PERIOD_LIMIT) {
                 $("#lease_balance_help").html($.t("error_lease_balance_period"));
             } else {
                 setLeaseBalanceHelp(this.value);

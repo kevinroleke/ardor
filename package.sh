@@ -9,7 +9,7 @@ PACKAGE=ardor-client-${VERSION}.zip
 echo PACKAGE="${PACKAGE}"
 
 FILES="changelogs classes conf html lib src resource addons"
-FILES="${FILES} ardor.jar ardorservice.jar"
+FILES="${FILES} ardor.jar"
 FILES="${FILES} 3RD-PARTY-LICENSES.txt LICENSE.txt JPL-Ardor.pdf"
 FILES="${FILES} DEVELOPERS-GUIDE.md OPERATORS-GUIDE.md README.md README.txt USERS-GUIDE.md"
 FILES="${FILES} mint.bat mint.sh run.bat run.sh run-desktop.sh start.sh stop.sh compact.sh compact.bat sign.sh sign.bat passphraseRecovery.sh passphraseRecovery.bat"

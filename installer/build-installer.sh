@@ -6,7 +6,7 @@ PATHSEP=";"
 fi
 
 SETUP="setup.xml"
-if [ "$OSTYPE" = "linux-gnu" ] ; then
+if [ "$OSTYPE" = "linux-gnu" ] && [ -z "$WSL_DISTRO_NAME" ] ; then
 SETUP="setup-unix.xml"
 fi
 
@@ -41,6 +41,3 @@ ${JAR} cf0 $JARFILE -C $CLASSDIR nxt
 
 # package the installer
 ${JAVA} -Xmx512m -cp "../installer/lib/*${PATHSEP}${JARFILE}" com.izforge.izpack.compiler.bootstrap.CompilerLauncher ../installer/${SETUP} -o $1.jar > ../installer/build-installer.log 2>&1
-
-# cleanup
-rm -rf $CLASSDIR

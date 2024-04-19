@@ -86,20 +86,31 @@ it is recommended to release a new plugin version for every new NRS release,
 though a plugin will still be running after minor release updates (e.g. a
 plugin written for "1.5.1" running under "1.5.5" client installation).
 
-After a major NRS update (e.g. from "1.5.9" to "1.6.0"), the plugin will stop
-working and has to be updated.
-
 ## Best Practices for Development ##
 
 - Namespace your function names, CSS IDs and classes and other possible
 identifiers to avoid collisions affecting core NRS behaviour
-- Convention vor namespacing: "p_[PLUGINNAME]_[LOCALIDENTIFIER]", e.g.
+- Convention for namespacing: "p_[PLUGINNAME]_[LOCALIDENTIFIER]", e.g.
 "p_hello_world_info_modal"
 - Don't manipulate non-plugin HTML or CSS with your javascript code or CSS
 declarations
 
+## AddOns ##
+Starting from Ardor 2.4.3, plugins can now be hosted in addon resources. 
+To achieve this, the same directory structure as above must be created 
+under the base resource location 'addon_plugins'.
+
+Note that the id of such plugins is automatically prefixed with 
+"addon/" in nrs.plugins.js to avoid collisions of plugin identifiers
+
+
 ----
 ## Changelog ##
+**Version 1.2, 2024/01/16**
+
+Plugins can be hosted in AddOns.
+
+Removed the wrong info that after a major NRS update, the plugins stop working
 
 **Version 1.0, 2015/02/16**
 

@@ -1,14 +1,15 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2022 Jelurida IP B.V.
+ * Copyright © 2016-2023 Jelurida IP B.V.
+ * Copyright © 2023-2024 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
  *
- * Unless otherwise agreed in a custom licensing agreement with Jelurida B.V.,
- * no part of this software, including this file, may be copied, modified,
- * propagated, or distributed except according to the terms contained in the
- * LICENSE.txt file.
+ * Unless otherwise agreed in a custom licensing agreement with Jelurida
+ * Swiss SA, no part of this software, including this file, may be copied,
+ * modified, propagated, or distributed except according to the terms
+ * contained in the LICENSE.txt file.
  *
  * Removal or modification of this copyright notice is prohibited.
  *
@@ -17,6 +18,7 @@
 package nxt.account;
 
 import nxt.Constants;
+import nxt.Nxt;
 import nxt.NxtException;
 import nxt.blockchain.Fee;
 import nxt.blockchain.FxtTransactionImpl;
@@ -93,7 +95,10 @@ public abstract class AccountControlFxtTransactionType extends FxtTransactionTyp
             if (transaction.getAmount() != 0) {
                 throw new NxtException.NotValidException("Transaction amount must be 0 for effective balance leasing");
             }
-            if (attachment.getPeriod() < Constants.LEASING_DELAY || attachment.getPeriod() > 65535) {
+            //Even with the longer period, we still need some limit to avoid overflows
+            int leasingPeriodLimit = Nxt.getBlockchain().getHeight() < Constants.LEASING_PERIOD_INCREASE ?
+                    Constants.SHORT_LEASE_PERIOD_LIMIT : Constants.LONG_LEASE_PERIOD_LIMIT;
+            if (attachment.getPeriod() < Constants.LEASING_DELAY || attachment.getPeriod() > leasingPeriodLimit) {
                 throw new NxtException.NotValidException("Invalid effective balance leasing period: " + attachment.getPeriod());
             }
             byte[] recipientPublicKey = Account.getPublicKey(transaction.getRecipientId());

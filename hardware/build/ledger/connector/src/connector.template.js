@@ -8,7 +8,7 @@ function getNodeJsBufferClass() {
     return Buffer;
 }
 
-module.exports = {
+global.ledgerdevice = {
     getTransport: getTransport,
     getNodeJsBufferClass: getNodeJsBufferClass
 };

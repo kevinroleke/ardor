@@ -1,14 +1,15 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2022 Jelurida IP B.V.
+ * Copyright © 2016-2023 Jelurida IP B.V.
+ * Copyright © 2023-2024 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
  *
- * Unless otherwise agreed in a custom licensing agreement with Jelurida B.V.,
- * no part of this software, including this file, may be copied, modified,
- * propagated, or distributed except according to the terms contained in the
- * LICENSE.txt file.
+ * Unless otherwise agreed in a custom licensing agreement with Jelurida
+ * Swiss SA, no part of this software, including this file, may be copied,
+ * modified, propagated, or distributed except according to the terms
+ * contained in the LICENSE.txt file.
  *
  * Removal or modification of this copyright notice is prohibited.
  *
@@ -154,6 +155,16 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 new byte[] {
                         49, 105, 70, -44, -78, -30, -127, -84, 8, 3, -119, 47, -25, -45, 99, -125,
                         -59, 20, 79, -87, 32, 53, -11, -122, 72, -95, -112, 121, 76, 125, -104, -1
+                });
+        map.put(Constants.CHECKSUM_BLOCK_9, Constants.isTestnet ?
+                new byte[] {
+                        -52, -91, -121, -21, 115, 112, 57, -101, -51, -10, 51, -63, -59, -63, 35,
+                        10, 60, -22, 15, 67, -52, 62, 43, 90, -27, 105, -47, -107, 91, 62, 109, 19
+                }
+                :
+                new byte[] {
+                        94, -14, 62, 40, -118, 116, 113, -71, 107, -32, -40, 30, -97, -93, -32,
+                        33, -68, 39, 55, -42, 26, -35, -90, -4, 6, 81, -65, 90, 18, 5, -9, 119
                 }
         );
         checksums = Collections.unmodifiableNavigableMap(map);
@@ -224,7 +235,7 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 //
                 // Download blocks until we are up-to-date
                 //
-                while (!isDownloadSuspended) {
+                while (isDownloading || !isDownloadSuspended) {
                     if (!getMoreBlocks) {
                         return;
                     }
@@ -331,11 +342,16 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                         return;
                     }
 
+                    //Get the connected peers again. We cannot use connectedPublicPeers anymore because the peers
+                    // on alternative (and possibly better) forks are most probably removed from connectedPublicPeers
+                    // due to not returning blocks from the currently-being-confirmed chain
+                    List<Peer> confirmationPeers = Peers.getConnectedPeers();
                     int confirmations = 0;
-                    for (Peer otherPeer : connectedPublicPeers) {
+                    while (!confirmationPeers.isEmpty()) {
                         if (confirmations >= numberOfForkConfirmations) {
                             break;
                         }
+                        Peer otherPeer = confirmationPeers.remove(ThreadLocalRandom.current().nextInt(confirmationPeers.size()));
                         if (peer.getHost().equals(otherPeer.getHost())) {
                             continue;
                         }
@@ -360,7 +376,12 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                         if (otherPeerResponse.getCumulativeDifficulty().compareTo(blockchain.getLastBlock().getCumulativeDifficulty()) <= 0) {
                             continue;
                         }
-                        Logger.logDebugMessage("Found a peer with better difficulty");
+                        Logger.logDebugMessage("Found a peer with better difficulty " + otherPeer);
+                        //The peers removed from confirmationPeers until now are either confirming the current chain or
+                        // are not advertising a chain with better difficulty. Use what is left to download the better
+                        // fork
+                        connectedPublicPeers = new ArrayList<>(confirmationPeers);
+                        connectedPublicPeers.add(otherPeer);
                         downloadBlockchain(otherPeer, otherPeerCommonBlock, commonBlock.getHeight());
                     }
                     Logger.logDebugMessage("Got " + confirmations + " confirmations");
@@ -566,9 +587,8 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                     }
                     if (blockList == null) {
                         Peer unresponsivePeer = nextBlocks.getPeer();
-                        Logger.logDebugMessage("No blocks returned, disconnecting peer " + unresponsivePeer.getHost());
+                        Logger.logDebugMessage("No blocks returned from " + unresponsivePeer.getHost());
                         connectedPublicPeers.remove(unresponsivePeer);
-                        unresponsivePeer.disconnectPeer();
                         continue;
                     }
                     Peer peer = nextBlocks.getPeer();

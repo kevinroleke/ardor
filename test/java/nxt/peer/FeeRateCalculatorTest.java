@@ -1,14 +1,15 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2022 Jelurida IP B.V.
+ * Copyright © 2016-2023 Jelurida IP B.V.
+ * Copyright © 2023-2024 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
  *
- * Unless otherwise agreed in a custom licensing agreement with Jelurida B.V.,
- * no part of this software, including this file, may be copied, modified,
- * propagated, or distributed except according to the terms contained in the
- * LICENSE.txt file.
+ * Unless otherwise agreed in a custom licensing agreement with Jelurida
+ * Swiss SA, no part of this software, including this file, may be copied,
+ * modified, propagated, or distributed except according to the terms
+ * contained in the LICENSE.txt file.
  *
  * Removal or modification of this copyright notice is prohibited.
  *
@@ -51,7 +52,7 @@ public class FeeRateCalculatorTest extends BlockchainTest {
         Assert.assertEquals(2, bestRates.size());
         bestRates.forEach(rate -> {
             if (IGNIS.equals(rate.getChain())) {
-                assertEquals(3 * IGNIS.ONE_COIN, rate.getRate());
+                assertEquals(2 * IGNIS.ONE_COIN, rate.getRate());
             } else if (MPG.equals(rate.getChain())) {
                 assertEquals(MPG_RATE, rate.getRate());
             } else {
@@ -67,7 +68,7 @@ public class FeeRateCalculatorTest extends BlockchainTest {
 
         Assert.assertEquals(IGNIS.ONE_COIN, builder.setPriority(LOW).build().getBestRate(IGNIS));
         Assert.assertEquals(2 * IGNIS.ONE_COIN, builder.setPriority(NORMAL).build().getBestRate(IGNIS));
-        Assert.assertEquals(3 * IGNIS.ONE_COIN, builder.setPriority(HIGH).build().getBestRate(IGNIS));
+        Assert.assertEquals(2 * IGNIS.ONE_COIN, builder.setPriority(HIGH).build().getBestRate(IGNIS));
         Assert.assertEquals(MPG_RATE, builder.build().getBestRate(MPG));
     }
 
@@ -78,9 +79,9 @@ public class FeeRateCalculatorTest extends BlockchainTest {
         SendMoneyCall sendMoneyCall = SendMoneyCall.create(IGNIS.getId()).amountNQT(IGNIS.ONE_COIN).recipient(BOB.getId())
                 .transactionPriority("HIGH")
                 .secretPhrase(ALICE.getSecretPhrase());
-        Assert.assertEquals(3 * IGNIS.ONE_COIN, invokeFeeCalculation(sendMoneyCall));
+        Assert.assertEquals(2 * IGNIS.ONE_COIN, invokeFeeCalculation(sendMoneyCall));
         sendMoneyCall.transactionPriority("2");
-        Assert.assertEquals(3 * IGNIS.ONE_COIN, invokeFeeCalculation(sendMoneyCall));
+        Assert.assertEquals(2 * IGNIS.ONE_COIN, invokeFeeCalculation(sendMoneyCall));
 
         sendMoneyCall.transactionPriority("LOW");
         Assert.assertEquals(IGNIS.ONE_COIN, invokeFeeCalculation(sendMoneyCall));
@@ -107,6 +108,7 @@ public class FeeRateCalculatorTest extends BlockchainTest {
         ArrayList<BundlerRate> rates = new ArrayList<>();
         rates.add(createRate(IGNIS, ALICE, IGNIS.ONE_COIN));
         rates.add(createRate(IGNIS, BOB, 2 * IGNIS.ONE_COIN));
+        rates.add(createRate(IGNIS, FORGY, 2 * IGNIS.ONE_COIN));
         rates.add(createRate(IGNIS, CHUCK, 3 * IGNIS.ONE_COIN));
         rates.add(createRate(IGNIS, DAVE, 4 * IGNIS.ONE_COIN));
         rates.add(createRate(MPG, FORGY, MPG_RATE));

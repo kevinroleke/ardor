@@ -1,14 +1,15 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2022 Jelurida IP B.V.
+ * Copyright © 2016-2023 Jelurida IP B.V.
+ * Copyright © 2023-2024 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
  *
- * Unless otherwise agreed in a custom licensing agreement with Jelurida B.V.,
- * no part of this software, including this file, may be copied, modified,
- * propagated, or distributed except according to the terms contained in the
- * LICENSE.txt file.
+ * Unless otherwise agreed in a custom licensing agreement with Jelurida
+ * Swiss SA, no part of this software, including this file, may be copied,
+ * modified, propagated, or distributed except according to the terms
+ * contained in the LICENSE.txt file.
  *
  * Removal or modification of this copyright notice is prohibited.
  *
@@ -16,6 +17,8 @@
 
 package nxt.http;
 
+import nxt.addons.AddOns;
+import nxt.util.JSON;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
@@ -45,15 +48,25 @@ public final class GetPlugins extends APIServlet.APIRequestHandler {
 
     @Override
     protected JSONStreamAware processRequest(HttpServletRequest req) {
-
         JSONObject response = new JSONObject();
+        boolean hasAddonPlugins = !AddOns.getPluginIds().isEmpty();
+        if (hasAddonPlugins) {
+            JSONArray addonPlugins = AddOns.getPluginIds().stream().collect(JSON.jsonArrayCollector());
+            response.put("addonPlugins", addonPlugins);
+        }
         if (!Files.isReadable(PLUGINS_HOME)) {
+            if (hasAddonPlugins) {
+                return response;
+            }
             return JSONResponses.fileNotFound(PLUGINS_HOME.toString());
         }
         PluginDirListing pluginDirListing = new PluginDirListing();
         try {
             Files.walkFileTree(PLUGINS_HOME, EnumSet.noneOf(FileVisitOption.class), 2, pluginDirListing);
         } catch (IOException e) {
+            if (hasAddonPlugins) {
+                return response;
+            }
             return JSONResponses.fileNotFound(e.getMessage());
         }
         JSONArray plugins = new JSONArray();

@@ -11,8 +11,7 @@ CHANGELOG=ardor-client-${VERSION}.changelog.txt
 OBFUSCATE=$2
 
 FILES="changelogs conf html lib testlib resource contrib logs"
-FILES="${FILES} ardor.exe ardorservice.exe"
-FILES="${FILES} 3RD-PARTY-LICENSES.txt LICENSE.txt"
+FILES="${FILES} ardor.cmd 3RD-PARTY-LICENSES.txt LICENSE.txt"
 FILES="${FILES} DEVELOPERS-GUIDE.md OPERATORS-GUIDE.md README.md README.txt USERS-GUIDE.md"
 FILES="${FILES} mint.bat mint.sh run.bat run.sh run-desktop.sh start.sh stop.sh compact.sh compact.bat sign.sh sign.bat"
 FILES="${FILES} passphraseRecovery.sh passphraseRecovery.bat contractManager.sh contractManager.bat pem.to.pkcs12.keystore.certbot.hook.sh"
@@ -33,7 +32,7 @@ mkdir -p ardor/logs
 if [ "${OBFUSCATE}" == "obfuscate" ];
 then
 echo obfuscate
-proguard.bat @nxt.pro
+proguard.sh @nxt.pro
 mv ../nxt.map ../nxt.map.${VERSION}
 mkdir -p ardor/src/
 else
@@ -43,8 +42,6 @@ echo javadoc
 ./javadoc.sh
 fi
 echo copy resources
-cp installer/lib/JavaExe.exe ardor.exe
-cp installer/lib/JavaExe.exe ardorservice.exe
 cp -a ${FILES} ardor
 cp -a logs/placeholder.txt ardor/logs
 echo gzip
@@ -63,7 +60,7 @@ echo generate jar files
 echo package installer Jar
 ../installer/build-installer.sh ../${PACKAGE}
 echo create installer exe
-../installer/build-exe.bat ${PACKAGE}
+../installer/build-exe.sh ${PACKAGE}
 echo create installer zip
 cd -
 zip -q -X -r ${PACKAGE}.zip ardor -x \*/.idea/\* \*/.gitignore \*/.git/\* \*.iml ardor/conf/nxt.properties ardor/conf/logging.properties ardor/conf/localstorage/\*

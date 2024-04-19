@@ -160,9 +160,7 @@
         <pack name="server.windows" os="windows" required="yes" hidden="true">
             <description>Windows Specific Resources</description>
             <os family="windows"/>
-            <file src="ardor.exe" targetdir="${INSTALL_PATH}" override="true"/>
-            <file src="ardorservice.exe" targetdir="${INSTALL_PATH}" override="true"/>
-            <file src="ardorservice.jar" targetdir="${INSTALL_PATH}" override="true"/>
+			<file src="ardor.cmd" targetdir="${INSTALL_PATH}" override="true"/>
             <file src="run.bat" targetdir="${INSTALL_PATH}" override="true"/>
             <file src="mint.bat" targetdir="${INSTALL_PATH}" override="true"/>
             <file src="compact.bat" targetdir="${INSTALL_PATH}" override="true"/>
@@ -172,8 +170,6 @@
             <file src="contractManager.bat" targetdir="${INSTALL_PATH}" override="true"/>
             <file src="run-taxreport.bat" targetdir="${INSTALL_PATH}" override="true"/>
             <parsable targetfile="${INSTALL_PATH}/run.bat"/>
-            <singlefile src="resource/ardor.properties" target="${INSTALL_PATH}/resource/ardor.properties" override="true"/>
-            <singlefile src="resource/ardorservice.properties" target="${INSTALL_PATH}/resource/ardorservice.properties" override="true"/>
         </pack>
 
         <pack name="server.unix" os="unix" required="yes" hidden="true">

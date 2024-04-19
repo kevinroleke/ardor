@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016-2022 Jelurida IP B.V.
+ * Copyright © 2016-2023 Jelurida IP B.V.
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -22,12 +22,13 @@ import nxt.blockchain.Chain;
 import nxt.blockchain.ChildChain;
 import nxt.crypto.Crypto;
 import nxt.crypto.EncryptedData;
+import nxt.crypto.KeyDerivation;
 import nxt.peer.FeeRateCalculator;
+import nxt.util.Bip32Path;
 import nxt.util.Convert;
 import nxt.util.Logger;
 
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,6 +57,7 @@ class ActiveContractRunnerConfig implements ContractRunnerConfig {
     private int catchUpInterval;
     private int maxSubmittedTransactionsPerInvocation;
     private byte[] runnerSeed;
+    private KeyDerivation.Bip32Node managedAccountsParentNode;
 
     ActiveContractRunnerConfig(ContractProvider contractProvider) {
         this.contractProvider = contractProvider;
@@ -70,6 +72,7 @@ class ActiveContractRunnerConfig implements ContractRunnerConfig {
         initValidation(config);
         initRandomSeed(config);
         initMisc(config);
+        initManagedAccounts(config);
         Logger.logInfoMessage("Contract Runner configuration loaded for account %s", accountRs);
     }
 
@@ -210,6 +213,14 @@ class ActiveContractRunnerConfig implements ContractRunnerConfig {
     private void initMisc(JO config) {
         catchUpInterval = config.getInt("catchUpInterval", 3600);
         maxSubmittedTransactionsPerInvocation = config.getInt("maxSubmittedTransactionsPerInvocation", 10);
+    }
+
+    private void initManagedAccounts(JO config) {
+        String mnemonic = Convert.emptyToNull(getProperty(config, "managedAccountsMnemonic"));
+        if (mnemonic != null) {
+            Bip32Path rootPath = Constants.isTestnet ? Constants.ARDOR_TESTNET_BIP32_ROOT_PATH : Constants.ARDOR_MAINNET_BIP32_ROOT_PATH;
+            managedAccountsParentNode = KeyDerivation.deriveMnemonic(rootPath.toString(), mnemonic);
+        }
     }
 
     private String getProperty(JO config, String key) {
@@ -353,6 +364,15 @@ class ActiveContractRunnerConfig implements ContractRunnerConfig {
     @Override
     public byte[] getRunnerSeed() {
         return runnerSeed;
+    }
+
+    @Override
+    public byte[] getManagedAccountPrivateKey(int index) {
+        if (managedAccountsParentNode == null) {
+            throw new IllegalStateException("Managed accounts not initialized. Mnemonic not set in configuration");
+        }
+        KeyDerivation.Bip32Node childNode = KeyDerivation.deriveChildPrivateKey(managedAccountsParentNode, index);
+        return childNode.getPrivateKeyLeft();
     }
 
     @Override

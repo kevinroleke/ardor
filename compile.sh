@@ -39,7 +39,6 @@ CP="lib/*${PATHSEP}classes${PATHSEP}javafx-sdk/lib/*"
 SP=src/java/
 
 /bin/rm -f ardor.jar
-/bin/rm -f ardorservice.jar
 /bin/rm -rf classes
 /bin/mkdir -p classes/
 /bin/rm -rf addons/classes

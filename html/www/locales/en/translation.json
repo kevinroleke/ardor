@@ -769,6 +769,7 @@
   "plugins_more_info": "for more info see plugins/ folder of your client installation",
   "pnc_compatibility_build_for_newer_client_msg": "Plugin build for newer client version",
   "pnc_compatibility_minor_release_diff_msg": "Plugin build for another minor release version",
+  "pnc_compatibility_major_release_diff_msg": "Plugin build for another major release version",
   "pnc_compatible_msg": "Plugin compatible with NRS version",
   "pnc_compatible_unknown_msg": "Plugin compatibility with NRS version unknown",
   "poll_by": "Poll By",

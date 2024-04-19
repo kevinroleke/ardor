@@ -1,14 +1,15 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
- * Copyright © 2016-2022 Jelurida IP B.V.
+ * Copyright © 2016-2023 Jelurida IP B.V.
+ * Copyright © 2023-2024 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
  *
- * Unless otherwise agreed in a custom licensing agreement with Jelurida B.V.,
- * no part of this software, including this file, may be copied, modified,
- * propagated, or distributed except according to the terms contained in the
- * LICENSE.txt file.
+ * Unless otherwise agreed in a custom licensing agreement with Jelurida
+ * Swiss SA, no part of this software, including this file, may be copied,
+ * modified, propagated, or distributed except according to the terms
+ * contained in the LICENSE.txt file.
  *
  * Removal or modification of this copyright notice is prohibited.
  *
@@ -17,6 +18,7 @@
 package nxt.http;
 
 import nxt.Constants;
+import nxt.Nxt;
 import nxt.NxtException;
 import nxt.account.Account;
 import nxt.account.AccountControlFxtTransactionType;
@@ -39,8 +41,9 @@ public final class LeaseBalance extends CreateTransaction {
 
     @Override
     protected JSONStreamAware processRequest(HttpServletRequest req) throws NxtException {
-
-        int period = ParameterParser.getInt(req, "period", Constants.LEASING_DELAY, 65535, true);
+        boolean isShortPeriod = Nxt.getBlockchain().getHeight() < Constants.LEASING_PERIOD_INCREASE;
+        int period = ParameterParser.getInt(req, "period", Constants.LEASING_DELAY,
+                isShortPeriod ? Constants.SHORT_LEASE_PERIOD_LIMIT : Constants.LONG_LEASE_PERIOD_LIMIT, true);
         Account account = ParameterParser.getSenderAccount(req);
         long recipient = ParameterParser.getAccountId(req, "recipient", true);
         Account recipientAccount = Account.getAccount(recipient);
@@ -50,7 +53,7 @@ public final class LeaseBalance extends CreateTransaction {
             response.put("errorDescription", "recipient account does not have public key");
             return response;
         }
-        Attachment attachment = new EffectiveBalanceLeasingAttachment(period);
+        Attachment attachment = new EffectiveBalanceLeasingAttachment(period, isShortPeriod);
         return transactionParameters(req, account, attachment).setRecipientId(recipient).createTransaction();
     }
 }
