@@ -55,6 +55,7 @@ import nxt.voting.PhasingPollHome;
 import nxt.voting.VoteWeighting;
 import org.apache.commons.math3.stat.descriptive.StatisticalSummary;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
@@ -783,9 +784,10 @@ public final class ContractRunner implements AddOn, ContractProvider {
     }
 
     JO submitContractTransactions(Contract contract, List<JO> transactions) {
-        byte[] privateKey = config.getPrivateKey();
-        if (privateKey == null) {
-            return generateErrorResponse(1000, "Cannot submit transactions, contract runner private key not specified");
+        byte[] contractPrivateKey = config.getPrivateKey();
+        if (contractPrivateKey == null && !config.isManagedAccountsEnabled()) {
+            return generateErrorResponse(1000, "Cannot submit transactions, contract runner private key " +
+                    "and managed accounts mnemonic not specified");
         }
         long numberOfRefTransactions = transactions.stream().filter(t ->
                 t.getJo("transactionJSON") != null && t.getJo("transactionJSON").isExist("referencedTransaction")).count();
@@ -796,6 +798,7 @@ public final class ContractRunner implements AddOn, ContractProvider {
         }
         int counter = 0;
         int errorsCounter = 0;
+        JSONArray broadcastFullHashes = new JSONArray();
         for (JO transaction : transactions) {
             if (!transaction.isExist("transactionJSON")) {
                 Logger.logErrorMessage(String.format("Error %s %s in transaction submitted by contract",
@@ -808,6 +811,18 @@ public final class ContractRunner implements AddOn, ContractProvider {
                 continue;
             }
             if (!transactionJSON.isExist("signature")) {
+                byte[] privateKey = contractPrivateKey;
+                String messageStr = transactionJSON.getJo("attachment").getString("message");
+                JO messageJo = messageStr == null ? null : JO.parse(messageStr);
+                if (messageJo != null && messageJo.isExist(AbstractContractContext.MANAGED_ACCOUNTS_INDEX_HINT_FIELD)) {
+                    int maIdx = messageJo.getInt(AbstractContractContext.MANAGED_ACCOUNTS_INDEX_HINT_FIELD);
+                    privateKey = config.getManagedAccountPrivateKey(maIdx);
+                }
+                if (privateKey == null) {
+                    Logger.logErrorMessage("Missing signing key for transaction %s", transactionJSON.getString("fullHash"));
+                    errorsCounter++;
+                    continue;
+                }
                 JO signTransactionResponse = SignTransactionCall.create().
                         privateKey(privateKey).
                         unsignedTransactionJSON(transactionJSON.toJSONString()).
@@ -827,10 +842,13 @@ public final class ContractRunner implements AddOn, ContractProvider {
                         broadcastTransactionResponse.getString("errorDescription"), transactionJSON.getString("fullHash"), transactionJSON.getLong("chain")));
                 errorsCounter++;
             } else {
+                broadcastFullHashes.add(broadcastTransactionResponse.getString("fullHash"));
                 counter++;
             }
         }
-        return generateInfoResponse("contract %s submitted %d transactions with %d errors", contract.getClass().getCanonicalName(), counter, errorsCounter);
+        JO response = generateInfoResponse("contract %s submitted %d transactions with %d errors", contract.getClass().getCanonicalName(), counter, errorsCounter);
+        response.put("broadcastFullHashes", broadcastFullHashes);
+        return response;
     }
 
     private boolean isDuplicate(Contract contract, TransactionResponse transaction) {

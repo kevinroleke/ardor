@@ -1,13 +1,14 @@
 /*
  * Copyright © 2016-2023 Jelurida IP B.V.
+ * Copyright © 2023-2024 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
  *
- * Unless otherwise agreed in a custom licensing agreement with Jelurida B.V.,
- * no part of this software, including this file, may be copied, modified,
- * propagated, or distributed except according to the terms contained in the
- * LICENSE.txt file.
+ * Unless otherwise agreed in a custom licensing agreement with Jelurida
+ * Swiss SA, no part of this software, including this file, may be copied,
+ * modified, propagated, or distributed except according to the terms
+ * contained in the LICENSE.txt file.
  *
  * Removal or modification of this copyright notice is prohibited.
  *
@@ -36,6 +37,7 @@ class ActiveContractRunnerConfig implements ContractRunnerConfig {
 
     private static final String ERROR_PREFIX = "contract runner config error: ";
     public static final String SECRET_NOT_SPECIFIED_ERR = "Secret Not Specified";
+    public static final String MANAGED_ACCOUNTS_NOT_INITIALIZED_ERR = "Managed accounts not initialized. Mnemonic not set in configuration";
 
     private final ContractProvider contractProvider;
 
@@ -211,8 +213,8 @@ class ActiveContractRunnerConfig implements ContractRunnerConfig {
     }
 
     private void initMisc(JO config) {
-        catchUpInterval = config.getInt("catchUpInterval", 3600);
-        maxSubmittedTransactionsPerInvocation = config.getInt("maxSubmittedTransactionsPerInvocation", 10);
+        catchUpInterval = (int) getLongProperty(config, "catchUpInterval", 0, Integer.MAX_VALUE, 3600);
+        maxSubmittedTransactionsPerInvocation = (int) getLongProperty(config, "maxSubmittedTransactionsPerInvocation", 0, 1500, 10);
     }
 
     private void initManagedAccounts(JO config) {
@@ -227,7 +229,10 @@ class ActiveContractRunnerConfig implements ContractRunnerConfig {
         if (config.isExist(key)) {
             return config.getString(key);
         } else {
-            return Nxt.getStringProperty(ContractRunner.CONFIG_PROPERTY_PREFIX + key, null, key.toLowerCase().endsWith("secretphrase") || key.toLowerCase().endsWith("privatekey"));
+            return Nxt.getStringProperty(ContractRunner.CONFIG_PROPERTY_PREFIX + key, null,
+                    key.toLowerCase().endsWith("secretphrase")
+                            || key.toLowerCase().endsWith("privatekey")
+                            || key.toLowerCase().endsWith("mnemonic"));
         }
     }
 
@@ -369,10 +374,35 @@ class ActiveContractRunnerConfig implements ContractRunnerConfig {
     @Override
     public byte[] getManagedAccountPrivateKey(int index) {
         if (managedAccountsParentNode == null) {
-            throw new IllegalStateException("Managed accounts not initialized. Mnemonic not set in configuration");
+            throw new IllegalStateException(MANAGED_ACCOUNTS_NOT_INITIALIZED_ERR);
         }
         KeyDerivation.Bip32Node childNode = KeyDerivation.deriveChildPrivateKey(managedAccountsParentNode, index);
         return childNode.getPrivateKeyLeft();
+    }
+
+    @Override
+    public byte[] getManagedAccountPublicKey(int index) {
+        byte[] maPrivateKey = getManagedAccountPrivateKey(index);
+        return Crypto.getPublicKey(maPrivateKey);
+    }
+
+    @Override
+    public long getManagedAccountId(int index) {
+        byte[] maPublicKey = getManagedAccountPublicKey(index);
+        return Account.getId(maPublicKey);
+    }
+
+    @Override
+    public byte[] getManagedAccountsMasterPublicKey() {
+        if (managedAccountsParentNode == null) {
+            throw new IllegalStateException(MANAGED_ACCOUNTS_NOT_INITIALIZED_ERR);
+        }
+        return managedAccountsParentNode.getSerializedMasterPublicKey();
+    }
+
+    @Override
+    public boolean isManagedAccountsEnabled() {
+        return managedAccountsParentNode != null;
     }
 
     @Override

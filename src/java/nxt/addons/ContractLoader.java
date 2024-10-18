@@ -1,13 +1,14 @@
 /*
  * Copyright © 2016-2023 Jelurida IP B.V.
+ * Copyright © 2023-2024 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
  *
- * Unless otherwise agreed in a custom licensing agreement with Jelurida B.V.,
- * no part of this software, including this file, may be copied, modified,
- * propagated, or distributed except according to the terms contained in the
- * LICENSE.txt file.
+ * Unless otherwise agreed in a custom licensing agreement with Jelurida
+ * Swiss SA, no part of this software, including this file, may be copied,
+ * modified, propagated, or distributed except according to the terms
+ * contained in the LICENSE.txt file.
  *
  * Removal or modification of this copyright notice is prohibited.
  *
@@ -16,12 +17,19 @@
 package nxt.addons;
 
 import nxt.Nxt;
+import nxt.blockchain.Appendix;
 import nxt.blockchain.Chain;
 import nxt.blockchain.ChainTransactionId;
 import nxt.blockchain.ChildChain;
 import nxt.blockchain.Transaction;
+import nxt.blockchain.TransactionType;
 import nxt.crypto.Crypto;
+import nxt.db.DbIterator;
 import nxt.lightcontracts.ContractReference;
+import nxt.lightcontracts.ContractReferenceAttachment;
+import nxt.lightcontracts.LightContractTransactionType;
+import nxt.messaging.MessageAppendix;
+import nxt.messaging.PrunablePlainMessageAppendix;
 import nxt.taggeddata.TaggedDataAttachment;
 import nxt.taggeddata.TaggedDataHome;
 import nxt.taggeddata.TaggedDataTransactionType;
@@ -57,6 +65,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.jar.JarEntry;
@@ -67,6 +76,10 @@ public class ContractLoader {
     static final NullContract NULL_CONTRACT = new NullContract();
     public static final String CLASS_FILE_MIME_TYPE = "application/java-vm";
     public static final String JAR_FILE_MIME_TYPE = "application/java-archive";
+    public static final String SETUP_PARAMS_IMPORT_MESSAGE_FIELD = "_import_msg";
+    public static final String PARAMS_DETACHED_TO_MESSAGE_FIELD = "_params_detached_to_message";
+    public static final String PARAMS_DETACHED_TO_PRUNABLE_MESSAGE = "_params_detached_to_prunable_message";
+    public static final String PARAMS_DETACHED_TO_COMPRESSED_MESSAGE = "_params_detached_to_compressed_message";
 
     static ContractAndSetupParameters loadContract(ContractReference contractReference, Map<String, ContractAndSetupParameters> supportedContracts, Map<String, ContractReference> supportedContractReferences) {
         ContractAndSetupParameters contractAndSetupParameters = loadContractAndSetupParameters(contractReference);
@@ -255,11 +268,66 @@ public class ContractLoader {
 
     private static JO getContractSetupParams(ContractReference contractReference) {
         String contractParamsStr = contractReference.getContractParams();
-        if (contractParamsStr != null && contractParamsStr.length() > 0) {
-            return JO.parse(contractParamsStr);
+        if (contractParamsStr != null && !contractParamsStr.isEmpty()) {
+            JO jo = JO.parse(contractParamsStr);
+            if (jo.isExist(SETUP_PARAMS_IMPORT_MESSAGE_FIELD)) {
+                importMessageParams(contractReference, jo);
+            }
+            return jo;
         } else {
             return new JO();
         }
+    }
+
+    private static void importMessageParams(ContractReference contractReference, JO jo) {
+        int referenceHeight = jo.getInt(SETUP_PARAMS_IMPORT_MESSAGE_FIELD);
+        Transaction transaction = findReferenceSetTransaction(contractReference, referenceHeight);
+        if (transaction == null) {
+            throw new IllegalArgumentException("Failed to find CONTRACT_REFERENCE_SET transaction" +
+                    " after height " + referenceHeight + ". " +
+                    "account=" + Long.toUnsignedString(contractReference.getAccountId()) +
+                    " contract=" + contractReference.getContractId());
+        }
+        List<? extends Appendix> appendages = transaction.getAppendages(
+                a -> a instanceof PrunablePlainMessageAppendix
+                        || a instanceof MessageAppendix, true);
+        for (Appendix a : appendages) {
+            byte[] bytes;
+            boolean isText;
+            if (a instanceof MessageAppendix) {
+                bytes = ((MessageAppendix)a).getMessage();
+                isText = ((MessageAppendix)a).isText();
+            } else {
+                bytes = ((PrunablePlainMessageAppendix)a).getMessage();
+                isText = ((PrunablePlainMessageAppendix)a).isText();
+            }
+            //If not text, assume the message is compressed
+            if (!isText) {
+                bytes = Convert.uncompress(bytes);
+            }
+            String message = Convert.toString(bytes);
+            JO importedJSON = JO.parse(message);
+            jo.putAll(importedJSON);
+        }
+    }
+
+    private static Transaction findReferenceSetTransaction(ContractReference contractReference, int searchStartHeight) {
+        int firstBlockTimestamp = Nxt.getBlockchain().getBlockAtHeight(searchStartHeight).getTimestamp();
+        TransactionType transactionType = LightContractTransactionType.CONTRACT_REFERENCE_SET;
+        try (DbIterator<? extends Transaction> iterator = Nxt.getBlockchain().getTransactions(
+                ChildChain.IGNIS, contractReference.getAccountId(), -1,
+                transactionType.getType(), transactionType.getSubtype(),
+                firstBlockTimestamp, true, false, false,
+                0, Integer.MAX_VALUE, true, false)) {
+            while (iterator.hasNext()) {
+                Transaction transaction = iterator.next();
+                ContractReferenceAttachment attachment = (ContractReferenceAttachment) transaction.getAttachment();
+                if (contractReference.getContractId().equals(attachment.getContractId())) {
+                    return transaction;
+                }
+            }
+        }
+        return null;
     }
 
     public static Class<?> getParametersProvider(Contract<?,?> contract) {

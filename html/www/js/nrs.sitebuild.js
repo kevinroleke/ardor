@@ -239,10 +239,8 @@ var NRS = (function(NRS, $) {
     }
     NRS.initHeader = function() {
         var activeChainId = NRS.getActiveChainId();
-        var eurChainId = NRS.findChainByName("AEUR");
         widgetVisibility($("#header_send_money"), { apis: [NRS.constants.REQUEST_TYPES.sendMoney] }, activeChainId);
-        widgetVisibility($("#header_send_message"), { apis: [NRS.constants.REQUEST_TYPES.sendMessage] }, activeChainId == eurChainId ? -1 : activeChainId);
-        widgetVisibility($("#header_withdraw_aeur"), { apis: [NRS.constants.REQUEST_TYPES.sendMoney] }, eurChainId);
+        widgetVisibility($("#header_send_message"), { apis: [NRS.constants.REQUEST_TYPES.sendMessage] }, activeChainId);
     };
 
     NRS.getUrlParameter = function (param) {

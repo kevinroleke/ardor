@@ -1,13 +1,14 @@
 /*
  * Copyright © 2016-2023 Jelurida IP B.V.
+ * Copyright © 2023-2024 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
  *
- * Unless otherwise agreed in a custom licensing agreement with Jelurida B.V.,
- * no part of this software, including this file, may be copied, modified,
- * propagated, or distributed except according to the terms contained in the
- * LICENSE.txt file.
+ * Unless otherwise agreed in a custom licensing agreement with Jelurida
+ * Swiss SA, no part of this software, including this file, may be copied,
+ * modified, propagated, or distributed except according to the terms
+ * contained in the LICENSE.txt file.
  *
  * Removal or modification of this copyright notice is prohibited.
  *
@@ -25,14 +26,17 @@ import nxt.addons.ContractLoader;
 import nxt.addons.ContractSetupParameter;
 import nxt.addons.JA;
 import nxt.addons.JO;
+import nxt.blockchain.Appendix;
 import nxt.blockchain.ChainTransactionId;
 import nxt.blockchain.ChildChain;
+import nxt.blockchain.Transaction;
 import nxt.configuration.Setup;
 import nxt.crypto.Crypto;
 import nxt.http.API;
 import nxt.http.JSONResponses;
 import nxt.http.callers.EventRegisterCall;
 import nxt.http.callers.EventWaitCall;
+import nxt.http.callers.GetBlockchainStatusCall;
 import nxt.http.callers.GetConstantsCall;
 import nxt.http.callers.GetContractReferencesCall;
 import nxt.http.callers.GetSupportedContractsCall;
@@ -40,6 +44,8 @@ import nxt.http.callers.GetTaggedDataCall;
 import nxt.http.responses.TaggedDataResponse;
 import nxt.lightcontracts.ContractReferenceAttachment;
 import nxt.lightcontracts.ContractReferenceDeleteAttachment;
+import nxt.messaging.MessageAppendix;
+import nxt.messaging.PrunablePlainMessageAppendix;
 import nxt.taggeddata.TaggedDataAttachment;
 import nxt.util.Convert;
 import nxt.util.Logger;
@@ -556,12 +562,19 @@ public class ContractManager {
             }
             contractParams.put(key, value);
         });
+        JO detachedParams = detachParams(contractParams, contractName);
         String setupParamsStr = null;
-        if (contractParams.size() > 0) {
+        if (!contractParams.isEmpty()) {
             setupParamsStr = contractParams.toJSONString();
         }
         ContractReferenceAttachment attachment = new ContractReferenceAttachment(contractName, setupParamsStr, new ChainTransactionId(childChain.getId(), fullHash));
-        JO contractReferenceTransaction = LocalSigner.signAndBroadcast(ChildChain.IGNIS, 0, attachment, privateKey, feeNQT, feeRateNQTPerFXT, minBundlerBalanceFXT, null, getUrl());
+        Transaction.Builder builder = LocalSigner.createBuilder(ChildChain.IGNIS, 0, attachment, privateKey, feeNQT,
+                feeRateNQTPerFXT, minBundlerBalanceFXT, null, getUrl());
+        if (detachedParams != null) {
+            Appendix appendix = detachedParamsToAppendix(detachedParams);
+            builder.appendix(appendix);
+        }
+        JO contractReferenceTransaction = LocalSigner.signAndBroadcast(builder, privateKey, getUrl());
         if (!contractReferenceTransaction.isExist("fullHash")) {
             Logger.logErrorMessage("Contract reference not registered %s response %s", contractName, contractReferenceTransaction.toJSONString());
             return contractReferenceTransaction;
@@ -571,6 +584,45 @@ public class ContractManager {
         Logger.logInfoMessage("Set Contract Reference transaction fullHash: " + contractReferenceTransaction.getString("fullHash"));
         return contractReferenceTransaction;
     }
+
+    private static JO detachParams(JO contractParams, String contractName) {
+        String detachedToMessageParams;
+        if (contractParams.isExist(ContractLoader.PARAMS_DETACHED_TO_MESSAGE_FIELD)) {
+            JO detachedJo = contractParams.getJo(ContractLoader.PARAMS_DETACHED_TO_MESSAGE_FIELD);
+            detachedToMessageParams = detachedJo.toJSONString();
+            contractParams.remove(ContractLoader.PARAMS_DETACHED_TO_MESSAGE_FIELD);
+        } else {
+            detachedToMessageParams = Nxt.getStringProperty(String.format(CONTRACT_MANAGER_PROPERTY_PARAM_FORMAT,
+                    contractName, ContractLoader.PARAMS_DETACHED_TO_MESSAGE_FIELD));
+        }
+        if (detachedToMessageParams != null) {
+            JO status = GetBlockchainStatusCall.create().remote(getUrl()).call();
+            //setting to height + 1 because the reference transaction will be accepted at that height or later. So we
+            // need to search from height + 1 forward
+            contractParams.put(ContractLoader.SETUP_PARAMS_IMPORT_MESSAGE_FIELD, status.getInt("numberOfBlocks"));
+            return JO.parse(detachedToMessageParams);
+        }
+        return null;
+    }
+
+    private static Appendix detachedParamsToAppendix(JO detachedParams) {
+        boolean isCompressed = detachedParams.getBoolean(
+                ContractLoader.PARAMS_DETACHED_TO_COMPRESSED_MESSAGE, false);
+        detachedParams.remove(ContractLoader.PARAMS_DETACHED_TO_COMPRESSED_MESSAGE);
+        boolean isPrunable = detachedParams.getBoolean(
+                ContractLoader.PARAMS_DETACHED_TO_PRUNABLE_MESSAGE, false);
+        detachedParams.remove(ContractLoader.PARAMS_DETACHED_TO_PRUNABLE_MESSAGE);
+        byte[] message = Convert.toBytes(detachedParams.toJSONString());
+        boolean isText = true;
+        if (isCompressed) {
+            message = Convert.compress(message);
+            isText = false;
+        }
+        Appendix appendix = isPrunable ? new PrunablePlainMessageAppendix(message, isText) :
+                new MessageAppendix(message, isText);
+        return appendix;
+    }
+
 
     public void delete(String contractName) {
         String account = Convert.rsAccount(Account.getId(Crypto.getPublicKey(privateKey)));

@@ -56,7 +56,7 @@ public final class Bundler {
         }
 
         /**
-         * For UI to work, the bundler description must also be added to transaction.json with key
+         * For UI to work, the bundler description must also be added to translation.json with key
          * bundler_filter_help_*lowercase name*
          *
          * @return The bundler description.

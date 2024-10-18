@@ -10,7 +10,7 @@
 -dontoptimize #exclude_for_R8
 -printmapping ../nxt.map #exclude_for_R8
 -dontusemixedcaseclassnames
--flattenpackagehierarchy nxt
+-flattenpackagehierarchy nxt #exclude_for_R8
 -repackageclasses nxt
 -verbose
 

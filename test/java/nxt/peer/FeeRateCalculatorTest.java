@@ -105,20 +105,11 @@ public class FeeRateCalculatorTest extends BlockchainTest {
     }
 
     private void createTestRates() {
-        ArrayList<BundlerRate> rates = new ArrayList<>();
-        rates.add(createRate(IGNIS, ALICE, IGNIS.ONE_COIN));
-        rates.add(createRate(IGNIS, BOB, 2 * IGNIS.ONE_COIN));
-        rates.add(createRate(IGNIS, FORGY, 2 * IGNIS.ONE_COIN));
-        rates.add(createRate(IGNIS, CHUCK, 3 * IGNIS.ONE_COIN));
-        rates.add(createRate(IGNIS, DAVE, 4 * IGNIS.ONE_COIN));
-        rates.add(createRate(MPG, FORGY, MPG_RATE));
-        Peers.updateBundlerRates(new DummyPeer(), null, rates);
+        BundlerRateUtils.simulateRemoteRate(IGNIS, ALICE, IGNIS.ONE_COIN);
+        BundlerRateUtils.simulateRemoteRate(IGNIS, BOB, 2 * IGNIS.ONE_COIN);
+        BundlerRateUtils.simulateRemoteRate(IGNIS, FORGY, 2 * IGNIS.ONE_COIN);
+        BundlerRateUtils.simulateRemoteRate(IGNIS, CHUCK, 3 * IGNIS.ONE_COIN);
+        BundlerRateUtils.simulateRemoteRate(IGNIS, DAVE, 4 * IGNIS.ONE_COIN);
+        BundlerRateUtils.simulateRemoteRate(MPG, FORGY, MPG_RATE);
     }
-
-    private BundlerRate createRate(ChildChain childChain, Tester bundlerAccount, long rate) {
-        BundlerRate bundlerRate = new BundlerRate(childChain, rate, 100 * FxtChain.FXT.ONE_COIN, bundlerAccount.getPrivateKey());
-        bundlerRate.setBalance(bundlerAccount.getChainBalance(childChain.getId()));
-        return bundlerRate;
-    }
-
 }

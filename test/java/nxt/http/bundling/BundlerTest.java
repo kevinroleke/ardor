@@ -1,13 +1,14 @@
 /*
  * Copyright © 2016-2023 Jelurida IP B.V.
+ * Copyright © 2023-2024 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
  *
- * Unless otherwise agreed in a custom licensing agreement with Jelurida B.V.,
- * no part of this software, including this file, may be copied, modified,
- * propagated, or distributed except according to the terms contained in the
- * LICENSE.txt file.
+ * Unless otherwise agreed in a custom licensing agreement with Jelurida
+ * Swiss SA, no part of this software, including this file, may be copied,
+ * modified, propagated, or distributed except according to the terms
+ * contained in the LICENSE.txt file.
  *
  * Removal or modification of this copyright notice is prohibited.
  *
@@ -44,6 +45,10 @@ public class BundlerTest extends BlockchainTest {
     public static void init() {
         initNxt(Collections.emptyMap());
         initBlockchainTest();
+        stopAllDefaultBundlers();
+    }
+
+    public static void stopAllDefaultBundlers() {
         for (Chain chain : ChildChain.getAll()) {
             JO response = StopBundlerCall.create(chain.getId()).
                     secretPhrase(FORGY.getSecretPhrase()).
@@ -99,7 +104,7 @@ public class BundlerTest extends BlockchainTest {
         return isBundled(fullHash);
     }
 
-    protected boolean isBundled(String fullHash) {
+    public static boolean isBundled(String fullHash) {
         JSONAssert result = new JSONAssert(GetTransactionCall.create(IGNIS.getId()).fullHash(fullHash).call());
         Object errorDescription = result.getJson().get("errorDescription");
         if ("Unknown transaction".equals(errorDescription)) {

@@ -35,9 +35,12 @@ public class ManagedAccountsTestContract extends AbstractContract<Void,Void> {
                 return transfer(context);
             case "getId":
                 return getId(context);
+            case "getMasterPublicKey":
+                return getMasterPublicKey(context);
         }
         return context.generateErrorResponse(10001, "Please specify operation parameter");
     }
+
 
     /**
      * Fund a managed (user's) account from contract account, which acts as treasury
@@ -48,13 +51,11 @@ public class ManagedAccountsTestContract extends AbstractContract<Void,Void> {
     private static JO fund(RequestContext context) {
         int recipientIndex = Integer.parseInt(context.getParameter("recipientIndex"));
         long amount = Long.parseLong(context.getParameter("amount"));
-        byte[] privateKey = context.getConfig().getManagedAccountPrivateKey(recipientIndex);
-        byte[] publicKey = context.getPublicKey(privateKey);
-        long recipientId = Account.getId(publicKey);
+        byte[] recipientPubKey = context.getConfig().getManagedAccountPublicKey(recipientIndex);
         return context.createTransaction(SendMoneyCall.create(IGNIS.getId())
                 .amountNQT(amount * IGNIS.ONE_COIN)
-                .recipient(recipientId)
-                .recipientPublicKey(publicKey));
+                .recipient(Account.getId(recipientPubKey))
+                .recipientPublicKey(recipientPubKey));
     }
 
     /**
@@ -65,13 +66,11 @@ public class ManagedAccountsTestContract extends AbstractContract<Void,Void> {
      */
     private static JO transfer(RequestContext context) {
         int senderIndex = Integer.parseInt(context.getParameter("senderIndex"));
-        byte[] privateKey = context.getConfig().getManagedAccountPrivateKey(senderIndex);
         long amount = Long.parseLong(context.getParameter("amount"));
         String recipientId = context.getParameter("recipientId");
         return context.createTransaction(SendMoneyCall.create(IGNIS.getId())
                 .amountNQT(amount * IGNIS.ONE_COIN)
-                .recipient(recipientId)
-                .privateKey(privateKey), false);
+                .recipient(recipientId), false, senderIndex);
     }
 
     /**
@@ -82,11 +81,16 @@ public class ManagedAccountsTestContract extends AbstractContract<Void,Void> {
      */
     private static JO getId(RequestContext context) {
         int index = Integer.parseInt(context.getParameter("index"));
-        byte[] privateKey = context.getConfig().getManagedAccountPrivateKey(index);
+        long id = context.getConfig().getManagedAccountId(index);
         JO response = new JO();
-        long id = Account.getId(context.getPublicKey(privateKey));
         response.put("accountId", Long.toUnsignedString(id));
         response.put("accountIdRS", Convert.rsAccount(id));
+        return context.generateResponse(response);
+    }
+
+    private JO getMasterPublicKey(RequestContext context) {
+        JO response = new JO();
+        response.put("masterPublicKey", Convert.toHexString(context.getConfig().getManagedAccountsMasterPublicKey()));
         return context.generateResponse(response);
     }
 }

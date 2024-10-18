@@ -96,10 +96,6 @@
             return isLocalHost || NRS.isTestNet;
         };
 
-        NRS.changeNow_url = function () {
-            return NRS.settings.changeNow_url;
-        };
-
         NRS.isForgingSupported = function () {
             return !(NRS.state && NRS.state.apiProxy);
         };

@@ -1,13 +1,14 @@
 /*
  * Copyright © 2016-2023 Jelurida IP B.V.
+ * Copyright © 2023-2024 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
  *
- * Unless otherwise agreed in a custom licensing agreement with Jelurida B.V.,
- * no part of this software, including this file, may be copied, modified,
- * propagated, or distributed except according to the terms contained in the
- * LICENSE.txt file.
+ * Unless otherwise agreed in a custom licensing agreement with Jelurida
+ * Swiss SA, no part of this software, including this file, may be copied,
+ * modified, propagated, or distributed except according to the terms
+ * contained in the LICENSE.txt file.
  *
  * Removal or modification of this copyright notice is prohibited.
  *
@@ -49,6 +50,7 @@ import java.util.Map;
 public abstract class AbstractContractContext {
 
     public static final int INTERNAL_ERROR_CODE_THRESHOLD = 10000;
+    public static final String MANAGED_ACCOUNTS_INDEX_HINT_FIELD = "maIdx";
 
     protected static final int VALIDATE_SAME_ACCOUNT_CODE = 1011;
     protected static final int VALIDATE_SAME_TRANSACTION_TYPE = 1012;
@@ -317,9 +319,12 @@ public abstract class AbstractContractContext {
         return response;
     }
 
-    protected JO addTriggerData(JO jo) {
+    protected JO addTriggerData(JO jo, int managedAccountIndex) {
         jo.put("source", getSource().toString());
         jo.put("submittedBy", contractName);
+        if (isManagedAcc(managedAccountIndex)) {
+            jo.put(MANAGED_ACCOUNTS_INDEX_HINT_FIELD, managedAccountIndex);
+        }
         if (randomnessSource != null) {
             jo.put("publicSeed", "" + randomnessSource.getSeed());
         }
@@ -342,7 +347,25 @@ public abstract class AbstractContractContext {
      * @return the response of the transaction creation
      */
     public JO createTransaction(APICall.Builder builder, boolean reduceFeeFromAmount) {
-        long feeNQT = getTransactionFee(builder);
+        return createTransaction(builder, reduceFeeFromAmount, Integer.MAX_VALUE);
+    }
+
+    /**
+     * Submit a transaction to the blockchain by a managed account. A {@link ManagedAccountsBundler} can be used to
+     * bundle such transactions.
+     * <p>
+     * Note that a negative index will create the transaction with a hardened extended private key, which prevents the
+     * generation of the public key from the {@link ContractRunnerConfig#getManagedAccountsMasterPublicKey() master public key}.
+     * This will prevent the {@link ManagedAccountsBundler} to bundle the transaction.
+     *
+     * @param builder the API caller for the specific transaction type
+     * @param reduceFeeFromAmount set to true to reduce the transaction fee from the transaction amount if applicable, false otherwise
+     * @param managedAccountIndex index of the managed account with whose private key the transaction will be signed.
+     *                            If set to {@link Integer#MAX_VALUE}, the transaction is signed by the contract account
+     * @return the response of the transaction creation
+     */
+    public JO createTransaction(APICall.Builder builder, boolean reduceFeeFromAmount, int managedAccountIndex) {
+        long feeNQT = getTransactionFee(builder, managedAccountIndex);
         if (feeNQT < 0) {
             return generateInternalErrorResponse(FEE_CANNOT_CALCULATE,"%s: cannot calculate fee, try autoFeeRate or defining feeRateNQTPerFXT for chain %s in contract runner configuration", contractName, builder.getParam("chain"));
         } else {
@@ -360,7 +383,7 @@ public abstract class AbstractContractContext {
                 builder.param("deadline", config.getDefaultDeadline());
             }
         }
-        JO transactionResponse = createTransactionImpl(builder);
+        JO transactionResponse = createTransactionImpl(builder, managedAccountIndex);
         if (response == null) {
             response = new JO();
         } else if (response.isExist("errorCode")) {
@@ -374,11 +397,11 @@ public abstract class AbstractContractContext {
         return response;
     }
 
-    private long getTransactionFee(APICall.Builder builder) {
+    private long getTransactionFee(APICall.Builder builder, int managedAccountIndex) {
         //preserve the broadcast flag but do not broadcast when only checking the fee
         boolean broadcast = !"false".equalsIgnoreCase(builder.getParam("broadcast"));
         builder.param("broadcast", false);
-        JO transactionResponse = createTransactionImpl(builder);
+        JO transactionResponse = createTransactionImpl(builder, managedAccountIndex);
         builder.param("broadcast", broadcast);
         if (!transactionResponse.isExist("minimumFeeFQT")) {
             return 0;
@@ -398,14 +421,14 @@ public abstract class AbstractContractContext {
                 .divide(BigDecimal.valueOf(FxtChain.FXT.ONE_COIN), RoundingMode.HALF_EVEN).longValue();
     }
 
-    private JO createTransactionImpl(APICall.Builder builder) {
+    private JO createTransactionImpl(APICall.Builder builder, int managedAccountIndex) {
         JO messageJson;
         if (builder.isParamSet("message") && "true".equals(builder.getParam("messageIsPrunable"))) {
             messageJson = new JO(JSONValue.parse(builder.getParam("message")));
         } else {
             messageJson = new JO();
         }
-        messageJson = addTriggerData(messageJson);
+        messageJson = addTriggerData(messageJson, managedAccountIndex);
         String message = messageJson.toJSONString();
         builder.param("message", message);
         builder.param("messageIsPrunable", "true");
@@ -414,7 +437,13 @@ public abstract class AbstractContractContext {
             if (builder.isParamSet("messageToEncrypt")) {
                 return generateInternalErrorResponse(MESSAGE_TO_ENCRYPT_WITHOUT_SECRET_PHRASE,"%s: do not use the messageToEncrypt parameter, encrypt the data yourself and submit the encryptedMessageData and encryptedMessageNonce instead", getClass().getName());
             }
-            builder.param("publicKey", config.getPublicKeyHexString());
+            String publicKeyHexString;
+            if (isManagedAcc(managedAccountIndex)) {
+                publicKeyHexString = Convert.toHexString(config.getManagedAccountPublicKey(managedAccountIndex));
+            } else {
+                publicKeyHexString = config.getPublicKeyHexString();
+            }
+            builder.param("publicKey", publicKeyHexString);
         }
         int chainId = Integer.parseInt(builder.getParam("chain"));
         if (!builder.isParamSet("feeNQT")) {
@@ -426,9 +455,11 @@ public abstract class AbstractContractContext {
         builder.param("ecBlockHeight", lastBlock.getHeight());
         builder.param("ecBlockId", Long.toUnsignedString(lastBlock.getId()));
         builder.param("timestamp", lastBlock.getTimestamp());
+        long senderId = isManagedAcc(managedAccountIndex) ?
+                config.getManagedAccountId(managedAccountIndex) : config.getAccountId();
         AccountRestrictions.PhasingOnly phasingOnly =
                 AccessController.doPrivileged((PrivilegedAction<AccountRestrictions.PhasingOnly>) () ->
-                        AccountRestrictions.PhasingOnly.get(config.getAccountId()));
+                        AccountRestrictions.PhasingOnly.get(senderId));
         if (phasingOnly != null) {
             builder.param("phased", "true");
             // Set to minimum possible height to allow enough time for approval. Came up with +4 after experimentation.
@@ -451,6 +482,10 @@ public abstract class AbstractContractContext {
         }
         APICall apiCall = builder.build();
         return apiCall.getJsonResponse();
+    }
+
+    private static boolean isManagedAcc(int managedAccountIndex) {
+        return managedAccountIndex != Integer.MAX_VALUE;
     }
 
     private boolean isParentTransaction(APICall.Builder builder) {

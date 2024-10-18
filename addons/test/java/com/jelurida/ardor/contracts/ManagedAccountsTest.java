@@ -17,44 +17,100 @@ package com.jelurida.ardor.contracts;
 
 import nxt.addons.JO;
 import nxt.blockchain.ChildChain;
+import nxt.http.bundling.BundlerTest;
 import nxt.http.callers.GetBalanceCall;
+import nxt.http.callers.StartBundlerCall;
 import nxt.http.callers.TriggerContractByRequestCall;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import static nxt.blockchain.ChildChain.IGNIS;
 import static org.junit.Assert.*;
 
 public class ManagedAccountsTest extends AbstractContractTest {
-    @Test
-    public void testManagedAccount() {
+
+    @Before
+    public void setUp() {
         JO runnerConfig = new JO();
         runnerConfig.put("managedAccountsMnemonic", "lamp style brief decorate excuse special receive any fever margin square penalty");
         setRunnerConfig(runnerConfig);
+    }
 
+    @Test
+    public void testManagedAccount() {
         String contractName = ContractTestHelper.deployContract(ManagedAccountsTestContract.class);
 
         TriggerContractByRequestCall contractRequest = TriggerContractByRequestCall.create().contractName(contractName)
                 .setParamValidation(false);
-        JO response = contractRequest.param("operation", "fund")
+        contractRequest.param("operation", "fund")
                 .param("recipientIndex", 3)
                 .param("amount", 20).callNoError();
-        response.getString("fullHash");
 
         generateBlock();
 
-        response = contractRequest.param("operation", "getId").param("index", 4).callNoError();
+        String recipientId = getManagedAccountId(contractRequest, 4);
 
-        String recipientId = response.getString("accountId");
-
-        response = contractRequest.param("operation", "transfer")
+        contractRequest.param("operation", "transfer")
                 .param("senderIndex", 3)
                 .param("recipientId", recipientId)
                 .param("amount", 6).callNoError();
-        response.getString("fullHash");
 
         generateBlock();
 
         Assert.assertEquals(6 * IGNIS.ONE_COIN, IGNIS.getBalanceHome().getBalance(Long.parseUnsignedLong(recipientId)).getBalance());
+    }
+
+    private static String getManagedAccountId(TriggerContractByRequestCall contractRequest, int index) {
+        JO response;
+        response = contractRequest.param("operation", "getId").param("index", index).callNoError();
+        return response.getString("accountId");
+    }
+
+    @Test
+    public void testManagedAccountsBundler() {
+        String contractName = ContractTestHelper.deployContract(ManagedAccountsTestContract.class);
+
+        TriggerContractByRequestCall contractRequest = TriggerContractByRequestCall.create().contractName(contractName)
+                .setParamValidation(false);
+        JO response = contractRequest.param("operation", "getMasterPublicKey").callNoError();
+
+        String masterPublicKey = response.getString("masterPublicKey");
+
+        contractRequest.param("operation", "fund")
+                .param("recipientIndex", 3)
+                .param("amount", 20).callNoError();
+        generateBlock();
+
+        String recipientId = getManagedAccountId(contractRequest, 4);
+
+        BundlerTest.stopAllDefaultBundlers();
+        try {
+            response = contractRequest.param("operation", "transfer")
+                    .param("senderIndex", 3)
+                    .param("recipientId", recipientId)
+                    .param("amount", 6).callNoError();
+            String fullHash = getFullHash(response);
+            generateBlock();
+
+            Assert.assertFalse(BundlerTest.isBundled(fullHash));
+
+            StartBundlerCall.create(IGNIS.getId())
+                    .secretPhrase(BOB.getSecretPhrase())
+                    .filter("ManagedAccountsBundler:" + masterPublicKey)
+                    .minRateNQTPerFXT(0)
+                    .feeCalculatorName("MIN_FEE").callNoError();
+
+            generateBlock();
+            Assert.assertTrue(BundlerTest.isBundled(fullHash));
+
+        } finally {
+            startBundlers();
+        }
+    }
+
+    private static String getFullHash(JO response) {
+        return response.getJo("submitContractTransactionsResponse")
+                .getArray("broadcastFullHashes").getString(0);
     }
 }

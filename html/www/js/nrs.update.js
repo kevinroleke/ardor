@@ -177,12 +177,13 @@ NRS.onSiteBuildDone().then(() => {
 				verifyClientUpdate(e);
 			});
 
-			updateDropZone.on("click", function(e) {
+			updateDropZone.off("click").on("click", function(e) {
 				e.preventDefault();
+				$("#nrs_update_file_select").val("");
 				$("#nrs_update_file_select").trigger("click");
 			});
 
-			$("#nrs_update_file_select").on("change", function(e) {
+			$("#nrs_update_file_select").off("change").on("change", function(e) {
 				verifyClientUpdate(e);
 			});
 

@@ -16,14 +16,22 @@
 
 package com.jelurida.ardor.contracts;
 
+import nxt.addons.ContractLoader;
 import nxt.addons.JO;
 import nxt.blockchain.ChildChain;
 import nxt.http.callers.IssueAssetCall;
+import nxt.http.callers.TriggerContractByRequestCall;
 import nxt.http.responses.TransactionResponse;
 import nxt.util.Convert;
+import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.stream.IntStream;
+
 public class ContractRunnerTest extends AbstractContractTest {
+    public static final String LONG_STRING = "11111111112222222222333333333344444444445555555555" +
+            "66666666667777777777888888888899999999990000000000";
+
     @Test
     public void testTransferAssetQty0() {
         String contractName = ContractTestHelper.deployContract(AssetTransferQty0Contract.class);
@@ -41,5 +49,78 @@ public class ContractRunnerTest extends AbstractContractTest {
         ContractTestHelper.messageTriggerContract(message);
         generateBlock();
 
+    }
+
+    @Test
+    public void testMaximumAllowedSize() {
+        JO params = new JO();
+        params.put("str", LONG_STRING + "11111111112222222222333333333344444444445555555555");
+        ContractTestHelper.deployContract(ParametrizedTestContract.class, params);
+    }
+
+    @Test(expected = AssertionError.class)
+    public void testOverMaximumAllowedSize() {
+        JO params = new JO();
+        params.put("str", LONG_STRING + "11111111112222222222333333333344444444445555555555" + "X");
+        ContractTestHelper.deployContract(ParametrizedTestContract.class, params);
+    }
+
+    @Test
+    public void testImportFromPrunable() {
+        JO params = new JO();
+        params.put("str", LONG_STRING);
+        JO paramsInMessage = new JO();
+        JO obj = new JO();
+        IntStream.range(0, 10).forEach(i -> obj.put("" + i, LONG_STRING));
+        paramsInMessage.put("obj", obj);
+        paramsInMessage.put(ContractLoader.PARAMS_DETACHED_TO_PRUNABLE_MESSAGE, true);
+        params.put(ContractLoader.PARAMS_DETACHED_TO_MESSAGE_FIELD, paramsInMessage);
+        String contractName = ContractTestHelper.deployContract(ParametrizedTestContract.class, params);
+        JO response = TriggerContractByRequestCall.create().contractName(contractName).callNoError();
+        Assert.assertEquals(LONG_STRING, response.getString("str"));
+        Assert.assertEquals(obj, response.getJo("obj"));
+    }
+
+    @Test
+    public void testImportFromNonPrunable() {
+        JO params = new JO();
+        params.put("str", LONG_STRING);
+        JO paramsInMessage = new JO();
+        JO obj = new JO();
+        obj.put("key", LONG_STRING + "111111111122222222223333333333444444444455");
+        paramsInMessage.put("obj", obj);
+        params.put(ContractLoader.PARAMS_DETACHED_TO_MESSAGE_FIELD, paramsInMessage);
+        String contractName = ContractTestHelper.deployContract(ParametrizedTestContract.class, params);
+        JO response = TriggerContractByRequestCall.create().contractName(contractName).callNoError();
+        Assert.assertEquals(LONG_STRING, response.getString("str"));
+        Assert.assertEquals(obj, response.getJo("obj"));
+    }
+
+    @Test(expected = AssertionError.class)
+    public void testExceedNonPrunableSize() {
+        JO params = new JO();
+        params.put("str", LONG_STRING);
+        JO paramsInMessage = new JO();
+        JO obj = new JO();
+        obj.put("key", LONG_STRING + "111111111122222222223333333333444444444455" + "X");
+        paramsInMessage.put("obj", obj);
+        params.put(ContractLoader.PARAMS_DETACHED_TO_MESSAGE_FIELD, paramsInMessage);
+        ContractTestHelper.deployContract(ParametrizedTestContract.class, params);
+    }
+
+    @Test
+    public void testImportFromCompressedNonPrunable() {
+        JO params = new JO();
+        params.put("str", LONG_STRING);
+        JO paramsInMessage = new JO();
+        JO obj = new JO();
+        obj.put("key", LONG_STRING + LONG_STRING);
+        paramsInMessage.put("obj", obj);
+        paramsInMessage.put(ContractLoader.PARAMS_DETACHED_TO_COMPRESSED_MESSAGE, true);
+        params.put(ContractLoader.PARAMS_DETACHED_TO_MESSAGE_FIELD, paramsInMessage);
+        String contractName = ContractTestHelper.deployContract(ParametrizedTestContract.class, params);
+        JO response = TriggerContractByRequestCall.create().contractName(contractName).callNoError();
+        Assert.assertEquals(LONG_STRING, response.getString("str"));
+        Assert.assertEquals(obj, response.getJo("obj"));
     }
 }

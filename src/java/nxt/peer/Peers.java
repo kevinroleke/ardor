@@ -1061,7 +1061,7 @@ public final class Peers {
     /**
      * Update our bundler rates
      */
-    private static void updateMyBundlerRates() {
+    static void updateMyBundlerRates() {
         int now = Nxt.getEpochTime();
         //
         // Remove expired bundler rates

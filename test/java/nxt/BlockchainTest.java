@@ -41,6 +41,9 @@ import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 
 import java.io.File;
 import java.security.AccessController;
@@ -150,6 +153,14 @@ public abstract class BlockchainTest extends AbstractBlockchainTest {
         }
     }
 
+    @Rule
+    public TestWatcher watchman = new TestWatcher() {
+        @Override
+        protected void failed(Throwable e, Description description) {
+            System.setSecurityManager(null);
+        }
+    };
+
     protected static void initBlockchainTest() {
         AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
             Nxt.setTime(new Time.CounterTime(Convert.toEpochTime(System.currentTimeMillis())));
@@ -234,7 +245,7 @@ public abstract class BlockchainTest extends AbstractBlockchainTest {
         new JSONAssert(response).str("fullHash");
     }
 
-    private static void startBundlers() {
+    public static void startBundlers() {
         for (Chain chain : ChildChain.getAll()) {
             long factor = Convert.decimalMultiplier(FxtChain.getChain(1).getDecimals() - chain.getDecimals());
             StartBundlerCall.create(chain.getId()).

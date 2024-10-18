@@ -1617,6 +1617,10 @@ var NRS = (function(NRS, $, undefined) {
         }
     };
 
+    NRS.getFundAccountLink = function() {
+        return "";
+    }
+
 	NRS.updateAccountLeasingStatus = function() {
 		var accountLeasingStatus = "";
 		var nextLesseeStatus = "";

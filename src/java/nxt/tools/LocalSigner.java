@@ -1,13 +1,14 @@
 /*
  * Copyright © 2016-2023 Jelurida IP B.V.
+ * Copyright © 2023-2024 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
  *
- * Unless otherwise agreed in a custom licensing agreement with Jelurida B.V.,
- * no part of this software, including this file, may be copied, modified,
- * propagated, or distributed except according to the terms contained in the
- * LICENSE.txt file.
+ * Unless otherwise agreed in a custom licensing agreement with Jelurida
+ * Swiss SA, no part of this software, including this file, may be copied,
+ * modified, propagated, or distributed except according to the terms
+ * contained in the LICENSE.txt file.
  *
  * Removal or modification of this copyright notice is prohibited.
  *
@@ -62,6 +63,27 @@ public class LocalSigner {
      */
     public static JO signAndBroadcast(ChildChain childChain, long recipientId, Attachment attachment, byte[] privateKey,
                                       long feeNQT, long feeRateNQTPerFXT, long minBundlerBalanceFXT, ChainTransactionId referencedTransaction, URL url) {
+        Transaction.Builder builder = createBuilder(childChain, recipientId, attachment, privateKey, feeNQT, feeRateNQTPerFXT, minBundlerBalanceFXT, referencedTransaction, url);
+        return signAndBroadcast(builder, privateKey, url);
+    }
+
+    public static JO signAndBroadcast(Transaction.Builder builder, byte[] privateKey, URL url) {
+        Transaction transaction;
+        try {
+            transaction = builder.build(privateKey);
+        } catch (NxtException.NotValidException e) {
+            throw new IllegalStateException(e);
+        }
+        BroadcastTransactionCall broadcastTransactionCall = BroadcastTransactionCall.create().transactionBytes(transaction.getBytes()).remote(url);
+        if (transaction.getPrunableAttachmentJSON() != null) {
+            broadcastTransactionCall = broadcastTransactionCall.prunableAttachmentJSON(transaction.getPrunableAttachmentJSON().toJSONString());
+        }
+        return broadcastTransactionCall.call();
+    }
+
+    public static Transaction.Builder createBuilder(ChildChain childChain, long recipientId, Attachment attachment,
+                                                    byte[] privateKey, long feeNQT, long feeRateNQTPerFXT,
+                                                    long minBundlerBalanceFXT, ChainTransactionId referencedTransaction, URL url) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
             sm.checkPermission(new BlockchainPermission("tools"));
@@ -132,16 +154,7 @@ public class LocalSigner {
             builder.recipientId(recipientId);
         }
         ((ChildTransactionImpl.BuilderImpl)builder).referencedTransaction(referencedTransaction);
-        try {
-            transaction = builder.build(privateKey);
-        } catch (NxtException.NotValidException e) {
-            throw new IllegalStateException(e);
-        }
-        BroadcastTransactionCall broadcastTransactionCall = BroadcastTransactionCall.create().transactionBytes(transaction.getBytes()).remote(url);
-        if (transaction.getPrunableAttachmentJSON() != null) {
-            broadcastTransactionCall = broadcastTransactionCall.prunableAttachmentJSON(transaction.getPrunableAttachmentJSON().toJSONString());
-        }
-        return broadcastTransactionCall.call();
+        return builder;
     }
 
     private static void setPhasing(JO phasingControl, TransactionImpl.BuilderImpl builder, URL url) {

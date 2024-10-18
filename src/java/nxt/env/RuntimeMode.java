@@ -38,7 +38,8 @@ public interface RuntimeMode {
         return Arrays.asList(
                 "Copyright © 2013-2016 The Nxt Core Developers.",
                 "Copyright © 2016-2023 Jelurida IP B.V.",
-                "Distributed under the Jelurida Public License version 1.2 for the Ardor Public Blockchain Platform, with ABSOLUTELY NO WARRANTY."
+                "Copyright © 2023-2024 Jelurida Swiss SA",
+                "Distributed under the Jelurida Public License version 1.3 for the Ardor Public Blockchain Platform, with ABSOLUTELY NO WARRANTY."
         );
     }
 }

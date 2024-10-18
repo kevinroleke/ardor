@@ -217,8 +217,8 @@ public final class Constants {
     public static final long GPS_ASSET_ID = Convert.parseUnsignedLong(Constants.isTestnet ? "8016986501463341146" : "3123987739214429747");
     public static final int AUTO_CANCEL_DUST_ORDER_BLOCK = Constants.isTestnet ? Constants.isAutomatedTest ? 0 : 9800000 : 2307000;
     public static final int TRANSACTION_TYPE_SPECIFIC_ASSET_CONTROL = Constants.isTestnet ? Constants.isAutomatedTest ? 20 : 9800000 : 2307000;
-    public static final int LEASING_PERIOD_INCREASE = Constants.isTestnet ? Constants.isAutomatedTest ? 20 : 15660000 : Integer.MAX_VALUE;
-    public static final int PREVENT_APPROVAL_OF_EARLY_FINISHED = Constants.isTestnet ? Constants.isAutomatedTest ? 0 : 15660000 : Integer.MAX_VALUE;
+    public static final int LEASING_PERIOD_INCREASE = Constants.isTestnet ? Constants.isAutomatedTest ? 20 : 15660000 : 3700000;
+    public static final int PREVENT_APPROVAL_OF_EARLY_FINISHED = Constants.isTestnet ? Constants.isAutomatedTest ? 0 : 15660000 : 3700000;
     public static final int CHECKSUM_BLOCK_6 = Constants.isTestnet ? 5666000 : 1453500;
     public static final int CHECKSUM_BLOCK_7 = Constants.isTestnet ? 7464000 : 1797000;
     public static final int CHECKSUM_BLOCK_8 = Constants.isTestnet ? 10360000 : 2351000;
