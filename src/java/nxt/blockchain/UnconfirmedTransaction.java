@@ -30,9 +30,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 
 public abstract class UnconfirmedTransaction implements Transaction {
-
     static UnconfirmedTransaction load(ResultSet rs) throws SQLException {
         Chain chain = Chain.getChain(rs.getInt("chain_id"));
         try {
@@ -47,6 +47,7 @@ public abstract class UnconfirmedTransaction implements Transaction {
     private final long arrivalTimestamp;
     private final long feePerByte;
     private volatile boolean isBundled;
+    private UtxComparableData comparableData;
 
     UnconfirmedTransaction(TransactionImpl transaction, long arrivalTimestamp, boolean isBundled) {
         this.transaction = transaction;
@@ -97,9 +98,10 @@ public abstract class UnconfirmedTransaction implements Transaction {
         return arrivalTimestamp;
     }
 
-    void setBundled() {
-        isBundled = true;
+    void setBundled(boolean bundled) {
+        isBundled = bundled;
         TransactionProcessorImpl.getInstance().unconfirmedTransactionTable.insert(this);
+        comparableData = null;
     }
 
     public boolean isBundled() {
@@ -108,12 +110,25 @@ public abstract class UnconfirmedTransaction implements Transaction {
 
     @Override
     public final boolean equals(Object o) {
-        return o instanceof UnconfirmedTransaction && transaction.equals(((UnconfirmedTransaction)o).getTransaction());
+        if (this == o) return true;
+        if (!(o instanceof UnconfirmedTransaction)) return false;
+        UnconfirmedTransaction that = (UnconfirmedTransaction) o;
+        return arrivalTimestamp == that.arrivalTimestamp && isBundled == that.isBundled &&
+                Objects.equals(transaction, that.transaction);
     }
 
     @Override
     public final int hashCode() {
-        return transaction.hashCode();
+        return Objects.hash(transaction, arrivalTimestamp, isBundled);
+    }
+
+    @Override
+    public String toString() {
+        return "UnconfirmedTransaction{" +
+                "id=" + transaction.getId() +
+                ", isBundled=" + isBundled +
+                ", arrivalTimestamp=" + arrivalTimestamp +
+                '}';
     }
 
     @Override
@@ -318,4 +333,10 @@ public abstract class UnconfirmedTransaction implements Transaction {
         return getTransaction().getPrunableEncryptedMessage();
     }
 
+    UtxComparableData getComparableData() {
+        if (comparableData == null) {
+            comparableData = new UtxComparableData(this);
+        }
+        return comparableData;
+    }
 }

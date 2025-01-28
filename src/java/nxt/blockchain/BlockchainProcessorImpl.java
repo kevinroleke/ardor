@@ -165,8 +165,13 @@ public final class BlockchainProcessorImpl implements BlockchainProcessor {
                 new byte[] {
                         94, -14, 62, 40, -118, 116, 113, -71, 107, -32, -40, 30, -97, -93, -32,
                         33, -68, 39, 55, -42, 26, -35, -90, -4, 6, 81, -65, 90, 18, 5, -9, 119
-                }
-        );
+                });
+        map.put(Constants.CHECKSUM_BLOCK_10, Constants.isTestnet ?
+                new byte[] {99, 96, 39, -120, 0, -106, 72, 124, -23, -36, -26, -127, -23, -55, 32,
+                        -40, 107, 101, 66, 115, 107, 6, -76, 25, 88, -49, 127, -56, 33, 45, -114, 81}
+                :
+                new byte[] {-88, 53, -119, -47, 84, 108, 57, -99, 1, 104, 38, -77, 81, 99, -108, 6,
+                        62, 41, 39, -60, -28, 104, 116, -69, 29, -122, 81, -4, -23, -92, 119, -43});
         checksums = Collections.unmodifiableNavigableMap(map);
     }
 

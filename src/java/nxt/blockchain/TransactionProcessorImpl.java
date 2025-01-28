@@ -28,6 +28,7 @@ import nxt.db.EntityDbTable;
 import nxt.dbschema.Db;
 import nxt.peer.NetworkHandler;
 import nxt.peer.NetworkMessage;
+import nxt.peer.Peers;
 import nxt.peer.TransactionsInventory;
 import nxt.util.Convert;
 import nxt.util.Listener;
@@ -40,27 +41,16 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 public final class TransactionProcessorImpl implements TransactionProcessor {
 
     private static final boolean enableTransactionRebroadcasting = Nxt.getBooleanProperty("nxt.enableTransactionRebroadcasting");
     private static final boolean testUnconfirmedTransactions = Nxt.getBooleanProperty("nxt.testUnconfirmedTransactions");
-    private static final int maxUnconfirmedTransactions;
+    public static final int maxUnconfirmedTransactions;
+
     static {
         int n = Nxt.getIntProperty("nxt.maxUnconfirmedTransactions");
         maxUnconfirmedTransactions = n <= 0 ? NetworkMessage.MAX_LIST_SIZE : Math.min(n, NetworkMessage.MAX_LIST_SIZE);
@@ -80,7 +70,11 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
     public static void init() {}
 
     private final Map<DbKey, UnconfirmedTransaction> transactionCache = new HashMap<>();
+    //Lower priority transactions are first
+    private final TreeMap<UtxComparableData, DbKey> cachePriorityAsc = new TreeMap<>();
     private volatile boolean cacheInitialized = false;
+    private final DroppedTransactionStore knownDroppedTransactions =
+            new DroppedTransactionStore(Nxt.getIntProperty("nxt.droppedTransactionsStoreSize"));
 
     final DbKey.LongKeyFactory<UnconfirmedTransaction> unconfirmedTransactionDbKeyFactory = new DbKey.LongKeyFactory<UnconfirmedTransaction>("id") {
 
@@ -95,15 +89,17 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
 
         @Override
         protected UnconfirmedTransaction load(Connection con, ResultSet rs, DbKey dbKey) throws SQLException {
+            UnconfirmedTransaction fromCache = getFromCache(dbKey);
+            if (fromCache != null) {
+                return fromCache;
+            }
             return UnconfirmedTransaction.load(rs);
         }
 
         @Override
         protected void save(Connection con, UnconfirmedTransaction unconfirmedTransaction) throws SQLException {
             unconfirmedTransaction.save(con);
-            if (transactionCache.size() < maxUnconfirmedTransactions) {
-                transactionCache.put(unconfirmedTransaction.getDbKey(), unconfirmedTransaction);
-            }
+            addToCache(unconfirmedTransaction);
         }
 
         @Override
@@ -115,7 +111,7 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
                     while (rs.next()) {
                         UnconfirmedTransaction unconfirmedTransaction = load(con, rs, null);
                         waitingTransactions.add(unconfirmedTransaction);
-                        transactionCache.remove(unconfirmedTransaction.getDbKey());
+                        removeFromCache(unconfirmedTransaction.getDbKey());
                     }
                 }
             } catch (SQLException e) {
@@ -141,37 +137,9 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
     private final Set<TransactionImpl> broadcastedTransactions = Collections.newSetFromMap(new ConcurrentHashMap<>());
     private final Listeners<List<? extends Transaction>,Event> transactionListeners = new Listeners<>();
 
-    private final PriorityQueue<UnconfirmedTransaction> waitingTransactions = new PriorityQueue<UnconfirmedTransaction>(
-            (UnconfirmedTransaction o1, UnconfirmedTransaction o2) -> {
-                int result;
-                if ((result = Boolean.compare(o1.getType() == ChildBlockFxtTransactionType.INSTANCE,
-                        o2.getType() == ChildBlockFxtTransactionType.INSTANCE)) != 0) {
-                    return result;
-                }
-                if ((result = Boolean.compare(o2.getChain() != FxtChain.FXT, o1.getChain() != FxtChain.FXT)) != 0) {
-                    return result;
-                }
-                if ((result = Integer.compare(o2.getHeight(), o1.getHeight())) != 0) {
-                    return result;
-                }
-                if (o1.getChain() == FxtChain.FXT && o2.getChain() == FxtChain.FXT) {
-                    if ((result = Long.compare(o1.getFee(), o2.getFee())) != 0) {
-                        return result;
-                    }
-                }
-                if ((result = Boolean.compare(o1.isBundled(), o2.isBundled())) != 0) {
-                    return result;
-                }
-                if ((result = Boolean.compare(o2.getReferencedTransactionId() != null,
-                        o1.getReferencedTransactionId() != null)) != 0) {
-                    return result;
-                }
-                if ((result = Long.compare(o2.getArrivalTimestamp(), o1.getArrivalTimestamp())) != 0) {
-                    return result;
-                }
-                return Long.compare(o2.getId(), o1.getId());
-            })
-    {
+    private final PriorityQueue<UnconfirmedTransaction> waitingTransactions =
+            new PriorityQueue<UnconfirmedTransaction>(
+                    Comparator.comparing(UnconfirmedTransaction::getComparableData)) {
 
         @Override
         public boolean add(UnconfirmedTransaction unconfirmedTransaction) {
@@ -180,7 +148,11 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
             }
             if (size() > maxUnconfirmedTransactions) {
                 UnconfirmedTransaction removed = remove();
-                Logger.logDebugMessage("Dropped unconfirmed transaction " + removed.getStringId());
+                knownDroppedTransactions.add(removed.getId(),
+                        removed.getComparableData(), removed.getExpiration());
+                if (Peers.isLogLevelEnabled(Peers.LOG_LEVEL_TX_INVENTORY)) {
+                    Logger.logDebugMessage("Dropped unconfirmed transaction " + removed.getStringId());
+                }
             }
             return true;
         }
@@ -194,12 +166,15 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
 
         try {
             try {
+                int now = Nxt.getEpochTime();
+                knownDroppedTransactions.cleanup(now);
                 if (Nxt.getBlockchainProcessor().isDownloading() && ! testUnconfirmedTransactions) {
                     return;
                 }
                 List<UnconfirmedTransaction> expiredTransactions = new ArrayList<>();
                 try (DbIterator<UnconfirmedTransaction> iterator = unconfirmedTransactionTable.getManyBy(
-                        new DbClause.IntClause("expiration", DbClause.Op.LT, Nxt.getEpochTime()), 0, -1, "")) {
+                        new DbClause.IntClause("expiration", DbClause.Op.LT,
+                                now), 0, -1, "")) {
                     while (iterator.hasNext()) {
                         expiredTransactions.add(iterator.next());
                     }
@@ -355,9 +330,10 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
     }
 
     private UnconfirmedTransaction getUnconfirmedTransaction(DbKey dbKey) {
+        //TODO why do we need this lock?
         Nxt.getBlockchain().readLock();
         try {
-            UnconfirmedTransaction transaction = transactionCache.get(dbKey);
+            UnconfirmedTransaction transaction = getFromCache(dbKey);
             if (transaction != null) {
                 return transaction;
             }
@@ -380,6 +356,35 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
             throw new RuntimeException(e.toString(), e);
         }
         return result;
+    }
+
+    public int getUnconfirmedPoolSize() {
+        return transactionCache.size() + waitingTransactions.size();
+    }
+
+    private UtxComparableData getLowestPriorityComparableData() {
+        Map.Entry<UtxComparableData, DbKey> entry = cachePriorityAsc.firstEntry();
+        UtxComparableData fromCache = entry == null ? null : entry.getKey();
+        UtxComparableData result;
+        UnconfirmedTransaction lowestPriorityTransactionFromQueue = waitingTransactions.peek();
+        if (lowestPriorityTransactionFromQueue == null) {
+            result = fromCache;
+        } else {
+            if (fromCache == null) {
+                result = lowestPriorityTransactionFromQueue.getComparableData();
+            } else {
+                result = fromCache.compareTo(
+                        lowestPriorityTransactionFromQueue.getComparableData()) <= 0 ?
+                        fromCache : lowestPriorityTransactionFromQueue.getComparableData();
+            }
+        }
+        if (result != null) {
+            //Use the lowest comparable data with the best possible arrivalTime and id
+            // so that we ignore transactions that are only different by arrivalTime
+            // or id
+            return result.cloneIgnoringTimeAndId(0, Integer.MIN_VALUE);
+        }
+        return null;
     }
 
     @Override
@@ -481,7 +486,7 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
             unconfirmedDuplicates.clear();
             waitingTransactions.clear();
             broadcastedTransactions.clear();
-            transactionCache.clear();
+            clearTransactionsCache();
             if (!removed.isEmpty()) {
                 transactionListeners.notify(removed, Event.REMOVED_UNCONFIRMED_TRANSACTIONS);
             }
@@ -520,7 +525,7 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
             }
             unconfirmedTransactionTable.truncate();
             unconfirmedDuplicates.clear();
-            transactionCache.clear();
+            clearTransactionsCache();
             if (!removed.isEmpty()) {
                 transactionListeners.notify(removed, Event.REMOVED_UNCONFIRMED_TRANSACTIONS);
             }
@@ -592,7 +597,7 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
             if (deleted > 0) {
                 transaction.undoUnconfirmed();
                 DbKey dbKey = unconfirmedTransactionDbKeyFactory.newKey(transaction.getId());
-                transactionCache.remove(dbKey);
+                removeFromCache(dbKey);
                 transactionListeners.notify(Collections.singletonList(transaction), Event.REMOVED_UNCONFIRMED_TRANSACTIONS);
                 if (transaction.getChain() != FxtChain.FXT) {
                     try (DbIterator<UnconfirmedTransaction> iterator = getUnconfirmedFxtTransactions()) {
@@ -654,7 +659,7 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
                 Logger.logDebugMessage("Unconfirmed transaction table size exceeded twice the maximum allowed, re-queueing");
                 requeueAllUnconfirmedTransactions();
             }
-            if (waitingTransactions.size() > 0) {
+            if (!waitingTransactions.isEmpty()) {
                 int currentTime = Nxt.getEpochTime();
                 List<Transaction> addedUnconfirmedTransactions = new ArrayList<>();
                 boolean processedChildTransactions = false;
@@ -694,6 +699,57 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
         } finally {
             BlockchainImpl.getInstance().writeUnlock();
         }
+    }
+
+    /**
+     * Filter out any of the IDs that are known to be already available in the
+     * pool or forged.
+     * And filter out any ids that are known to be dropped unless they are with
+     * better priority than some of the transactions in the pool or the pool is
+     * not full
+     *
+     * @param requestIdsStream stream of ids
+     * @param maxSize maxSize
+     * @return A list of filtered
+     */
+    @Override
+    public List<ChainTransactionId> filterPeerRequestIds(
+            Stream<ChainTransactionId> requestIdsStream, int maxSize) {
+        //Filter out anything that is already known
+        Stream<ChainTransactionId> stream = requestIdsStream.filter(id -> {
+            DbKey dbKey = unconfirmedTransactionDbKeyFactory.newKey(id.getTransactionId());
+            synchronized (transactionCache) {
+                if (transactionCache.containsKey(dbKey)) {
+                    return false;
+                }
+            }
+            return !id.getChain().getTransactionHome().hasTransaction(id.getFullHash(), id.getTransactionId(), Integer.MAX_VALUE);
+        });
+
+        //Filter out any known dropped transactions unless there is free space
+        int availableSizeToFill = maxUnconfirmedTransactions - getUnconfirmedPoolSize();
+        return UtxComparableData.filterWithLimits(stream,
+                id -> {
+                    UtxComparableData comparableData = knownDroppedTransactions.get(
+                            id.getTransactionId());
+                    if (comparableData != null) {
+                        return comparableData;
+                    }
+                    return UtxComparableData.HIGHEST;
+                },
+                availableSizeToFill, maxSize,
+                getLowestPriorityComparableData(), null);
+    }
+
+    @Override
+    public List<Transaction> filterPeerTransactions(List<Transaction> transactions) {
+        int availableSizeToFill = maxUnconfirmedTransactions - getUnconfirmedPoolSize();
+        long arrivalTime = System.currentTimeMillis();
+        return UtxComparableData.filterWithLimits(transactions.stream(),
+                t -> new UtxComparableData(t, false, arrivalTime),
+                availableSizeToFill, Integer.MAX_VALUE,
+                getLowestPriorityComparableData(),
+                (t, cd) -> knownDroppedTransactions.add(t.getId(), cd, t.getExpiration()));
     }
 
     //process ChildBlockTransactions last
@@ -844,23 +900,10 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
         return displaced;
     }
 
-    private static final Comparator<UnconfirmedTransaction> cachedUnconfirmedTransactionComparator = (UnconfirmedTransaction t1, UnconfirmedTransaction t2) -> {
-        int compare;
-        // Sort by transaction_height ASC
-        compare = Integer.compare(t1.getHeight(), t2.getHeight());
-        if (compare != 0)
-            return compare;
-        // Sort by is_bundled DESC
-        compare = Boolean.compare(t1.isBundled(), t2.isBundled());
-        if (compare != 0)
-            return -compare;
-        // Sort by arrival_timestamp ASC
-        compare = Long.compare(t1.getArrivalTimestamp(), t2.getArrivalTimestamp());
-        if (compare != 0)
-            return compare;
-        // Sort by transaction ID ASC
-        return Long.compare(t1.getId(), t2.getId());
-    };
+    private static final Comparator<UnconfirmedTransaction> cachedUnconfirmedTransactionComparator = (UnconfirmedTransaction t1, UnconfirmedTransaction t2) ->
+            //Transactions are sorted in descending order, meaning those with
+            // higher priority (i.e., higher ComparableData) are returned first.
+            t2.getComparableData().compareTo(t1.getComparableData());
 
     /**
      * Get the cached unconfirmed transactions
@@ -880,24 +923,61 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
                     try (DbIterator<UnconfirmedTransaction> it = getAllUnconfirmedTransactions()) {
                         while (it.hasNext()) {
                             UnconfirmedTransaction unconfirmedTransaction = it.next();
-                            transactionCache.put(unconfirmedTransaction.getDbKey(), unconfirmedTransaction);
+                            addToCache(unconfirmedTransaction);
                         }
                     }
                     cacheInitialized = true;
                 }
+
+                //
+                // Build the result set
+                //
+                transactionCache.values().forEach(transaction -> {
+                    if (Collections.binarySearch(exclude, transaction.getId()) < 0) {
+                        transactionSet.add(transaction);
+                    }
+                });
             }
-            //
-            // Build the result set
-            //
-            transactionCache.values().forEach(transaction -> {
-                if (Collections.binarySearch(exclude, transaction.getId()) < 0) {
-                    transactionSet.add(transaction);
-                }
-            });
         } finally {
             Nxt.getBlockchain().readUnlock();
         }
         return transactionSet;
+    }
+
+    private UnconfirmedTransaction getFromCache(DbKey dbKey) {
+        synchronized(transactionCache) {
+            return transactionCache.get(dbKey);
+        }
+    }
+
+    private void addToCache(UnconfirmedTransaction unconfirmedTransaction) {
+        synchronized(transactionCache) {
+            transactionCache.put(unconfirmedTransaction.getDbKey(), unconfirmedTransaction);
+            cachePriorityAsc.put(unconfirmedTransaction.getComparableData(), unconfirmedTransaction.getDbKey());
+            if (transactionCache.size() > maxUnconfirmedTransactions) {
+                Map.Entry<UtxComparableData, DbKey> lastEntry = cachePriorityAsc.lastEntry();
+                if (lastEntry != null) {
+                    cachePriorityAsc.remove(lastEntry.getKey());
+                    transactionCache.remove(lastEntry.getValue());
+                }
+            }
+        }
+    }
+
+    private void removeFromCache(DbKey unconfirmedTransaction) {
+        synchronized(transactionCache) {
+            UnconfirmedTransaction removed = transactionCache.remove(unconfirmedTransaction);
+            if (removed != null) {
+                cachePriorityAsc.remove(removed.getComparableData());
+            }
+        }
+    }
+
+    private void clearTransactionsCache() {
+        synchronized(transactionCache) {
+            transactionCache.clear();
+            cachePriorityAsc.clear();
+        }
     }
 
     /**
@@ -971,5 +1051,13 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
             Nxt.getBlockchain().readUnlock();
         }
         return processed;
+    }
+
+    @Override
+    public Map<String, Object> getUnconfirmedPoolInfo() {
+        Map<String, Object> result = new HashMap<>();
+        result.put("poolSize", getUnconfirmedPoolSize());
+        result.put("droppedStoreSize", knownDroppedTransactions.getSize());
+        return result;
     }
 }

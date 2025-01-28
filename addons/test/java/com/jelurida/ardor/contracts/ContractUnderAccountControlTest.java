@@ -58,7 +58,7 @@ public class ContractUnderAccountControlTest extends AbstractContractTest {
 
         // Bob pays Alice to trigger the contract.
         // We cannot use encrypted message to trigger the contract since the validator cannot decrypt it
-        String triggerFullHash = ContractTestHelper.bobPaysContract(message, IGNIS, false);
+        ContractTestHelper.bobPaysContract(message, IGNIS, false);
 
         // The contract has submitted a transaction it is still unconfirmed
         // Now let's switch contract runner config and rerun the operation of the contract in validation mode
@@ -73,11 +73,11 @@ public class ContractUnderAccountControlTest extends AbstractContractTest {
 
         // Verify that the contract made random pay back to Bob
         testAndGetLastChildTransaction(2, 0, 0,
-                a -> a >= 0 && a < 200 * IGNIS.ONE_COIN, 6000000L,
-                ALICE, BOB, triggerFullHash);
+                a -> a >= 0 && a < 200 * IGNIS.ONE_COIN, 4000000L,
+                ALICE, BOB);
 
-        long balanceBeforeRandomPayment = 100 * IGNIS.ONE_COIN - 6000000L - 300000000L;
-        Assert.assertEquals(balanceBeforeRandomPayment, ALICE.getChainBalanceDiff(2));
+        long balanceBeforeRandomPayment = 100 * IGNIS.ONE_COIN - 4000000L - 300000000L;
+        Assert.assertEquals(balanceBeforeRandomPayment, ALICE.getChainBalanceDiff(IGNIS.getId()));
 
         // The validator approval is included in this block
         generateBlock();
@@ -85,7 +85,7 @@ public class ContractUnderAccountControlTest extends AbstractContractTest {
         // Verify that the contract runner submitted an approval transaction
         testAndGetLastChildTransaction(2, 9, 2,
                 a -> true, 2000000L,
-                CHUCK, null, null);
+                CHUCK, null);
         Assert.assertTrue(ALICE.getChainBalanceDiff(2) < balanceBeforeRandomPayment); // Now Alice made payment
     }
 }

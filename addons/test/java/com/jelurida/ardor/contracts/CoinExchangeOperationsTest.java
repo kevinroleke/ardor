@@ -68,7 +68,7 @@ public class CoinExchangeOperationsTest extends AbstractContractTest {
         Logger.logDebugMessage("Check if coin exchange tx sent on child chain.");
         ChildTransaction orderTx = testAndGetLastChildTransaction(2, 11, 0,
                 a -> a == 0, 4000000,
-                ALICE, null, triggerFullHash);
+                ALICE, null);
 
         Logger.logDebugMessage("Send trigger for cancel order contract");
         long orderId = orderTx.getId();
@@ -80,7 +80,7 @@ public class CoinExchangeOperationsTest extends AbstractContractTest {
         Logger.logDebugMessage("Check if cancel tx sent on child chain.");
         testAndGetLastChildTransaction(2, 11, 1,
                 a -> a == 0, 4000000,
-                ALICE, null, cancelFullHash);
+                ALICE, null);
     }
 
     @Test

@@ -60,6 +60,7 @@ class ActiveContractRunnerConfig implements ContractRunnerConfig {
     private int maxSubmittedTransactionsPerInvocation;
     private byte[] runnerSeed;
     private KeyDerivation.Bip32Node managedAccountsParentNode;
+    private boolean isTriggerTransactionAlwaysIncluded;
 
     ActiveContractRunnerConfig(ContractProvider contractProvider) {
         this.contractProvider = contractProvider;
@@ -175,6 +176,7 @@ class ActiveContractRunnerConfig implements ContractRunnerConfig {
 
     private void initValidation(JO config) {
         if (isValidator()) {
+            isTriggerTransactionAlwaysIncluded = true;
             byte[] oldValidatorPrivateKey = validatorPrivateKey;
             String validatorPrivateKeyStr = getProperty(config, "validatorPrivateKey");
             if (validatorPrivateKeyStr != null) {
@@ -196,6 +198,7 @@ class ActiveContractRunnerConfig implements ContractRunnerConfig {
             }
         } else {
             validatorPrivateKey = null;
+            isTriggerTransactionAlwaysIncluded = config.getBoolean("isTriggerTransactionAlwaysIncluded", false);
         }
     }
 
@@ -354,6 +357,11 @@ class ActiveContractRunnerConfig implements ContractRunnerConfig {
     @Override
     public boolean isValidator() {
         return mode == RunnerMode.VALIDATOR;
+    }
+
+    @Override
+    public boolean isTriggerTransactionAlwaysIncluded() {
+        return isTriggerTransactionAlwaysIncluded;
     }
 
     @Override

@@ -19,7 +19,9 @@ package com.jelurida.ardor.contracts;
 import nxt.addons.ContractLoader;
 import nxt.addons.JO;
 import nxt.blockchain.ChildChain;
+import nxt.blockchain.FxtChain;
 import nxt.http.callers.IssueAssetCall;
+import nxt.http.callers.SendMoneyCall;
 import nxt.http.callers.TriggerContractByRequestCall;
 import nxt.http.responses.TransactionResponse;
 import nxt.util.Convert;
@@ -122,5 +124,32 @@ public class ContractRunnerTest extends AbstractContractTest {
         JO response = TriggerContractByRequestCall.create().contractName(contractName).callNoError();
         Assert.assertEquals(LONG_STRING, response.getString("str"));
         Assert.assertEquals(obj, response.getJo("obj"));
+    }
+
+    @Test
+    public void testRunningWithoutArdr() {
+        SendMoneyCall.create(FxtChain.FXT.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .amountNQT(ALICE.getFxtBalance() - FxtChain.FXT.ONE_COIN)
+                .feeNQT(FxtChain.FXT.ONE_COIN)
+                .recipient(BOB.getId()).callNoError();
+        generateBlock();
+
+
+        String contractName = ContractTestHelper.deployContract(HelloWorld.class);
+
+        // Send message to trigger the contract execution
+        JO messageJson = new JO();
+        messageJson.put("contract", contractName);
+        String message = messageJson.toJSONString();
+        ContractTestHelper.messageTriggerContract(message);
+        // Contract should submit transaction now
+        generateBlock();
+
+        // Verify that the contract send back a message
+        testAndGetLastChildTransaction(2, 1, 0,
+                a -> true, 2000000L,
+                ALICE, BOB);
+
     }
 }

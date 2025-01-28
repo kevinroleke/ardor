@@ -75,7 +75,7 @@ public class TransactionContext extends AbstractOperationContext {
 
     @Override
     protected JO addTriggerData(JO jo, int managedAccountIndex) {
-        if (chain == 1) {
+        if (chain == 1 || config.isTriggerTransactionAlwaysIncluded()) {
             jo.put("trigger", chain + ":" + Convert.toHexString(fullHash));
         }
         return super.addTriggerData(jo, managedAccountIndex);

@@ -36,8 +36,8 @@ public class HelloWorldForwarderTest extends AbstractContractTest {
 
         // Verify that the contract send back a message
         ChildTransaction childTransaction = testAndGetLastChildTransaction(2, 1, 0,
-                a -> true, 4000000L,
-                ALICE, CHUCK, triggerFullHash);
+                a -> true, 2000000L,
+                ALICE, CHUCK);
         // Load the attached message
         JO prunableMessageResponse = GetPrunableMessageCall.create(2)
                 .transactionFullHash(childTransaction.getFullHash())

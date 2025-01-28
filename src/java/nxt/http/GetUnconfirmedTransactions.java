@@ -32,8 +32,9 @@ import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.SortedSet;
 
 public final class GetUnconfirmedTransactions extends APIServlet.APIRequestHandler {
 
@@ -41,7 +42,7 @@ public final class GetUnconfirmedTransactions extends APIServlet.APIRequestHandl
 
     private GetUnconfirmedTransactions() {
         super(new APITag[] {APITag.TRANSACTIONS, APITag.ACCOUNTS}, "account", "account", "account",
-                "includeWaitingTransactions", "firstIndex", "lastIndex");
+                "dumpCache", "includeWaitingTransactions", "firstIndex", "lastIndex");
     }
 
     @Override
@@ -55,6 +56,19 @@ public final class GetUnconfirmedTransactions extends APIServlet.APIRequestHandl
 
         JSONObject response = new JSONObject();
         JSONArray transactions = new JSONArray();
+        if ("true".equalsIgnoreCase(req.getParameter("dumpCache"))) {
+            SortedSet<? extends Transaction> transactionSet =
+                    Nxt.getTransactionProcessor().getCachedUnconfirmedTransactions(Collections.emptyList());
+            int index = 0;
+            for (Transaction transaction : transactionSet) {
+                if (index >= firstIndex && index < lastIndex) {
+                    transactions.add(JSONData.unconfirmedTransaction(transaction));
+                }
+                index++;
+            }
+            response.put("unconfirmedTransactionsCache", transactions);
+            return response;
+        }
         if (includeWaitingTransactions) {
             Nxt.getBlockchain().readLock();
         }

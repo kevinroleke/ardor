@@ -53,8 +53,8 @@ public class ChildToParentExchangeTest extends AbstractContractTest {
 
         // Since there are no coin orders the amount of IGNIS is returned
         testAndGetLastChildTransaction(2, 0, 0,
-                a -> a == 996000000L, 4000000L,
-                ALICE, BOB, null);
+                a -> a == 998000000L, 2000000L,
+                ALICE, BOB);
     }
 
     @Test

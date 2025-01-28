@@ -169,11 +169,11 @@ public final class Bundler {
             long childFee = childTransaction.getFee();
             BigInteger minParentFeeFQT = minRateNQTPerFXTBigInteger.multiply(BigInteger.valueOf(minChildFeeFQT));
             if (BigInteger.valueOf(childFee).multiply(Constants.ONE_FXT_BIG_INTEGER).compareTo(minParentFeeFQT) < 0) {
-                Logger.logInfoMessage("Bundler not bundling child transaction %d:%s fee %d [FQT] lower than min required fee %d [FQT]",
-                        childTransaction.getChain().getId(),
-                        Convert.toHexString(childTransaction.getFullHash()),
-                        BigInteger.valueOf(childFee),
-                        minParentFeeFQT.divide(Constants.ONE_FXT_BIG_INTEGER));
+//                Logger.logInfoMessage("Bundler not bundling child transaction %d:%s fee %d [FQT] lower than min required fee %d [FQT]",
+//                        childTransaction.getChain().getId(),
+//                        Convert.toHexString(childTransaction.getFullHash()),
+//                        BigInteger.valueOf(childFee),
+//                        minParentFeeFQT.divide(Constants.ONE_FXT_BIG_INTEGER));
                 return false;
             }
             return filters.stream().allMatch(filter -> filter.ok(bundler, childTransaction));

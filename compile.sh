@@ -20,7 +20,7 @@ while [ "$1" != "" ]; do
     shift
 done
 
-if [ -x jdk/bin/java ]; then
+if [ -x jdk/bin/javac ]; then
     JAVA=./jdk/bin/java
     JAVAC="./jdk/bin/javac -encoding utf8 -source 1.8 -target 1.8"
     JAR=./jdk/bin/jar

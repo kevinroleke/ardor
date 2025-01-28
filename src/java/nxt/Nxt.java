@@ -63,7 +63,7 @@ import java.util.Properties;
 
 public final class Nxt {
 
-    public static final String VERSION = "2.5.0";
+    public static final String VERSION = "2.5.1";
     public static final String APPLICATION = "Ardor";
 
     private static volatile Time time = new Time.EpochTime();
@@ -96,6 +96,9 @@ public final class Nxt {
         dirProvider = RuntimeEnvironment.getDirProvider(installerConfiguredMode);
         System.out.println("User home folder " + dirProvider.getUserHomeDir());
         loadProperties(defaultProperties, NXT_DEFAULT_PROPERTIES, true);
+        if (Nxt.defaultProperties.isEmpty()) {
+            throw new RuntimeException(NXT_DEFAULT_PROPERTIES + " not found in classpath");
+        }
         if (!VERSION.equals(Nxt.defaultProperties.getProperty("nxt.version"))) {
             throw new RuntimeException("Using an nxt-default.properties file from a version other than " + VERSION + " is not supported!!!");
         }

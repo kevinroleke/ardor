@@ -36,7 +36,7 @@ public class ContractRunnerFeeCalculationTest extends AbstractContractTest {
         // Verify that the contract send back a message
         testAndGetLastChildTransaction(ChildChain.IGNIS.getId(), 0, 0,
                 a -> true, 4000000L,
-                ALICE, BOB, triggerFullHash);
+                ALICE, BOB);
         /*
          Fee calculation: 0.01 child chain general fee (sendMessage) + 0.01 referenced tx fee
          Total fee: 0.02 ARDR (FXT)
@@ -69,7 +69,7 @@ public class ContractRunnerFeeCalculationTest extends AbstractContractTest {
         // Verify that the contract send back a message
         testAndGetLastChildTransaction(ChildChain.AEUR.getId(), 0, 0,
                 a -> true, 400,
-                ALICE, BOB, triggerFullHash);
+                ALICE, BOB);
         /*
          Fee calculation: 0.01 child chain general fee (sendMessage) + 0.01 referenced tx fee
          Total fee: 0.02 ARDR (FXT)

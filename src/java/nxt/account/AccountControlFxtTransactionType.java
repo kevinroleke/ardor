@@ -18,7 +18,6 @@
 package nxt.account;
 
 import nxt.Constants;
-import nxt.Nxt;
 import nxt.NxtException;
 import nxt.blockchain.Fee;
 import nxt.blockchain.FxtTransactionImpl;
@@ -96,9 +95,7 @@ public abstract class AccountControlFxtTransactionType extends FxtTransactionTyp
                 throw new NxtException.NotValidException("Transaction amount must be 0 for effective balance leasing");
             }
             //Even with the longer period, we still need some limit to avoid overflows
-            int leasingPeriodLimit = Nxt.getBlockchain().getHeight() < Constants.LEASING_PERIOD_INCREASE ?
-                    Constants.SHORT_LEASE_PERIOD_LIMIT : Constants.LONG_LEASE_PERIOD_LIMIT;
-            if (attachment.getPeriod() < Constants.LEASING_DELAY || attachment.getPeriod() > leasingPeriodLimit) {
+            if (attachment.getPeriod() < Constants.LEASING_DELAY || attachment.getPeriod() > Constants.LONG_LEASE_PERIOD_LIMIT) {
                 throw new NxtException.NotValidException("Invalid effective balance leasing period: " + attachment.getPeriod());
             }
             byte[] recipientPublicKey = Account.getPublicKey(transaction.getRecipientId());

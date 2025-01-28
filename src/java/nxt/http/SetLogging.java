@@ -116,7 +116,7 @@ public class SetLogging extends APIServlet.APIRequestHandler {
         //
         // Set communication logging
         //
-        Peers.setCommunicationLogging(ParameterParser.getInt(req, "communicationLogging", 0, 3, false));
+        Peers.setCommunicationLogging(ParameterParser.getInt(req, "communicationLogging", 0, Peers.LOG_LEVELS_ALL, false));
         //
         // Return the response
         //

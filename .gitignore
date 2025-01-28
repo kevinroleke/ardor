@@ -48,3 +48,4 @@ deploy.sh
 /ardor
 /nxt_test_db_automation/
 /ramdisk-backups/
+/conf/nxt-installer.properties

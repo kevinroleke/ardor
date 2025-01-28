@@ -58,7 +58,7 @@ public class RandomPaymentTest extends AbstractContractTest {
         // Contract should submit transaction now
         generateBlock();
         LongPredicate predicate = amount -> (amount >= 0 && amount < 200 * IGNIS.ONE_COIN);
-        ChildTransaction childTransaction = testAndGetLastChildTransaction(2, 0, 0, predicate, 4000000L, ALICE, BOB, triggerFullHash);
+        ChildTransaction childTransaction = testAndGetLastChildTransaction(2, 0, 0, predicate, 2000000L, ALICE, BOB);
 
         // Now let's rerun the operation of the contract
         JO response = TriggerContractByTransactionCall.create(IGNIS.getId()).
@@ -69,7 +69,7 @@ public class RandomPaymentTest extends AbstractContractTest {
         JO transactionJson = transaction.getJo("transactionJSON");
         long amountNQT = transactionJson.getLong("amountNQT");
         Assert.assertTrue(amountNQT >= 0 && amountNQT <= 200 * IGNIS.ONE_COIN);
-        Assert.assertEquals(4000000, transactionJson.getLong("feeNQT"));
+        Assert.assertEquals(2000000, transactionJson.getLong("feeNQT"));
 
         // Now let's validate the operation of the contract
         response = TriggerContractByTransactionCall.create(childTransaction.getChain().getId()).
@@ -101,7 +101,7 @@ public class RandomPaymentTest extends AbstractContractTest {
         generateBlock();
 
         // Verify that the contract made random pay back
-        testAndGetLastChildTransaction(2, 0, 0, a -> a >= 0 && a < 200 * IGNIS.ONE_COIN, 4000000L, ALICE, BOB, triggerFullHash);
+        testAndGetLastChildTransaction(2, 0, 0, a -> a >= 0 && a < 200 * IGNIS.ONE_COIN, 2000000L, ALICE, BOB);
 
         // Now let's do it again using the GetExecutedTransactions API for the sake of example
         ChainTransactionId contractResultTransactionId = null;
@@ -112,11 +112,9 @@ public class RandomPaymentTest extends AbstractContractTest {
             Assert.assertEquals(0, childTransaction.getTransactionType().getType());
             Assert.assertEquals(0, childTransaction.getTransactionType().getSubtype());
             Assert.assertTrue(childTransaction.getAmount() >= 0 && childTransaction.getAmount() < 200 * IGNIS.ONE_COIN);
-            Assert.assertEquals(4000000L, childTransaction.getFee());
+            Assert.assertEquals(2000000L, childTransaction.getFee());
             Assert.assertEquals(ALICE.getAccount().getId(), childTransaction.getSenderId());
             Assert.assertEquals(BOB.getAccount().getId(), childTransaction.getRecipientId());
-            ChainTransactionId triggerTransactionId = new ChainTransactionId(IGNIS.getId(), Convert.parseHexString(triggerFullHash));
-            Assert.assertEquals(triggerTransactionId, childTransaction.getReferencedTransaction());
             contractResultTransactionId = new ChainTransactionId(childTransaction.getChainId(), childTransaction.getFullHash());
         }
         Assert.assertNotNull(contractResultTransactionId);
@@ -125,7 +123,7 @@ public class RandomPaymentTest extends AbstractContractTest {
         List<TransactionResponse> transactions = TriggerContractByTransactionCall.create(IGNIS.getId()).triggerFullHash(triggerFullHash).getCreatedTransactions();
         TransactionResponse transaction = transactions.get(0);
         Assert.assertTrue(transaction.getAmount() >= 0 && transaction.getAmount() < 200 * IGNIS.ONE_COIN);
-        Assert.assertEquals(4000000L, transaction.getFee());
+        Assert.assertEquals(2000000L, transaction.getFee());
 
         // Now let's validate the operation of the contract
         boolean isExceptionThrown = true;
@@ -175,14 +173,14 @@ public class RandomPaymentTest extends AbstractContractTest {
         generateBlock();
 
         // Verify that the contract made random pay back
-        testAndGetLastChildTransaction(2, 0, 0, a -> a >= 0 && a < 200 * IGNIS.ONE_COIN, 4000000L, ALICE, BOB, triggerFullHash);
+        testAndGetLastChildTransaction(2, 0, 0, a -> a >= 0 && a < 200 * IGNIS.ONE_COIN, 2000000L, ALICE, BOB);
 
         // The blockchain rescan will cause the contract to resubmit the transaction but it will become duplicate of the existing transaction
         // and will not be broadcast to the blockchain again.
         ScanCall.create().height(1).callNoError();
 
         // After the scan we should see the same transaction as before the scan
-        testAndGetLastChildTransaction(2, 0, 0, a -> a >= 0 && a < 200 * IGNIS.ONE_COIN, 4000000L, ALICE, BOB, triggerFullHash);
+        testAndGetLastChildTransaction(2, 0, 0, a -> a >= 0 && a < 200 * IGNIS.ONE_COIN, 2000000L, ALICE, BOB);
     }
 
     /**
@@ -265,8 +263,8 @@ public class RandomPaymentTest extends AbstractContractTest {
         generateBlock();
 
         // Verify that the contract made random pay back
-        LongPredicate predicate = amount -> (amount == 100 * IGNIS.ONE_COIN - 8000000L);
-        ChildTransaction childTransaction = testAndGetLastChildTransaction(2, 0, 0, predicate, 8000000L, ALICE, BOB, triggerFullHash);
+        LongPredicate predicate = amount -> (amount == 100 * IGNIS.ONE_COIN - 6000000L);
+        ChildTransaction childTransaction = testAndGetLastChildTransaction(2, 0, 0, predicate, 6000000L, ALICE, BOB);
         Assert.assertNotNull(childTransaction);
         long amountNQT = childTransaction.getAmount();
         long aliceBalanceDiff = ALICE.getChainBalanceDiff(2);
@@ -301,8 +299,8 @@ public class RandomPaymentTest extends AbstractContractTest {
 
         // Verify that the contract made random pay back
         ChildTransaction childTransaction = testAndGetLastChildTransaction(2, 0, 0,
-                amount -> (amount == 100 * IGNIS.ONE_COIN - 8000000L), 8000000L,
-                ALICE, BOB, triggerFullHash);
+                amount -> (amount == 100 * IGNIS.ONE_COIN - 6000000L), 6000000L,
+                ALICE, BOB);
         Assert.assertTrue(childTransaction.isPhased());
         long aliceBalanceDiff = ALICE.getChainBalanceDiff(2);
         long bobBalanceDiff = BOB.getChainBalanceDiff(2);

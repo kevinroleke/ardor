@@ -177,6 +177,9 @@ final class GetInfo {
         //
         Peers.peersService.execute(() -> {
             List<Long> unconfirmed = Nxt.getTransactionProcessor().getAllUnconfirmedTransactionIds();
+            if (unconfirmed.size() > NetworkMessage.MAX_LIST_SIZE) {
+                unconfirmed = unconfirmed.subList(0, NetworkMessage.MAX_LIST_SIZE);
+            }
             Collections.sort(unconfirmed);
             NetworkMessage.TransactionsMessage response = (NetworkMessage.TransactionsMessage)peer.sendRequest(
                     new NetworkMessage.GetUnconfirmedTransactionsMessage(unconfirmed));
@@ -185,6 +188,13 @@ final class GetInfo {
             }
             try {
                 List<Transaction> transactions = response.getTransactions();
+                int prefilterCount = transactions.size();
+                transactions = Nxt.getTransactionProcessor().filterPeerTransactions(transactions);
+                if (Peers.isLogLevelEnabled(Peers.LOG_LEVEL_TX_INVENTORY)) {
+                    Logger.logDebugMessage("OnConnection " + peer.getHost()
+                            + " prefilter " + prefilterCount
+                            + " postfilter " + transactions.size());
+                }
                 List<? extends Transaction> addedTransactions = Nxt.getTransactionProcessor().processPeerTransactions(transactions);
                 TransactionsInventory.cacheTransactions(addedTransactions);
             } catch (NxtException.ValidationException | RuntimeException e) {

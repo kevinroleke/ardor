@@ -124,7 +124,7 @@ public class AllForOnePaymentTest extends AbstractContractTest {
         generateBlockWithDescription("And now the reward transaction is processed");
 
         List<Long> participants = new ArrayList<>(Arrays.asList(ALICE.getId(), BOB.getId(), CHUCK.getId(), DAVE.getId()));
-        ChildTransaction childTransaction = testAndGetLastChildTransaction(2, 0, 0, a -> a == 99998000000L, 2000000L, ALICE, null, null);
+        ChildTransaction childTransaction = testAndGetLastChildTransaction(2, 0, 0, a -> a == 99998000000L, 2000000L, ALICE, null);
         Assert.assertTrue(participants.contains(childTransaction.getRecipientId()));
         childTransaction.getAppendages().stream()
                 .filter(PrunablePlainMessageAppendix.class::isInstance)

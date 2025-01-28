@@ -24,11 +24,9 @@ import nxt.addons.ContractRunner;
 import nxt.addons.JO;
 import nxt.blockchain.Block;
 import nxt.blockchain.Blockchain;
-import nxt.blockchain.ChainTransactionId;
 import nxt.blockchain.ChildTransaction;
 import nxt.blockchain.FxtTransaction;
 import nxt.http.callers.UploadContractRunnerConfigurationCall;
-import nxt.util.Convert;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -145,23 +143,19 @@ public abstract class AbstractContractTest extends BlockchainTest {
      *
      * @return the transaction submitted by the contract
      */
-    protected ChildTransaction testAndGetLastChildTransaction(int chainId, int type, int subtype, LongPredicate amountValidator, long fee, Tester sender, Tester recipient, String referenceTransactionFullHash) {
+    protected ChildTransaction testAndGetLastChildTransaction(int chainId, int type, int subtype, LongPredicate amountValidator, long fee, Tester sender, Tester recipient) {
         List<? extends ChildTransaction> transactions = getLastBlockChildTransactions(chainId);
         assertTrue(transactions.size() > 0);
         ChildTransaction childTransaction = transactions.get(transactions.size() - 1);
         Assert.assertEquals(chainId, childTransaction.getChain().getId());
         Assert.assertEquals(type, childTransaction.getType().getType());
         Assert.assertEquals(subtype, childTransaction.getType().getSubtype());
+        Assert.assertEquals(fee, childTransaction.getFee());
         Assert.assertTrue("Amount validation error. Amount on transaction: " + childTransaction.getAmount(),
                 amountValidator.test(childTransaction.getAmount()));
-        Assert.assertEquals(fee, childTransaction.getFee());
         Assert.assertEquals(sender.getId(), childTransaction.getSenderId());
         if (recipient != null) {
             Assert.assertEquals(recipient.getId(), childTransaction.getRecipientId());
-        }
-        if (referenceTransactionFullHash != null) {
-            ChainTransactionId triggerTransactionId = new ChainTransactionId(chainId, Convert.parseHexString(referenceTransactionFullHash));
-            Assert.assertEquals(triggerTransactionId, childTransaction.getReferencedTransactionId());
         }
         return childTransaction;
     }

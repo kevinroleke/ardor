@@ -1,5 +1,6 @@
 {
   "autoFeeRate": true,
+  "isTriggerTransactionAlwaysIncluded": true,
   "params": {
     "LeaseRenewal": {
       "secretPhrases": [

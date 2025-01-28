@@ -35,8 +35,8 @@ public class HelloWorldTest extends AbstractContractTest {
 
         // Verify that the contract send back a message
         testAndGetLastChildTransaction(2, 1, 0,
-                a -> true, 4000000L,
-                ALICE, BOB, triggerFullHash);
+                a -> true, 2000000L,
+                ALICE, BOB);
     }
 
 }

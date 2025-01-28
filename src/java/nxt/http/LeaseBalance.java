@@ -18,7 +18,6 @@
 package nxt.http;
 
 import nxt.Constants;
-import nxt.Nxt;
 import nxt.NxtException;
 import nxt.account.Account;
 import nxt.account.AccountControlFxtTransactionType;
@@ -41,9 +40,8 @@ public final class LeaseBalance extends CreateTransaction {
 
     @Override
     protected JSONStreamAware processRequest(HttpServletRequest req) throws NxtException {
-        boolean isShortPeriod = Nxt.getBlockchain().getHeight() < Constants.LEASING_PERIOD_INCREASE;
         int period = ParameterParser.getInt(req, "period", Constants.LEASING_DELAY,
-                isShortPeriod ? Constants.SHORT_LEASE_PERIOD_LIMIT : Constants.LONG_LEASE_PERIOD_LIMIT, true);
+                Constants.LONG_LEASE_PERIOD_LIMIT, true);
         Account account = ParameterParser.getSenderAccount(req);
         long recipient = ParameterParser.getAccountId(req, "recipient", true);
         Account recipientAccount = Account.getAccount(recipient);
@@ -53,7 +51,7 @@ public final class LeaseBalance extends CreateTransaction {
             response.put("errorDescription", "recipient account does not have public key");
             return response;
         }
-        Attachment attachment = new EffectiveBalanceLeasingAttachment(period, isShortPeriod);
+        Attachment attachment = new EffectiveBalanceLeasingAttachment(period, false);
         return transactionParameters(req, account, attachment).setRecipientId(recipient).createTransaction();
     }
 }

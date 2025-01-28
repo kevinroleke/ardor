@@ -19,6 +19,7 @@ import nxt.addons.JO;
 import nxt.blockchain.ChildChain;
 import nxt.http.bundling.BundlerTest;
 import nxt.http.callers.GetBalanceCall;
+import nxt.http.callers.SendMoneyCall;
 import nxt.http.callers.StartBundlerCall;
 import nxt.http.callers.TriggerContractByRequestCall;
 import org.junit.Assert;
@@ -73,9 +74,8 @@ public class ManagedAccountsTest extends AbstractContractTest {
 
         TriggerContractByRequestCall contractRequest = TriggerContractByRequestCall.create().contractName(contractName)
                 .setParamValidation(false);
-        JO response = contractRequest.param("operation", "getMasterPublicKey").callNoError();
 
-        String masterPublicKey = response.getString("masterPublicKey");
+        String masterPublicKey = getMasterPublicKey(contractName);
 
         contractRequest.param("operation", "fund")
                 .param("recipientIndex", 3)
@@ -86,7 +86,7 @@ public class ManagedAccountsTest extends AbstractContractTest {
 
         BundlerTest.stopAllDefaultBundlers();
         try {
-            response = contractRequest.param("operation", "transfer")
+            JO response = contractRequest.param("operation", "transfer")
                     .param("senderIndex", 3)
                     .param("recipientId", recipientId)
                     .param("amount", 6).callNoError();
@@ -108,6 +108,47 @@ public class ManagedAccountsTest extends AbstractContractTest {
             startBundlers();
         }
     }
+
+    @Test
+    public void testNoIndexHint() {
+        String contractName = ContractTestHelper.deployContract(ManagedAccountsTestContract.class);
+        String masterPublicKey = getMasterPublicKey(contractName);
+
+        BundlerTest.stopAllDefaultBundlers();
+
+        //the bundler must not return error when a message is not a json or doesn't contain maIdx
+        SendMoneyCall sendMoneyCall = SendMoneyCall.create(IGNIS.getId())
+                .secretPhrase(CHUCK.getSecretPhrase()).recipient(BOB.getId())
+                .amountNQT(IGNIS.ONE_COIN)
+                .message("{}")
+                .feeNQT(0);
+        String fullHash = sendMoneyCall.callNoError().getString("fullHash");
+
+        String fullHash2 = sendMoneyCall.message("abasd").callNoError().getString("fullHash");
+
+        Assert.assertFalse(BundlerTest.isBundled(fullHash));
+
+        Assert.assertFalse(BundlerTest.isBundled(fullHash2));
+
+        StartBundlerCall.create(IGNIS.getId())
+                .secretPhrase(BOB.getSecretPhrase())
+                .filter("ManagedAccountsBundler:" + masterPublicKey)
+                .minRateNQTPerFXT(0)
+                .feeCalculatorName("MIN_FEE").callNoError();
+
+        Assert.assertFalse(BundlerTest.isBundled(fullHash));
+
+    }
+
+    private static String getMasterPublicKey(String contractName) {
+        JO response;
+        TriggerContractByRequestCall contractRequest1 = TriggerContractByRequestCall.create().contractName(contractName)
+                .setParamValidation(false);
+        response = contractRequest1.param("operation", "getMasterPublicKey").callNoError();
+
+        return response.getString("masterPublicKey");
+    }
+
 
     private static String getFullHash(JO response) {
         return response.getJo("submitContractTransactionsResponse")

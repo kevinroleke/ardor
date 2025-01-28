@@ -99,7 +99,9 @@ public final class Peers {
 
     /** Communication log levels */
     public static final int LOG_LEVEL_NAMES = 1;
-    public static final int LOG_LEVEL_DETAILS = 2;
+    public static final int LOG_LEVEL_DETAILS = 1 << 1;
+    public static final int LOG_LEVEL_TX_INVENTORY = 1 << 2;
+    public static final int LOG_LEVELS_ALL = (1 << 3) - 1;
 
     /** Peer blacklist period (seconds) */
     static final int blacklistingPeriod = Nxt.getIntProperty("nxt.blacklistingPeriod", 600);

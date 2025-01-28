@@ -58,6 +58,8 @@ public interface ContractRunnerConfig {
 
     boolean isValidator();
 
+    boolean isTriggerTransactionAlwaysIncluded();
+
     int getCatchUpInterval();
 
     int getMaxSubmittedTransactionsPerInvocation();

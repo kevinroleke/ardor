@@ -1,3 +1,48 @@
+ardor-client-2.5.0, released 2024-10-18:
+
+Upgrading to this release is mandatory before block 3700000, expected around
+Dec 1. This is a hard fork block, at which the maximum leasing period on
+mainnet will be increased to 32,000,000 blocks, a change already enabled on
+testnet.
+
+New Detached Contract Setup Parameters feature:
+
+In order to overcome the limit on the contract parameters' length, a subset of
+the parameters can now be offloaded to a prunable or non-prunable message
+attached to the ContractReference transaction. The detached subset of
+parameters must be bundled into a JSON object, which will automatically be
+merged by the ContractRunner with the original parameters in the
+ContractReference. The resulting JSON object will then be provided to the
+contract. The message must contain the JSON object text or compressed bytes of
+the JSON object text. To instruct the ContractRunner to find and load the
+message, the original parameters must contain a field "_import_msg" with the
+value representing the height after which the ContractReference transaction
+with the message can be found. A good value is the current blockchain height
+at the time when the ContractReference is broadcasted. The ContractManager can
+automatically handle the creation of the message and the setting of the
+"_import_msg" field. To instruct the ContractManager do this, put the object
+with detached parameters into a field with name "_params_detached_to_message".
+Optionally, inside the detached object, specify if the message must be
+prunable or compressed by creating fields
+"_params_detached_to_prunable_message" and
+"_params_detached_to_compressed_message" with value true. These fields will be
+removed by the ContractManager after getting their values.
+
+New Managed Accounts Bundler:
+
+The support for HD wallet (BIP32) accounts managed by a contract has been
+enhanced with a new Managed Accounts Bundler. This bundler bundles the
+transactions sent by such HD wallet accounts with certain master public key
+specified as a parameter to the bundler filter. In order to not scan all the
+indexes for a matching public key, the transaction created by the contract
+must add in its message a hint about the index of the managed account which
+created it. This is now done internally by the contract runner framework. Also
+the signing of the transactions by managed accounts is now done internally.
+
+Updated Jetty to version 9.4.56.
+
+
+--------------------------------------------------------------------------------
 ardor-client-2.4.3, released 2024-04-16:
 
 Scheduled a hard fork for testnet at block 15660000, expected around Apr 30.

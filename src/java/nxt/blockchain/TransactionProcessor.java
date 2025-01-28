@@ -23,7 +23,9 @@ import nxt.util.Observable;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
+import java.util.stream.Stream;
 
 public interface TransactionProcessor extends Observable<List<? extends Transaction>,TransactionProcessor.Event> {
 
@@ -65,6 +67,10 @@ public interface TransactionProcessor extends Observable<List<? extends Transact
 
     void broadcastLater(Transaction transaction);
 
+    List<ChainTransactionId> filterPeerRequestIds(Stream<ChainTransactionId> requestIdsStream, int maxSize);
+
+    List<Transaction> filterPeerTransactions(List<Transaction> transactions);
+
     List<? extends Transaction> processPeerTransactions(List<Transaction> transactions) throws NxtException.NotValidException;
 
     void processLater(Collection<? extends FxtTransaction> transactions);
@@ -72,4 +78,6 @@ public interface TransactionProcessor extends Observable<List<? extends Transact
     SortedSet<? extends Transaction> getCachedUnconfirmedTransactions(List<Long> exclude);
 
     List<Transaction> restorePrunableData(List<Transaction> transactions);
+
+    Map<String, Object> getUnconfirmedPoolInfo();
 }

@@ -22,6 +22,10 @@ public class GetUnconfirmedTransactionsCall extends ChainSpecificCallBuilder<Get
         return param("firstIndex", firstIndex);
     }
 
+    public GetUnconfirmedTransactionsCall dumpCache(String dumpCache) {
+        return param("dumpCache", dumpCache);
+    }
+
     public GetUnconfirmedTransactionsCall includeWaitingTransactions(
             boolean includeWaitingTransactions) {
         return param("includeWaitingTransactions", includeWaitingTransactions);

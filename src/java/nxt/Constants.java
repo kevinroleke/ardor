@@ -223,13 +223,14 @@ public final class Constants {
     public static final int CHECKSUM_BLOCK_7 = Constants.isTestnet ? 7464000 : 1797000;
     public static final int CHECKSUM_BLOCK_8 = Constants.isTestnet ? 10360000 : 2351000;
     public static final int CHECKSUM_BLOCK_9 = Constants.isTestnet ? 15290000 : 3313000;
+    public static final int CHECKSUM_BLOCK_10 = Constants.isTestnet ? 17294000 : 3702000;
 
 
-    public static final int LAST_CHECKSUM_BLOCK = CHECKSUM_BLOCK_9;
+    public static final int LAST_CHECKSUM_BLOCK = CHECKSUM_BLOCK_10;
 
-    public static final int LAST_KNOWN_BLOCK =  Constants.isAutomatedTest ? 0 : CHECKSUM_BLOCK_9;
+    public static final int LAST_KNOWN_BLOCK =  Constants.isAutomatedTest ? 0 : CHECKSUM_BLOCK_10;
     public static final long LAST_KNOWN_BLOCK_ID = Convert.parseUnsignedLong(
-            isTestnet ? Constants.isAutomatedTest ? "1318911886063902233" : "11185094792726422988" : "13362589706114495070");
+            isTestnet ? Constants.isAutomatedTest ? "1318911886063902233" : "8955572788054679651" : "11329205449175676328");
 
     public static final byte[][] MPG_TRANSACTIONS_BEFORE_MPG_BLOCK = new byte[][] {
             Convert.parseHexString("fea6ae643033812ee9329eb8d5d09de9be6279fdc2d13130878bef5b95314c32"),
@@ -238,8 +239,8 @@ public final class Constants {
             Convert.parseHexString("e0c762473a4f1d397cc9ac8c2f3d73665bde6026f5ad4ecbcc9817887d7227e7"),
     };
 
-    public static final int[] MIN_VERSION = new int[] {2, 4, 1};
-    public static final int[] MIN_PROXY_VERSION = new int[] {2, 4, 2};
+    public static final int[] MIN_VERSION = new int[] {2, 5, 0};
+    public static final int[] MIN_PROXY_VERSION = new int[] {2, 5, 0};
 
     public static final long UNCONFIRMED_POOL_DEPOSIT_FQT = 10 * ONE_FXT;
 

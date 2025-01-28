@@ -104,6 +104,11 @@ public class NullContractRunnerConfig implements ContractRunnerConfig {
     }
 
     @Override
+    public boolean isTriggerTransactionAlwaysIncluded() {
+        return false;
+    }
+
+    @Override
     public int getCatchUpInterval() {
         return 0;
     }

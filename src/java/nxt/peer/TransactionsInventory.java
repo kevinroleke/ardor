@@ -24,20 +24,26 @@ import nxt.blockchain.ChainTransactionId;
 import nxt.blockchain.Transaction;
 import nxt.util.Logger;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class TransactionsInventory {
 
+    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
     /** Transaction cache */
     private static final ConcurrentHashMap<ChainTransactionId, Transaction> transactionCache = new ConcurrentHashMap<>();
 
     /** Pending transactions */
-    private static final Set<ChainTransactionId> pendingTransactions = Collections.synchronizedSet(new HashSet<>());
+    private static final Set<ChainTransactionId> pendingTransactions = new HashSet<>();
 
     /** Currently not valid transactions */
     private static final ConcurrentHashMap<ChainTransactionId, Transaction> notCurrentlyValidTransactions = new ConcurrentHashMap<>();
@@ -53,26 +59,48 @@ public final class TransactionsInventory {
      */
     static NetworkMessage processRequest(PeerImpl peer, NetworkMessage.TransactionsInventoryMessage request) {
         List<ChainTransactionId> transactionIds = request.getTransactionIds();
+
         //
         // Request transactions that are not already in our cache
         //
-        List<ChainTransactionId> requestIds = new ArrayList<>(Math.min(100, transactionIds.size()));
-        for (ChainTransactionId transactionId : transactionIds) {
-            if (transactionCache.get(transactionId) == null
-                    && notCurrentlyValidTransactions.get(transactionId) == null
-                    && !pendingTransactions.contains(transactionId)) {
-                requestIds.add(transactionId);
-                pendingTransactions.add(transactionId);
-                if (Peers.isLogLevelEnabled(Peers.LOG_LEVEL_DETAILS)) {
-                    Logger.logDebugMessage("Requesting transaction " + transactionId.getStringId());
-                }
-                if (requestIds.size() >= 100) {
-                    break;
+        Stream<ChainTransactionId> stream = transactionIds.stream().filter(
+                transactionId -> transactionCache.get(transactionId) == null
+                        && notCurrentlyValidTransactions.get(transactionId) == null);
+
+        // Additionally filter the IDs according to the current content of the pool
+        List<ChainTransactionId> requestIds = Nxt.getTransactionProcessor()
+                .filterPeerRequestIds(stream, 100);
+
+        if (requestIds.isEmpty()) {
+            return null;
+        }
+
+        //Prevent requesting the same transaction twice
+        synchronized (pendingTransactions) {
+            for (Iterator<ChainTransactionId> iterator = requestIds.iterator(); iterator.hasNext(); ) {
+                ChainTransactionId transactionId = iterator.next();
+                if (pendingTransactions.contains(transactionId)) {
+                    iterator.remove();
+                } else {
+                    pendingTransactions.add(transactionId);
                 }
             }
         }
+
+        if (Peers.isLogLevelEnabled(Peers.LOG_LEVEL_DETAILS)) {
+            Logger.logDebugMessage("Requesting transactions " + requestIds);
+        }
+
         if (requestIds.isEmpty()) {
             return null;
+        }
+        StringBuilder log = new StringBuilder();
+        if (Peers.isLogLevelEnabled(Peers.LOG_LEVEL_TX_INVENTORY)) {
+            log.append("From ").append(peer.getHost())
+                    .append(" at ").append(LocalDateTime.now().format(DATE_TIME_FORMATTER))
+                    .append(" inventoryIDs ")
+                    .append(transactionIds.size())
+                    .append(" requestIds ").append(requestIds.size());
         }
         Peers.peersService.execute(() -> {
             //
@@ -82,6 +110,11 @@ public final class TransactionsInventory {
             // we have received all of the transactions or we run out of peers.
             //
             try {
+                if (Peers.isLogLevelEnabled(Peers.LOG_LEVEL_TX_INVENTORY)) {
+                    Nxt.getTransactionProcessor().getUnconfirmedPoolInfo()
+                            .forEach((k, v) -> log.append(" ").append(k).append(" ").append(v));
+                    log.append(" start ").append(LocalDateTime.now().format(DATE_TIME_FORMATTER));
+                }
                 List<Peer> connectedPeers = Peers.getConnectedPeers();
                 if (connectedPeers.isEmpty()) {
                     return;
@@ -101,18 +134,24 @@ public final class TransactionsInventory {
                     if (response != null && response.getTransactionCount() > 0) {
                         try {
                             List<Transaction> transactions = response.getTransactions();
+                            Set<ChainTransactionId> receivedTxIds = transactions.stream()
+                                    .map(ChainTransactionId::getChainTransactionId)
+                                    .collect(Collectors.toSet());
+                            requestIds.removeAll(receivedTxIds);
+                            synchronized (pendingTransactions) {
+                                pendingTransactions.removeAll(receivedTxIds);
+                            }
+                            if (Peers.isLogLevelEnabled(Peers.LOG_LEVEL_TX_INVENTORY)) {
+                                log.append(" prefilter ").append(transactions.size());
+                            }
+                            transactions = Nxt.getTransactionProcessor().filterPeerTransactions(transactions);
+                            if (Peers.isLogLevelEnabled(Peers.LOG_LEVEL_TX_INVENTORY)) {
+                                log.append(" postfilter ").append(transactions.size());
+                            }
                             notAcceptedTransactions.addAll(transactions);
-                            transactions.forEach(tx -> {
-                                ChainTransactionId transactionId = ChainTransactionId.getChainTransactionId(tx);
-                                requestIds.remove(transactionId);
-                                pendingTransactions.remove(transactionId);
-                                if (Peers.isLogLevelEnabled(Peers.LOG_LEVEL_DETAILS)) {
-                                    Logger.logDebugMessage("Received transaction " + tx.getStringId());
-                                }
-                            });
                             List<? extends Transaction> addedTransactions = Nxt.getTransactionProcessor().processPeerTransactions(transactions);
                             cacheTransactions(addedTransactions);
-                            notAcceptedTransactions.removeAll(addedTransactions);
+                            addedTransactions.forEach(notAcceptedTransactions::remove);
                         } catch (RuntimeException | NxtException.ValidationException e) {
                             feederPeer.blacklist(e);
                         }
@@ -134,7 +173,14 @@ public final class TransactionsInventory {
                     Logger.logErrorMessage(e.getMessage(), e); //should not happen
                 }
             } finally {
-                requestIds.forEach(pendingTransactions::remove);
+                if (Peers.isLogLevelEnabled(Peers.LOG_LEVEL_TX_INVENTORY)) {
+                    log.append(" end ").append(LocalDateTime.now().format(DATE_TIME_FORMATTER))
+                            .append(" missing ").append(requestIds.size());
+                    Logger.logDebugMessage(log.toString());
+                }
+                synchronized (pendingTransactions) {
+                    requestIds.forEach(pendingTransactions::remove);
+                }
             }
         });
         return null;

@@ -35,10 +35,10 @@ public class ManagedAccountsBundler implements Bundler.Filter {
         } else {
             message = Convert.toString(messageAppendix.getMessage(), messageAppendix.isText());
         }
-        JO messageJo = JO.parse(message);
         try {
+            JO messageJo = JO.parse(message);
             return messageJo.getInt(AbstractContractContext.MANAGED_ACCOUNTS_INDEX_HINT_FIELD);
-        } catch (NumberFormatException nfe) {
+        } catch (RuntimeException rte) {
             return -1;
         }
     }

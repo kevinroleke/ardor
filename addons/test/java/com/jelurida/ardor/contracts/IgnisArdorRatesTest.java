@@ -25,6 +25,7 @@ import nxt.http.callers.TriggerContractByRequestCall;
 import nxt.messaging.MessagingTransactionType;
 import nxt.messaging.PrunableEncryptedMessageAppendix;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -33,6 +34,7 @@ import static nxt.blockchain.ChildChain.IGNIS;
 
 public class IgnisArdorRatesTest extends AbstractContractTest {
 
+    @Ignore("Bittrex doesn't exist any more")
     @Test
     public void ignisArdorBittrexRate() {
         String contractName = ContractTestHelper.deployContract(IgnisArdorRates.class);

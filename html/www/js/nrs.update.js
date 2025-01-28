@@ -88,6 +88,23 @@ NRS.onSiteBuildDone().then(() => {
 				NRS.isOutdated = false;
 				$("#nrs_update_explanation_up_to_date").show();
 			}
+
+			if (installVersusNormal == -1 || installVersusBeta == -1) {
+                for (var i=0; i<bundles.length; i++) {
+                    bundle = bundles[i];
+                    var isButtonVisible = false;
+                    if (bundle.status === 'release') {
+                        isButtonVisible = NRS[bundle.alias].versionNr === NRS.nrsVersion.versionNr;
+                    } else {
+                        isButtonVisible = NRS[bundle.alias].versionNr === NRS.nrsBetaVersion.versionNr;
+                    }
+                    if (isButtonVisible) {
+                        $(".btn_" + bundle.status + "_" + bundle.ext).show();
+                    } else {
+                        $(".btn_" + bundle.status + "_" + bundle.ext).hide();
+                    }
+                }
+			}
 		}
 
 		function verifyClientUpdate(e) {

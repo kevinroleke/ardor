@@ -11,6 +11,6 @@ else
 fi
 ${JAVA} -cp classes nxt.tools.ManifestGenerator
 /bin/rm -f ardor.jar
-${JAR} cfm ardor.jar resource/ardor.manifest.mf -C classes . || exit 1
+${JAR} cfm ardor.jar resource/ardor.manifest.mf -C classes . -C conf nxt-default.properties || exit 1
 
 echo "jar file generated successfully"

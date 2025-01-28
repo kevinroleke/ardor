@@ -604,7 +604,7 @@ public enum ApiSpec {
 
     retrievePrunedData(true, null, "chain", "adminPassword"),
 
-    getUnconfirmedTransactions(true, null, "chain", "account", "account", "account", "includeWaitingTransactions", "firstIndex", "lastIndex", "adminPassword", "requireBlock", "requireLastBlock"),
+    getUnconfirmedTransactions(true, null, "chain", "account", "account", "account", "dumpCache", "includeWaitingTransactions", "firstIndex", "lastIndex", "adminPassword", "requireBlock", "requireLastBlock"),
 
     encryptTo(false, null, "recipient", "messageToEncrypt", "messageToEncryptIsText", "compressMessageToEncrypt", "secretPhrase", "privateKey", "sharedPieceAccount", "sharedPiece", "sharedPiece", "sharedPiece"),
 
