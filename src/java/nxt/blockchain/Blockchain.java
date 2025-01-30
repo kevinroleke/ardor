@@ -89,7 +89,14 @@ public interface Blockchain {
                                                       int blockTimestamp, boolean withMessage, boolean phasedOnly, boolean nonPhasedOnly,
                                                       int from, int to, boolean includeExpiredPrunable, boolean executedOnly);
 
+    DbIterator<? extends ChildTransaction> getTransactions(ChildChain chain, int numberOfConfirmations, byte type, byte subtype,
+                                                      int blockTimestamp, boolean withMessage, boolean phasedOnly, boolean nonPhasedOnly,
+                                                      int from, int to, boolean includeExpiredPrunable, boolean executedOnly);
+
     DbIterator<? extends FxtTransaction> getTransactions(FxtChain chain, long accountId, int numberOfConfirmations,
+            byte type, byte subtype, int blockTimestamp, int from, int to);
+
+    DbIterator<? extends FxtTransaction> getTransactions(FxtChain chain, int numberOfConfirmations,
             byte type, byte subtype, int blockTimestamp, int from, int to);
 
     DbIterator<? extends FxtTransaction> getTransactions(FxtChain chain, Connection con, PreparedStatement pstmt);

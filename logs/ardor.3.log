@@ -1,0 +1,701 @@
+2025-01-30 14:54:04 INFO: nxt.enableStackTraces = "true"
+2025-01-30 14:54:04 INFO: nxt.disabledThrowableStackTraces = "{"nxt.NxtException$NotCurrentlyValidException": [ "Invalid bid order", "Block ID at ecBlockHeight" ]}"
+2025-01-30 14:54:04 INFO: nxt.enableLogTraceback = "false"
+2025-01-30 14:54:04 INFO: nxt.enableLogThreadName = "true"
+2025-01-30 14:54:04 INFO: main logging enabled
+2025-01-30 14:54:04 FINE: main java.version = 17.0.13
+2025-01-30 14:54:04 FINE: main java.vm.version = 17.0.13+11-Debian-2deb12u1
+2025-01-30 14:54:04 FINE: main java.vm.name = OpenJDK 64-Bit Server VM
+2025-01-30 14:54:04 FINE: main java.vendor = Debian
+2025-01-30 14:54:04 FINE: main java.vm.vendor = Debian
+2025-01-30 14:54:04 FINE: main java.home = /usr/lib/jvm/java-17-openjdk-amd64
+2025-01-30 14:54:04 FINE: main java.library.path = /usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib
+2025-01-30 14:54:04 FINE: main java.class.path = classes:lib/javax.servlet-api-3.1.0.jar:lib/slf4j-jdk14-1.7.22.jar:lib/purejavahidapi-0.0.10j2.jar:lib/bcpkix-jdk18on-177.jar:lib/jetty-servlets-9.4.56.v20240826.jar:lib/ed25519.jar:lib/weupnp-0.1.4.jar:lib/jetty-continuation-9.4.56.v20240826.jar:lib/core-3.3.0.jar:lib/h2-1.4.200.jar:lib/commons-math3-3.6.1.jar:lib/jetty-client-9.4.56.v20240826.jar:lib/javase-3.3.0.jar:lib/jetty-util-9.4.56.v20240826.jar:lib/commons-cli-1.3.1.jar:lib/tika-core-1.13.jar:lib/joor-java-8-0.9.14.jar:lib/jetty-http-9.4.56.v20240826.jar:lib/json-simple-1.1.1.jar:lib/slf4j-api-1.7.22.jar:lib/tika-parsers-1.13.jar:lib/jna-5.5.0.jar:lib/jetty-io-9.4.56.v20240826.jar:lib/jetty-server-9.4.56.v20240826.jar:lib/bcprov-jdk18on-177.jar:lib/jetty-servlet-9.4.56.v20240826.jar:lib/lucene-queryparser-7.1.0.jar:lib/lucene-core-7.1.0.jar:lib/javapoet-1.11.0.jar:lib/jetty-proxy-9.4.56.v20240826.jar:lib/lucene-queries-7.1.0.jar:lib/jna-platform-5.5.0.jar:lib/bcutil-jdk18on-1.77.jar:lib/jetty-security-9.4.56.v20240826.jar:lib/lucene-analyzers-common-7.1.0.jar:conf:addons/classes:addons/lib/*:javafx-sdk/lib/*
+2025-01-30 14:54:04 FINE: main java.io.tmpdir = /tmp
+2025-01-30 14:54:04 FINE: main os.arch = amd64
+2025-01-30 14:54:04 FINE: main sun.arch.data.model = 64
+2025-01-30 14:54:04 FINE: main os.name = Linux
+2025-01-30 14:54:04 FINE: main file.encoding = UTF-8
+2025-01-30 14:54:04 FINE: main java.security.policy = null
+2025-01-30 14:54:04 FINE: main java.security.manager = null
+2025-01-30 14:54:04 FINE: main java.specification.vendor = Oracle Corporation
+2025-01-30 14:54:04 FINE: main nxt.runtime.mode = null
+2025-01-30 14:54:04 FINE: main nxt.runtime.dirProvider = null
+2025-01-30 14:54:04 FINE: main availableProcessors = 24
+2025-01-30 14:54:04 FINE: main maxMemory = 8346664960
+2025-01-30 14:54:04 FINE: main processId = 28762
+2025-01-30 14:54:04 INFO: main nxt.isTestnet = "false"
+2025-01-30 14:54:04 INFO: main nxt.isOffline = "false"
+2025-01-30 14:54:04 INFO: main nxt.isLightClient = "false"
+2025-01-30 14:54:04 INFO: main nxt.isPermissioned = "false"
+2025-01-30 14:54:04 INFO: main nxt.customLoginWarning not defined
+2025-01-30 14:54:04 INFO: main nxt.forkBaseTargetPercentage = "2000"
+2025-01-30 14:54:04 INFO: main nxt.maxRollback = "800"
+2025-01-30 14:54:04 INFO: main nxt.forgingDelay = "10"
+2025-01-30 14:54:04 INFO: main nxt.forgingSpeedup = "3"
+2025-01-30 14:54:04 INFO: main nxt.numberOfForkConfirmations = "5"
+2025-01-30 14:54:04 INFO: main nxt.batchCommitSize = "100"
+2025-01-30 14:54:04 INFO: main nxt.openApiQueryTimeout = "1"
+2025-01-30 14:54:04 INFO: main nxt.maxPrunableLifetime = "7776000"
+2025-01-30 14:54:04 INFO: main nxt.includeExpiredPrunable = "true"
+2025-01-30 14:54:04 INFO: main nxt.enableLedgerWallet = "true"
+2025-01-30 14:54:04 INFO: main nxt.correctInvalidFees = "false"
+2025-01-30 14:54:04 INFO: main nxt.minBundlerBalanceFXT = "1000"
+2025-01-30 14:54:04 INFO: main nxt.minBundlerFeeLimitFXT = "10"
+2025-01-30 14:54:04 INFO: main nxt.disableFullTextSearch = "false"
+2025-01-30 14:54:04 INFO: main nxt.disableMetadataDetection = "false"
+2025-01-30 14:54:04 INFO: main nxt.statementLogThreshold = "10000"
+2025-01-30 14:54:04 INFO: main nxt.transactionLogThreshold = "15000"
+2025-01-30 14:54:04 INFO: main nxt.transactionLogInterval = "15"
+2025-01-30 14:54:04 INFO: main nxt.dbCacheKB = "0"
+2025-01-30 14:54:04 INFO: main nxt.dbUrl not defined
+2025-01-30 14:54:04 INFO: main nxt.dbType = "h2"
+2025-01-30 14:54:04 INFO: main nxt.dbDir = "./nxt_db/nxt"
+2025-01-30 14:54:04 INFO: main nxt.dbParams = "DB_CLOSE_ON_EXIT=FALSE"
+2025-01-30 14:54:04 INFO: main nxt.dbUsername = "sa"
+2025-01-30 14:54:04 INFO: main nxt.dbPassword = "{not logged}"
+2025-01-30 14:54:04 INFO: main nxt.maxDbConnections = "30"
+2025-01-30 14:54:04 INFO: main nxt.dbLoginTimeout = "70"
+2025-01-30 14:54:04 INFO: main nxt.dbDefaultLockTimeout = "60"
+2025-01-30 14:54:04 INFO: main nxt.dbMaxMemoryRows = "1000000"
+2025-01-30 14:54:04 INFO: main nxt.adminPassword not defined
+2025-01-30 14:54:04 INFO: main nxt.adminPasswordHash not defined
+2025-01-30 14:54:04 INFO: main nxt.maxAPIRecords = "100"
+2025-01-30 14:54:04 INFO: main nxt.enableAPIUPnP = "false"
+2025-01-30 14:54:04 INFO: main nxt.apiServerIdleTimeout = "30000"
+2025-01-30 14:54:04 INFO: main nxt.apiServerCORS = "true"
+2025-01-30 14:54:04 INFO: main nxt.forwardedForHeader not defined
+2025-01-30 14:54:04 INFO: main nxt.allowedBotHosts = "127.0.0.1; localhost; [0:0:0:0:0:0:0:1]; 0:0:0:0:0:0:0:1;"
+2025-01-30 14:54:04 INFO: main nxt.unlimitedBotHosts = "127.0.0.1; localhost; [0:0:0:0:0:0:0:1]; 0:0:0:0:0:0:0:1;"
+2025-01-30 14:54:04 INFO: main nxt.enableAPIServer = "true"
+2025-01-30 14:54:04 INFO: main nxt.apiServerPort = "27876"
+2025-01-30 14:54:04 INFO: main nxt.apiServerSSLPort = "27876"
+2025-01-30 14:54:04 INFO: main nxt.apiServerHost = "127.0.0.1"
+2025-01-30 14:54:04 INFO: main nxt.disableAdminPassword = "false"
+2025-01-30 14:54:04 INFO: main nxt.apiSSL = "false"
+2025-01-30 14:54:04 INFO: main API server using HTTP port 27876
+2025-01-30 14:54:04 INFO: main nxt.apiResourceBase = "./html/www"
+2025-01-30 14:54:04 INFO: main nxt.apiWelcomeFile = "index.html"
+2025-01-30 14:54:04 INFO: main nxt.javadocResourceBase = "./html/doc"
+2025-01-30 14:54:04 INFO: main nxt.maxUploadFileSize = "43008"
+2025-01-30 14:54:04 INFO: main nxt.maxUploadFileSize = "43008"
+2025-01-30 14:54:04 INFO: main nxt.enableAPIServerGZIPFilter not defined, using default false
+2025-01-30 14:54:04 INFO: main nxt.apiFrameOptionsSameOrigin = "true"
+2025-01-30 14:54:04 INFO: main nxt.apiCustomSetupImpl not defined
+2025-01-30 14:54:04 INFO: main nxt.defaultChildBlockDeadline = "10"
+2025-01-30 14:54:04 INFO: main nxt.trimFrequencyMultipliers = "PUBLIC_KEY-5;ALIAS-5"
+2025-01-30 14:54:04 INFO: main nxt.trimDerivedTables = "true"
+2025-01-30 14:54:04 INFO: main nxt.simulateEndlessDownload not defined, using default false
+2025-01-30 14:54:04 INFO: main nxt.trimFrequency = "1000"
+2025-01-30 14:54:04 INFO: main nxt.useStrongSecureRandom = "false"
+2025-01-30 14:54:04 INFO: main trimHeightOffset=864
+2025-01-30 14:54:04 INFO: main nxt.stopDownloadHeight not defined or not numeric, using default value 0
+2025-01-30 14:54:04 INFO: main nxt.disableGetMoreBlocksThread not defined, using default false
+2025-01-30 14:54:04 INFO: main nxt.processPolls = "true"
+2025-01-30 14:54:04 INFO: main nxt.deleteFinishedShufflings = "false"
+2025-01-30 14:54:04 INFO: main nxt.deleteProcessedVotes = "true"
+2025-01-30 14:54:04 FINE: main Database jdbc url set to jdbc:h2:./nxt_db/nxt;DB_CLOSE_ON_EXIT=FALSE;CACHE_SIZE=262144 username sa
+2025-01-30 14:54:04 INFO: main nxt.connectionPoolImpl = "nxt.db.pool.H2ConnectionPool"
+2025-01-30 14:54:04 FINE: main Database connection pool current size: 1
+2025-01-30 14:54:04 INFO: main Database update may take a while if needed, current db version 196...
+2025-01-30 14:54:04 INFO: main Database update may take a while if needed, current db version 171...
+2025-01-30 14:54:04 INFO: main Database update may take a while if needed, current db version 171...
+2025-01-30 14:54:04 INFO: main Database update may take a while if needed, current db version 171...
+2025-01-30 14:54:04 INFO: main Database update may take a while if needed, current db version 171...
+2025-01-30 14:54:04 INFO: main Database update may take a while if needed, current db version 171...
+2025-01-30 14:54:04 INFO: main nxt.enableTransactionRebroadcasting = "true"
+2025-01-30 14:54:04 INFO: main nxt.testUnconfirmedTransactions not defined, using default false
+2025-01-30 14:54:04 INFO: main nxt.maxUnconfirmedTransactions = "1500"
+2025-01-30 14:54:04 INFO: main nxt.droppedTransactionsStoreSize = "150000"
+2025-01-30 14:54:04 INFO: main nxt.disableRebroadcastTransactionsThread not defined, using default false
+2025-01-30 14:54:04 INFO: main nxt.disableRemoveUnconfirmedTransactionsThread not defined, using default false
+2025-01-30 14:54:04 INFO: main nxt.disableProcessWaitingTransactionsThread not defined, using default false
+2025-01-30 14:54:04 INFO: main nxt.enablePublicKeyCache = "true"
+2025-01-30 14:54:04 INFO: main nxt.ledgerTrimKeep = "30000"
+2025-01-30 14:54:04 INFO: main nxt.ledgerAccounts = "*"
+2025-01-30 14:54:04 INFO: main Account ledger is tracking all accounts
+2025-01-30 14:54:04 INFO: main nxt.ledgerLogUnconfirmed = "2"
+2025-01-30 14:54:05 INFO: main nxt.maxNumberOfForgers = "100"
+2025-01-30 14:54:05 INFO: main nxt.enableFakeForging not defined, using default false
+2025-01-30 14:54:05 INFO: main nxt.pauseForgingOnNoConnection = "true"
+2025-01-30 14:54:05 INFO: main nxt.disableGenerateBlocksThread not defined, using default false
+2025-01-30 14:54:05 INFO: main nxt.defaultChildBlockDeadline = "10"
+2025-01-30 14:54:05 INFO: main nxt.bundlingFilter not defined
+2025-01-30 14:54:05 INFO: main nxt.availableBundlingFilters = "nxt.addons.PersonalBundler;nxt.addons.AccountPropertyBundler; nxt.addons.AssetBundler;nxt.addons.CurrencyBundler;nxt.addons.PurchaseBundler; nxt.addons.QuotaBundler; nxt.addons.TransactionTypeBundler; nxt.addons.ManagedAccountsBundler"
+2025-01-30 14:54:05 INFO: main nxt.customBundlingFeeCalculators not defined
+2025-01-30 14:54:05 INFO: main nxt.peerServerPort = "27874"
+2025-01-30 14:54:05 INFO: main nxt.enablePeerUPnP = "true"
+2025-01-30 14:54:05 INFO: main nxt.shareMyAddress = "true"
+2025-01-30 14:54:05 INFO: main nxt.maxNumberOfOutboundConnections = "8"
+2025-01-30 14:54:05 INFO: main nxt.maxNumberOfInboundConnections = "2000"
+2025-01-30 14:54:05 INFO: main nxt.peerConnectTimeout = "10"
+2025-01-30 14:54:05 INFO: main nxt.peerReadTimeout = "20"
+2025-01-30 14:54:05 INFO: main nxt.peerServerHost = "0.0.0.0"
+2025-01-30 14:54:05 INFO: main nxt.myAddress not defined
+2025-01-30 14:54:05 INFO: main nxt.myPlatform not defined
+2025-01-30 14:54:05 INFO: main nxt.blacklistingPeriod = "600"
+2025-01-30 14:54:05 INFO: main nxt.communicationLogging = "0"
+2025-01-30 14:54:05 INFO: main nxt.getMorePeers = "true"
+2025-01-30 14:54:05 INFO: main nxt.maxNumberOfKnownPeers = "2000"
+2025-01-30 14:54:05 INFO: main nxt.minNumberOfKnownPeers = "1000"
+2025-01-30 14:54:05 INFO: main nxt.usePeersDb = "true"
+2025-01-30 14:54:05 INFO: main nxt.savePeers = "true"
+2025-01-30 14:54:05 INFO: main nxt.preventLocalPeersConnection = "true"
+2025-01-30 14:54:05 INFO: main nxt.hideErrorDetails = "false"
+2025-01-30 14:54:05 INFO: main nxt.ignorePeerAnnouncedAddress = "false"
+2025-01-30 14:54:05 INFO: main nxt.blacklistedBundlerAccounts not defined
+2025-01-30 14:54:05 INFO: main nxt.credentials.secretPhrase not defined
+2025-01-30 14:54:05 INFO: main nxt.wellKnownPeers not defined
+2025-01-30 14:54:05 INFO: main nxt.knownBlacklistedPeers not defined
+2025-01-30 14:54:05 INFO: main nxt.defaultPeers = "89.117.226.11; 79.167.210.8; 208.53.32.26; node6.ardor.tools; 23.94.198.19; 104.168.9.83; 143.198.115.239; 192.241.139.29; 174.138.39.150; 211.196.230.198; 147.182.219.219; 109.235.71.183; ardor01.jelurida.com; 107.172.92.53; 167.71.19.245; ardor.crypto.sargue.net; 107.173.25.171; ardor28.y.cz; 49.242.223.251; 133.242.182.65; racknerd-39.ardornxt.eu; 134.122.25.231; 198.12.83.179; 142.4.212.42; 206.189.239.184; 198.23.137.126; 118.220.113.117; 89.233.108.246; 147.182.211.245; 192.210.197.142; 172.245.6.129; 134.209.67.35; 107.175.91.183; racknerd-06.ardornxt.eu; 188.137.61.53; racknerd-30.ardornxt.eu; 206.189.224.203; 198.46.226.67; 157.230.7.216; 192.241.145.150; racknerd-31.ardornxt.eu; 143.244.172.31; 104.236.13.102; racknerd-07.ardornxt.eu; 134.122.21.172; 172.245.6.126; 116.89.106.233; 209.209.11.103; 143.244.163.171; 87.99.19.190; 24.144.120.224; racknerd-05.ardornxt.eu; 176.223.143.237; 87.103.245.205; 152.42.250.226; 194.135.82.50; 144.76.69.121; 31.208.53.143; 159.223.96.248; 178.128.153.182; cntb-01.ardornxt.eu; 176.123.4.157; 133.125.40.137; 176.223.132.54; 152.42.246.167; 188.165.226.46; 143.198.118.174; 107.175.172.73; alfred.airdns.org:40592; bg5000.mooo.com:37874; racknerd-09.ardornxt.eu; 108.174.57.6; racknerd-19.ardornxt.eu; 216.15.21.83; 107.173.165.83; ardor04.jelurida.com; 185.215.180.70; 150.230.46.59; 84.247.145.20; 142.93.156.135; 198.23.233.119; 159.223.151.46; 192.3.53.146; 220.75.255.246; 142.93.146.47; 192.81.218.122; 64.23.171.128; 172.105.207.97; 157.245.130.139; 178.128.161.137; racknerd-28.ardornxt.eu; doom-ardo-node-02.cryptonet.waw.pl; ardor33.y.cz; 217.73.196.44; 89.47.161.249; jill.airdns.org:37874; 152.42.179.59; ardor02.jelurida.com; 146.190.160.19; ardor.treecycle.ch; racknerd-14.ardornxt.eu; 176.223.136.245; 147.182.219.126; 161.35.132.42; 104.168.22.83; 137.184.23.239; 92.29.227.236; 188.166.161.179; 167.71.28.44; borg.airdns.org:55874; 167.172.239.123; 107.174.88.114; 192.3.249.139; 167.71.41.44; 176.53.160.56; 178.128.147.222; cntb-02.ardornxt.eu; 217.61.105.135; 161.35.2.0; 68.183.206.214; 165.227.95.37; node2.ardor.tools; 14.52.126.48; 192.3.62.222; 192.227.193.55; 108.170.40.2; 206.189.232.90; 80.208.231.180; 172.245.6.128; 18.183.34.173; ardor.nftmagic.art; ardor.blockfrikis.com; 107.174.121.188; 192.210.141.39; 75.127.9.167; 165.227.83.155; 49.212.156.13; 108.227.62.195; 134.209.65.140; 94.176.232.209; 185.189.229.123; racknerd-22.ardornxt.eu; 104.168.22.239; 157.230.61.216; 192.210.213.122; smallcat.chickenkiller.com:37874; 89.117.217.173; 198.46.152.53; 167.172.166.114; 157.230.8.130; 134.122.126.97; 143.198.36.18; 137.184.135.254; 134.209.122.174; 137.184.213.97; 3.112.34.90; wohnung.tzo.com; ardor03.jelurida.com; 46.101.119.241; ardor9.y.cz; aga-ardo-node-01.cryptonet.waw.pl; 188.166.109.46; 45.27.73.200; node7.ardor.tools; 107.174.121.185; 159.223.137.238; 198.23.137.124; racknerd-08.ardornxt.eu; 23.94.49.204; 188.166.255.128; 209.209.8.188; 161.35.110.156; 107.172.21.159; 142.93.150.133; 107.173.41.154; ardor27.y.cz; 167.172.142.237; littlecreek-04.ardornxt.eu; littlecreek-02.ardornxt.eu; littlecreek-01.ardornxt.eu;"
+2025-01-30 14:54:05 INFO: main nxt.disablePeerUnBlacklistingThread not defined, using default false
+2025-01-30 14:54:05 INFO: main nxt.disablePeerConnectingThread not defined, using default false
+2025-01-30 14:54:05 INFO: main nxt.disableGetMorePeersThread not defined, using default false
+2025-01-30 14:54:05 INFO: main nxt.disableUpdatePeerDbThread not defined, using default false
+2025-01-30 14:54:05 INFO: main nxt.enableAPIProxy = "true"
+2025-01-30 14:54:05 INFO: main nxt.apiProxyBlacklistingPeriod = "7200"
+2025-01-30 14:54:05 INFO: main nxt.forceAPIProxyServerURL not defined
+2025-01-30 14:54:05 INFO: main nxt.proxyBootstrapNodes = "ardor.jelurida.com;"
+2025-01-30 14:54:05 INFO: main nxt.disableAPIProxyPeersUpdateThread not defined, using default false
+2025-01-30 14:54:05 INFO: main nxt.addOns not defined
+2025-01-30 14:54:05 INFO: main nxt.debugTraceQuote = """
+2025-01-30 14:54:05 INFO: main nxt.debugTraceSeparator = "	"
+2025-01-30 14:54:05 INFO: main nxt.debugLogUnconfirmed = "false"
+2025-01-30 14:54:05 INFO: main nxt.debugTraceAccounts not defined
+2025-01-30 14:54:05 INFO: main nxt.debugTraceLog = "nxt-trace.csv"
+2025-01-30 14:54:05 FINE: main Running 2 tasks...
+2025-01-30 14:54:05 FINE: Thread-2 Loading known peers from the database...
+2025-01-30 14:54:05 FINE: Thread-1 Database connection pool current size: 2
+2025-01-30 14:54:05 WARNING: Thread-1 Column in position 2 in SHUFFLING_ID_HEIGHT_IDX is 'HEIGHT' instead of 'FULL_HASH'. Fast trimming is disabled for table IGNIS.SHUFFLING
+2025-01-30 14:54:05 WARNING: Thread-1 Column in position 2 in SHUFFLING_ID_HEIGHT_IDX is 'HEIGHT' instead of 'FULL_HASH'. Fast trimming is disabled for table AEUR.SHUFFLING
+2025-01-30 14:54:05 WARNING: Thread-1 Column in position 2 in SHUFFLING_ID_HEIGHT_IDX is 'HEIGHT' instead of 'FULL_HASH'. Fast trimming is disabled for table BITSWIFT.SHUFFLING
+2025-01-30 14:54:05 WARNING: Thread-1 Column in position 2 in SHUFFLING_ID_HEIGHT_IDX is 'HEIGHT' instead of 'FULL_HASH'. Fast trimming is disabled for table MPG.SHUFFLING
+2025-01-30 14:54:05 WARNING: Thread-1 Column in position 2 in SHUFFLING_ID_HEIGHT_IDX is 'HEIGHT' instead of 'FULL_HASH'. Fast trimming is disabled for table GPS.SHUFFLING
+2025-01-30 14:54:05 WARNING: Thread-1 Column CHILD_CHAIN_ID in PUBLIC.HOLDING_MIGRATE is not BIGINT. Fast trimming is disabled
+2025-01-30 14:54:05 INFO: Thread-1 Genesis block already in database
+2025-01-30 14:54:05 FINE: Thread-1 Will pop-off block 18410995541838880746
+2025-01-30 14:54:05 FINE: Thread-1 Deleting blocks starting from height 268187
+2025-01-30 14:54:05 FINE: Thread-1 Average database transaction time is 0.007 seconds
+2025-01-30 14:54:05 FINE: Thread-1 Rollback from block 18410995541838880746 at height 268187 to 9653556652338901649 at 268186
+2025-01-30 14:54:05 INFO: Thread-1 Last block height: 268186
+2025-01-30 14:54:05 INFO: Thread-1 nxt.forceScan = "false"
+2025-01-30 14:54:05 FINE: main Running 1 final tasks...
+2025-01-30 14:54:05 INFO: Thread-3 nxt.apiServerEnforcePOST = "true"
+2025-01-30 14:54:05 INFO: Thread-3 nxt.apiFixResponseContentType = "false"
+2025-01-30 14:54:05 INFO: Thread-3 nxt.disabledAPIs not defined
+2025-01-30 14:54:05 INFO: Thread-3 nxt.disabledAPITags not defined
+2025-01-30 14:54:05 INFO: Thread-3 Started API server at 127.0.0.1:27876
+2025-01-30 14:54:05 FINE: main Starting 10 background jobs
+2025-01-30 14:54:05 FINE: pool-3-thread-4 Database connection pool current size: 3
+2025-01-30 14:54:05 FINE: main Starting 3 delayed tasks
+2025-01-30 14:54:05 FINE: Thread-21 Known peers: 180
+2025-01-30 14:54:05 INFO: Thread-20 Looking for UPnP gateway device...
+2025-01-30 14:54:05 INFO: Thread-20 nxt.upnpGatewayTimeout = "7000"
+2025-01-30 14:54:05 INFO: Thread-20 nxt.upnpDiscoverTimeout = "3000"
+2025-01-30 14:54:05 INFO: main nxt.runtime.mode not defined
+2025-01-30 14:54:05 INFO: main nxt.launchDesktopApplication = "true"
+2025-01-30 14:54:05 INFO: main Desktop application isDesktopEnabled:false, isLaunchDesktopApplication:true, hasJavaFX:false
+2025-01-30 14:54:05 INFO: main Desktop application is disabled
+2025-01-30 14:54:05 INFO: main Initialization took 1 seconds
+2025-01-30 14:54:05 INFO: main Ardor server 2.5.1 started successfully.
+2025-01-30 14:54:05 INFO: main Copyright © 2013-2016 The Nxt Core Developers.
+2025-01-30 14:54:05 INFO: main Copyright © 2016-2023 Jelurida IP B.V.
+2025-01-30 14:54:05 INFO: main Copyright © 2023-2024 Jelurida Swiss SA
+2025-01-30 14:54:05 INFO: main Distributed under the Jelurida Public License version 1.3 for the Ardor Public Blockchain Platform, with ABSOLUTELY NO WARRANTY.
+2025-01-30 14:54:05 INFO: main Client UI is at http://localhost:27876/index.html
+2025-01-30 14:54:14 FINE: Thread-20 There are no UPnP gateway devices
+2025-01-30 14:54:14 FINE: Network Listener Network listener started
+2025-01-30 14:54:14 FINE: Message Handler 1 Message Handler 1 started
+2025-01-30 14:54:14 FINE: Message Handler 4 Message Handler 4 started
+2025-01-30 14:54:14 FINE: Message Handler 2 Message Handler 2 started
+2025-01-30 14:54:14 FINE: Message Handler 3 Message Handler 3 started
+2025-01-30 14:54:14 FINE: Thread-33 Proxy trying to connect to 192.227.137.62
+2025-01-30 14:54:14 INFO: Network Listener Connection to 192.227.137.62 completed
+2025-01-30 14:54:14 FINE: Message Handler 1 Handshake complete with 192.227.137.62
+2025-01-30 14:54:14 FINE: Message Handler 4 Ignoring bundler rate for chain GPS (6)
+2025-01-30 14:54:14 FINE: Message Handler 4 Bundler account 5388336047026650204 does not exist
+2025-01-30 14:54:14 FINE: Message Handler 1 Database connection pool current size: 4
+2025-01-30 14:54:14 FINE: Message Handler 4 Relaying bundler rates from 192.227.137.62
+2025-01-30 14:54:15 FINE: Thread-33 Proxy bootstrap complete, known peer 192.227.137.62 is connected
+2025-01-30 14:54:20 FINE: pool-3-thread-8 Broadcasting blockchain state change from UP_TO_DATE to DOWNLOADING
+2025-01-30 14:54:20 INFO: Network Listener Connection to 108.227.62.195 completed
+2025-01-30 14:54:20 INFO: Network Listener Connection to 192.210.141.39 completed
+2025-01-30 14:54:20 INFO: Network Listener Connection to 192.3.249.139 completed
+2025-01-30 14:54:20 FINE: Message Handler 3 Handshake complete with 108.227.62.195
+2025-01-30 14:54:20 FINE: Message Handler 4 Ignoring bundler rate for chain GPS (6)
+2025-01-30 14:54:20 FINE: Message Handler 4 Bundler account 5388336047026650204 does not exist
+2025-01-30 14:54:20 INFO: Network Listener Connection to 109.235.71.183 completed
+2025-01-30 14:54:20 INFO: Network Listener Connection to 49.212.156.13 completed
+2025-01-30 14:54:20 FINE: Message Handler 1 Handshake complete with 192.3.249.139
+2025-01-30 14:54:20 FINE: Message Handler 2 Handshake complete with 109.235.71.183
+2025-01-30 14:54:20 FINE: Message Handler 1 Ignoring bundler rate for chain GPS (6)
+2025-01-30 14:54:20 FINE: Message Handler 1 Bundler account 5388336047026650204 does not exist
+2025-01-30 14:54:30 FINE: pool-2-thread-17 Timeout trying to connect to 174.138.39.150
+2025-01-30 14:54:30 FINE: pool-2-thread-6 Timeout trying to connect to 134.122.126.97
+2025-01-30 14:54:35 FINE: pool-3-thread-7 Disconnecting dead peer 192.210.141.39 last updated 223502061 at 223502076
+2025-01-30 14:54:35 INFO: pool-3-thread-7 Will close connection to 192.210.141.39
+2025-01-30 14:54:35 FINE: pool-3-thread-7 Disconnecting dead peer 49.212.156.13 last updated 223502061 at 223502076
+2025-01-30 14:54:35 INFO: pool-3-thread-7 Will close connection to 49.212.156.13
+2025-01-30 14:54:35 FINE: pool-3-thread-3 Channel already null when disconnecting 192.210.141.39
+2025-01-30 14:54:35 INFO: Network Listener Connection to 198.46.152.53 completed
+2025-01-30 14:54:35 FINE: Message Handler 2 Handshake complete with 198.46.152.53
+2025-01-30 14:54:35 FINE: Message Handler 1 Ignoring bundler rate for chain GPS (6)
+2025-01-30 14:54:35 FINE: Message Handler 1 Bundler account 5388336047026650204 does not exist
+2025-01-30 14:54:41 INFO: pool-3-thread-10 Blockchain download in progress
+2025-01-30 14:54:42 FINE: pool-3-thread-10 No blocks returned from 192.3.249.139
+2025-01-30 14:54:42 FINE: pool-3-thread-10 No blocks returned from 192.3.249.139
+2025-01-30 14:54:42 FINE: pool-3-thread-10 No blocks returned from 192.3.249.139
+2025-01-30 14:54:42 FINE: pool-3-thread-10 No blocks returned from 192.3.249.139
+2025-01-30 14:54:43 FINE: pool-3-thread-10 Poll 7261861575387521624 has been finished
+2025-01-30 14:54:43 FINE: pool-3-thread-10 Got 3 confirmations
+2025-01-30 14:54:43 INFO: pool-3-thread-10 Downloaded 719 blocks in 3 s, 217 per s, 269 min left
+2025-01-30 14:54:44 FINE: pool-3-thread-10 No blocks returned from 192.3.249.139
+2025-01-30 14:54:44 FINE: pool-3-thread-10 No blocks returned from 192.3.249.139
+2025-01-30 14:54:44 FINE: pool-3-thread-10 No blocks returned from 192.3.249.139
+2025-01-30 14:54:44 FINE: pool-3-thread-10 No blocks returned from 192.3.249.139
+2025-01-30 14:54:45 FINE: pool-2-thread-19 Timeout trying to connect to 79.167.210.8
+2025-01-30 14:54:46 FINE: pool-3-thread-10 Got 3 confirmations
+2025-01-30 14:54:46 INFO: pool-3-thread-10 Downloaded 719 blocks in 2 s, 264 per s, 221 min left
+2025-01-30 14:54:46 INFO: pool-3-thread-10 Finished blockchain download
+2025-01-30 14:54:50 INFO: Network Listener Connection to 104.168.9.83 completed
+2025-01-30 14:54:50 FINE: Network Listener Outbound connect failed to complete: Connection refused
+2025-01-30 14:54:50 INFO: pool-2-thread-2 Connection to 38.242.128.248 failed to complete, disconnecting
+2025-01-30 14:54:51 FINE: Message Handler 4 Handshake complete with 104.168.9.83
+2025-01-30 14:54:51 FINE: Message Handler 1 Ignoring bundler rate for chain GPS (6)
+2025-01-30 14:54:51 FINE: Message Handler 1 Bundler account 5388336047026650204 does not exist
+2025-01-30 14:55:00 FINE: pool-2-thread-9 Timeout trying to connect to 167.71.19.245
+2025-01-30 14:55:01 INFO: pool-3-thread-3 Blockchain download in progress
+2025-01-30 14:55:01 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:55:02 FINE: pool-1-thread-7 Error returned by 104.168.9.83 for GetNextBlocks[792] message: org.h2.jdbc.JdbcSQLNonTransientConnectionException: Database may be already in use: null. Possible solutions: close all other connection(s); use the server mode [90020-200]
+2025-01-30 14:55:02 INFO: pool-1-thread-7 Will close connection to 104.168.9.83
+2025-01-30 14:55:02 FINE: pool-1-thread-14 Channel already null when disconnecting 104.168.9.83
+2025-01-30 14:55:02 FINE: pool-3-thread-3 No blocks returned from 104.168.9.83
+2025-01-30 14:55:02 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:55:02 FINE: pool-3-thread-3 No blocks returned from 104.168.9.83
+2025-01-30 14:55:02 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:55:02 FINE: pool-3-thread-3 No blocks returned from 104.168.9.83
+2025-01-30 14:55:03 INFO: pool-3-thread-3 received block 270000
+2025-01-30 14:55:04 FINE: pool-3-thread-3 Got 3 confirmations
+2025-01-30 14:55:04 INFO: pool-3-thread-3 Downloaded 719 blocks in 3 s, 233 per s, 251 min left
+2025-01-30 14:55:04 INFO: pool-3-thread-3 Finished blockchain download
+2025-01-30 14:55:05 INFO: Network Listener Connection to 198.23.137.124 completed
+2025-01-30 14:55:05 INFO: Network Listener Connection to 150.230.46.59 completed
+2025-01-30 14:55:06 FINE: Message Handler 1 Handshake complete with 150.230.46.59
+2025-01-30 14:55:06 FINE: Message Handler 3 Ignoring bundler rate for chain GPS (6)
+2025-01-30 14:55:06 FINE: Message Handler 3 Bundler account 5388336047026650204 does not exist
+2025-01-30 14:55:06 FINE: Message Handler 3 Handshake complete with 198.23.137.124
+2025-01-30 14:55:06 FINE: Message Handler 1 Ignoring bundler rate for chain GPS (6)
+2025-01-30 14:55:06 FINE: Message Handler 1 Bundler account 5388336047026650204 does not exist
+2025-01-30 14:55:10 INFO: pool-3-thread-9 Blockchain download in progress
+2025-01-30 14:55:10 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:55:14 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:55:14 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:55:15 FINE: pool-3-thread-9 Transaction 2:1f3e7b99c1b592127cc421d8c30260704034cb909f957695d1248d46503a10b0 has been released
+2025-01-30 14:55:15 FINE: pool-3-thread-9 Early finish of transaction 2:1f3e7b99c1b592127cc421d8c30260704034cb909f957695d1248d46503a10b0 at height 270578
+2025-01-30 14:55:15 FINE: pool-2-thread-9 Timeout trying to connect to 157.245.130.139
+2025-01-30 14:55:16 FINE: pool-3-thread-9 Got 5 confirmations
+2025-01-30 14:55:16 INFO: pool-3-thread-9 Downloaded 719 blocks in 6 s, 180 per s, 325 min left
+2025-01-30 14:55:20 FINE: Network Listener Outbound connect failed to complete: Connection refused
+2025-01-30 14:55:20 INFO: pool-2-thread-6 Connection to 172.105.207.97 failed to complete, disconnecting
+2025-01-30 14:55:24 INFO: pool-3-thread-9 Finished blockchain download
+2025-01-30 14:55:34 INFO: pool-3-thread-9 Blockchain download in progress
+2025-01-30 14:55:35 FINE: Network Listener Outbound connect failed to complete: Connection refused
+2025-01-30 14:55:35 INFO: pool-2-thread-5 Connection to 147.182.219.219 failed to complete, disconnecting
+2025-01-30 14:55:44 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:55:44 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:55:44 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:55:46 FINE: pool-3-thread-9 Database connection pool current size: 5
+2025-01-30 14:55:46 FINE: pool-3-thread-9 Got 5 confirmations
+2025-01-30 14:55:46 INFO: pool-3-thread-9 Downloaded 719 blocks in 16 s, 110 per s, 528 min left
+2025-01-30 14:55:48 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:55:48 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:55:50 FINE: pool-3-thread-9 Got 5 confirmations
+2025-01-30 14:55:50 INFO: pool-3-thread-9 Downloaded 719 blocks in 4 s, 118 per s, 496 min left
+2025-01-30 14:55:50 FINE: Network Listener Outbound connect failed to complete: Connection refused
+2025-01-30 14:55:50 INFO: pool-2-thread-8 Connection to 208.94.38.216 failed to complete, disconnecting
+2025-01-30 14:55:50 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:55:51 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:55:51 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:55:52 FINE: pool-3-thread-9 Got 5 confirmations
+2025-01-30 14:55:52 INFO: pool-3-thread-9 Downloaded 719 blocks in 2 s, 130 per s, 450 min left
+2025-01-30 14:55:53 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:55:53 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:55:53 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:55:55 FINE: pool-3-thread-9 Got 5 confirmations
+2025-01-30 14:55:55 INFO: pool-3-thread-9 Downloaded 719 blocks in 3 s, 137 per s, 426 min left
+2025-01-30 14:55:56 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:55:56 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:55:56 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:55:58 FINE: pool-3-thread-9 Got 5 confirmations
+2025-01-30 14:55:58 INFO: pool-3-thread-9 Downloaded 719 blocks in 2 s, 145 per s, 401 min left
+2025-01-30 14:55:59 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:55:59 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:55:59 INFO: pool-3-thread-9 received block 275000
+2025-01-30 14:56:00 FINE: pool-3-thread-9 Got 5 confirmations
+2025-01-30 14:56:00 INFO: pool-3-thread-9 Downloaded 719 blocks in 2 s, 153 per s, 382 min left
+2025-01-30 14:56:03 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:56:03 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:56:03 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:56:04 FINE: pool-3-thread-9 Got 5 confirmations
+2025-01-30 14:56:04 INFO: pool-3-thread-9 Downloaded 719 blocks in 3 s, 155 per s, 376 min left
+2025-01-30 14:56:05 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:56:05 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:56:05 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:56:06 FINE: pool-3-thread-9 Got 5 confirmations
+2025-01-30 14:56:06 INFO: pool-3-thread-9 Downloaded 719 blocks in 2 s, 162 per s, 360 min left
+2025-01-30 14:56:07 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:56:07 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:56:08 FINE: pool-3-thread-9 Transaction 2:c66b28f912543e1794696bf1f0ce789416b6d2f02d487a855d940713430823ce has been released
+2025-01-30 14:56:08 FINE: pool-3-thread-9 Early finish of transaction 2:c66b28f912543e1794696bf1f0ce789416b6d2f02d487a855d940713430823ce at height 277201
+2025-01-30 14:56:08 FINE: pool-3-thread-9 Transaction 2:fd0ac421158413bd9d5fde423dba0d03a91868ef520b7e61aa5d9fc9af2a16fa has been released
+2025-01-30 14:56:08 FINE: pool-3-thread-9 Early finish of transaction 2:fd0ac421158413bd9d5fde423dba0d03a91868ef520b7e61aa5d9fc9af2a16fa at height 277240
+2025-01-30 14:56:11 FINE: pool-3-thread-9 Got 5 confirmations
+2025-01-30 14:56:11 INFO: pool-3-thread-9 Downloaded 719 blocks in 4 s, 162 per s, 361 min left
+2025-01-30 14:56:15 FINE: pool-2-thread-18 Timeout trying to connect to 152.42.179.59
+2025-01-30 14:56:25 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:56:25 FINE: pool-3-thread-9 No blocks returned from 192.3.249.139
+2025-01-30 14:56:27 FINE: pool-3-thread-9 Got 5 confirmations
+2025-01-30 14:56:27 INFO: pool-3-thread-9 Downloaded 719 blocks in 15 s, 137 per s, 426 min left
+2025-01-30 14:56:27 INFO: pool-3-thread-9 Finished blockchain download
+2025-01-30 14:56:30 FINE: pool-2-thread-18 Timeout trying to connect to 45.27.73.200
+2025-01-30 14:56:32 INFO: pool-3-thread-3 Blockchain download in progress
+2025-01-30 14:56:34 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:56:34 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:56:34 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:56:35 FINE: pool-3-thread-3 Poll 1775167541505051062 has been finished
+2025-01-30 14:56:35 INFO: Network Listener Connection to 159.69.108.61 completed
+2025-01-30 14:56:35 FINE: Network Listener Connection reset: Peer 159.69.108.61
+2025-01-30 14:56:35 FINE: Network Listener Blacklisting 159.69.108.61 because of: java.net.SocketException: Connection reset
+2025-01-30 14:56:35 INFO: Network Listener Will close connection to 159.69.108.61
+2025-01-30 14:56:41 FINE: pool-3-thread-3 Got 5 confirmations
+2025-01-30 14:56:41 INFO: pool-3-thread-3 Downloaded 719 blocks in 9 s, 130 per s, 447 min left
+2025-01-30 14:56:42 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:56:42 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:56:44 FINE: pool-3-thread-3 Got 5 confirmations
+2025-01-30 14:56:44 INFO: pool-3-thread-3 Downloaded 719 blocks in 3 s, 133 per s, 438 min left
+2025-01-30 14:56:45 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:56:45 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:56:45 INFO: pool-3-thread-3 received block 280000
+2025-01-30 14:56:46 FINE: pool-3-thread-3 Transaction 2:296d14bfeaddd6fd093a77cef11c2d22f6feb35106887a67bff021b148dedbb3 has been released
+2025-01-30 14:56:46 FINE: pool-3-thread-3 Early finish of transaction 2:296d14bfeaddd6fd093a77cef11c2d22f6feb35106887a67bff021b148dedbb3 at height 280214
+2025-01-30 14:56:46 FINE: pool-3-thread-3 Got 5 confirmations
+2025-01-30 14:56:46 INFO: pool-3-thread-3 Downloaded 719 blocks in 2 s, 138 per s, 422 min left
+2025-01-30 14:56:47 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:56:48 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:56:48 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:56:50 INFO: Network Listener Connection to 198.140.141.29 completed
+2025-01-30 14:56:50 FINE: Message Handler 1 Ignoring bundler rate for chain GPS (6)
+2025-01-30 14:56:50 FINE: Message Handler 3 Handshake complete with 198.140.141.29
+2025-01-30 14:57:06 FINE: pool-3-thread-3 Got 5 confirmations
+2025-01-30 14:57:06 INFO: pool-3-thread-3 Downloaded 719 blocks in 19 s, 119 per s, 488 min left
+2025-01-30 14:57:15 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:57:15 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:57:15 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:57:21 FINE: pool-3-thread-3 Got 5 confirmations
+2025-01-30 14:57:21 INFO: pool-3-thread-3 Downloaded 719 blocks in 14 s, 111 per s, 524 min left
+2025-01-30 14:57:24 FINE: qtp1207140081-54 Error processing API request
+java.lang.RuntimeException: org.h2.jdbc.JdbcSQLDataException: Parameter "#1" is not set; SQL statement:
+SELECT * FROM transaction_fxt WHERE recipient_id = ? AND sender_id <> ? UNION ALL SELECT * FROM transaction_fxt WHERE sender_id = ? ORDER BY block_timestamp DESC, transaction_index DESC [90012-200]
+	at nxt.db.DbIterator.<init>(DbIterator.java:52)
+	at nxt.blockchain.BlockchainImpl.getTransactions(BlockchainImpl.java:750)
+	at nxt.blockchain.BlockchainImpl.getTransactions(BlockchainImpl.java:662)
+	at nxt.http.GetRecentBlockchainTransactions.processRequest(GetRecentBlockchainTransactions.java:88)
+	at nxt.http.APIServlet$APIRequestHandler.processRequest(APIServlet.java:140)
+	at nxt.http.APIServlet.process(APIServlet.java:398)
+	at nxt.http.APIServlet.doGet(APIServlet.java:283)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:687)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:790)
+	at org.eclipse.jetty.servlet.ServletHolder.handle(ServletHolder.java:799)
+	at org.eclipse.jetty.servlet.ServletHandler$ChainEnd.doFilter(ServletHandler.java:1656)
+	at nxt.http.API$XFrameOptionsFilter.doFilter(API.java:692)
+	at org.eclipse.jetty.servlet.FilterHolder.doFilter(FilterHolder.java:193)
+	at org.eclipse.jetty.servlet.ServletHandler$Chain.doFilter(ServletHandler.java:1626)
+	at org.eclipse.jetty.servlets.CrossOriginFilter.handle(CrossOriginFilter.java:319)
+	at org.eclipse.jetty.servlets.CrossOriginFilter.doFilter(CrossOriginFilter.java:273)
+	at org.eclipse.jetty.servlet.FilterHolder.doFilter(FilterHolder.java:193)
+	at org.eclipse.jetty.servlet.ServletHandler$Chain.doFilter(ServletHandler.java:1626)
+	at org.eclipse.jetty.servlet.ServletHandler.doHandle(ServletHandler.java:552)
+	at org.eclipse.jetty.server.handler.ScopedHandler.handle(ScopedHandler.java:143)
+	at org.eclipse.jetty.server.handler.gzip.GzipHandler.handle(GzipHandler.java:731)
+	at org.eclipse.jetty.security.SecurityHandler.handle(SecurityHandler.java:600)
+	at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:127)
+	at org.eclipse.jetty.server.handler.ScopedHandler.nextHandle(ScopedHandler.java:235)
+	at org.eclipse.jetty.server.handler.ContextHandler.doHandle(ContextHandler.java:1440)
+	at org.eclipse.jetty.server.handler.ScopedHandler.nextScope(ScopedHandler.java:188)
+	at org.eclipse.jetty.servlet.ServletHandler.doScope(ServletHandler.java:505)
+	at org.eclipse.jetty.server.handler.ScopedHandler.nextScope(ScopedHandler.java:186)
+	at org.eclipse.jetty.server.handler.ContextHandler.doScope(ContextHandler.java:1355)
+	at org.eclipse.jetty.server.handler.ScopedHandler.handle(ScopedHandler.java:141)
+	at org.eclipse.jetty.server.handler.HandlerList.handle(HandlerList.java:59)
+	at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:127)
+	at org.eclipse.jetty.server.Server.handle(Server.java:516)
+	at org.eclipse.jetty.server.HttpChannel.lambda$handle$1(HttpChannel.java:487)
+	at org.eclipse.jetty.server.HttpChannel.dispatch(HttpChannel.java:732)
+	at org.eclipse.jetty.server.HttpChannel.handle(HttpChannel.java:479)
+	at org.eclipse.jetty.server.HttpConnection.onFillable(HttpConnection.java:277)
+	at org.eclipse.jetty.io.AbstractConnection$ReadCallback.succeeded(AbstractConnection.java:311)
+	at org.eclipse.jetty.io.FillInterest.fillable(FillInterest.java:105)
+	at org.eclipse.jetty.io.ChannelEndPoint$1.run(ChannelEndPoint.java:104)
+	at org.eclipse.jetty.util.thread.strategy.EatWhatYouKill.runTask(EatWhatYouKill.java:338)
+	at org.eclipse.jetty.util.thread.strategy.EatWhatYouKill.doProduce(EatWhatYouKill.java:315)
+	at org.eclipse.jetty.util.thread.strategy.EatWhatYouKill.tryProduce(EatWhatYouKill.java:173)
+	at org.eclipse.jetty.util.thread.strategy.EatWhatYouKill.produce(EatWhatYouKill.java:137)
+	at org.eclipse.jetty.util.thread.QueuedThreadPool.runJob(QueuedThreadPool.java:883)
+	at org.eclipse.jetty.util.thread.QueuedThreadPool$Runner.run(QueuedThreadPool.java:1034)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+Caused by: org.h2.jdbc.JdbcSQLDataException: Parameter "#1" is not set; SQL statement:
+SELECT * FROM transaction_fxt WHERE recipient_id = ? AND sender_id <> ? UNION ALL SELECT * FROM transaction_fxt WHERE sender_id = ? ORDER BY block_timestamp DESC, transaction_index DESC [90012-200]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:590)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:429)
+	at org.h2.message.DbException.get(DbException.java:205)
+	at org.h2.message.DbException.get(DbException.java:181)
+	at org.h2.expression.Parameter.checkSet(Parameter.java:83)
+	at org.h2.command.Prepared.checkParameters(Prepared.java:182)
+	at org.h2.command.CommandContainer.query(CommandContainer.java:284)
+	at org.h2.command.Command.executeQuery(Command.java:195)
+	at org.h2.jdbc.JdbcPreparedStatement.executeQuery(JdbcPreparedStatement.java:114)
+	at nxt.db.FilteredPreparedStatement.executeQuery(FilteredPreparedStatement.java:60)
+	at nxt.db.TransactionalDb$DbPreparedStatement.executeQuery(TransactionalDb.java:426)
+	at nxt.db.DbIterator.<init>(DbIterator.java:48)
+	... 46 more
+2025-01-30 14:57:32 FINE: Message Handler 4 Ignoring bundler rate for chain GPS (6)
+2025-01-30 14:57:45 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:57:45 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:57:45 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:57:45 FINE: pool-3-thread-3 Poll 1750292111298224462 has been finished
+2025-01-30 14:57:48 FINE: pool-3-thread-3 Got 5 confirmations
+2025-01-30 14:57:48 INFO: pool-3-thread-3 Downloaded 719 blocks in 27 s, 95 per s, 609 min left
+2025-01-30 14:57:50 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:57:50 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:57:52 FINE: pool-3-thread-3 Got 5 confirmations
+2025-01-30 14:57:52 INFO: pool-3-thread-3 Downloaded 719 blocks in 3 s, 98 per s, 593 min left
+2025-01-30 14:57:52 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:57:52 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:57:53 FINE: pool-3-thread-3 Transaction 3:bdc92f259af1ab83a37b8b5e81957b785f01b64aa8b0baaa32511ac1524ccd4a has been released
+2025-01-30 14:57:53 FINE: pool-3-thread-3 Early finish of transaction 3:bdc92f259af1ab83a37b8b5e81957b785f01b64aa8b0baaa32511ac1524ccd4a at height 283560
+2025-01-30 14:57:53 FINE: pool-3-thread-3 Poll 4580465889425120192 has been finished
+2025-01-30 14:57:58 FINE: pool-3-thread-3 Got 5 confirmations
+2025-01-30 14:57:58 INFO: pool-3-thread-3 Downloaded 719 blocks in 6 s, 98 per s, 590 min left
+2025-01-30 14:57:59 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:57:59 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:57:59 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:58:00 FINE: pool-3-thread-3 Poll 2597206123198747963 has been finished
+2025-01-30 14:58:01 FINE: pool-3-thread-3 Got 5 confirmations
+2025-01-30 14:58:01 INFO: pool-3-thread-3 Downloaded 719 blocks in 2 s, 101 per s, 574 min left
+2025-01-30 14:58:02 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:58:02 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:58:03 INFO: pool-3-thread-3 received block 285000
+2025-01-30 14:58:05 FINE: pool-3-thread-3 Got 5 confirmations
+2025-01-30 14:58:05 INFO: pool-3-thread-3 Downloaded 719 blocks in 4 s, 103 per s, 565 min left
+2025-01-30 14:58:11 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:58:11 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:58:11 FINE: pool-3-thread-3 Poll 11331979517864415370 has been finished
+2025-01-30 14:58:33 FINE: pool-3-thread-3 Got 5 confirmations
+2025-01-30 14:58:33 INFO: pool-3-thread-3 Downloaded 719 blocks in 27 s, 92 per s, 632 min left
+2025-01-30 14:58:41 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:58:41 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:58:43 FINE: pool-3-thread-3 Got 5 confirmations
+2025-01-30 14:58:43 INFO: pool-3-thread-3 Downloaded 719 blocks in 10 s, 91 per s, 639 min left
+2025-01-30 14:58:47 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:58:47 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:58:47 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:58:47 FINE: pool-3-thread-3 Transaction 3:cc405a3693b4191e6ae2d6d416b1e1cab8caa3a606d1af3fc99d06949ac1da63 has been released
+2025-01-30 14:58:47 FINE: pool-3-thread-3 Early finish of transaction 3:cc405a3693b4191e6ae2d6d416b1e1cab8caa3a606d1af3fc99d06949ac1da63 at height 287393
+2025-01-30 14:58:48 FINE: pool-3-thread-3 Transaction 2:02e010a412f346524fc2de56b5291dcca1f6727552d49c80ae9c55e82dd47f51 has been released
+2025-01-30 14:58:48 FINE: pool-3-thread-3 Early finish of transaction 2:02e010a412f346524fc2de56b5291dcca1f6727552d49c80ae9c55e82dd47f51 at height 287536
+2025-01-30 14:58:48 FINE: pool-3-thread-3 At height 287570 phased transaction 3:fc75a1af859d319a4be5900a88f027c643aab7d5e3532b1a22b7da9c62b0a9a9 does not yet meet quorum, cannot finish early
+2025-01-30 14:58:48 FINE: pool-3-thread-3 Transaction 3:fc75a1af859d319a4be5900a88f027c643aab7d5e3532b1a22b7da9c62b0a9a9 has been released
+2025-01-30 14:58:48 FINE: pool-3-thread-3 Early finish of transaction 3:fc75a1af859d319a4be5900a88f027c643aab7d5e3532b1a22b7da9c62b0a9a9 at height 287571
+2025-01-30 14:58:49 FINE: pool-3-thread-3 Got 5 confirmations
+2025-01-30 14:58:49 INFO: pool-3-thread-3 Downloaded 719 blocks in 5 s, 92 per s, 632 min left
+2025-01-30 14:58:49 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:58:50 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:58:50 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:58:50 FINE: pool-3-thread-3 At height 287612 phased transaction 3:07fb72dff1f41749dae249b44d71f4100ca978f4cb49e171a893f7d3a05f0769 does not yet meet quorum, cannot finish early
+2025-01-30 14:58:50 FINE: pool-3-thread-3 Transaction 3:07fb72dff1f41749dae249b44d71f4100ca978f4cb49e171a893f7d3a05f0769 has been released
+2025-01-30 14:58:50 FINE: pool-3-thread-3 Early finish of transaction 3:07fb72dff1f41749dae249b44d71f4100ca978f4cb49e171a893f7d3a05f0769 at height 287613
+2025-01-30 14:58:51 FINE: pool-3-thread-3 Transaction 3:2fbdf9ca3a8d7f6ad3ec004696c296f5489075ee217e01806546e15e2f1f64dc has been released
+2025-01-30 14:58:51 FINE: pool-3-thread-3 Early finish of transaction 3:2fbdf9ca3a8d7f6ad3ec004696c296f5489075ee217e01806546e15e2f1f64dc at height 288190
+2025-01-30 14:58:52 FINE: pool-3-thread-3 Got 5 confirmations
+2025-01-30 14:58:52 INFO: pool-3-thread-3 Downloaded 719 blocks in 3 s, 94 per s, 618 min left
+2025-01-30 14:58:53 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:58:53 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:58:54 FINE: pool-3-thread-3 Poll 11490899210797259537 has been finished
+2025-01-30 14:58:54 FINE: pool-3-thread-3 Poll 1902092064849228037 has been finished
+2025-01-30 14:58:55 FINE: pool-3-thread-3 Got 5 confirmations
+2025-01-30 14:58:55 INFO: pool-3-thread-3 Downloaded 719 blocks in 2 s, 96 per s, 605 min left
+2025-01-30 14:59:04 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:59:04 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:59:08 FINE: pool-3-thread-3 Got 5 confirmations
+2025-01-30 14:59:08 INFO: pool-3-thread-3 Downloaded 719 blocks in 12 s, 94 per s, 619 min left
+2025-01-30 14:59:08 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:59:08 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:59:10 INFO: pool-3-thread-3 received block 290000
+2025-01-30 14:59:11 FINE: pool-3-thread-3 Got 5 confirmations
+2025-01-30 14:59:11 INFO: pool-3-thread-3 Downloaded 719 blocks in 3 s, 95 per s, 608 min left
+2025-01-30 14:59:30 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:59:30 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:59:30 FINE: pool-3-thread-3 No blocks returned from 192.3.249.139
+2025-01-30 14:59:44 FINE: pool-3-thread-3 Transaction 2:8b8d04a0e5d15c01ee6f668d5aa03240bd8b5dc8848bc1f0d05003e4c7669d74 has been released
+2025-01-30 14:59:44 FINE: pool-3-thread-3 Early finish of transaction 2:8b8d04a0e5d15c01ee6f668d5aa03240bd8b5dc8848bc1f0d05003e4c7669d74 at height 290897
+2025-01-30 14:59:44 FINE: pool-3-thread-3 Transaction 2:35b7422bbbbad57b8630f11e4a5a1a7b4af59b2b473c4b15b4ff9e1979d45611 has been released
+2025-01-30 14:59:44 FINE: pool-3-thread-3 Early finish of transaction 2:35b7422bbbbad57b8630f11e4a5a1a7b4af59b2b473c4b15b4ff9e1979d45611 at height 290904
+2025-01-30 14:59:45 FINE: pool-3-thread-3 Got 5 confirmations
+2025-01-30 14:59:45 INFO: pool-3-thread-3 Downloaded 719 blocks in 33 s, 86 per s, 675 min left
+2025-01-30 14:59:45 INFO: pool-3-thread-3 Finished blockchain download
+2025-01-30 14:59:50 INFO: pool-3-thread-1 Blockchain download in progress
+2025-01-30 14:59:50 FINE: pool-3-thread-1 No blocks returned from 192.3.249.139
+2025-01-30 14:59:50 FINE: pool-3-thread-1 No blocks returned from 192.3.249.139
+2025-01-30 14:59:58 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 14:59:58 INFO: pool-3-thread-1 Downloaded 719 blocks in 8 s, 86 per s, 675 min left
+2025-01-30 15:00:04 FINE: pool-3-thread-1 No blocks returned from 192.3.249.139
+2025-01-30 15:00:04 FINE: pool-3-thread-1 No blocks returned from 192.3.249.139
+2025-01-30 15:00:08 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:00:08 INFO: pool-3-thread-1 Downloaded 719 blocks in 9 s, 85 per s, 678 min left
+2025-01-30 15:00:28 FINE: pool-1-thread-1 Read from 192.3.249.139 timed out
+2025-01-30 15:00:28 FINE: pool-1-thread-14 Read from 192.3.249.139 timed out
+2025-01-30 15:00:28 INFO: pool-1-thread-1 Will close connection to 192.3.249.139
+2025-01-30 15:00:28 FINE: pool-3-thread-1 No blocks returned from 192.3.249.139
+2025-01-30 15:00:28 FINE: pool-3-thread-1 No blocks returned from 192.3.249.139
+2025-01-30 15:00:30 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:00:30 INFO: pool-3-thread-1 Downloaded 719 blocks in 21 s, 82 per s, 709 min left
+2025-01-30 15:00:32 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:00:32 INFO: pool-3-thread-1 Downloaded 719 blocks in 2 s, 83 per s, 694 min left
+2025-01-30 15:00:34 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:00:34 INFO: pool-3-thread-1 Downloaded 719 blocks in 2 s, 85 per s, 680 min left
+2025-01-30 15:00:35 INFO: Network Listener Connection to 107.174.121.188 completed
+2025-01-30 15:00:35 FINE: Message Handler 3 Handshake complete with 107.174.121.188
+2025-01-30 15:00:35 FINE: Message Handler 2 Ignoring bundler rate for chain GPS (6)
+2025-01-30 15:00:36 INFO: pool-3-thread-1 received block 295000
+2025-01-30 15:00:37 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:00:37 INFO: pool-3-thread-1 Downloaded 719 blocks in 2 s, 87 per s, 668 min left
+2025-01-30 15:00:40 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:00:40 INFO: pool-3-thread-1 Downloaded 719 blocks in 3 s, 88 per s, 657 min left
+2025-01-30 15:00:42 FINE: pool-3-thread-1 Transaction 2:58bea0801ae5d613a05a5ab914c96e52412340d4a06bc0bb222cd59f03ddd39d has been released
+2025-01-30 15:00:42 FINE: pool-3-thread-1 Early finish of transaction 2:58bea0801ae5d613a05a5ab914c96e52412340d4a06bc0bb222cd59f03ddd39d at height 296651
+2025-01-30 15:00:43 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:00:43 INFO: pool-3-thread-1 Downloaded 719 blocks in 3 s, 89 per s, 647 min left
+2025-01-30 15:00:45 FINE: pool-3-thread-1 Poll 15782508803332293630 has been finished
+2025-01-30 15:00:45 FINE: pool-3-thread-1 Transaction 2:9b8291cdcad9a53a2ea928bf3d2da1e64e6a2d5abc1516ca9041a689dfc487b4 has been released
+2025-01-30 15:00:45 FINE: pool-3-thread-1 Early finish of transaction 2:9b8291cdcad9a53a2ea928bf3d2da1e64e6a2d5abc1516ca9041a689dfc487b4 at height 297478
+2025-01-30 15:00:45 FINE: pool-3-thread-1 Transaction 2:23e905b5d64d82e374e23be99a16d03e35e8e9d64efd9963b1d1e0be3ccbd440 has been released
+2025-01-30 15:00:45 FINE: pool-3-thread-1 Early finish of transaction 2:23e905b5d64d82e374e23be99a16d03e35e8e9d64efd9963b1d1e0be3ccbd440 at height 297482
+2025-01-30 15:00:46 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:00:46 INFO: pool-3-thread-1 Downloaded 719 blocks in 2 s, 91 per s, 636 min left
+2025-01-30 15:00:49 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:00:49 INFO: pool-3-thread-1 Downloaded 719 blocks in 3 s, 92 per s, 627 min left
+2025-01-30 15:00:51 FINE: pool-3-thread-1 Poll 472715194769726256 has been finished
+2025-01-30 15:00:51 FINE: pool-3-thread-1 Poll 9137010227143094517 has been finished
+2025-01-30 15:00:51 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:00:51 INFO: pool-3-thread-1 Downloaded 719 blocks in 2 s, 94 per s, 617 min left
+2025-01-30 15:00:53 FINE: pool-3-thread-1 Poll 860161857597693249 has been finished
+2025-01-30 15:00:53 FINE: pool-3-thread-1 Transaction 3:3a175653c148dcbc6fcf90dacf7a0b9e978bbbcaafbefefa57438dda184ff88f has been released
+2025-01-30 15:01:07 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:01:07 INFO: pool-3-thread-1 Downloaded 719 blocks in 15 s, 92 per s, 632 min left
+2025-01-30 15:01:08 INFO: pool-3-thread-1 received block 300000
+2025-01-30 15:01:09 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:01:09 INFO: pool-3-thread-1 Downloaded 719 blocks in 2 s, 93 per s, 621 min left
+2025-01-30 15:01:12 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:01:12 INFO: pool-3-thread-1 Downloaded 719 blocks in 2 s, 94 per s, 613 min left
+2025-01-30 15:01:16 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:01:16 INFO: pool-3-thread-1 Downloaded 719 blocks in 4 s, 95 per s, 607 min left
+2025-01-30 15:01:36 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:01:36 INFO: pool-3-thread-1 Downloaded 719 blocks in 19 s, 92 per s, 627 min left
+2025-01-30 15:01:40 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:01:40 INFO: pool-3-thread-1 Downloaded 719 blocks in 4 s, 93 per s, 621 min left
+2025-01-30 15:01:46 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:01:46 INFO: pool-3-thread-1 Downloaded 719 blocks in 5 s, 93 per s, 618 min left
+2025-01-30 15:01:48 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:01:48 INFO: pool-3-thread-1 Downloaded 719 blocks in 1 s, 95 per s, 609 min left
+2025-01-30 15:01:50 INFO: pool-3-thread-1 received block 305000
+2025-01-30 15:01:51 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:01:51 INFO: pool-3-thread-1 Downloaded 719 blocks in 2 s, 96 per s, 601 min left
+2025-01-30 15:01:52 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:01:52 INFO: pool-3-thread-1 Downloaded 719 blocks in 1 s, 97 per s, 592 min left
+2025-01-30 15:01:53 FINE: Message Handler 3 Ignoring bundler rate for chain GPS (6)
+2025-01-30 15:01:55 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:01:55 INFO: pool-3-thread-1 Downloaded 719 blocks in 2 s, 99 per s, 585 min left
+2025-01-30 15:01:57 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:01:57 INFO: pool-3-thread-1 Downloaded 719 blocks in 2 s, 100 per s, 578 min left
+2025-01-30 15:02:00 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:02:00 INFO: pool-3-thread-1 Downloaded 719 blocks in 2 s, 101 per s, 571 min left
+2025-01-30 15:02:01 FINE: pool-3-thread-1 Transaction 2:047e01ec4f7bc205ac61f253dc4cb63bbea2949477b51d661090f71b4fb6b038 has been released
+2025-01-30 15:02:01 FINE: pool-3-thread-1 Early finish of transaction 2:047e01ec4f7bc205ac61f253dc4cb63bbea2949477b51d661090f71b4fb6b038 at height 308455
+2025-01-30 15:02:02 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:02:02 INFO: pool-3-thread-1 Downloaded 719 blocks in 2 s, 102 per s, 564 min left
+2025-01-30 15:02:06 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:02:06 INFO: pool-3-thread-1 Downloaded 719 blocks in 3 s, 103 per s, 559 min left
+2025-01-30 15:02:07 INFO: pool-3-thread-1 received block 310000
+2025-01-30 15:02:08 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:02:08 INFO: pool-3-thread-1 Downloaded 719 blocks in 2 s, 104 per s, 553 min left
+2025-01-30 15:02:11 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:02:11 INFO: pool-3-thread-1 Downloaded 719 blocks in 2 s, 105 per s, 547 min left
+2025-01-30 15:02:13 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:02:13 INFO: pool-3-thread-1 Downloaded 719 blocks in 2 s, 106 per s, 541 min left
+2025-01-30 15:02:18 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:02:18 INFO: pool-3-thread-1 Downloaded 719 blocks in 4 s, 107 per s, 538 min left
+2025-01-30 15:02:20 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:02:20 INFO: pool-3-thread-1 Downloaded 719 blocks in 2 s, 108 per s, 533 min left
+2025-01-30 15:02:22 FINE: pool-3-thread-1 Transaction 2:4e357731d4671364f05719c145a5c3e98cfa494268d037a022f080890e87537d has been released
+2025-01-30 15:02:22 FINE: pool-3-thread-1 Early finish of transaction 2:4e357731d4671364f05719c145a5c3e98cfa494268d037a022f080890e87537d at height 313791
+2025-01-30 15:02:22 FINE: pool-3-thread-1 Transaction 2:9a5494699d391b3c2995c8d29ef44c73950be483d22b0af3139de47dcf083a4d has been released
+2025-01-30 15:02:22 FINE: pool-3-thread-1 Early finish of transaction 2:9a5494699d391b3c2995c8d29ef44c73950be483d22b0af3139de47dcf083a4d at height 313825
+2025-01-30 15:02:22 FINE: pool-3-thread-1 Transaction 2:e6c1fb21df76e1b14c945670d90343015055b83616bda590364c50441c9e345f has been released
+2025-01-30 15:02:22 FINE: pool-3-thread-1 Early finish of transaction 2:e6c1fb21df76e1b14c945670d90343015055b83616bda590364c50441c9e345f at height 313905
+2025-01-30 15:02:22 FINE: pool-3-thread-1 Transaction 2:369484a3cb63f176db1d38019ae5cc1abbcbb7b201d3ab5df8d6812766e05839 has been rejected
+2025-01-30 15:02:23 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:02:23 INFO: pool-3-thread-1 Downloaded 719 blocks in 2 s, 109 per s, 528 min left
+2025-01-30 15:02:27 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:02:27 INFO: pool-3-thread-1 Downloaded 719 blocks in 4 s, 110 per s, 525 min left
+2025-01-30 15:02:28 FINE: pool-3-thread-1 Transaction 2:7ae5a62770c74ad1242570a42e38d83f3a6c3150930c7ab090c60b1c6db1fe43 has been rejected
+2025-01-30 15:02:28 INFO: pool-3-thread-1 received block 315000
+2025-01-30 15:02:28 FINE: pool-3-thread-1 Transaction 2:8c49a5aef745c8213d28d7c3dfa7036aa20f2916a4ebaaae4f8156635dbce6b4 has been released
+2025-01-30 15:02:28 FINE: pool-3-thread-1 Early finish of transaction 2:8c49a5aef745c8213d28d7c3dfa7036aa20f2916a4ebaaae4f8156635dbce6b4 at height 315144
+2025-01-30 15:02:29 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:02:29 INFO: pool-3-thread-1 Downloaded 719 blocks in 1 s, 111 per s, 519 min left
+2025-01-30 15:02:33 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:02:33 INFO: pool-3-thread-1 Downloaded 719 blocks in 3 s, 112 per s, 516 min left
+2025-01-30 15:02:34 FINE: pool-3-thread-1 Poll 13506009413338162313 has been finished
+2025-01-30 15:02:36 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:02:36 INFO: pool-3-thread-1 Downloaded 719 blocks in 2 s, 113 per s, 511 min left
+2025-01-30 15:02:38 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:02:38 INFO: pool-3-thread-1 Downloaded 719 blocks in 2 s, 114 per s, 507 min left
+2025-01-30 15:02:41 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:02:41 INFO: pool-3-thread-1 Downloaded 719 blocks in 2 s, 114 per s, 503 min left
+2025-01-30 15:02:44 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:02:44 INFO: pool-3-thread-1 Downloaded 719 blocks in 3 s, 115 per s, 499 min left
+2025-01-30 15:02:47 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:02:47 INFO: pool-3-thread-1 Downloaded 719 blocks in 2 s, 116 per s, 495 min left
+2025-01-30 15:02:48 INFO: pool-3-thread-1 received block 320000
+2025-01-30 15:02:48 FINE: pool-3-thread-1 Poll 987651936839518315 has been finished
+2025-01-30 15:02:49 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:02:49 INFO: pool-3-thread-1 Downloaded 719 blocks in 1 s, 117 per s, 490 min left
+2025-01-30 15:02:51 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:02:51 INFO: pool-3-thread-1 Downloaded 719 blocks in 2 s, 118 per s, 486 min left
+2025-01-30 15:02:54 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:02:54 INFO: pool-3-thread-1 Downloaded 719 blocks in 3 s, 119 per s, 483 min left
+2025-01-30 15:02:59 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:02:59 INFO: pool-3-thread-1 Downloaded 719 blocks in 4 s, 119 per s, 481 min left
+2025-01-30 15:03:02 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:03:02 INFO: pool-3-thread-1 Downloaded 719 blocks in 3 s, 120 per s, 478 min left
+2025-01-30 15:03:18 FINE: pool-3-thread-1 Got 5 confirmations
+2025-01-30 15:03:18 INFO: pool-3-thread-1 Downloaded 719 blocks in 15 s, 118 per s, 488 min left
+2025-01-30 15:03:19 INFO: Thread-0 Shutting down...
+2025-01-30 15:03:19 INFO: Thread-0 AddOns shutdown complete
+2025-01-30 15:03:19 INFO: Thread-0 Shutting down the API server...
+2025-01-30 15:03:19 INFO: Thread-0 API server stopped
+2025-01-30 15:03:19 INFO: Thread-0 Stopping background jobs...
+2025-01-30 15:03:19 INFO: Thread-0 shutting down scheduledThreadPool
+2025-01-30 15:03:25 INFO: pool-3-thread-1 Finished blockchain download
+2025-01-30 15:03:25 INFO: Thread-0 ...Done
+2025-01-30 15:03:25 INFO: Thread-0 nxt.maxNumberOfMonitors = "100"
+2025-01-30 15:03:25 INFO: Thread-0 shutting down networkService
+2025-01-30 15:03:25 INFO: Thread-0 shutting down peersService
+2025-01-30 15:03:25 FINE: Network Listener Network listener stopped
+2025-01-30 15:03:25 FINE: Message Handler 1 Message Handler 1 stopped
+2025-01-30 15:03:25 FINE: Message Handler 2 Message Handler 2 stopped
+2025-01-30 15:03:25 FINE: Message Handler 3 Message Handler 3 stopped
+2025-01-30 15:03:25 FINE: Message Handler 4 Message Handler 4 stopped
+2025-01-30 15:03:25 INFO: Thread-0 nxt.disableCompactOnShutdown = "false"
+2025-01-30 15:03:32 INFO: Thread-0 Database shutdown completed
+2025-01-30 15:03:32 INFO: Thread-0 Ardor server 2.5.1 stopped.
