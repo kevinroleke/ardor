@@ -380,6 +380,9 @@ public final class BlockchainImpl implements Blockchain {
             StringBuilder buf = new StringBuilder();
             buildTransactionsSubQuery(true, buf, blockTimestamp, lastBlockTimestamp, type, subtype,
                     withMessage, phasedOnly, nonPhasedOnly, executedOnly, subQueryLimit, true);
+            buf.append("UNION ALL ");
+            buildTransactionsSubQuery(false, buf, blockTimestamp, lastBlockTimestamp, type, subtype,
+                    withMessage, phasedOnly, nonPhasedOnly, executedOnly, subQueryLimit, true);
 
             buf.append("ORDER BY block_timestamp DESC, transaction_index DESC");
             buf.append(DbUtils.limitsClause(from, to));
@@ -390,6 +393,8 @@ public final class BlockchainImpl implements Blockchain {
                     Nxt.getEpochTime() - Constants.MAX_PRUNABLE_LIFETIME :
                     Nxt.getEpochTime() - Constants.MIN_PRUNABLE_LIFETIME);
             i = setTransactionsSubQueryParams(true, pstmt, i, blockTimestamp, lastBlockTimestamp, type, subtype,
+                    withMessage, prunableExpiration, subQueryLimit);
+            i = setTransactionsSubQueryParams(false, pstmt, i, blockTimestamp, lastBlockTimestamp, type, subtype,
                     withMessage, prunableExpiration, subQueryLimit);
             DbUtils.setLimits(++i, pstmt, from, to);
             return getTransactions(childChain, con, pstmt);
