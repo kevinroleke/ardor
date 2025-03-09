@@ -42,32 +42,7 @@ public final class GetRecentBlockchainTransactions extends APIServlet.APIRequest
 
     @Override
     protected JSONStreamAware processRequest(HttpServletRequest req) throws NxtException {
-        int timestamp = ParameterParser.getTimestamp(req);
-        int numberOfConfirmations = ParameterParser.getNumberOfConfirmations(req);
-        boolean withMessage = "true".equalsIgnoreCase(req.getParameter("withMessage"));
-        boolean phasedOnly = "true".equalsIgnoreCase(req.getParameter("phasedOnly"));
-        boolean nonPhasedOnly = "true".equalsIgnoreCase(req.getParameter("nonPhasedOnly"));
-        boolean includeExpiredPrunable = "true".equalsIgnoreCase(req.getParameter("includeExpiredPrunable"));
-        boolean includePhasingResult = "true".equalsIgnoreCase(req.getParameter("includePhasingResult"));
-        boolean executedOnly = "true".equalsIgnoreCase(req.getParameter("executedOnly"));
         Chain chain = ParameterParser.getChain(req);
-
-        byte type;
-        byte subtype;
-        try {
-            type = Byte.parseByte(req.getParameter("type"));
-        } catch (NumberFormatException e) {
-            if (chain instanceof ChildChain) {
-                type = -1;
-            } else {
-                type = 1;
-            }
-        }
-        try {
-            subtype = Byte.parseByte(req.getParameter("subtype"));
-        } catch (NumberFormatException e) {
-            subtype = -1;
-        }
 
         int firstIndex = ParameterParser.getFirstIndex(req);
         int lastIndex = ParameterParser.getLastIndex(req);
@@ -75,18 +50,15 @@ public final class GetRecentBlockchainTransactions extends APIServlet.APIRequest
         JSONArray transactions = new JSONArray();
         if (chain instanceof ChildChain) {
             try (DbIterator<? extends Transaction> iterator =
-                    Nxt.getBlockchain().getTransactions((ChildChain)chain, numberOfConfirmations,
-                            type, subtype, timestamp, withMessage, phasedOnly, nonPhasedOnly, firstIndex, lastIndex,
-                            includeExpiredPrunable, executedOnly)) {
+                    Nxt.getBlockchain().getTransactions((ChildChain)chain, firstIndex, lastIndex)) {
                 while (iterator.hasNext()) {
                     Transaction transaction = iterator.next();
-                    transactions.add(JSONData.transaction(transaction, includePhasingResult));
+                    transactions.add(JSONData.transaction(transaction));
                 }
             }
         } else {
             try (DbIterator<? extends Transaction> iterator =
-                    Nxt.getBlockchain().getTransactions((FxtChain)chain, numberOfConfirmations,
-                            type, subtype, timestamp, firstIndex, lastIndex)) {
+                    Nxt.getBlockchain().getTransactions((FxtChain)chain, firstIndex, lastIndex)) {
                 while (iterator.hasNext()) {
                     Transaction transaction = iterator.next();
                     transactions.add(JSONData.transaction(transaction));
@@ -98,5 +70,4 @@ public final class GetRecentBlockchainTransactions extends APIServlet.APIRequest
         response.put("transactions", transactions);
         return response;
     }
-
 }

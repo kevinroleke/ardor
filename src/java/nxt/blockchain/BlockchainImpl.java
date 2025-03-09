@@ -405,6 +405,42 @@ public final class BlockchainImpl implements Blockchain {
     }
 
     @Override
+    public DbIterator<FxtTransactionImpl> getTransactions(FxtChain chain, int from, int to) {
+        Connection con = null;
+        try {
+            StringBuilder buf = new StringBuilder();
+            buf.append("SELECT transaction_fxt.* FROM transaction_fxt ");
+            buf.append("ORDER BY block_timestamp DESC, transaction_index DESC ");
+            buf.append(DbUtils.limitsClause(from, to));
+            con = Db.db.getConnection(FxtChain.FXT.getDbSchema());
+            PreparedStatement pstmt = con.prepareStatement(buf.toString());
+            DbUtils.setLimits(1, pstmt, from, to);
+            return getTransactions(chain, con, pstmt);
+        } catch (SQLException e) {
+            DbUtils.close(con);
+            throw new RuntimeException(e.toString(), e);
+        }
+    }
+
+    @Override
+    public DbIterator<ChildTransactionImpl> getTransactions(ChildChain chain, int from, int to) {
+        Connection con = null;
+        try {
+            StringBuilder buf = new StringBuilder();
+            buf.append("SELECT transaction.* FROM transaction ");
+            buf.append("ORDER BY block_timestamp DESC, transaction_index DESC ");
+            buf.append(DbUtils.limitsClause(from, to));
+            con = Db.db.getConnection(chain.getDbSchema());
+            PreparedStatement pstmt = con.prepareStatement(buf.toString());
+            DbUtils.setLimits(1, pstmt, from, to);
+            return getTransactions(chain, con, pstmt);
+        } catch (SQLException e) {
+            DbUtils.close(con);
+            throw new RuntimeException(e.toString(), e);
+        }
+    }
+
+    @Override
     public DbIterator<ChildTransactionImpl> getTransactions(ChildChain childChain, long accountId, int numberOfConfirmations, byte type, byte subtype,
                                                        int blockTimestamp, boolean withMessage, boolean phasedOnly, boolean nonPhasedOnly,
                                                        int from, int to, boolean includeExpiredPrunable, boolean executedOnly) {

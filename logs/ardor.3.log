@@ -1,244 +1,258 @@
-2025-02-22 20:00:44 INFO: nxt.enableStackTraces = "true"
-2025-02-22 20:00:44 INFO: nxt.disabledThrowableStackTraces = "{"nxt.NxtException$NotCurrentlyValidException": [ "Invalid bid order", "Block ID at ecBlockHeight" ]}"
-2025-02-22 20:00:44 INFO: nxt.enableLogTraceback = "false"
-2025-02-22 20:00:44 INFO: nxt.enableLogThreadName = "true"
-2025-02-22 20:00:44 INFO: main logging enabled
-2025-02-22 20:00:44 FINE: main java.version = 17.0.13
-2025-02-22 20:00:44 FINE: main java.vm.version = 17.0.13+11-Debian-2deb12u1
-2025-02-22 20:00:44 FINE: main java.vm.name = OpenJDK 64-Bit Server VM
-2025-02-22 20:00:44 FINE: main java.vendor = Debian
-2025-02-22 20:00:44 FINE: main java.vm.vendor = Debian
-2025-02-22 20:00:44 FINE: main java.home = /usr/lib/jvm/java-17-openjdk-amd64
-2025-02-22 20:00:44 FINE: main java.library.path = /usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib
-2025-02-22 20:00:44 FINE: main java.class.path = classes:lib/javax.servlet-api-3.1.0.jar:lib/slf4j-jdk14-1.7.22.jar:lib/purejavahidapi-0.0.10j2.jar:lib/bcpkix-jdk18on-177.jar:lib/jetty-servlets-9.4.56.v20240826.jar:lib/ed25519.jar:lib/weupnp-0.1.4.jar:lib/jetty-continuation-9.4.56.v20240826.jar:lib/core-3.3.0.jar:lib/h2-1.4.200.jar:lib/commons-math3-3.6.1.jar:lib/jetty-client-9.4.56.v20240826.jar:lib/javase-3.3.0.jar:lib/jetty-util-9.4.56.v20240826.jar:lib/commons-cli-1.3.1.jar:lib/tika-core-1.13.jar:lib/joor-java-8-0.9.14.jar:lib/jetty-http-9.4.56.v20240826.jar:lib/json-simple-1.1.1.jar:lib/slf4j-api-1.7.22.jar:lib/tika-parsers-1.13.jar:lib/jna-5.5.0.jar:lib/jetty-io-9.4.56.v20240826.jar:lib/jetty-server-9.4.56.v20240826.jar:lib/bcprov-jdk18on-177.jar:lib/jetty-servlet-9.4.56.v20240826.jar:lib/lucene-queryparser-7.1.0.jar:lib/lucene-core-7.1.0.jar:lib/javapoet-1.11.0.jar:lib/jetty-proxy-9.4.56.v20240826.jar:lib/lucene-queries-7.1.0.jar:lib/jna-platform-5.5.0.jar:lib/bcutil-jdk18on-1.77.jar:lib/jetty-security-9.4.56.v20240826.jar:lib/lucene-analyzers-common-7.1.0.jar:conf:addons/classes:addons/lib/*:javafx-sdk/lib/*
-2025-02-22 20:00:44 FINE: main java.io.tmpdir = /tmp
-2025-02-22 20:00:44 FINE: main os.arch = amd64
-2025-02-22 20:00:44 FINE: main sun.arch.data.model = 64
-2025-02-22 20:00:44 FINE: main os.name = Linux
-2025-02-22 20:00:44 FINE: main file.encoding = UTF-8
-2025-02-22 20:00:44 FINE: main java.security.policy = null
-2025-02-22 20:00:44 FINE: main java.security.manager = null
-2025-02-22 20:00:44 FINE: main java.specification.vendor = Oracle Corporation
-2025-02-22 20:00:44 FINE: main nxt.runtime.mode = null
-2025-02-22 20:00:44 FINE: main nxt.runtime.dirProvider = null
-2025-02-22 20:00:44 FINE: main availableProcessors = 24
-2025-02-22 20:00:44 FINE: main maxMemory = 8346664960
-2025-02-22 20:00:44 FINE: main processId = 191376
-2025-02-22 20:00:44 INFO: main nxt.isTestnet = "false"
-2025-02-22 20:00:44 INFO: main nxt.isOffline = "false"
-2025-02-22 20:00:44 INFO: main nxt.isLightClient = "false"
-2025-02-22 20:00:44 INFO: main nxt.isPermissioned = "false"
-2025-02-22 20:00:44 INFO: main nxt.customLoginWarning not defined
-2025-02-22 20:00:44 INFO: main nxt.forkBaseTargetPercentage = "2000"
-2025-02-22 20:00:44 INFO: main nxt.maxRollback = "800"
-2025-02-22 20:00:44 INFO: main nxt.forgingDelay = "10"
-2025-02-22 20:00:44 INFO: main nxt.forgingSpeedup = "3"
-2025-02-22 20:00:44 INFO: main nxt.numberOfForkConfirmations = "5"
-2025-02-22 20:00:44 INFO: main nxt.batchCommitSize = "100"
-2025-02-22 20:00:44 INFO: main nxt.openApiQueryTimeout = "1"
-2025-02-22 20:00:44 INFO: main nxt.maxPrunableLifetime = "7776000"
-2025-02-22 20:00:44 INFO: main nxt.includeExpiredPrunable = "true"
-2025-02-22 20:00:44 INFO: main nxt.enableLedgerWallet = "true"
-2025-02-22 20:00:44 INFO: main nxt.correctInvalidFees = "false"
-2025-02-22 20:00:44 INFO: main nxt.minBundlerBalanceFXT = "1000"
-2025-02-22 20:00:44 INFO: main nxt.minBundlerFeeLimitFXT = "10"
-2025-02-22 20:00:44 INFO: main nxt.disableFullTextSearch = "false"
-2025-02-22 20:00:44 INFO: main nxt.disableMetadataDetection = "false"
-2025-02-22 20:00:44 INFO: main nxt.statementLogThreshold = "10000"
-2025-02-22 20:00:44 INFO: main nxt.transactionLogThreshold = "15000"
-2025-02-22 20:00:44 INFO: main nxt.transactionLogInterval = "15"
-2025-02-22 20:00:44 INFO: main nxt.dbCacheKB = "0"
-2025-02-22 20:00:44 INFO: main nxt.dbUrl not defined
-2025-02-22 20:00:44 INFO: main nxt.dbType = "h2"
-2025-02-22 20:00:44 INFO: main nxt.dbDir = "./nxt_db/nxt"
-2025-02-22 20:00:44 INFO: main nxt.dbParams = "DB_CLOSE_ON_EXIT=FALSE"
-2025-02-22 20:00:44 INFO: main nxt.dbUsername = "sa"
-2025-02-22 20:00:44 INFO: main nxt.dbPassword = "{not logged}"
-2025-02-22 20:00:44 INFO: main nxt.maxDbConnections = "30"
-2025-02-22 20:00:44 INFO: main nxt.dbLoginTimeout = "70"
-2025-02-22 20:00:44 INFO: main nxt.dbDefaultLockTimeout = "60"
-2025-02-22 20:00:44 INFO: main nxt.dbMaxMemoryRows = "1000000"
-2025-02-22 20:00:44 INFO: main nxt.adminPassword not defined
-2025-02-22 20:00:44 INFO: main nxt.adminPasswordHash not defined
-2025-02-22 20:00:44 INFO: main nxt.maxAPIRecords = "100"
-2025-02-22 20:00:44 INFO: main nxt.enableAPIUPnP = "false"
-2025-02-22 20:00:44 INFO: main nxt.apiServerIdleTimeout = "30000"
-2025-02-22 20:00:44 INFO: main nxt.apiServerCORS = "true"
-2025-02-22 20:00:44 INFO: main nxt.forwardedForHeader not defined
-2025-02-22 20:00:44 INFO: main nxt.allowedBotHosts = "127.0.0.1; localhost; [0:0:0:0:0:0:0:1]; 0:0:0:0:0:0:0:1;"
-2025-02-22 20:00:44 INFO: main nxt.unlimitedBotHosts = "127.0.0.1; localhost; [0:0:0:0:0:0:0:1]; 0:0:0:0:0:0:0:1;"
-2025-02-22 20:00:44 INFO: main nxt.enableAPIServer = "true"
-2025-02-22 20:00:44 INFO: main nxt.apiServerPort = "27876"
-2025-02-22 20:00:44 INFO: main nxt.apiServerSSLPort = "27876"
-2025-02-22 20:00:44 INFO: main nxt.apiServerHost = "127.0.0.1"
-2025-02-22 20:00:44 INFO: main nxt.disableAdminPassword = "false"
-2025-02-22 20:00:44 INFO: main nxt.apiSSL = "false"
-2025-02-22 20:00:44 INFO: main API server using HTTP port 27876
-2025-02-22 20:00:44 INFO: main nxt.apiResourceBase = "./html/www"
-2025-02-22 20:00:44 INFO: main nxt.apiWelcomeFile = "index.html"
-2025-02-22 20:00:44 INFO: main nxt.javadocResourceBase = "./html/doc"
-2025-02-22 20:00:44 INFO: main nxt.maxUploadFileSize = "43008"
-2025-02-22 20:00:44 INFO: main nxt.maxUploadFileSize = "43008"
-2025-02-22 20:00:45 INFO: main nxt.enableAPIServerGZIPFilter not defined, using default false
-2025-02-22 20:00:45 INFO: main nxt.apiFrameOptionsSameOrigin = "true"
-2025-02-22 20:00:45 INFO: main nxt.apiCustomSetupImpl not defined
-2025-02-22 20:00:45 INFO: main nxt.defaultChildBlockDeadline = "10"
-2025-02-22 20:00:45 INFO: main nxt.trimFrequencyMultipliers = "PUBLIC_KEY-5;ALIAS-5"
-2025-02-22 20:00:45 INFO: main nxt.trimDerivedTables = "true"
-2025-02-22 20:00:45 INFO: main nxt.simulateEndlessDownload not defined, using default false
-2025-02-22 20:00:45 INFO: main nxt.trimFrequency = "1000"
-2025-02-22 20:00:45 INFO: main nxt.useStrongSecureRandom = "false"
-2025-02-22 20:00:45 INFO: main trimHeightOffset=923
-2025-02-22 20:00:45 INFO: main nxt.stopDownloadHeight not defined or not numeric, using default value 0
-2025-02-22 20:00:45 INFO: main nxt.disableGetMoreBlocksThread not defined, using default false
-2025-02-22 20:00:45 INFO: main nxt.processPolls = "true"
-2025-02-22 20:00:45 INFO: main nxt.deleteFinishedShufflings = "false"
-2025-02-22 20:00:45 INFO: main nxt.deleteProcessedVotes = "true"
-2025-02-22 20:00:45 FINE: main Database jdbc url set to jdbc:h2:./nxt_db/nxt;DB_CLOSE_ON_EXIT=FALSE;CACHE_SIZE=262144 username sa
-2025-02-22 20:00:45 INFO: main nxt.connectionPoolImpl = "nxt.db.pool.H2ConnectionPool"
-2025-02-22 20:00:45 FINE: main Database connection pool current size: 1
-2025-02-22 20:00:45 INFO: main Database update may take a while if needed, current db version 196...
-2025-02-22 20:00:45 INFO: main Database update may take a while if needed, current db version 171...
-2025-02-22 20:00:45 INFO: main Database update may take a while if needed, current db version 171...
-2025-02-22 20:00:45 INFO: main Database update may take a while if needed, current db version 171...
-2025-02-22 20:00:45 INFO: main Database update may take a while if needed, current db version 171...
-2025-02-22 20:00:45 INFO: main Database update may take a while if needed, current db version 171...
-2025-02-22 20:00:45 INFO: main nxt.enableTransactionRebroadcasting = "true"
-2025-02-22 20:00:45 INFO: main nxt.testUnconfirmedTransactions not defined, using default false
-2025-02-22 20:00:45 INFO: main nxt.maxUnconfirmedTransactions = "1500"
-2025-02-22 20:00:45 INFO: main nxt.droppedTransactionsStoreSize = "150000"
-2025-02-22 20:00:45 INFO: main nxt.disableRebroadcastTransactionsThread not defined, using default false
-2025-02-22 20:00:45 INFO: main nxt.disableRemoveUnconfirmedTransactionsThread not defined, using default false
-2025-02-22 20:00:45 INFO: main nxt.disableProcessWaitingTransactionsThread not defined, using default false
-2025-02-22 20:00:45 INFO: main nxt.enablePublicKeyCache = "true"
-2025-02-22 20:00:45 INFO: main nxt.ledgerTrimKeep = "30000"
-2025-02-22 20:00:45 INFO: main nxt.ledgerAccounts = "*"
-2025-02-22 20:00:45 INFO: main Account ledger is tracking all accounts
-2025-02-22 20:00:45 INFO: main nxt.ledgerLogUnconfirmed = "2"
-2025-02-22 20:00:45 INFO: main nxt.maxNumberOfForgers = "100"
-2025-02-22 20:00:45 INFO: main nxt.enableFakeForging not defined, using default false
-2025-02-22 20:00:45 INFO: main nxt.pauseForgingOnNoConnection = "true"
-2025-02-22 20:00:45 INFO: main nxt.disableGenerateBlocksThread not defined, using default false
-2025-02-22 20:00:45 INFO: main nxt.defaultChildBlockDeadline = "10"
-2025-02-22 20:00:45 INFO: main nxt.bundlingFilter not defined
-2025-02-22 20:00:45 INFO: main nxt.availableBundlingFilters = "nxt.addons.PersonalBundler;nxt.addons.AccountPropertyBundler; nxt.addons.AssetBundler;nxt.addons.CurrencyBundler;nxt.addons.PurchaseBundler; nxt.addons.QuotaBundler; nxt.addons.TransactionTypeBundler; nxt.addons.ManagedAccountsBundler"
-2025-02-22 20:00:45 INFO: main nxt.customBundlingFeeCalculators not defined
-2025-02-22 20:00:45 INFO: main nxt.peerServerPort = "27874"
-2025-02-22 20:00:45 INFO: main nxt.enablePeerUPnP = "true"
-2025-02-22 20:00:45 INFO: main nxt.shareMyAddress = "true"
-2025-02-22 20:00:45 INFO: main nxt.maxNumberOfOutboundConnections = "8"
-2025-02-22 20:00:45 INFO: main nxt.maxNumberOfInboundConnections = "2000"
-2025-02-22 20:00:45 INFO: main nxt.peerConnectTimeout = "10"
-2025-02-22 20:00:45 INFO: main nxt.peerReadTimeout = "20"
-2025-02-22 20:00:45 INFO: main nxt.peerServerHost = "0.0.0.0"
-2025-02-22 20:00:45 INFO: main nxt.myAddress not defined
-2025-02-22 20:00:45 INFO: main nxt.myPlatform not defined
-2025-02-22 20:00:45 INFO: main nxt.blacklistingPeriod = "600"
-2025-02-22 20:00:45 INFO: main nxt.communicationLogging = "0"
-2025-02-22 20:00:45 INFO: main nxt.getMorePeers = "true"
-2025-02-22 20:00:45 INFO: main nxt.maxNumberOfKnownPeers = "2000"
-2025-02-22 20:00:45 INFO: main nxt.minNumberOfKnownPeers = "1000"
-2025-02-22 20:00:45 INFO: main nxt.usePeersDb = "true"
-2025-02-22 20:00:45 INFO: main nxt.savePeers = "true"
-2025-02-22 20:00:45 INFO: main nxt.preventLocalPeersConnection = "true"
-2025-02-22 20:00:45 INFO: main nxt.hideErrorDetails = "false"
-2025-02-22 20:00:45 INFO: main nxt.ignorePeerAnnouncedAddress = "false"
-2025-02-22 20:00:45 INFO: main nxt.blacklistedBundlerAccounts not defined
-2025-02-22 20:00:45 INFO: main nxt.credentials.secretPhrase not defined
-2025-02-22 20:00:45 INFO: main nxt.wellKnownPeers not defined
-2025-02-22 20:00:45 INFO: main nxt.knownBlacklistedPeers not defined
-2025-02-22 20:00:45 INFO: main nxt.defaultPeers = "89.117.226.11; 79.167.210.8; 208.53.32.26; node6.ardor.tools; 23.94.198.19; 104.168.9.83; 143.198.115.239; 192.241.139.29; 174.138.39.150; 211.196.230.198; 147.182.219.219; 109.235.71.183; ardor01.jelurida.com; 107.172.92.53; 167.71.19.245; ardor.crypto.sargue.net; 107.173.25.171; ardor28.y.cz; 49.242.223.251; 133.242.182.65; racknerd-39.ardornxt.eu; 134.122.25.231; 198.12.83.179; 142.4.212.42; 206.189.239.184; 198.23.137.126; 118.220.113.117; 89.233.108.246; 147.182.211.245; 192.210.197.142; 172.245.6.129; 134.209.67.35; 107.175.91.183; racknerd-06.ardornxt.eu; 188.137.61.53; racknerd-30.ardornxt.eu; 206.189.224.203; 198.46.226.67; 157.230.7.216; 192.241.145.150; racknerd-31.ardornxt.eu; 143.244.172.31; 104.236.13.102; racknerd-07.ardornxt.eu; 134.122.21.172; 172.245.6.126; 116.89.106.233; 209.209.11.103; 143.244.163.171; 87.99.19.190; 24.144.120.224; racknerd-05.ardornxt.eu; 176.223.143.237; 87.103.245.205; 152.42.250.226; 194.135.82.50; 144.76.69.121; 31.208.53.143; 159.223.96.248; 178.128.153.182; cntb-01.ardornxt.eu; 176.123.4.157; 133.125.40.137; 176.223.132.54; 152.42.246.167; 188.165.226.46; 143.198.118.174; 107.175.172.73; alfred.airdns.org:40592; bg5000.mooo.com:37874; racknerd-09.ardornxt.eu; 108.174.57.6; racknerd-19.ardornxt.eu; 216.15.21.83; 107.173.165.83; ardor04.jelurida.com; 185.215.180.70; 150.230.46.59; 84.247.145.20; 142.93.156.135; 198.23.233.119; 159.223.151.46; 192.3.53.146; 220.75.255.246; 142.93.146.47; 192.81.218.122; 64.23.171.128; 172.105.207.97; 157.245.130.139; 178.128.161.137; racknerd-28.ardornxt.eu; doom-ardo-node-02.cryptonet.waw.pl; ardor33.y.cz; 217.73.196.44; 89.47.161.249; jill.airdns.org:37874; 152.42.179.59; ardor02.jelurida.com; 146.190.160.19; ardor.treecycle.ch; racknerd-14.ardornxt.eu; 176.223.136.245; 147.182.219.126; 161.35.132.42; 104.168.22.83; 137.184.23.239; 92.29.227.236; 188.166.161.179; 167.71.28.44; borg.airdns.org:55874; 167.172.239.123; 107.174.88.114; 192.3.249.139; 167.71.41.44; 176.53.160.56; 178.128.147.222; cntb-02.ardornxt.eu; 217.61.105.135; 161.35.2.0; 68.183.206.214; 165.227.95.37; node2.ardor.tools; 14.52.126.48; 192.3.62.222; 192.227.193.55; 108.170.40.2; 206.189.232.90; 80.208.231.180; 172.245.6.128; 18.183.34.173; ardor.nftmagic.art; ardor.blockfrikis.com; 107.174.121.188; 192.210.141.39; 75.127.9.167; 165.227.83.155; 49.212.156.13; 108.227.62.195; 134.209.65.140; 94.176.232.209; 185.189.229.123; racknerd-22.ardornxt.eu; 104.168.22.239; 157.230.61.216; 192.210.213.122; smallcat.chickenkiller.com:37874; 89.117.217.173; 198.46.152.53; 167.172.166.114; 157.230.8.130; 134.122.126.97; 143.198.36.18; 137.184.135.254; 134.209.122.174; 137.184.213.97; 3.112.34.90; wohnung.tzo.com; ardor03.jelurida.com; 46.101.119.241; ardor9.y.cz; aga-ardo-node-01.cryptonet.waw.pl; 188.166.109.46; 45.27.73.200; node7.ardor.tools; 107.174.121.185; 159.223.137.238; 198.23.137.124; racknerd-08.ardornxt.eu; 23.94.49.204; 188.166.255.128; 209.209.8.188; 161.35.110.156; 107.172.21.159; 142.93.150.133; 107.173.41.154; ardor27.y.cz; 167.172.142.237; littlecreek-04.ardornxt.eu; littlecreek-02.ardornxt.eu; littlecreek-01.ardornxt.eu;"
-2025-02-22 20:00:45 INFO: main nxt.disablePeerUnBlacklistingThread not defined, using default false
-2025-02-22 20:00:45 INFO: main nxt.disablePeerConnectingThread not defined, using default false
-2025-02-22 20:00:45 INFO: main nxt.disableGetMorePeersThread not defined, using default false
-2025-02-22 20:00:45 INFO: main nxt.disableUpdatePeerDbThread not defined, using default false
-2025-02-22 20:00:45 INFO: main nxt.enableAPIProxy = "true"
-2025-02-22 20:00:45 INFO: main nxt.apiProxyBlacklistingPeriod = "7200"
-2025-02-22 20:00:45 INFO: main nxt.forceAPIProxyServerURL not defined
-2025-02-22 20:00:45 INFO: main nxt.proxyBootstrapNodes = "ardor.jelurida.com;"
-2025-02-22 20:00:45 INFO: main nxt.disableAPIProxyPeersUpdateThread not defined, using default false
-2025-02-22 20:00:45 INFO: main nxt.addOns not defined
-2025-02-22 20:00:45 INFO: main nxt.debugTraceQuote = """
-2025-02-22 20:00:45 INFO: main nxt.debugTraceSeparator = "	"
-2025-02-22 20:00:45 INFO: main nxt.debugLogUnconfirmed = "false"
-2025-02-22 20:00:45 INFO: main nxt.debugTraceAccounts not defined
-2025-02-22 20:00:45 INFO: main nxt.debugTraceLog = "nxt-trace.csv"
-2025-02-22 20:00:45 FINE: main Running 2 tasks...
-2025-02-22 20:00:45 FINE: Thread-3 Loading known peers from the database...
-2025-02-22 20:00:45 FINE: Thread-3 Database connection pool current size: 2
-2025-02-22 20:00:46 WARNING: Thread-2 Column in position 2 in SHUFFLING_ID_HEIGHT_IDX is 'HEIGHT' instead of 'FULL_HASH'. Fast trimming is disabled for table IGNIS.SHUFFLING
-2025-02-22 20:00:46 WARNING: Thread-2 Column in position 2 in SHUFFLING_ID_HEIGHT_IDX is 'HEIGHT' instead of 'FULL_HASH'. Fast trimming is disabled for table AEUR.SHUFFLING
-2025-02-22 20:00:46 WARNING: Thread-2 Column in position 2 in SHUFFLING_ID_HEIGHT_IDX is 'HEIGHT' instead of 'FULL_HASH'. Fast trimming is disabled for table BITSWIFT.SHUFFLING
-2025-02-22 20:00:46 WARNING: Thread-2 Column in position 2 in SHUFFLING_ID_HEIGHT_IDX is 'HEIGHT' instead of 'FULL_HASH'. Fast trimming is disabled for table MPG.SHUFFLING
-2025-02-22 20:00:46 WARNING: Thread-2 Column in position 2 in SHUFFLING_ID_HEIGHT_IDX is 'HEIGHT' instead of 'FULL_HASH'. Fast trimming is disabled for table GPS.SHUFFLING
-2025-02-22 20:00:46 WARNING: Thread-2 Column CHILD_CHAIN_ID in PUBLIC.HOLDING_MIGRATE is not BIGINT. Fast trimming is disabled
-2025-02-22 20:00:46 INFO: Thread-2 Genesis block already in database
-2025-02-22 20:00:46 FINE: Thread-2 Will pop-off block 956702880173379604
-2025-02-22 20:00:46 FINE: Thread-2 Deleting blocks starting from height 1216868
-2025-02-22 20:00:46 FINE: Thread-2 Average database transaction time is 0.008 seconds
-2025-02-22 20:00:46 FINE: Thread-2 Rollback from block 956702880173379604 at height 1216868 to 12919808239427747906 at 1216867
-2025-02-22 20:00:46 INFO: Thread-2 Last block height: 1216867
-2025-02-22 20:00:46 INFO: Thread-2 nxt.forceScan = "false"
-2025-02-22 20:00:46 FINE: main Running 1 final tasks...
-2025-02-22 20:00:46 INFO: Thread-4 nxt.apiServerEnforcePOST = "true"
-2025-02-22 20:00:46 INFO: Thread-4 nxt.apiFixResponseContentType = "false"
-2025-02-22 20:00:46 INFO: Thread-4 nxt.disabledAPIs not defined
-2025-02-22 20:00:46 INFO: Thread-4 nxt.disabledAPITags not defined
-2025-02-22 20:00:46 INFO: Thread-4 Started API server at 127.0.0.1:27876
-2025-02-22 20:00:46 FINE: main Starting 10 background jobs
-2025-02-22 20:00:46 FINE: main Starting 3 delayed tasks
-2025-02-22 20:00:46 FINE: pool-3-thread-10 Database connection pool current size: 3
-2025-02-22 20:00:46 INFO: Thread-21 Looking for UPnP gateway device...
-2025-02-22 20:00:46 INFO: Thread-21 nxt.upnpGatewayTimeout = "7000"
-2025-02-22 20:00:46 INFO: main nxt.runtime.mode not defined
-2025-02-22 20:00:46 INFO: main nxt.launchDesktopApplication = "true"
-2025-02-22 20:00:46 INFO: main Desktop application isDesktopEnabled:false, isLaunchDesktopApplication:true, hasJavaFX:false
-2025-02-22 20:00:46 INFO: main Desktop application is disabled
-2025-02-22 20:00:46 INFO: main Initialization took 1 seconds
-2025-02-22 20:00:46 INFO: main Ardor server 2.5.1 started successfully.
-2025-02-22 20:00:46 INFO: Thread-21 nxt.upnpDiscoverTimeout = "3000"
-2025-02-22 20:00:46 INFO: main Copyright © 2013-2016 The Nxt Core Developers.
-2025-02-22 20:00:46 INFO: main Copyright © 2016-2023 Jelurida IP B.V.
-2025-02-22 20:00:46 INFO: main Copyright © 2023-2024 Jelurida Swiss SA
-2025-02-22 20:00:46 INFO: main Distributed under the Jelurida Public License version 1.3 for the Ardor Public Blockchain Platform, with ABSOLUTELY NO WARRANTY.
-2025-02-22 20:00:46 INFO: main Client UI is at http://localhost:27876/index.html
-2025-02-22 20:00:47 FINE: Thread-23 Known peers: 303
-2025-02-22 20:00:55 FINE: Thread-21 There are no UPnP gateway devices
-2025-02-22 20:00:55 FINE: Network Listener Network listener started
-2025-02-22 20:00:55 FINE: Message Handler 1 Message Handler 1 started
-2025-02-22 20:00:55 FINE: Message Handler 4 Message Handler 4 started
-2025-02-22 20:00:55 FINE: Message Handler 3 Message Handler 3 started
-2025-02-22 20:00:55 FINE: Message Handler 2 Message Handler 2 started
-2025-02-22 20:00:55 FINE: Thread-28 Proxy trying to connect to 188.137.61.53
-2025-02-22 20:00:55 INFO: Network Listener Connection to 188.137.61.53 completed
-2025-02-22 20:00:56 FINE: Message Handler 1 Handshake complete with 188.137.61.53
-2025-02-22 20:00:56 FINE: Message Handler 4 Ignoring bundler rate for chain GPS (6)
-2025-02-22 20:00:56 FINE: Message Handler 4 Bundler account 5388336047026650204 does not exist
-2025-02-22 20:00:56 FINE: Message Handler 4 Relaying bundler rates from 188.137.61.53
-2025-02-22 20:00:58 FINE: Thread-28 Proxy bootstrap complete, known peer 188.137.61.53 is connected
-2025-02-22 20:01:01 FINE: pool-3-thread-4 Broadcasting blockchain state change from UP_TO_DATE to DOWNLOADING
-2025-02-22 20:01:01 INFO: Network Listener Connection to 192.210.197.142 completed
-2025-02-22 20:01:01 FINE: Network Listener Outbound connect failed to complete: Connection refused
-2025-02-22 20:01:01 FINE: Network Listener Outbound connect failed to complete: Connection refused
-2025-02-22 20:01:01 INFO: pool-2-thread-13 Connection to 147.182.211.245 failed to complete, disconnecting
-2025-02-22 20:01:01 INFO: pool-2-thread-22 Connection to 159.223.137.238 failed to complete, disconnecting
-2025-02-22 20:01:01 INFO: Network Listener Connection to 192.3.249.139 completed
-2025-02-22 20:01:01 INFO: Network Listener Connection to 107.172.180.131 completed
-2025-02-22 20:01:01 INFO: Network Listener Connection to 185.160.169.65 completed
-2025-02-22 20:01:01 FINE: Message Handler 1 Handshake complete with 192.3.249.139
-2025-02-22 20:01:01 FINE: Message Handler 3 Handshake complete with 185.160.169.65
-2025-02-22 20:01:01 FINE: Message Handler 4 Ignoring bundler rate for chain GPS (6)
-2025-02-22 20:01:01 FINE: Message Handler 4 Bundler account 5388336047026650204 does not exist
-2025-02-22 20:01:01 FINE: Message Handler 1 Ignoring bundler rate for chain GPS (6)
-2025-02-22 20:01:01 FINE: Message Handler 1 Bundler account 5388336047026650204 does not exist
-2025-02-22 20:01:01 FINE: Message Handler 2 Handshake complete with 192.210.197.142
-2025-02-22 20:01:01 FINE: Message Handler 3 Ignoring bundler rate for chain GPS (6)
-2025-02-22 20:01:01 FINE: Message Handler 3 Bundler account 5388336047026650204 does not exist
-2025-02-22 20:01:07 INFO: pool-3-thread-4 Blockchain download in progress
-2025-02-22 20:01:10 FINE: qtp1577213552-135 Error processing API request
-java.lang.RuntimeException: org.h2.jdbc.JdbcSQLDataException: Invalid value "3" for parameter "parameterIndex" [90008-200]
-	at nxt.blockchain.BlockchainImpl.getTransactions(BlockchainImpl.java:398)
-	at nxt.http.GetRecentBlockchainTransactions.processRequest(GetRecentBlockchainTransactions.java:78)
+2025-03-09 13:12:01 INFO: nxt.enableStackTraces = "true"
+2025-03-09 13:12:01 INFO: nxt.disabledThrowableStackTraces = "{"nxt.NxtException$NotCurrentlyValidException": [ "Invalid bid order", "Block ID at ecBlockHeight" ]}"
+2025-03-09 13:12:01 INFO: nxt.enableLogTraceback = "false"
+2025-03-09 13:12:01 INFO: nxt.enableLogThreadName = "true"
+2025-03-09 13:12:01 INFO: main logging enabled
+2025-03-09 13:12:01 FINE: main java.version = 17.0.13
+2025-03-09 13:12:01 FINE: main java.vm.version = 17.0.13+11-Debian-2deb12u1
+2025-03-09 13:12:01 FINE: main java.vm.name = OpenJDK 64-Bit Server VM
+2025-03-09 13:12:01 FINE: main java.vendor = Debian
+2025-03-09 13:12:01 FINE: main java.vm.vendor = Debian
+2025-03-09 13:12:01 FINE: main java.home = /usr/lib/jvm/java-17-openjdk-amd64
+2025-03-09 13:12:01 FINE: main java.library.path = /usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib
+2025-03-09 13:12:01 FINE: main java.class.path = classes:lib/javax.servlet-api-3.1.0.jar:lib/slf4j-jdk14-1.7.22.jar:lib/purejavahidapi-0.0.10j2.jar:lib/bcpkix-jdk18on-177.jar:lib/jetty-servlets-9.4.56.v20240826.jar:lib/ed25519.jar:lib/weupnp-0.1.4.jar:lib/jetty-continuation-9.4.56.v20240826.jar:lib/core-3.3.0.jar:lib/h2-1.4.200.jar:lib/commons-math3-3.6.1.jar:lib/jetty-client-9.4.56.v20240826.jar:lib/javase-3.3.0.jar:lib/jetty-util-9.4.56.v20240826.jar:lib/commons-cli-1.3.1.jar:lib/tika-core-1.13.jar:lib/joor-java-8-0.9.14.jar:lib/jetty-http-9.4.56.v20240826.jar:lib/json-simple-1.1.1.jar:lib/slf4j-api-1.7.22.jar:lib/tika-parsers-1.13.jar:lib/jna-5.5.0.jar:lib/jetty-io-9.4.56.v20240826.jar:lib/jetty-server-9.4.56.v20240826.jar:lib/bcprov-jdk18on-177.jar:lib/jetty-servlet-9.4.56.v20240826.jar:lib/lucene-queryparser-7.1.0.jar:lib/lucene-core-7.1.0.jar:lib/javapoet-1.11.0.jar:lib/jetty-proxy-9.4.56.v20240826.jar:lib/lucene-queries-7.1.0.jar:lib/jna-platform-5.5.0.jar:lib/bcutil-jdk18on-1.77.jar:lib/jetty-security-9.4.56.v20240826.jar:lib/lucene-analyzers-common-7.1.0.jar:conf:addons/classes:addons/lib/*:javafx-sdk/lib/*
+2025-03-09 13:12:01 FINE: main java.io.tmpdir = /tmp
+2025-03-09 13:12:01 FINE: main os.arch = amd64
+2025-03-09 13:12:01 FINE: main sun.arch.data.model = 64
+2025-03-09 13:12:01 FINE: main os.name = Linux
+2025-03-09 13:12:01 FINE: main file.encoding = UTF-8
+2025-03-09 13:12:01 FINE: main java.security.policy = null
+2025-03-09 13:12:01 FINE: main java.security.manager = null
+2025-03-09 13:12:01 FINE: main java.specification.vendor = Oracle Corporation
+2025-03-09 13:12:01 FINE: main nxt.runtime.mode = null
+2025-03-09 13:12:01 FINE: main nxt.runtime.dirProvider = null
+2025-03-09 13:12:01 FINE: main availableProcessors = 24
+2025-03-09 13:12:01 FINE: main maxMemory = 8346664960
+2025-03-09 13:12:01 FINE: main processId = 398237
+2025-03-09 13:12:01 INFO: main nxt.isTestnet = "false"
+2025-03-09 13:12:01 INFO: main nxt.isOffline = "false"
+2025-03-09 13:12:01 INFO: main nxt.isLightClient = "false"
+2025-03-09 13:12:01 INFO: main nxt.isPermissioned = "false"
+2025-03-09 13:12:01 INFO: main nxt.customLoginWarning not defined
+2025-03-09 13:12:01 INFO: main nxt.forkBaseTargetPercentage = "2000"
+2025-03-09 13:12:01 INFO: main nxt.maxRollback = "800"
+2025-03-09 13:12:01 INFO: main nxt.forgingDelay = "10"
+2025-03-09 13:12:01 INFO: main nxt.forgingSpeedup = "3"
+2025-03-09 13:12:01 INFO: main nxt.numberOfForkConfirmations = "5"
+2025-03-09 13:12:01 INFO: main nxt.batchCommitSize = "100"
+2025-03-09 13:12:01 INFO: main nxt.openApiQueryTimeout = "1"
+2025-03-09 13:12:01 INFO: main nxt.maxPrunableLifetime = "7776000"
+2025-03-09 13:12:01 INFO: main nxt.includeExpiredPrunable = "true"
+2025-03-09 13:12:01 INFO: main nxt.enableLedgerWallet = "true"
+2025-03-09 13:12:01 INFO: main nxt.correctInvalidFees = "false"
+2025-03-09 13:12:01 INFO: main nxt.minBundlerBalanceFXT = "1000"
+2025-03-09 13:12:01 INFO: main nxt.minBundlerFeeLimitFXT = "10"
+2025-03-09 13:12:01 INFO: main nxt.disableFullTextSearch = "false"
+2025-03-09 13:12:01 INFO: main nxt.disableMetadataDetection = "false"
+2025-03-09 13:12:01 INFO: main nxt.statementLogThreshold = "10000"
+2025-03-09 13:12:01 INFO: main nxt.transactionLogThreshold = "15000"
+2025-03-09 13:12:01 INFO: main nxt.transactionLogInterval = "15"
+2025-03-09 13:12:01 INFO: main nxt.dbCacheKB = "0"
+2025-03-09 13:12:01 INFO: main nxt.dbUrl not defined
+2025-03-09 13:12:01 INFO: main nxt.dbType = "h2"
+2025-03-09 13:12:01 INFO: main nxt.dbDir = "./nxt_db/nxt"
+2025-03-09 13:12:01 INFO: main nxt.dbParams = "DB_CLOSE_ON_EXIT=FALSE"
+2025-03-09 13:12:01 INFO: main nxt.dbUsername = "sa"
+2025-03-09 13:12:01 INFO: main nxt.dbPassword = "{not logged}"
+2025-03-09 13:12:01 INFO: main nxt.maxDbConnections = "30"
+2025-03-09 13:12:01 INFO: main nxt.dbLoginTimeout = "70"
+2025-03-09 13:12:01 INFO: main nxt.dbDefaultLockTimeout = "60"
+2025-03-09 13:12:01 INFO: main nxt.dbMaxMemoryRows = "1000000"
+2025-03-09 13:12:01 INFO: main nxt.adminPassword not defined
+2025-03-09 13:12:01 INFO: main nxt.adminPasswordHash not defined
+2025-03-09 13:12:01 INFO: main nxt.maxAPIRecords = "100"
+2025-03-09 13:12:01 INFO: main nxt.enableAPIUPnP = "false"
+2025-03-09 13:12:01 INFO: main nxt.apiServerIdleTimeout = "30000"
+2025-03-09 13:12:01 INFO: main nxt.apiServerCORS = "true"
+2025-03-09 13:12:01 INFO: main nxt.forwardedForHeader not defined
+2025-03-09 13:12:01 INFO: main nxt.allowedBotHosts = "127.0.0.1; localhost; [0:0:0:0:0:0:0:1]; 0:0:0:0:0:0:0:1;"
+2025-03-09 13:12:01 INFO: main nxt.unlimitedBotHosts = "127.0.0.1; localhost; [0:0:0:0:0:0:0:1]; 0:0:0:0:0:0:0:1;"
+2025-03-09 13:12:01 INFO: main nxt.enableAPIServer = "true"
+2025-03-09 13:12:01 INFO: main nxt.apiServerPort = "27876"
+2025-03-09 13:12:01 INFO: main nxt.apiServerSSLPort = "27876"
+2025-03-09 13:12:01 INFO: main nxt.apiServerHost = "127.0.0.1"
+2025-03-09 13:12:01 INFO: main nxt.disableAdminPassword = "false"
+2025-03-09 13:12:01 INFO: main nxt.apiSSL = "false"
+2025-03-09 13:12:02 INFO: main API server using HTTP port 27876
+2025-03-09 13:12:02 INFO: main nxt.apiResourceBase = "./html/www"
+2025-03-09 13:12:02 INFO: main nxt.apiWelcomeFile = "index.html"
+2025-03-09 13:12:02 INFO: main nxt.javadocResourceBase = "./html/doc"
+2025-03-09 13:12:02 INFO: main nxt.maxUploadFileSize = "43008"
+2025-03-09 13:12:02 INFO: main nxt.maxUploadFileSize = "43008"
+2025-03-09 13:12:02 INFO: main nxt.enableAPIServerGZIPFilter not defined, using default false
+2025-03-09 13:12:02 INFO: main nxt.apiFrameOptionsSameOrigin = "true"
+2025-03-09 13:12:02 INFO: main nxt.apiCustomSetupImpl not defined
+2025-03-09 13:12:02 INFO: main nxt.defaultChildBlockDeadline = "10"
+2025-03-09 13:12:02 INFO: main nxt.trimFrequencyMultipliers = "PUBLIC_KEY-5;ALIAS-5"
+2025-03-09 13:12:02 INFO: main nxt.trimDerivedTables = "true"
+2025-03-09 13:12:02 INFO: main nxt.simulateEndlessDownload not defined, using default false
+2025-03-09 13:12:02 INFO: main nxt.trimFrequency = "1000"
+2025-03-09 13:12:02 INFO: main nxt.useStrongSecureRandom = "false"
+2025-03-09 13:12:02 INFO: main trimHeightOffset=241
+2025-03-09 13:12:02 INFO: main nxt.stopDownloadHeight not defined or not numeric, using default value 0
+2025-03-09 13:12:02 INFO: main nxt.disableGetMoreBlocksThread not defined, using default false
+2025-03-09 13:12:02 INFO: main nxt.processPolls = "true"
+2025-03-09 13:12:02 INFO: main nxt.deleteFinishedShufflings = "false"
+2025-03-09 13:12:02 INFO: main nxt.deleteProcessedVotes = "true"
+2025-03-09 13:12:02 FINE: main Database jdbc url set to jdbc:h2:./nxt_db/nxt;DB_CLOSE_ON_EXIT=FALSE;CACHE_SIZE=262144 username sa
+2025-03-09 13:12:02 INFO: main nxt.connectionPoolImpl = "nxt.db.pool.H2ConnectionPool"
+2025-03-09 13:12:02 FINE: main Database connection pool current size: 1
+2025-03-09 13:12:02 INFO: main Database update may take a while if needed, current db version 196...
+2025-03-09 13:12:02 INFO: main Database update may take a while if needed, current db version 171...
+2025-03-09 13:12:02 INFO: main Database update may take a while if needed, current db version 171...
+2025-03-09 13:12:02 INFO: main Database update may take a while if needed, current db version 171...
+2025-03-09 13:12:02 INFO: main Database update may take a while if needed, current db version 171...
+2025-03-09 13:12:02 INFO: main Database update may take a while if needed, current db version 171...
+2025-03-09 13:12:02 INFO: main nxt.enableTransactionRebroadcasting = "true"
+2025-03-09 13:12:02 INFO: main nxt.testUnconfirmedTransactions not defined, using default false
+2025-03-09 13:12:02 INFO: main nxt.maxUnconfirmedTransactions = "1500"
+2025-03-09 13:12:02 INFO: main nxt.droppedTransactionsStoreSize = "150000"
+2025-03-09 13:12:02 INFO: main nxt.disableRebroadcastTransactionsThread not defined, using default false
+2025-03-09 13:12:02 INFO: main nxt.disableRemoveUnconfirmedTransactionsThread not defined, using default false
+2025-03-09 13:12:02 INFO: main nxt.disableProcessWaitingTransactionsThread not defined, using default false
+2025-03-09 13:12:02 INFO: main nxt.enablePublicKeyCache = "true"
+2025-03-09 13:12:02 INFO: main nxt.ledgerTrimKeep = "30000"
+2025-03-09 13:12:02 INFO: main nxt.ledgerAccounts = "*"
+2025-03-09 13:12:02 INFO: main Account ledger is tracking all accounts
+2025-03-09 13:12:02 INFO: main nxt.ledgerLogUnconfirmed = "2"
+2025-03-09 13:12:02 INFO: main nxt.maxNumberOfForgers = "100"
+2025-03-09 13:12:02 INFO: main nxt.enableFakeForging not defined, using default false
+2025-03-09 13:12:02 INFO: main nxt.pauseForgingOnNoConnection = "true"
+2025-03-09 13:12:02 INFO: main nxt.disableGenerateBlocksThread not defined, using default false
+2025-03-09 13:12:02 INFO: main nxt.defaultChildBlockDeadline = "10"
+2025-03-09 13:12:02 INFO: main nxt.bundlingFilter not defined
+2025-03-09 13:12:02 INFO: main nxt.availableBundlingFilters = "nxt.addons.PersonalBundler;nxt.addons.AccountPropertyBundler; nxt.addons.AssetBundler;nxt.addons.CurrencyBundler;nxt.addons.PurchaseBundler; nxt.addons.QuotaBundler; nxt.addons.TransactionTypeBundler; nxt.addons.ManagedAccountsBundler"
+2025-03-09 13:12:02 INFO: main nxt.customBundlingFeeCalculators not defined
+2025-03-09 13:12:02 INFO: main nxt.peerServerPort = "27874"
+2025-03-09 13:12:02 INFO: main nxt.enablePeerUPnP = "true"
+2025-03-09 13:12:02 INFO: main nxt.shareMyAddress = "true"
+2025-03-09 13:12:02 INFO: main nxt.maxNumberOfOutboundConnections = "8"
+2025-03-09 13:12:02 INFO: main nxt.maxNumberOfInboundConnections = "2000"
+2025-03-09 13:12:02 INFO: main nxt.peerConnectTimeout = "10"
+2025-03-09 13:12:02 INFO: main nxt.peerReadTimeout = "20"
+2025-03-09 13:12:02 INFO: main nxt.peerServerHost = "0.0.0.0"
+2025-03-09 13:12:02 INFO: main nxt.myAddress not defined
+2025-03-09 13:12:02 INFO: main nxt.myPlatform not defined
+2025-03-09 13:12:02 INFO: main nxt.blacklistingPeriod = "600"
+2025-03-09 13:12:02 INFO: main nxt.communicationLogging = "0"
+2025-03-09 13:12:02 INFO: main nxt.getMorePeers = "true"
+2025-03-09 13:12:02 INFO: main nxt.maxNumberOfKnownPeers = "2000"
+2025-03-09 13:12:02 INFO: main nxt.minNumberOfKnownPeers = "1000"
+2025-03-09 13:12:02 INFO: main nxt.usePeersDb = "true"
+2025-03-09 13:12:02 INFO: main nxt.savePeers = "true"
+2025-03-09 13:12:02 INFO: main nxt.preventLocalPeersConnection = "true"
+2025-03-09 13:12:02 INFO: main nxt.hideErrorDetails = "false"
+2025-03-09 13:12:02 INFO: main nxt.ignorePeerAnnouncedAddress = "false"
+2025-03-09 13:12:02 INFO: main nxt.blacklistedBundlerAccounts not defined
+2025-03-09 13:12:02 INFO: main nxt.credentials.secretPhrase not defined
+2025-03-09 13:12:02 INFO: main nxt.wellKnownPeers not defined
+2025-03-09 13:12:02 INFO: main nxt.knownBlacklistedPeers not defined
+2025-03-09 13:12:02 INFO: main nxt.defaultPeers = "89.117.226.11; 79.167.210.8; 208.53.32.26; node6.ardor.tools; 23.94.198.19; 104.168.9.83; 143.198.115.239; 192.241.139.29; 174.138.39.150; 211.196.230.198; 147.182.219.219; 109.235.71.183; ardor01.jelurida.com; 107.172.92.53; 167.71.19.245; ardor.crypto.sargue.net; 107.173.25.171; ardor28.y.cz; 49.242.223.251; 133.242.182.65; racknerd-39.ardornxt.eu; 134.122.25.231; 198.12.83.179; 142.4.212.42; 206.189.239.184; 198.23.137.126; 118.220.113.117; 89.233.108.246; 147.182.211.245; 192.210.197.142; 172.245.6.129; 134.209.67.35; 107.175.91.183; racknerd-06.ardornxt.eu; 188.137.61.53; racknerd-30.ardornxt.eu; 206.189.224.203; 198.46.226.67; 157.230.7.216; 192.241.145.150; racknerd-31.ardornxt.eu; 143.244.172.31; 104.236.13.102; racknerd-07.ardornxt.eu; 134.122.21.172; 172.245.6.126; 116.89.106.233; 209.209.11.103; 143.244.163.171; 87.99.19.190; 24.144.120.224; racknerd-05.ardornxt.eu; 176.223.143.237; 87.103.245.205; 152.42.250.226; 194.135.82.50; 144.76.69.121; 31.208.53.143; 159.223.96.248; 178.128.153.182; cntb-01.ardornxt.eu; 176.123.4.157; 133.125.40.137; 176.223.132.54; 152.42.246.167; 188.165.226.46; 143.198.118.174; 107.175.172.73; alfred.airdns.org:40592; bg5000.mooo.com:37874; racknerd-09.ardornxt.eu; 108.174.57.6; racknerd-19.ardornxt.eu; 216.15.21.83; 107.173.165.83; ardor04.jelurida.com; 185.215.180.70; 150.230.46.59; 84.247.145.20; 142.93.156.135; 198.23.233.119; 159.223.151.46; 192.3.53.146; 220.75.255.246; 142.93.146.47; 192.81.218.122; 64.23.171.128; 172.105.207.97; 157.245.130.139; 178.128.161.137; racknerd-28.ardornxt.eu; doom-ardo-node-02.cryptonet.waw.pl; ardor33.y.cz; 217.73.196.44; 89.47.161.249; jill.airdns.org:37874; 152.42.179.59; ardor02.jelurida.com; 146.190.160.19; ardor.treecycle.ch; racknerd-14.ardornxt.eu; 176.223.136.245; 147.182.219.126; 161.35.132.42; 104.168.22.83; 137.184.23.239; 92.29.227.236; 188.166.161.179; 167.71.28.44; borg.airdns.org:55874; 167.172.239.123; 107.174.88.114; 192.3.249.139; 167.71.41.44; 176.53.160.56; 178.128.147.222; cntb-02.ardornxt.eu; 217.61.105.135; 161.35.2.0; 68.183.206.214; 165.227.95.37; node2.ardor.tools; 14.52.126.48; 192.3.62.222; 192.227.193.55; 108.170.40.2; 206.189.232.90; 80.208.231.180; 172.245.6.128; 18.183.34.173; ardor.nftmagic.art; ardor.blockfrikis.com; 107.174.121.188; 192.210.141.39; 75.127.9.167; 165.227.83.155; 49.212.156.13; 108.227.62.195; 134.209.65.140; 94.176.232.209; 185.189.229.123; racknerd-22.ardornxt.eu; 104.168.22.239; 157.230.61.216; 192.210.213.122; smallcat.chickenkiller.com:37874; 89.117.217.173; 198.46.152.53; 167.172.166.114; 157.230.8.130; 134.122.126.97; 143.198.36.18; 137.184.135.254; 134.209.122.174; 137.184.213.97; 3.112.34.90; wohnung.tzo.com; ardor03.jelurida.com; 46.101.119.241; ardor9.y.cz; aga-ardo-node-01.cryptonet.waw.pl; 188.166.109.46; 45.27.73.200; node7.ardor.tools; 107.174.121.185; 159.223.137.238; 198.23.137.124; racknerd-08.ardornxt.eu; 23.94.49.204; 188.166.255.128; 209.209.8.188; 161.35.110.156; 107.172.21.159; 142.93.150.133; 107.173.41.154; ardor27.y.cz; 167.172.142.237; littlecreek-04.ardornxt.eu; littlecreek-02.ardornxt.eu; littlecreek-01.ardornxt.eu;"
+2025-03-09 13:12:02 INFO: main nxt.disablePeerUnBlacklistingThread not defined, using default false
+2025-03-09 13:12:02 INFO: main nxt.disablePeerConnectingThread not defined, using default false
+2025-03-09 13:12:02 INFO: main nxt.disableGetMorePeersThread not defined, using default false
+2025-03-09 13:12:02 INFO: main nxt.disableUpdatePeerDbThread not defined, using default false
+2025-03-09 13:12:02 INFO: main nxt.enableAPIProxy = "true"
+2025-03-09 13:12:02 INFO: main nxt.apiProxyBlacklistingPeriod = "7200"
+2025-03-09 13:12:02 INFO: main nxt.forceAPIProxyServerURL not defined
+2025-03-09 13:12:02 INFO: main nxt.proxyBootstrapNodes = "ardor.jelurida.com;"
+2025-03-09 13:12:02 INFO: main nxt.disableAPIProxyPeersUpdateThread not defined, using default false
+2025-03-09 13:12:02 INFO: main nxt.addOns not defined
+2025-03-09 13:12:02 INFO: main nxt.debugTraceQuote = """
+2025-03-09 13:12:02 INFO: main nxt.debugTraceSeparator = "	"
+2025-03-09 13:12:02 INFO: main nxt.debugLogUnconfirmed = "false"
+2025-03-09 13:12:02 INFO: main nxt.debugTraceAccounts not defined
+2025-03-09 13:12:02 INFO: main nxt.debugTraceLog = "nxt-trace.csv"
+2025-03-09 13:12:02 FINE: main Running 2 tasks...
+2025-03-09 13:12:02 FINE: Thread-2 Loading known peers from the database...
+2025-03-09 13:12:02 FINE: Thread-2 Database connection pool current size: 2
+2025-03-09 13:12:02 WARNING: Thread-1 Column in position 2 in SHUFFLING_ID_HEIGHT_IDX is 'HEIGHT' instead of 'FULL_HASH'. Fast trimming is disabled for table IGNIS.SHUFFLING
+2025-03-09 13:12:02 WARNING: Thread-1 Column in position 2 in SHUFFLING_ID_HEIGHT_IDX is 'HEIGHT' instead of 'FULL_HASH'. Fast trimming is disabled for table AEUR.SHUFFLING
+2025-03-09 13:12:02 WARNING: Thread-1 Column in position 2 in SHUFFLING_ID_HEIGHT_IDX is 'HEIGHT' instead of 'FULL_HASH'. Fast trimming is disabled for table BITSWIFT.SHUFFLING
+2025-03-09 13:12:03 WARNING: Thread-1 Column in position 2 in SHUFFLING_ID_HEIGHT_IDX is 'HEIGHT' instead of 'FULL_HASH'. Fast trimming is disabled for table MPG.SHUFFLING
+2025-03-09 13:12:03 WARNING: Thread-1 Column in position 2 in SHUFFLING_ID_HEIGHT_IDX is 'HEIGHT' instead of 'FULL_HASH'. Fast trimming is disabled for table GPS.SHUFFLING
+2025-03-09 13:12:03 WARNING: Thread-1 Column CHILD_CHAIN_ID in PUBLIC.HOLDING_MIGRATE is not BIGINT. Fast trimming is disabled
+2025-03-09 13:12:03 INFO: Thread-1 Genesis block already in database
+2025-03-09 13:12:03 FINE: Thread-1 Will pop-off block 2374157905661106678
+2025-03-09 13:12:03 FINE: Thread-1 Deleting blocks starting from height 1263384
+2025-03-09 13:12:03 FINE: Thread-1 Average database transaction time is 0.010 seconds
+2025-03-09 13:12:03 FINE: Thread-1 Rollback from block 2374157905661106678 at height 1263384 to 9208615494614075382 at 1263383
+2025-03-09 13:12:03 INFO: Thread-1 Last block height: 1263383
+2025-03-09 13:12:03 INFO: Thread-1 nxt.forceScan = "false"
+2025-03-09 13:12:03 FINE: main Running 1 final tasks...
+2025-03-09 13:12:03 INFO: Thread-3 nxt.apiServerEnforcePOST = "true"
+2025-03-09 13:12:03 INFO: Thread-3 nxt.apiFixResponseContentType = "false"
+2025-03-09 13:12:03 INFO: Thread-3 nxt.disabledAPIs not defined
+2025-03-09 13:12:03 INFO: Thread-3 nxt.disabledAPITags not defined
+2025-03-09 13:12:03 INFO: Thread-3 Started API server at 127.0.0.1:27876
+2025-03-09 13:12:03 FINE: main Starting 10 background jobs
+2025-03-09 13:12:03 FINE: main Starting 3 delayed tasks
+2025-03-09 13:12:03 FINE: pool-3-thread-5 Database connection pool current size: 3
+2025-03-09 13:12:03 FINE: Thread-22 Known peers: 244
+2025-03-09 13:12:03 INFO: Thread-20 Looking for UPnP gateway device...
+2025-03-09 13:12:03 INFO: main nxt.runtime.mode not defined
+2025-03-09 13:12:03 INFO: Thread-20 nxt.upnpGatewayTimeout = "7000"
+2025-03-09 13:12:03 INFO: main nxt.launchDesktopApplication = "true"
+2025-03-09 13:12:03 INFO: main Desktop application isDesktopEnabled:false, isLaunchDesktopApplication:true, hasJavaFX:false
+2025-03-09 13:12:03 INFO: main Desktop application is disabled
+2025-03-09 13:12:03 INFO: main Initialization took 1 seconds
+2025-03-09 13:12:03 INFO: main Ardor server 2.5.1 started successfully.
+2025-03-09 13:12:03 INFO: main Copyright © 2013-2016 The Nxt Core Developers.
+2025-03-09 13:12:03 INFO: main Copyright © 2016-2023 Jelurida IP B.V.
+2025-03-09 13:12:03 INFO: main Copyright © 2023-2024 Jelurida Swiss SA
+2025-03-09 13:12:03 INFO: main Distributed under the Jelurida Public License version 1.3 for the Ardor Public Blockchain Platform, with ABSOLUTELY NO WARRANTY.
+2025-03-09 13:12:03 INFO: main Client UI is at http://localhost:27876/index.html
+2025-03-09 13:12:03 INFO: Thread-20 nxt.upnpDiscoverTimeout = "3000"
+2025-03-09 13:12:12 FINE: Thread-20 There are no UPnP gateway devices
+2025-03-09 13:12:12 FINE: Network Listener Network listener started
+2025-03-09 13:12:12 FINE: Message Handler 1 Message Handler 1 started
+2025-03-09 13:12:12 FINE: Message Handler 3 Message Handler 3 started
+2025-03-09 13:12:12 FINE: Message Handler 4 Message Handler 4 started
+2025-03-09 13:12:12 FINE: Message Handler 2 Message Handler 2 started
+2025-03-09 13:12:12 FINE: Thread-30 Proxy trying to connect to 107.173.210.199
+2025-03-09 13:12:12 INFO: Network Listener Connection to 107.173.210.199 completed
+2025-03-09 13:12:12 FINE: Message Handler 1 Handshake complete with 107.173.210.199
+2025-03-09 13:12:12 FINE: Message Handler 3 Ignoring bundler rate for chain GPS (6)
+2025-03-09 13:12:12 FINE: Message Handler 3 Bundler account 5388336047026650204 does not exist
+2025-03-09 13:12:12 FINE: Message Handler 3 Relaying bundler rates from 107.173.210.199
+2025-03-09 13:12:12 FINE: Thread-30 Proxy bootstrap complete, known peer 107.173.210.199 is connected
+2025-03-09 13:12:18 FINE: pool-3-thread-1 Broadcasting blockchain state change from UP_TO_DATE to DOWNLOADING
+2025-03-09 13:12:18 INFO: Network Listener Connection to 104.168.9.83 completed
+2025-03-09 13:12:18 INFO: Network Listener Connection to 167.114.169.69 completed
+2025-03-09 13:12:18 FINE: Message Handler 1 Handshake complete with 104.168.9.83
+2025-03-09 13:12:18 FINE: Message Handler 4 Ignoring bundler rate for chain GPS (6)
+2025-03-09 13:12:18 FINE: Message Handler 4 Bundler account 5388336047026650204 does not exist
+2025-03-09 13:12:18 FINE: Network Listener Outbound connect failed to complete: Connection refused
+2025-03-09 13:12:18 INFO: pool-2-thread-7 Connection to 89.233.108.246 failed to complete, disconnecting
+2025-03-09 13:12:18 FINE: Message Handler 2 Handshake complete with 167.114.169.69
+2025-03-09 13:12:18 FINE: Message Handler 1 Ignoring bundler rate for chain GPS (6)
+2025-03-09 13:12:18 FINE: Message Handler 1 Bundler account 5388336047026650204 does not exist
+2025-03-09 13:12:18 INFO: Network Listener Connection to 152.42.250.226 completed
+2025-03-09 13:12:18 FINE: Message Handler 3 Blacklisting 152.42.250.226 version 2.4.2
+2025-03-09 13:12:18 INFO: Message Handler 3 Will close connection to 152.42.250.226
+2025-03-09 13:12:28 FINE: pool-2-thread-11 Timeout trying to connect to 176.193.240.179
+2025-03-09 13:12:28 FINE: pool-2-thread-9 Timeout trying to connect to 159.223.96.248
+2025-03-09 13:12:28 FINE: pool-2-thread-14 Timeout trying to connect to 167.71.28.44
+2025-03-09 13:12:28 INFO: pool-3-thread-8 Blockchain download in progress
+2025-03-09 13:12:33 INFO: Network Listener Connection to 107.174.115.247 completed
+2025-03-09 13:12:33 INFO: Network Listener Connection to 188.166.161.179 completed
+2025-03-09 13:12:33 INFO: Network Listener Connection to 185.125.171.205 completed
+2025-03-09 13:12:33 FINE: Message Handler 3 Handshake complete with 107.174.115.247
+2025-03-09 13:12:33 FINE: Message Handler 1 Ignoring bundler rate for chain GPS (6)
+2025-03-09 13:12:33 FINE: pool-3-thread-8 Transaction 2:3870b1adb91a43ac27dba1e574802335f07169e68c9d40a3485293d75491f00b has been released
+2025-03-09 13:12:33 FINE: Message Handler 2 Blacklisting 188.166.161.179 version 2.4.2
+2025-03-09 13:12:33 INFO: Message Handler 2 Will close connection to 188.166.161.179
+2025-03-09 13:12:33 FINE: Message Handler 3 Handshake complete with 185.125.171.205
+2025-03-09 13:12:33 FINE: Message Handler 1 Ignoring bundler rate for chain GPS (6)
+2025-03-09 13:12:33 FINE: pool-3-thread-8 Transaction 2:a832192ae154c15518231d6f3344054c36d1d1aab5c5a1c2c12dab60d237ffc8 has been released
+2025-03-09 13:12:36 FINE: pool-3-thread-8 Got 4 confirmations
+2025-03-09 13:12:36 INFO: pool-3-thread-8 Downloaded 719 blocks in 7 s, 90 per s, 477 min left
+2025-03-09 13:12:36 INFO: pool-3-thread-8 Finished blockchain download
+2025-03-09 13:12:38 FINE: qtp1207140081-134 Error processing API request
+java.lang.RuntimeException: org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT TRANSACTION_FXT.* FROM TRANSACTION_FXT ORDER BY BLOCK_TIMESTAMP DESC, TRANSACTION_INDEX DESC LIMIT ? LIMIT[*] ? "; SQL statement:
+SELECT transaction_fxt.* FROM transaction_fxt ORDER BY block_timestamp DESC, transaction_index DESC LIMIT ? LIMIT ?  [42000-200]
+	at nxt.blockchain.BlockchainImpl.getTransactions(BlockchainImpl.java:422)
+	at nxt.http.GetRecentBlockchainTransactions.processRequest(GetRecentBlockchainTransactions.java:61)
 	at nxt.http.APIServlet$APIRequestHandler.processRequest(APIServlet.java:140)
 	at nxt.http.APIServlet.process(APIServlet.java:398)
 	at nxt.http.APIServlet.doGet(APIServlet.java:283)
@@ -278,144 +292,72 @@ java.lang.RuntimeException: org.h2.jdbc.JdbcSQLDataException: Invalid value "3" 
 	at org.eclipse.jetty.util.thread.QueuedThreadPool.runJob(QueuedThreadPool.java:883)
 	at org.eclipse.jetty.util.thread.QueuedThreadPool$Runner.run(QueuedThreadPool.java:1034)
 	at java.base/java.lang.Thread.run(Thread.java:840)
-Caused by: org.h2.jdbc.JdbcSQLDataException: Invalid value "3" for parameter "parameterIndex" [90008-200]
-	at org.h2.message.DbException.getJdbcSQLException(DbException.java:590)
+Caused by: org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT TRANSACTION_FXT.* FROM TRANSACTION_FXT ORDER BY BLOCK_TIMESTAMP DESC, TRANSACTION_INDEX DESC LIMIT ? LIMIT[*] ? "; SQL statement:
+SELECT transaction_fxt.* FROM transaction_fxt ORDER BY block_timestamp DESC, transaction_index DESC LIMIT ? LIMIT ?  [42000-200]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:453)
 	at org.h2.message.DbException.getJdbcSQLException(DbException.java:429)
 	at org.h2.message.DbException.get(DbException.java:205)
-	at org.h2.message.DbException.getInvalidValueException(DbException.java:280)
-	at org.h2.jdbc.JdbcPreparedStatement.setParameter(JdbcPreparedStatement.java:1503)
-	at org.h2.jdbc.JdbcPreparedStatement.setInt(JdbcPreparedStatement.java:394)
-	at nxt.db.FilteredPreparedStatement.setInt(FilteredPreparedStatement.java:90)
-	at nxt.db.DbUtils.setLimits(DbUtils.java:156)
-	at nxt.blockchain.BlockchainImpl.getTransactions(BlockchainImpl.java:394)
+	at org.h2.message.DbException.get(DbException.java:181)
+	at org.h2.message.DbException.getSyntaxError(DbException.java:229)
+	at org.h2.command.Parser.getSyntaxError(Parser.java:1051)
+	at org.h2.command.Parser.prepareCommand(Parser.java:741)
+	at org.h2.engine.Session.prepareLocal(Session.java:657)
+	at org.h2.engine.Session.prepareCommand(Session.java:595)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1235)
+	at org.h2.jdbc.JdbcPreparedStatement.<init>(JdbcPreparedStatement.java:76)
+	at org.h2.jdbc.JdbcConnection.prepareStatement(JdbcConnection.java:352)
+	at nxt.db.FilteredConnection.prepareStatement(FilteredConnection.java:63)
+	at nxt.blockchain.BlockchainImpl.getTransactions(BlockchainImpl.java:417)
 	... 40 more
-2025-02-22 20:01:11 FINE: pool-2-thread-14 Timeout trying to connect to 206.189.239.184
-2025-02-22 20:01:16 FINE: pool-3-thread-3 Disconnecting dead peer 107.172.180.131 last updated 225507662 at 225507677
-2025-02-22 20:01:16 INFO: pool-3-thread-3 Will close connection to 107.172.180.131
-2025-02-22 20:01:16 FINE: pool-1-thread-15 Channel already null when disconnecting 107.172.180.131
-2025-02-22 20:01:16 FINE: pool-3-thread-4 No blocks returned from 107.172.180.131
-2025-02-22 20:01:16 FINE: pool-3-thread-4 No blocks returned from 107.172.180.131
-2025-02-22 20:01:16 FINE: pool-3-thread-4 No blocks returned from 107.172.180.131
-2025-02-22 20:01:16 FINE: pool-3-thread-4 No blocks returned from 107.172.180.131
-2025-02-22 20:01:16 INFO: Network Listener Connection to 107.174.88.114 completed
-2025-02-22 20:01:16 FINE: Message Handler 4 Handshake complete with 107.174.88.114
-2025-02-22 20:01:16 FINE: Message Handler 1 Ignoring bundler rate for chain GPS (6)
-2025-02-22 20:01:21 FINE: pool-3-thread-4 Got 4 confirmations
-2025-02-22 20:01:21 INFO: pool-3-thread-4 Downloaded 719 blocks in 14 s, 49 per s, 874 min left
-2025-02-22 20:01:21 INFO: pool-3-thread-4 Finished blockchain download
-2025-02-22 20:01:26 INFO: pool-3-thread-5 Blockchain download in progress
-2025-02-22 20:01:26 FINE: pool-2-thread-25 Timeout trying to connect to 194.135.82.50
-2025-02-22 20:01:26 FINE: pool-2-thread-14 Timeout trying to connect to 137.184.213.97
-2025-02-22 20:01:28 FINE: pool-3-thread-5 Transaction 2:819be55c20ffb37043974f41e5a34738106bfe1a96af6a485d053532fcd77bcb has been released
-2025-02-22 20:01:28 FINE: pool-3-thread-5 Early finish of transaction 2:819be55c20ffb37043974f41e5a34738106bfe1a96af6a485d053532fcd77bcb at height 1217592
-2025-02-22 20:01:28 FINE: pool-3-thread-5 Transaction 2:92a60cd4e8cf618a46ba750365fb297a90938de9249ad8324ffbaea72d45699a has been released
-2025-02-22 20:01:28 FINE: pool-3-thread-5 Early finish of transaction 2:92a60cd4e8cf618a46ba750365fb297a90938de9249ad8324ffbaea72d45699a at height 1217613
-2025-02-22 20:01:29 FINE: pool-3-thread-5 Got 4 confirmations
-2025-02-22 20:01:29 INFO: pool-3-thread-5 Downloaded 719 blocks in 3 s, 78 per s, 556 min left
-2025-02-22 20:01:29 INFO: pool-3-thread-5 Finished blockchain download
-2025-02-22 20:01:31 INFO: Network Listener Connection to 107.173.91.183 completed
-2025-02-22 20:01:31 INFO: Network Listener Connection to 23.95.216.229 completed
-2025-02-22 20:01:31 FINE: Message Handler 2 Handshake complete with 107.173.91.183
-2025-02-22 20:01:31 FINE: Message Handler 3 Ignoring bundler rate for chain GPS (6)
-2025-02-22 20:01:31 FINE: Message Handler 3 Bundler account 5388336047026650204 does not exist
-2025-02-22 20:01:31 FINE: Message Handler 2 Handshake complete with 23.95.216.229
-2025-02-22 20:01:31 FINE: Message Handler 4 Ignoring bundler rate for chain GPS (6)
-2025-02-22 20:01:31 FINE: Message Handler 4 Bundler account 5388336047026650204 does not exist
-2025-02-22 20:01:35 INFO: pool-3-thread-8 Blockchain download in progress
-2025-02-22 20:01:40 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:01:40 INFO: pool-3-thread-8 Downloaded 719 blocks in 5 s, 91 per s, 475 min left
-2025-02-22 20:01:41 FINE: pool-2-thread-26 Timeout trying to connect to 192.99.151.183
-2025-02-22 20:01:44 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:01:44 INFO: pool-3-thread-8 Downloaded 719 blocks in 4 s, 101 per s, 425 min left
-2025-02-22 20:01:46 INFO: Network Listener Connection to 216.9.225.144 completed
-2025-02-22 20:01:46 FINE: Message Handler 2 Handshake complete with 216.9.225.144
-2025-02-22 20:01:47 FINE: Message Handler 3 Ignoring bundler rate for chain GPS (6)
-2025-02-22 20:01:47 INFO: pool-3-thread-8 received block 1220000
-2025-02-22 20:01:50 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:01:50 INFO: pool-3-thread-8 Downloaded 719 blocks in 5 s, 106 per s, 407 min left
-2025-02-22 20:01:55 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:01:55 INFO: pool-3-thread-8 Downloaded 719 blocks in 4 s, 112 per s, 386 min left
-2025-02-22 20:02:05 FINE: pool-3-thread-8 Transaction 2:87877bc7056db03975b3c7df69c6cd57bab4641d4f92d6299c4e50dde23f4f55 has been released
-2025-02-22 20:02:05 FINE: pool-3-thread-8 Early finish of transaction 2:87877bc7056db03975b3c7df69c6cd57bab4641d4f92d6299c4e50dde23f4f55 at height 1221208
-2025-02-22 20:02:08 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:02:08 INFO: pool-3-thread-8 Downloaded 719 blocks in 13 s, 96 per s, 449 min left
-2025-02-22 20:02:14 FINE: pool-3-thread-8 Transaction 2:065d0aa93f482a0ef9cacb2c9df915c208cbdf3add47069992b74a5ba2904584 has been released
-2025-02-22 20:02:15 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:02:15 INFO: pool-3-thread-8 Downloaded 719 blocks in 7 s, 96 per s, 447 min left
-2025-02-22 20:02:18 FINE: pool-3-thread-8 Transaction 2:e47eb165861cce47b6bc9d34d1b37429de7131aa0fef7c2dd13c92464df57df1 has been released
-2025-02-22 20:02:19 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:02:19 INFO: pool-3-thread-8 Downloaded 719 blocks in 3 s, 102 per s, 423 min left
-2025-02-22 20:02:24 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:02:24 INFO: pool-3-thread-8 Downloaded 719 blocks in 4 s, 106 per s, 407 min left
-2025-02-22 20:02:27 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:02:27 INFO: pool-3-thread-8 Downloaded 719 blocks in 3 s, 110 per s, 390 min left
-2025-02-22 20:02:30 INFO: pool-3-thread-8 received block 1225000
-2025-02-22 20:02:32 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:02:32 INFO: pool-3-thread-8 Downloaded 719 blocks in 4 s, 113 per s, 380 min left
-2025-02-22 20:02:36 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:02:36 INFO: pool-3-thread-8 Downloaded 719 blocks in 4 s, 116 per s, 372 min left
-2025-02-22 20:02:42 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:02:42 INFO: pool-3-thread-8 Downloaded 719 blocks in 5 s, 117 per s, 369 min left
-2025-02-22 20:02:49 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:02:49 INFO: pool-3-thread-8 Downloaded 719 blocks in 6 s, 116 per s, 371 min left
-2025-02-22 20:02:51 FINE: Message Handler 4 Ignoring bundler rate for chain GPS (6)
-2025-02-22 20:02:52 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:02:52 INFO: pool-3-thread-8 Downloaded 719 blocks in 3 s, 119 per s, 361 min left
-2025-02-22 20:02:57 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:02:57 INFO: pool-3-thread-8 Downloaded 719 blocks in 4 s, 121 per s, 355 min left
-2025-02-22 20:03:03 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:03:03 INFO: pool-3-thread-8 Downloaded 719 blocks in 6 s, 120 per s, 358 min left
-2025-02-22 20:03:07 INFO: pool-3-thread-8 received block 1230000
-2025-02-22 20:03:10 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:03:10 INFO: pool-3-thread-8 Downloaded 719 blocks in 6 s, 119 per s, 361 min left
-2025-02-22 20:03:22 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:03:22 INFO: pool-3-thread-8 Downloaded 719 blocks in 11 s, 114 per s, 377 min left
-2025-02-22 20:03:27 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:03:27 INFO: pool-3-thread-8 Downloaded 719 blocks in 5 s, 115 per s, 375 min left
-2025-02-22 20:03:32 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:03:32 INFO: pool-3-thread-8 Downloaded 719 blocks in 4 s, 116 per s, 370 min left
-2025-02-22 20:03:38 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:03:38 INFO: pool-3-thread-8 Downloaded 719 blocks in 5 s, 116 per s, 369 min left
-2025-02-22 20:03:44 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:03:44 INFO: pool-3-thread-8 Downloaded 719 blocks in 6 s, 116 per s, 369 min left
-2025-02-22 20:03:48 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:03:48 INFO: pool-3-thread-8 Downloaded 719 blocks in 4 s, 117 per s, 365 min left
-2025-02-22 20:03:56 INFO: pool-3-thread-8 received block 1235000
-2025-02-22 20:03:58 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:03:58 INFO: pool-3-thread-8 Downloaded 719 blocks in 9 s, 115 per s, 372 min left
-2025-02-22 20:04:04 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:04:04 INFO: pool-3-thread-8 Downloaded 719 blocks in 5 s, 115 per s, 372 min left
-2025-02-22 20:04:12 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:04:12 INFO: pool-3-thread-8 Downloaded 719 blocks in 8 s, 114 per s, 376 min left
-2025-02-22 20:04:17 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:04:17 INFO: pool-3-thread-8 Downloaded 719 blocks in 5 s, 115 per s, 374 min left
-2025-02-22 20:04:24 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:04:24 INFO: pool-3-thread-8 Downloaded 719 blocks in 7 s, 114 per s, 375 min left
-2025-02-22 20:04:29 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:04:29 INFO: pool-3-thread-8 Downloaded 719 blocks in 5 s, 115 per s, 373 min left
-2025-02-22 20:04:35 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:04:35 INFO: pool-3-thread-8 Downloaded 719 blocks in 5 s, 115 per s, 372 min left
-2025-02-22 20:04:39 INFO: pool-3-thread-8 received block 1240000
-2025-02-22 20:04:41 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:04:41 INFO: pool-3-thread-8 Downloaded 719 blocks in 6 s, 115 per s, 371 min left
-2025-02-22 20:04:45 FINE: pool-3-thread-8 Transaction 2:1adb2a7f2a83e0f056cebdf7cfc0bd35b9e754c062a4cfc564b381ae0fc49b2c has been rejected
-2025-02-22 20:04:47 INFO: Thread-0 Shutting down...
-2025-02-22 20:04:47 INFO: Thread-0 AddOns shutdown complete
-2025-02-22 20:04:47 INFO: Thread-0 Shutting down the API server...
-2025-02-22 20:04:47 INFO: Thread-0 API server stopped
-2025-02-22 20:04:47 INFO: Thread-0 Stopping background jobs...
-2025-02-22 20:04:47 INFO: Thread-0 shutting down scheduledThreadPool
-2025-02-22 20:04:50 FINE: pool-3-thread-8 Got 5 confirmations
-2025-02-22 20:04:50 INFO: pool-3-thread-8 Downloaded 719 blocks in 8 s, 114 per s, 376 min left
-2025-02-22 20:04:50 INFO: Thread-0 ...Done
-2025-02-22 20:04:50 INFO: Thread-0 nxt.maxNumberOfMonitors = "100"
-2025-02-22 20:04:50 INFO: Thread-0 shutting down networkService
-2025-02-22 20:04:50 INFO: Thread-0 shutting down peersService
-2025-02-22 20:04:50 FINE: Message Handler 1 Message Handler 1 stopped
-2025-02-22 20:04:50 FINE: Message Handler 4 Message Handler 4 stopped
-2025-02-22 20:04:50 FINE: Message Handler 2 Message Handler 2 stopped
-2025-02-22 20:04:50 FINE: Network Listener Network listener stopped
-2025-02-22 20:04:50 FINE: Message Handler 3 Message Handler 3 stopped
-2025-02-22 20:04:50 INFO: Thread-0 nxt.disableCompactOnShutdown = "false"
-2025-02-22 20:05:01 INFO: Thread-0 Database shutdown completed
-2025-02-22 20:05:01 INFO: Thread-0 Ardor server 2.5.1 stopped.
+2025-03-09 13:12:41 INFO: pool-3-thread-8 Blockchain download in progress
+2025-03-09 13:12:43 FINE: pool-2-thread-14 Timeout trying to connect to 134.209.67.35
+2025-03-09 13:12:43 FINE: pool-2-thread-9 Timeout trying to connect to 46.101.134.149
+2025-03-09 13:12:44 FINE: pool-3-thread-8 Got 4 confirmations
+2025-03-09 13:12:44 INFO: pool-3-thread-8 Downloaded 719 blocks in 3 s, 128 per s, 335 min left
+2025-03-09 13:12:44 INFO: pool-3-thread-8 Finished blockchain download
+2025-03-09 13:12:48 INFO: Network Listener Connection to 192.227.193.55 completed
+2025-03-09 13:12:48 INFO: Network Listener Connection to 198.46.152.53 completed
+2025-03-09 13:12:48 FINE: Message Handler 4 Handshake complete with 192.227.193.55
+2025-03-09 13:12:48 FINE: Message Handler 3 Ignoring bundler rate for chain GPS (6)
+2025-03-09 13:12:48 FINE: Message Handler 3 Bundler account 5388336047026650204 does not exist
+2025-03-09 13:12:48 INFO: Network Listener Connection to 144.76.69.121 completed
+2025-03-09 13:12:48 FINE: Message Handler 1 Handshake complete with 198.46.152.53
+2025-03-09 13:12:48 FINE: Message Handler 2 Ignoring bundler rate for chain GPS (6)
+2025-03-09 13:12:48 FINE: Message Handler 2 Bundler account 5388336047026650204 does not exist
+2025-03-09 13:12:48 FINE: Network Listener Connection with 144.76.69.121 closed by peer
+2025-03-09 13:12:48 INFO: Network Listener Will close connection to 144.76.69.121
+2025-03-09 13:12:49 INFO: pool-3-thread-9 Blockchain download in progress
+2025-03-09 13:12:51 INFO: pool-3-thread-9 received block 1265000
+2025-03-09 13:12:52 FINE: pool-3-thread-9 Transaction 2:1caed0a07bbc4205fdbb3b327929929a04ba5062e216cbc39aa5473d29fda880 has been released
+2025-03-09 13:12:53 FINE: pool-3-thread-9 Transaction 2:93c72dae9a08156ccbe3897610e98fc855b8d3af910bf00cbe7ec1d5905ee0e5 has been released
+2025-03-09 13:12:53 FINE: pool-3-thread-9 Got 5 confirmations
+2025-03-09 13:12:53 INFO: pool-3-thread-9 Downloaded 719 blocks in 4 s, 136 per s, 314 min left
+2025-03-09 13:12:54 FINE: Message Handler 1 Ignoring bundler rate for chain GPS (6)
+2025-03-09 13:12:54 FINE: pool-3-thread-9 Transaction 2:ac6e59da975a6dc2f6b5a3b2571ed6b9c4ce0b04cf8ffc869f529a4eec1afd4c has been released
+2025-03-09 13:12:55 FINE: pool-3-thread-9 Transaction 2:97e1ef0dd49c771093c93136e70cb79f25648441c7eb2af959b77cb0d61cc5af has been released
+2025-03-09 13:12:55 FINE: pool-3-thread-9 At height 1266016 phased transaction 2:bc670d6b88a65f2d018b57aa6624b200c561043335c01d7b908614b4f9843c75 does not yet meet quorum, cannot finish early
+2025-03-09 13:12:55 FINE: pool-3-thread-9 At height 1266017 phased transaction 2:aa31525987350c1436461bc31267336fa563047ca69447e69a13c4b5611cd835 does not yet meet quorum, cannot finish early
+2025-03-09 13:12:55 FINE: pool-3-thread-9 At height 1266209 phased transaction 2:87d933d5ff8dbc558f5210f3a76af267d53b01027fe22a95ccd574398c73c77a does not yet meet quorum, cannot finish early
+2025-03-09 13:12:55 FINE: pool-3-thread-9 Transaction 2:aa31525987350c1436461bc31267336fa563047ca69447e69a13c4b5611cd835 has been released
+2025-03-09 13:12:55 FINE: pool-3-thread-9 Early finish of transaction 2:aa31525987350c1436461bc31267336fa563047ca69447e69a13c4b5611cd835 at height 1266209
+2025-03-09 13:12:56 FINE: pool-3-thread-9 Got 5 confirmations
+2025-03-09 13:12:56 INFO: pool-3-thread-9 Downloaded 719 blocks in 2 s, 160 per s, 267 min left
+2025-03-09 13:12:56 INFO: Thread-0 Shutting down...
+2025-03-09 13:12:56 INFO: Thread-0 AddOns shutdown complete
+2025-03-09 13:12:56 INFO: Thread-0 Shutting down the API server...
+2025-03-09 13:12:56 INFO: Thread-0 API server stopped
+2025-03-09 13:12:56 INFO: Thread-0 Stopping background jobs...
+2025-03-09 13:12:56 INFO: Thread-0 shutting down scheduledThreadPool
+2025-03-09 13:12:59 INFO: pool-3-thread-9 Finished blockchain download
+2025-03-09 13:12:59 INFO: Thread-0 ...Done
+2025-03-09 13:12:59 INFO: Thread-0 nxt.maxNumberOfMonitors = "100"
+2025-03-09 13:12:59 INFO: Thread-0 shutting down networkService
+2025-03-09 13:12:59 INFO: Thread-0 shutting down peersService
+2025-03-09 13:12:59 FINE: Message Handler 3 Message Handler 3 stopped
+2025-03-09 13:12:59 FINE: Message Handler 1 Message Handler 1 stopped
+2025-03-09 13:12:59 FINE: Network Listener Network listener stopped
+2025-03-09 13:12:59 FINE: Message Handler 4 Message Handler 4 stopped
+2025-03-09 13:12:59 FINE: Message Handler 2 Message Handler 2 stopped
+2025-03-09 13:12:59 INFO: Thread-0 nxt.disableCompactOnShutdown = "false"
+2025-03-09 13:13:12 INFO: Thread-0 Database shutdown completed
+2025-03-09 13:13:12 INFO: Thread-0 Ardor server 2.5.1 stopped.

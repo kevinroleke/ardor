@@ -99,6 +99,9 @@ public interface Blockchain {
     DbIterator<? extends FxtTransaction> getTransactions(FxtChain chain, int numberOfConfirmations,
             byte type, byte subtype, int blockTimestamp, int from, int to);
 
+    DbIterator<? extends FxtTransaction> getTransactions(FxtChain chain, int from, int to);
+    DbIterator<? extends ChildTransaction> getTransactions(ChildChain chain, int from, int to);
+
     DbIterator<? extends FxtTransaction> getTransactions(FxtChain chain, Connection con, PreparedStatement pstmt);
 
     DbIterator<? extends ChildTransaction> getTransactions(ChildChain childChain, Connection con, PreparedStatement pstmt);

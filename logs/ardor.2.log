@@ -1,212 +1,211 @@
-2025-02-22 20:05:14 INFO: nxt.enableStackTraces = "true"
-2025-02-22 20:05:14 INFO: nxt.disabledThrowableStackTraces = "{"nxt.NxtException$NotCurrentlyValidException": [ "Invalid bid order", "Block ID at ecBlockHeight" ]}"
-2025-02-22 20:05:14 INFO: nxt.enableLogTraceback = "false"
-2025-02-22 20:05:14 INFO: nxt.enableLogThreadName = "true"
-2025-02-22 20:05:14 INFO: main logging enabled
-2025-02-22 20:05:14 FINE: main java.version = 17.0.13
-2025-02-22 20:05:14 FINE: main java.vm.version = 17.0.13+11-Debian-2deb12u1
-2025-02-22 20:05:14 FINE: main java.vm.name = OpenJDK 64-Bit Server VM
-2025-02-22 20:05:14 FINE: main java.vendor = Debian
-2025-02-22 20:05:14 FINE: main java.vm.vendor = Debian
-2025-02-22 20:05:14 FINE: main java.home = /usr/lib/jvm/java-17-openjdk-amd64
-2025-02-22 20:05:14 FINE: main java.library.path = /usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib
-2025-02-22 20:05:14 FINE: main java.class.path = classes:lib/javax.servlet-api-3.1.0.jar:lib/slf4j-jdk14-1.7.22.jar:lib/purejavahidapi-0.0.10j2.jar:lib/bcpkix-jdk18on-177.jar:lib/jetty-servlets-9.4.56.v20240826.jar:lib/ed25519.jar:lib/weupnp-0.1.4.jar:lib/jetty-continuation-9.4.56.v20240826.jar:lib/core-3.3.0.jar:lib/h2-1.4.200.jar:lib/commons-math3-3.6.1.jar:lib/jetty-client-9.4.56.v20240826.jar:lib/javase-3.3.0.jar:lib/jetty-util-9.4.56.v20240826.jar:lib/commons-cli-1.3.1.jar:lib/tika-core-1.13.jar:lib/joor-java-8-0.9.14.jar:lib/jetty-http-9.4.56.v20240826.jar:lib/json-simple-1.1.1.jar:lib/slf4j-api-1.7.22.jar:lib/tika-parsers-1.13.jar:lib/jna-5.5.0.jar:lib/jetty-io-9.4.56.v20240826.jar:lib/jetty-server-9.4.56.v20240826.jar:lib/bcprov-jdk18on-177.jar:lib/jetty-servlet-9.4.56.v20240826.jar:lib/lucene-queryparser-7.1.0.jar:lib/lucene-core-7.1.0.jar:lib/javapoet-1.11.0.jar:lib/jetty-proxy-9.4.56.v20240826.jar:lib/lucene-queries-7.1.0.jar:lib/jna-platform-5.5.0.jar:lib/bcutil-jdk18on-1.77.jar:lib/jetty-security-9.4.56.v20240826.jar:lib/lucene-analyzers-common-7.1.0.jar:conf:addons/classes:addons/lib/*:javafx-sdk/lib/*
-2025-02-22 20:05:14 FINE: main java.io.tmpdir = /tmp
-2025-02-22 20:05:14 FINE: main os.arch = amd64
-2025-02-22 20:05:14 FINE: main sun.arch.data.model = 64
-2025-02-22 20:05:14 FINE: main os.name = Linux
-2025-02-22 20:05:14 FINE: main file.encoding = UTF-8
-2025-02-22 20:05:14 FINE: main java.security.policy = null
-2025-02-22 20:05:14 FINE: main java.security.manager = null
-2025-02-22 20:05:14 FINE: main java.specification.vendor = Oracle Corporation
-2025-02-22 20:05:14 FINE: main nxt.runtime.mode = null
-2025-02-22 20:05:14 FINE: main nxt.runtime.dirProvider = null
-2025-02-22 20:05:14 FINE: main availableProcessors = 24
-2025-02-22 20:05:14 FINE: main maxMemory = 8346664960
-2025-02-22 20:05:14 FINE: main processId = 192248
-2025-02-22 20:05:14 INFO: main nxt.isTestnet = "false"
-2025-02-22 20:05:14 INFO: main nxt.isOffline = "false"
-2025-02-22 20:05:14 INFO: main nxt.isLightClient = "false"
-2025-02-22 20:05:14 INFO: main nxt.isPermissioned = "false"
-2025-02-22 20:05:14 INFO: main nxt.customLoginWarning not defined
-2025-02-22 20:05:14 INFO: main nxt.forkBaseTargetPercentage = "2000"
-2025-02-22 20:05:14 INFO: main nxt.maxRollback = "800"
-2025-02-22 20:05:14 INFO: main nxt.forgingDelay = "10"
-2025-02-22 20:05:14 INFO: main nxt.forgingSpeedup = "3"
-2025-02-22 20:05:14 INFO: main nxt.numberOfForkConfirmations = "5"
-2025-02-22 20:05:14 INFO: main nxt.batchCommitSize = "100"
-2025-02-22 20:05:14 INFO: main nxt.openApiQueryTimeout = "1"
-2025-02-22 20:05:14 INFO: main nxt.maxPrunableLifetime = "7776000"
-2025-02-22 20:05:14 INFO: main nxt.includeExpiredPrunable = "true"
-2025-02-22 20:05:14 INFO: main nxt.enableLedgerWallet = "true"
-2025-02-22 20:05:14 INFO: main nxt.correctInvalidFees = "false"
-2025-02-22 20:05:14 INFO: main nxt.minBundlerBalanceFXT = "1000"
-2025-02-22 20:05:14 INFO: main nxt.minBundlerFeeLimitFXT = "10"
-2025-02-22 20:05:14 INFO: main nxt.disableFullTextSearch = "false"
-2025-02-22 20:05:14 INFO: main nxt.disableMetadataDetection = "false"
-2025-02-22 20:05:14 INFO: main nxt.statementLogThreshold = "10000"
-2025-02-22 20:05:14 INFO: main nxt.transactionLogThreshold = "15000"
-2025-02-22 20:05:14 INFO: main nxt.transactionLogInterval = "15"
-2025-02-22 20:05:14 INFO: main nxt.dbCacheKB = "0"
-2025-02-22 20:05:14 INFO: main nxt.dbUrl not defined
-2025-02-22 20:05:14 INFO: main nxt.dbType = "h2"
-2025-02-22 20:05:14 INFO: main nxt.dbDir = "./nxt_db/nxt"
-2025-02-22 20:05:14 INFO: main nxt.dbParams = "DB_CLOSE_ON_EXIT=FALSE"
-2025-02-22 20:05:14 INFO: main nxt.dbUsername = "sa"
-2025-02-22 20:05:14 INFO: main nxt.dbPassword = "{not logged}"
-2025-02-22 20:05:14 INFO: main nxt.maxDbConnections = "30"
-2025-02-22 20:05:14 INFO: main nxt.dbLoginTimeout = "70"
-2025-02-22 20:05:14 INFO: main nxt.dbDefaultLockTimeout = "60"
-2025-02-22 20:05:14 INFO: main nxt.dbMaxMemoryRows = "1000000"
-2025-02-22 20:05:14 INFO: main nxt.adminPassword not defined
-2025-02-22 20:05:14 INFO: main nxt.adminPasswordHash not defined
-2025-02-22 20:05:14 INFO: main nxt.maxAPIRecords = "100"
-2025-02-22 20:05:14 INFO: main nxt.enableAPIUPnP = "false"
-2025-02-22 20:05:14 INFO: main nxt.apiServerIdleTimeout = "30000"
-2025-02-22 20:05:14 INFO: main nxt.apiServerCORS = "true"
-2025-02-22 20:05:14 INFO: main nxt.forwardedForHeader not defined
-2025-02-22 20:05:14 INFO: main nxt.allowedBotHosts = "127.0.0.1; localhost; [0:0:0:0:0:0:0:1]; 0:0:0:0:0:0:0:1;"
-2025-02-22 20:05:14 INFO: main nxt.unlimitedBotHosts = "127.0.0.1; localhost; [0:0:0:0:0:0:0:1]; 0:0:0:0:0:0:0:1;"
-2025-02-22 20:05:14 INFO: main nxt.enableAPIServer = "true"
-2025-02-22 20:05:14 INFO: main nxt.apiServerPort = "27876"
-2025-02-22 20:05:14 INFO: main nxt.apiServerSSLPort = "27876"
-2025-02-22 20:05:14 INFO: main nxt.apiServerHost = "127.0.0.1"
-2025-02-22 20:05:14 INFO: main nxt.disableAdminPassword = "false"
-2025-02-22 20:05:14 INFO: main nxt.apiSSL = "false"
-2025-02-22 20:05:14 INFO: main API server using HTTP port 27876
-2025-02-22 20:05:14 INFO: main nxt.apiResourceBase = "./html/www"
-2025-02-22 20:05:14 INFO: main nxt.apiWelcomeFile = "index.html"
-2025-02-22 20:05:14 INFO: main nxt.javadocResourceBase = "./html/doc"
-2025-02-22 20:05:14 INFO: main nxt.maxUploadFileSize = "43008"
-2025-02-22 20:05:14 INFO: main nxt.maxUploadFileSize = "43008"
-2025-02-22 20:05:14 INFO: main nxt.enableAPIServerGZIPFilter not defined, using default false
-2025-02-22 20:05:14 INFO: main nxt.apiFrameOptionsSameOrigin = "true"
-2025-02-22 20:05:14 INFO: main nxt.apiCustomSetupImpl not defined
-2025-02-22 20:05:14 INFO: main nxt.defaultChildBlockDeadline = "10"
-2025-02-22 20:05:14 INFO: main nxt.trimFrequencyMultipliers = "PUBLIC_KEY-5;ALIAS-5"
-2025-02-22 20:05:14 INFO: main nxt.trimDerivedTables = "true"
-2025-02-22 20:05:14 INFO: main nxt.simulateEndlessDownload not defined, using default false
-2025-02-22 20:05:14 INFO: main nxt.trimFrequency = "1000"
-2025-02-22 20:05:14 INFO: main nxt.useStrongSecureRandom = "false"
-2025-02-22 20:05:14 INFO: main trimHeightOffset=633
-2025-02-22 20:05:14 INFO: main nxt.stopDownloadHeight not defined or not numeric, using default value 0
-2025-02-22 20:05:14 INFO: main nxt.disableGetMoreBlocksThread not defined, using default false
-2025-02-22 20:05:14 INFO: main nxt.processPolls = "true"
-2025-02-22 20:05:14 INFO: main nxt.deleteFinishedShufflings = "false"
-2025-02-22 20:05:14 INFO: main nxt.deleteProcessedVotes = "true"
-2025-02-22 20:05:14 FINE: main Database jdbc url set to jdbc:h2:./nxt_db/nxt;DB_CLOSE_ON_EXIT=FALSE;CACHE_SIZE=262144 username sa
-2025-02-22 20:05:14 INFO: main nxt.connectionPoolImpl = "nxt.db.pool.H2ConnectionPool"
-2025-02-22 20:05:15 FINE: main Database connection pool current size: 1
-2025-02-22 20:05:15 INFO: main Database update may take a while if needed, current db version 196...
-2025-02-22 20:05:15 INFO: main Database update may take a while if needed, current db version 171...
-2025-02-22 20:05:15 INFO: main Database update may take a while if needed, current db version 171...
-2025-02-22 20:05:15 INFO: main Database update may take a while if needed, current db version 171...
-2025-02-22 20:05:15 INFO: main Database update may take a while if needed, current db version 171...
-2025-02-22 20:05:15 INFO: main Database update may take a while if needed, current db version 171...
-2025-02-22 20:05:15 INFO: main nxt.enableTransactionRebroadcasting = "true"
-2025-02-22 20:05:15 INFO: main nxt.testUnconfirmedTransactions not defined, using default false
-2025-02-22 20:05:15 INFO: main nxt.maxUnconfirmedTransactions = "1500"
-2025-02-22 20:05:15 INFO: main nxt.droppedTransactionsStoreSize = "150000"
-2025-02-22 20:05:15 INFO: main nxt.disableRebroadcastTransactionsThread not defined, using default false
-2025-02-22 20:05:15 INFO: main nxt.disableRemoveUnconfirmedTransactionsThread not defined, using default false
-2025-02-22 20:05:15 INFO: main nxt.disableProcessWaitingTransactionsThread not defined, using default false
-2025-02-22 20:05:15 INFO: main nxt.enablePublicKeyCache = "true"
-2025-02-22 20:05:15 INFO: main nxt.ledgerTrimKeep = "30000"
-2025-02-22 20:05:15 INFO: main nxt.ledgerAccounts = "*"
-2025-02-22 20:05:15 INFO: main Account ledger is tracking all accounts
-2025-02-22 20:05:15 INFO: main nxt.ledgerLogUnconfirmed = "2"
-2025-02-22 20:05:15 INFO: main nxt.maxNumberOfForgers = "100"
-2025-02-22 20:05:15 INFO: main nxt.enableFakeForging not defined, using default false
-2025-02-22 20:05:15 INFO: main nxt.pauseForgingOnNoConnection = "true"
-2025-02-22 20:05:15 INFO: main nxt.disableGenerateBlocksThread not defined, using default false
-2025-02-22 20:05:15 INFO: main nxt.defaultChildBlockDeadline = "10"
-2025-02-22 20:05:15 INFO: main nxt.bundlingFilter not defined
-2025-02-22 20:05:15 INFO: main nxt.availableBundlingFilters = "nxt.addons.PersonalBundler;nxt.addons.AccountPropertyBundler; nxt.addons.AssetBundler;nxt.addons.CurrencyBundler;nxt.addons.PurchaseBundler; nxt.addons.QuotaBundler; nxt.addons.TransactionTypeBundler; nxt.addons.ManagedAccountsBundler"
-2025-02-22 20:05:15 INFO: main nxt.customBundlingFeeCalculators not defined
-2025-02-22 20:05:15 INFO: main nxt.peerServerPort = "27874"
-2025-02-22 20:05:15 INFO: main nxt.enablePeerUPnP = "true"
-2025-02-22 20:05:15 INFO: main nxt.shareMyAddress = "true"
-2025-02-22 20:05:15 INFO: main nxt.maxNumberOfOutboundConnections = "8"
-2025-02-22 20:05:15 INFO: main nxt.maxNumberOfInboundConnections = "2000"
-2025-02-22 20:05:15 INFO: main nxt.peerConnectTimeout = "10"
-2025-02-22 20:05:15 INFO: main nxt.peerReadTimeout = "20"
-2025-02-22 20:05:15 INFO: main nxt.peerServerHost = "0.0.0.0"
-2025-02-22 20:05:15 INFO: main nxt.myAddress not defined
-2025-02-22 20:05:15 INFO: main nxt.myPlatform not defined
-2025-02-22 20:05:15 INFO: main nxt.blacklistingPeriod = "600"
-2025-02-22 20:05:15 INFO: main nxt.communicationLogging = "0"
-2025-02-22 20:05:15 INFO: main nxt.getMorePeers = "true"
-2025-02-22 20:05:15 INFO: main nxt.maxNumberOfKnownPeers = "2000"
-2025-02-22 20:05:15 INFO: main nxt.minNumberOfKnownPeers = "1000"
-2025-02-22 20:05:15 INFO: main nxt.usePeersDb = "true"
-2025-02-22 20:05:15 INFO: main nxt.savePeers = "true"
-2025-02-22 20:05:15 INFO: main nxt.preventLocalPeersConnection = "true"
-2025-02-22 20:05:15 INFO: main nxt.hideErrorDetails = "false"
-2025-02-22 20:05:15 INFO: main nxt.ignorePeerAnnouncedAddress = "false"
-2025-02-22 20:05:15 INFO: main nxt.blacklistedBundlerAccounts not defined
-2025-02-22 20:05:15 INFO: main nxt.credentials.secretPhrase not defined
-2025-02-22 20:05:15 INFO: main nxt.wellKnownPeers not defined
-2025-02-22 20:05:15 INFO: main nxt.knownBlacklistedPeers not defined
-2025-02-22 20:05:15 INFO: main nxt.defaultPeers = "89.117.226.11; 79.167.210.8; 208.53.32.26; node6.ardor.tools; 23.94.198.19; 104.168.9.83; 143.198.115.239; 192.241.139.29; 174.138.39.150; 211.196.230.198; 147.182.219.219; 109.235.71.183; ardor01.jelurida.com; 107.172.92.53; 167.71.19.245; ardor.crypto.sargue.net; 107.173.25.171; ardor28.y.cz; 49.242.223.251; 133.242.182.65; racknerd-39.ardornxt.eu; 134.122.25.231; 198.12.83.179; 142.4.212.42; 206.189.239.184; 198.23.137.126; 118.220.113.117; 89.233.108.246; 147.182.211.245; 192.210.197.142; 172.245.6.129; 134.209.67.35; 107.175.91.183; racknerd-06.ardornxt.eu; 188.137.61.53; racknerd-30.ardornxt.eu; 206.189.224.203; 198.46.226.67; 157.230.7.216; 192.241.145.150; racknerd-31.ardornxt.eu; 143.244.172.31; 104.236.13.102; racknerd-07.ardornxt.eu; 134.122.21.172; 172.245.6.126; 116.89.106.233; 209.209.11.103; 143.244.163.171; 87.99.19.190; 24.144.120.224; racknerd-05.ardornxt.eu; 176.223.143.237; 87.103.245.205; 152.42.250.226; 194.135.82.50; 144.76.69.121; 31.208.53.143; 159.223.96.248; 178.128.153.182; cntb-01.ardornxt.eu; 176.123.4.157; 133.125.40.137; 176.223.132.54; 152.42.246.167; 188.165.226.46; 143.198.118.174; 107.175.172.73; alfred.airdns.org:40592; bg5000.mooo.com:37874; racknerd-09.ardornxt.eu; 108.174.57.6; racknerd-19.ardornxt.eu; 216.15.21.83; 107.173.165.83; ardor04.jelurida.com; 185.215.180.70; 150.230.46.59; 84.247.145.20; 142.93.156.135; 198.23.233.119; 159.223.151.46; 192.3.53.146; 220.75.255.246; 142.93.146.47; 192.81.218.122; 64.23.171.128; 172.105.207.97; 157.245.130.139; 178.128.161.137; racknerd-28.ardornxt.eu; doom-ardo-node-02.cryptonet.waw.pl; ardor33.y.cz; 217.73.196.44; 89.47.161.249; jill.airdns.org:37874; 152.42.179.59; ardor02.jelurida.com; 146.190.160.19; ardor.treecycle.ch; racknerd-14.ardornxt.eu; 176.223.136.245; 147.182.219.126; 161.35.132.42; 104.168.22.83; 137.184.23.239; 92.29.227.236; 188.166.161.179; 167.71.28.44; borg.airdns.org:55874; 167.172.239.123; 107.174.88.114; 192.3.249.139; 167.71.41.44; 176.53.160.56; 178.128.147.222; cntb-02.ardornxt.eu; 217.61.105.135; 161.35.2.0; 68.183.206.214; 165.227.95.37; node2.ardor.tools; 14.52.126.48; 192.3.62.222; 192.227.193.55; 108.170.40.2; 206.189.232.90; 80.208.231.180; 172.245.6.128; 18.183.34.173; ardor.nftmagic.art; ardor.blockfrikis.com; 107.174.121.188; 192.210.141.39; 75.127.9.167; 165.227.83.155; 49.212.156.13; 108.227.62.195; 134.209.65.140; 94.176.232.209; 185.189.229.123; racknerd-22.ardornxt.eu; 104.168.22.239; 157.230.61.216; 192.210.213.122; smallcat.chickenkiller.com:37874; 89.117.217.173; 198.46.152.53; 167.172.166.114; 157.230.8.130; 134.122.126.97; 143.198.36.18; 137.184.135.254; 134.209.122.174; 137.184.213.97; 3.112.34.90; wohnung.tzo.com; ardor03.jelurida.com; 46.101.119.241; ardor9.y.cz; aga-ardo-node-01.cryptonet.waw.pl; 188.166.109.46; 45.27.73.200; node7.ardor.tools; 107.174.121.185; 159.223.137.238; 198.23.137.124; racknerd-08.ardornxt.eu; 23.94.49.204; 188.166.255.128; 209.209.8.188; 161.35.110.156; 107.172.21.159; 142.93.150.133; 107.173.41.154; ardor27.y.cz; 167.172.142.237; littlecreek-04.ardornxt.eu; littlecreek-02.ardornxt.eu; littlecreek-01.ardornxt.eu;"
-2025-02-22 20:05:15 INFO: main nxt.disablePeerUnBlacklistingThread not defined, using default false
-2025-02-22 20:05:15 INFO: main nxt.disablePeerConnectingThread not defined, using default false
-2025-02-22 20:05:15 INFO: main nxt.disableGetMorePeersThread not defined, using default false
-2025-02-22 20:05:15 INFO: main nxt.disableUpdatePeerDbThread not defined, using default false
-2025-02-22 20:05:15 INFO: main nxt.enableAPIProxy = "true"
-2025-02-22 20:05:15 INFO: main nxt.apiProxyBlacklistingPeriod = "7200"
-2025-02-22 20:05:15 INFO: main nxt.forceAPIProxyServerURL not defined
-2025-02-22 20:05:15 INFO: main nxt.proxyBootstrapNodes = "ardor.jelurida.com;"
-2025-02-22 20:05:15 INFO: main nxt.disableAPIProxyPeersUpdateThread not defined, using default false
-2025-02-22 20:05:15 INFO: main nxt.addOns not defined
-2025-02-22 20:05:15 INFO: main nxt.debugTraceQuote = """
-2025-02-22 20:05:15 INFO: main nxt.debugTraceSeparator = "	"
-2025-02-22 20:05:15 INFO: main nxt.debugLogUnconfirmed = "false"
-2025-02-22 20:05:15 INFO: main nxt.debugTraceAccounts not defined
-2025-02-22 20:05:15 INFO: main nxt.debugTraceLog = "nxt-trace.csv"
-2025-02-22 20:05:15 FINE: main Running 2 tasks...
-2025-02-22 20:05:15 FINE: Thread-2 Loading known peers from the database...
-2025-02-22 20:05:15 FINE: Thread-2 Database connection pool current size: 2
-2025-02-22 20:05:15 WARNING: Thread-1 Column in position 2 in SHUFFLING_ID_HEIGHT_IDX is 'HEIGHT' instead of 'FULL_HASH'. Fast trimming is disabled for table IGNIS.SHUFFLING
-2025-02-22 20:05:15 WARNING: Thread-1 Column in position 2 in SHUFFLING_ID_HEIGHT_IDX is 'HEIGHT' instead of 'FULL_HASH'. Fast trimming is disabled for table AEUR.SHUFFLING
-2025-02-22 20:05:15 WARNING: Thread-1 Column in position 2 in SHUFFLING_ID_HEIGHT_IDX is 'HEIGHT' instead of 'FULL_HASH'. Fast trimming is disabled for table BITSWIFT.SHUFFLING
-2025-02-22 20:05:15 WARNING: Thread-1 Column in position 2 in SHUFFLING_ID_HEIGHT_IDX is 'HEIGHT' instead of 'FULL_HASH'. Fast trimming is disabled for table MPG.SHUFFLING
-2025-02-22 20:05:15 WARNING: Thread-1 Column in position 2 in SHUFFLING_ID_HEIGHT_IDX is 'HEIGHT' instead of 'FULL_HASH'. Fast trimming is disabled for table GPS.SHUFFLING
-2025-02-22 20:05:15 WARNING: Thread-1 Column CHILD_CHAIN_ID in PUBLIC.HOLDING_MIGRATE is not BIGINT. Fast trimming is disabled
-2025-02-22 20:05:15 INFO: Thread-1 Genesis block already in database
-2025-02-22 20:05:15 FINE: Thread-1 Will pop-off block 13254119200512815277
-2025-02-22 20:05:15 FINE: Thread-1 Deleting blocks starting from height 1241313
-2025-02-22 20:05:15 FINE: Thread-1 Average database transaction time is 0.006 seconds
-2025-02-22 20:05:15 FINE: Thread-1 Rollback from block 13254119200512815277 at height 1241313 to 2451584933695492840 at 1241312
-2025-02-22 20:05:15 INFO: Thread-1 Last block height: 1241312
-2025-02-22 20:05:15 INFO: Thread-1 nxt.forceScan = "false"
-2025-02-22 20:05:15 FINE: main Running 1 final tasks...
-2025-02-22 20:05:15 INFO: Thread-3 nxt.apiServerEnforcePOST = "true"
-2025-02-22 20:05:15 INFO: Thread-3 nxt.apiFixResponseContentType = "false"
-2025-02-22 20:05:15 INFO: Thread-3 nxt.disabledAPIs not defined
-2025-02-22 20:05:15 INFO: Thread-3 nxt.disabledAPITags not defined
-2025-02-22 20:05:15 INFO: Thread-3 Started API server at 127.0.0.1:27876
-2025-02-22 20:05:15 FINE: main Starting 10 background jobs
-2025-02-22 20:05:15 FINE: main Starting 3 delayed tasks
-2025-02-22 20:05:15 FINE: Thread-21 Known peers: 244
-2025-02-22 20:05:15 INFO: Thread-20 Looking for UPnP gateway device...
-2025-02-22 20:05:15 INFO: Thread-20 nxt.upnpGatewayTimeout = "7000"
-2025-02-22 20:05:15 INFO: main nxt.runtime.mode not defined
-2025-02-22 20:05:15 INFO: main nxt.launchDesktopApplication = "true"
-2025-02-22 20:05:15 INFO: main Desktop application isDesktopEnabled:false, isLaunchDesktopApplication:true, hasJavaFX:false
-2025-02-22 20:05:15 INFO: main Desktop application is disabled
-2025-02-22 20:05:15 INFO: main Initialization took 1 seconds
-2025-02-22 20:05:15 INFO: main Ardor server 2.5.1 started successfully.
-2025-02-22 20:05:15 INFO: Thread-20 nxt.upnpDiscoverTimeout = "3000"
-2025-02-22 20:05:15 INFO: main Copyright © 2013-2016 The Nxt Core Developers.
-2025-02-22 20:05:15 INFO: main Copyright © 2016-2023 Jelurida IP B.V.
-2025-02-22 20:05:15 INFO: main Copyright © 2023-2024 Jelurida Swiss SA
-2025-02-22 20:05:15 INFO: main Distributed under the Jelurida Public License version 1.3 for the Ardor Public Blockchain Platform, with ABSOLUTELY NO WARRANTY.
-2025-02-22 20:05:15 INFO: main Client UI is at http://localhost:27876/index.html
-2025-02-22 20:05:20 FINE: qtp1207140081-84 Error processing API request
-java.lang.RuntimeException: org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "(SELECT TRANSACTION.* FROM TRANSACTION WHERE 1=1  ORDER BY BLOCK_TIMESTAMP DESC, TRANSACTION_INDEX DESC LIMIT ? ) ORDER BY BLOCK_TIMESTAMP DESC, TRANSACTION_INDEX DESC LIMIT[*] ? OFFSET ? "; SQL statement:
-(SELECT transaction.* FROM transaction WHERE 1=1  ORDER BY block_timestamp DESC, transaction_index DESC LIMIT ? ) ORDER BY block_timestamp DESC, transaction_index DESC LIMIT ? OFFSET ?  [42000-200]
-	at nxt.blockchain.BlockchainImpl.getTransactions(BlockchainImpl.java:400)
-	at nxt.http.GetRecentBlockchainTransactions.processRequest(GetRecentBlockchainTransactions.java:78)
+2025-03-09 13:16:04 INFO: nxt.enableStackTraces = "true"
+2025-03-09 13:16:04 INFO: nxt.disabledThrowableStackTraces = "{"nxt.NxtException$NotCurrentlyValidException": [ "Invalid bid order", "Block ID at ecBlockHeight" ]}"
+2025-03-09 13:16:04 INFO: nxt.enableLogTraceback = "false"
+2025-03-09 13:16:04 INFO: nxt.enableLogThreadName = "true"
+2025-03-09 13:16:04 INFO: main logging enabled
+2025-03-09 13:16:04 FINE: main java.version = 17.0.13
+2025-03-09 13:16:04 FINE: main java.vm.version = 17.0.13+11-Debian-2deb12u1
+2025-03-09 13:16:04 FINE: main java.vm.name = OpenJDK 64-Bit Server VM
+2025-03-09 13:16:04 FINE: main java.vendor = Debian
+2025-03-09 13:16:04 FINE: main java.vm.vendor = Debian
+2025-03-09 13:16:04 FINE: main java.home = /usr/lib/jvm/java-17-openjdk-amd64
+2025-03-09 13:16:04 FINE: main java.library.path = /usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib
+2025-03-09 13:16:04 FINE: main java.class.path = classes:lib/javax.servlet-api-3.1.0.jar:lib/slf4j-jdk14-1.7.22.jar:lib/purejavahidapi-0.0.10j2.jar:lib/bcpkix-jdk18on-177.jar:lib/jetty-servlets-9.4.56.v20240826.jar:lib/ed25519.jar:lib/weupnp-0.1.4.jar:lib/jetty-continuation-9.4.56.v20240826.jar:lib/core-3.3.0.jar:lib/h2-1.4.200.jar:lib/commons-math3-3.6.1.jar:lib/jetty-client-9.4.56.v20240826.jar:lib/javase-3.3.0.jar:lib/jetty-util-9.4.56.v20240826.jar:lib/commons-cli-1.3.1.jar:lib/tika-core-1.13.jar:lib/joor-java-8-0.9.14.jar:lib/jetty-http-9.4.56.v20240826.jar:lib/json-simple-1.1.1.jar:lib/slf4j-api-1.7.22.jar:lib/tika-parsers-1.13.jar:lib/jna-5.5.0.jar:lib/jetty-io-9.4.56.v20240826.jar:lib/jetty-server-9.4.56.v20240826.jar:lib/bcprov-jdk18on-177.jar:lib/jetty-servlet-9.4.56.v20240826.jar:lib/lucene-queryparser-7.1.0.jar:lib/lucene-core-7.1.0.jar:lib/javapoet-1.11.0.jar:lib/jetty-proxy-9.4.56.v20240826.jar:lib/lucene-queries-7.1.0.jar:lib/jna-platform-5.5.0.jar:lib/bcutil-jdk18on-1.77.jar:lib/jetty-security-9.4.56.v20240826.jar:lib/lucene-analyzers-common-7.1.0.jar:conf:addons/classes:addons/lib/*:javafx-sdk/lib/*
+2025-03-09 13:16:04 FINE: main java.io.tmpdir = /tmp
+2025-03-09 13:16:04 FINE: main os.arch = amd64
+2025-03-09 13:16:04 FINE: main sun.arch.data.model = 64
+2025-03-09 13:16:04 FINE: main os.name = Linux
+2025-03-09 13:16:04 FINE: main file.encoding = UTF-8
+2025-03-09 13:16:04 FINE: main java.security.policy = null
+2025-03-09 13:16:04 FINE: main java.security.manager = null
+2025-03-09 13:16:04 FINE: main java.specification.vendor = Oracle Corporation
+2025-03-09 13:16:04 FINE: main nxt.runtime.mode = null
+2025-03-09 13:16:04 FINE: main nxt.runtime.dirProvider = null
+2025-03-09 13:16:04 FINE: main availableProcessors = 24
+2025-03-09 13:16:04 FINE: main maxMemory = 8346664960
+2025-03-09 13:16:04 FINE: main processId = 398919
+2025-03-09 13:16:04 INFO: main nxt.isTestnet = "false"
+2025-03-09 13:16:04 INFO: main nxt.isOffline = "false"
+2025-03-09 13:16:04 INFO: main nxt.isLightClient = "false"
+2025-03-09 13:16:04 INFO: main nxt.isPermissioned = "false"
+2025-03-09 13:16:04 INFO: main nxt.customLoginWarning not defined
+2025-03-09 13:16:04 INFO: main nxt.forkBaseTargetPercentage = "2000"
+2025-03-09 13:16:04 INFO: main nxt.maxRollback = "800"
+2025-03-09 13:16:04 INFO: main nxt.forgingDelay = "10"
+2025-03-09 13:16:04 INFO: main nxt.forgingSpeedup = "3"
+2025-03-09 13:16:04 INFO: main nxt.numberOfForkConfirmations = "5"
+2025-03-09 13:16:04 INFO: main nxt.batchCommitSize = "100"
+2025-03-09 13:16:04 INFO: main nxt.openApiQueryTimeout = "1"
+2025-03-09 13:16:04 INFO: main nxt.maxPrunableLifetime = "7776000"
+2025-03-09 13:16:04 INFO: main nxt.includeExpiredPrunable = "true"
+2025-03-09 13:16:04 INFO: main nxt.enableLedgerWallet = "true"
+2025-03-09 13:16:04 INFO: main nxt.correctInvalidFees = "false"
+2025-03-09 13:16:04 INFO: main nxt.minBundlerBalanceFXT = "1000"
+2025-03-09 13:16:04 INFO: main nxt.minBundlerFeeLimitFXT = "10"
+2025-03-09 13:16:04 INFO: main nxt.disableFullTextSearch = "false"
+2025-03-09 13:16:04 INFO: main nxt.disableMetadataDetection = "false"
+2025-03-09 13:16:04 INFO: main nxt.statementLogThreshold = "10000"
+2025-03-09 13:16:04 INFO: main nxt.transactionLogThreshold = "15000"
+2025-03-09 13:16:04 INFO: main nxt.transactionLogInterval = "15"
+2025-03-09 13:16:04 INFO: main nxt.dbCacheKB = "0"
+2025-03-09 13:16:04 INFO: main nxt.dbUrl not defined
+2025-03-09 13:16:04 INFO: main nxt.dbType = "h2"
+2025-03-09 13:16:04 INFO: main nxt.dbDir = "./nxt_db/nxt"
+2025-03-09 13:16:04 INFO: main nxt.dbParams = "DB_CLOSE_ON_EXIT=FALSE"
+2025-03-09 13:16:04 INFO: main nxt.dbUsername = "sa"
+2025-03-09 13:16:04 INFO: main nxt.dbPassword = "{not logged}"
+2025-03-09 13:16:04 INFO: main nxt.maxDbConnections = "30"
+2025-03-09 13:16:04 INFO: main nxt.dbLoginTimeout = "70"
+2025-03-09 13:16:04 INFO: main nxt.dbDefaultLockTimeout = "60"
+2025-03-09 13:16:04 INFO: main nxt.dbMaxMemoryRows = "1000000"
+2025-03-09 13:16:04 INFO: main nxt.adminPassword not defined
+2025-03-09 13:16:04 INFO: main nxt.adminPasswordHash not defined
+2025-03-09 13:16:04 INFO: main nxt.maxAPIRecords = "100"
+2025-03-09 13:16:04 INFO: main nxt.enableAPIUPnP = "false"
+2025-03-09 13:16:04 INFO: main nxt.apiServerIdleTimeout = "30000"
+2025-03-09 13:16:04 INFO: main nxt.apiServerCORS = "true"
+2025-03-09 13:16:04 INFO: main nxt.forwardedForHeader not defined
+2025-03-09 13:16:04 INFO: main nxt.allowedBotHosts = "127.0.0.1; localhost; [0:0:0:0:0:0:0:1]; 0:0:0:0:0:0:0:1;"
+2025-03-09 13:16:04 INFO: main nxt.unlimitedBotHosts = "127.0.0.1; localhost; [0:0:0:0:0:0:0:1]; 0:0:0:0:0:0:0:1;"
+2025-03-09 13:16:04 INFO: main nxt.enableAPIServer = "true"
+2025-03-09 13:16:04 INFO: main nxt.apiServerPort = "27876"
+2025-03-09 13:16:04 INFO: main nxt.apiServerSSLPort = "27876"
+2025-03-09 13:16:04 INFO: main nxt.apiServerHost = "127.0.0.1"
+2025-03-09 13:16:04 INFO: main nxt.disableAdminPassword = "false"
+2025-03-09 13:16:04 INFO: main nxt.apiSSL = "false"
+2025-03-09 13:16:04 INFO: main API server using HTTP port 27876
+2025-03-09 13:16:04 INFO: main nxt.apiResourceBase = "./html/www"
+2025-03-09 13:16:04 INFO: main nxt.apiWelcomeFile = "index.html"
+2025-03-09 13:16:04 INFO: main nxt.javadocResourceBase = "./html/doc"
+2025-03-09 13:16:04 INFO: main nxt.maxUploadFileSize = "43008"
+2025-03-09 13:16:04 INFO: main nxt.maxUploadFileSize = "43008"
+2025-03-09 13:16:04 INFO: main nxt.enableAPIServerGZIPFilter not defined, using default false
+2025-03-09 13:16:04 INFO: main nxt.apiFrameOptionsSameOrigin = "true"
+2025-03-09 13:16:04 INFO: main nxt.apiCustomSetupImpl not defined
+2025-03-09 13:16:04 INFO: main nxt.defaultChildBlockDeadline = "10"
+2025-03-09 13:16:04 INFO: main nxt.trimFrequencyMultipliers = "PUBLIC_KEY-5;ALIAS-5"
+2025-03-09 13:16:04 INFO: main nxt.trimDerivedTables = "true"
+2025-03-09 13:16:04 INFO: main nxt.simulateEndlessDownload not defined, using default false
+2025-03-09 13:16:04 INFO: main nxt.trimFrequency = "1000"
+2025-03-09 13:16:04 INFO: main nxt.useStrongSecureRandom = "false"
+2025-03-09 13:16:04 INFO: main trimHeightOffset=258
+2025-03-09 13:16:04 INFO: main nxt.stopDownloadHeight not defined or not numeric, using default value 0
+2025-03-09 13:16:04 INFO: main nxt.disableGetMoreBlocksThread not defined, using default false
+2025-03-09 13:16:04 INFO: main nxt.processPolls = "true"
+2025-03-09 13:16:04 INFO: main nxt.deleteFinishedShufflings = "false"
+2025-03-09 13:16:04 INFO: main nxt.deleteProcessedVotes = "true"
+2025-03-09 13:16:04 FINE: main Database jdbc url set to jdbc:h2:./nxt_db/nxt;DB_CLOSE_ON_EXIT=FALSE;CACHE_SIZE=262144 username sa
+2025-03-09 13:16:04 INFO: main nxt.connectionPoolImpl = "nxt.db.pool.H2ConnectionPool"
+2025-03-09 13:16:05 FINE: main Database connection pool current size: 1
+2025-03-09 13:16:05 INFO: main Database update may take a while if needed, current db version 196...
+2025-03-09 13:16:05 INFO: main Database update may take a while if needed, current db version 171...
+2025-03-09 13:16:05 INFO: main Database update may take a while if needed, current db version 171...
+2025-03-09 13:16:05 INFO: main Database update may take a while if needed, current db version 171...
+2025-03-09 13:16:05 INFO: main Database update may take a while if needed, current db version 171...
+2025-03-09 13:16:05 INFO: main Database update may take a while if needed, current db version 171...
+2025-03-09 13:16:05 INFO: main nxt.enableTransactionRebroadcasting = "true"
+2025-03-09 13:16:05 INFO: main nxt.testUnconfirmedTransactions not defined, using default false
+2025-03-09 13:16:05 INFO: main nxt.maxUnconfirmedTransactions = "1500"
+2025-03-09 13:16:05 INFO: main nxt.droppedTransactionsStoreSize = "150000"
+2025-03-09 13:16:05 INFO: main nxt.disableRebroadcastTransactionsThread not defined, using default false
+2025-03-09 13:16:05 INFO: main nxt.disableRemoveUnconfirmedTransactionsThread not defined, using default false
+2025-03-09 13:16:05 INFO: main nxt.disableProcessWaitingTransactionsThread not defined, using default false
+2025-03-09 13:16:05 INFO: main nxt.enablePublicKeyCache = "true"
+2025-03-09 13:16:05 INFO: main nxt.ledgerTrimKeep = "30000"
+2025-03-09 13:16:05 INFO: main nxt.ledgerAccounts = "*"
+2025-03-09 13:16:05 INFO: main Account ledger is tracking all accounts
+2025-03-09 13:16:05 INFO: main nxt.ledgerLogUnconfirmed = "2"
+2025-03-09 13:16:05 INFO: main nxt.maxNumberOfForgers = "100"
+2025-03-09 13:16:05 INFO: main nxt.enableFakeForging not defined, using default false
+2025-03-09 13:16:05 INFO: main nxt.pauseForgingOnNoConnection = "true"
+2025-03-09 13:16:05 INFO: main nxt.disableGenerateBlocksThread not defined, using default false
+2025-03-09 13:16:05 INFO: main nxt.defaultChildBlockDeadline = "10"
+2025-03-09 13:16:05 INFO: main nxt.bundlingFilter not defined
+2025-03-09 13:16:05 INFO: main nxt.availableBundlingFilters = "nxt.addons.PersonalBundler;nxt.addons.AccountPropertyBundler; nxt.addons.AssetBundler;nxt.addons.CurrencyBundler;nxt.addons.PurchaseBundler; nxt.addons.QuotaBundler; nxt.addons.TransactionTypeBundler; nxt.addons.ManagedAccountsBundler"
+2025-03-09 13:16:05 INFO: main nxt.customBundlingFeeCalculators not defined
+2025-03-09 13:16:05 INFO: main nxt.peerServerPort = "27874"
+2025-03-09 13:16:05 INFO: main nxt.enablePeerUPnP = "true"
+2025-03-09 13:16:05 INFO: main nxt.shareMyAddress = "true"
+2025-03-09 13:16:05 INFO: main nxt.maxNumberOfOutboundConnections = "8"
+2025-03-09 13:16:05 INFO: main nxt.maxNumberOfInboundConnections = "2000"
+2025-03-09 13:16:05 INFO: main nxt.peerConnectTimeout = "10"
+2025-03-09 13:16:05 INFO: main nxt.peerReadTimeout = "20"
+2025-03-09 13:16:05 INFO: main nxt.peerServerHost = "0.0.0.0"
+2025-03-09 13:16:05 INFO: main nxt.myAddress not defined
+2025-03-09 13:16:05 INFO: main nxt.myPlatform not defined
+2025-03-09 13:16:05 INFO: main nxt.blacklistingPeriod = "600"
+2025-03-09 13:16:05 INFO: main nxt.communicationLogging = "0"
+2025-03-09 13:16:05 INFO: main nxt.getMorePeers = "true"
+2025-03-09 13:16:05 INFO: main nxt.maxNumberOfKnownPeers = "2000"
+2025-03-09 13:16:05 INFO: main nxt.minNumberOfKnownPeers = "1000"
+2025-03-09 13:16:05 INFO: main nxt.usePeersDb = "true"
+2025-03-09 13:16:05 INFO: main nxt.savePeers = "true"
+2025-03-09 13:16:05 INFO: main nxt.preventLocalPeersConnection = "true"
+2025-03-09 13:16:05 INFO: main nxt.hideErrorDetails = "false"
+2025-03-09 13:16:05 INFO: main nxt.ignorePeerAnnouncedAddress = "false"
+2025-03-09 13:16:05 INFO: main nxt.blacklistedBundlerAccounts not defined
+2025-03-09 13:16:05 INFO: main nxt.credentials.secretPhrase not defined
+2025-03-09 13:16:05 INFO: main nxt.wellKnownPeers not defined
+2025-03-09 13:16:05 INFO: main nxt.knownBlacklistedPeers not defined
+2025-03-09 13:16:05 INFO: main nxt.defaultPeers = "89.117.226.11; 79.167.210.8; 208.53.32.26; node6.ardor.tools; 23.94.198.19; 104.168.9.83; 143.198.115.239; 192.241.139.29; 174.138.39.150; 211.196.230.198; 147.182.219.219; 109.235.71.183; ardor01.jelurida.com; 107.172.92.53; 167.71.19.245; ardor.crypto.sargue.net; 107.173.25.171; ardor28.y.cz; 49.242.223.251; 133.242.182.65; racknerd-39.ardornxt.eu; 134.122.25.231; 198.12.83.179; 142.4.212.42; 206.189.239.184; 198.23.137.126; 118.220.113.117; 89.233.108.246; 147.182.211.245; 192.210.197.142; 172.245.6.129; 134.209.67.35; 107.175.91.183; racknerd-06.ardornxt.eu; 188.137.61.53; racknerd-30.ardornxt.eu; 206.189.224.203; 198.46.226.67; 157.230.7.216; 192.241.145.150; racknerd-31.ardornxt.eu; 143.244.172.31; 104.236.13.102; racknerd-07.ardornxt.eu; 134.122.21.172; 172.245.6.126; 116.89.106.233; 209.209.11.103; 143.244.163.171; 87.99.19.190; 24.144.120.224; racknerd-05.ardornxt.eu; 176.223.143.237; 87.103.245.205; 152.42.250.226; 194.135.82.50; 144.76.69.121; 31.208.53.143; 159.223.96.248; 178.128.153.182; cntb-01.ardornxt.eu; 176.123.4.157; 133.125.40.137; 176.223.132.54; 152.42.246.167; 188.165.226.46; 143.198.118.174; 107.175.172.73; alfred.airdns.org:40592; bg5000.mooo.com:37874; racknerd-09.ardornxt.eu; 108.174.57.6; racknerd-19.ardornxt.eu; 216.15.21.83; 107.173.165.83; ardor04.jelurida.com; 185.215.180.70; 150.230.46.59; 84.247.145.20; 142.93.156.135; 198.23.233.119; 159.223.151.46; 192.3.53.146; 220.75.255.246; 142.93.146.47; 192.81.218.122; 64.23.171.128; 172.105.207.97; 157.245.130.139; 178.128.161.137; racknerd-28.ardornxt.eu; doom-ardo-node-02.cryptonet.waw.pl; ardor33.y.cz; 217.73.196.44; 89.47.161.249; jill.airdns.org:37874; 152.42.179.59; ardor02.jelurida.com; 146.190.160.19; ardor.treecycle.ch; racknerd-14.ardornxt.eu; 176.223.136.245; 147.182.219.126; 161.35.132.42; 104.168.22.83; 137.184.23.239; 92.29.227.236; 188.166.161.179; 167.71.28.44; borg.airdns.org:55874; 167.172.239.123; 107.174.88.114; 192.3.249.139; 167.71.41.44; 176.53.160.56; 178.128.147.222; cntb-02.ardornxt.eu; 217.61.105.135; 161.35.2.0; 68.183.206.214; 165.227.95.37; node2.ardor.tools; 14.52.126.48; 192.3.62.222; 192.227.193.55; 108.170.40.2; 206.189.232.90; 80.208.231.180; 172.245.6.128; 18.183.34.173; ardor.nftmagic.art; ardor.blockfrikis.com; 107.174.121.188; 192.210.141.39; 75.127.9.167; 165.227.83.155; 49.212.156.13; 108.227.62.195; 134.209.65.140; 94.176.232.209; 185.189.229.123; racknerd-22.ardornxt.eu; 104.168.22.239; 157.230.61.216; 192.210.213.122; smallcat.chickenkiller.com:37874; 89.117.217.173; 198.46.152.53; 167.172.166.114; 157.230.8.130; 134.122.126.97; 143.198.36.18; 137.184.135.254; 134.209.122.174; 137.184.213.97; 3.112.34.90; wohnung.tzo.com; ardor03.jelurida.com; 46.101.119.241; ardor9.y.cz; aga-ardo-node-01.cryptonet.waw.pl; 188.166.109.46; 45.27.73.200; node7.ardor.tools; 107.174.121.185; 159.223.137.238; 198.23.137.124; racknerd-08.ardornxt.eu; 23.94.49.204; 188.166.255.128; 209.209.8.188; 161.35.110.156; 107.172.21.159; 142.93.150.133; 107.173.41.154; ardor27.y.cz; 167.172.142.237; littlecreek-04.ardornxt.eu; littlecreek-02.ardornxt.eu; littlecreek-01.ardornxt.eu;"
+2025-03-09 13:16:05 INFO: main nxt.disablePeerUnBlacklistingThread not defined, using default false
+2025-03-09 13:16:05 INFO: main nxt.disablePeerConnectingThread not defined, using default false
+2025-03-09 13:16:05 INFO: main nxt.disableGetMorePeersThread not defined, using default false
+2025-03-09 13:16:05 INFO: main nxt.disableUpdatePeerDbThread not defined, using default false
+2025-03-09 13:16:05 INFO: main nxt.enableAPIProxy = "true"
+2025-03-09 13:16:05 INFO: main nxt.apiProxyBlacklistingPeriod = "7200"
+2025-03-09 13:16:05 INFO: main nxt.forceAPIProxyServerURL not defined
+2025-03-09 13:16:05 INFO: main nxt.proxyBootstrapNodes = "ardor.jelurida.com;"
+2025-03-09 13:16:05 INFO: main nxt.disableAPIProxyPeersUpdateThread not defined, using default false
+2025-03-09 13:16:05 INFO: main nxt.addOns not defined
+2025-03-09 13:16:05 INFO: main nxt.debugTraceQuote = """
+2025-03-09 13:16:05 INFO: main nxt.debugTraceSeparator = "	"
+2025-03-09 13:16:05 INFO: main nxt.debugLogUnconfirmed = "false"
+2025-03-09 13:16:05 INFO: main nxt.debugTraceAccounts not defined
+2025-03-09 13:16:05 INFO: main nxt.debugTraceLog = "nxt-trace.csv"
+2025-03-09 13:16:05 FINE: main Running 2 tasks...
+2025-03-09 13:16:05 FINE: Thread-2 Loading known peers from the database...
+2025-03-09 13:16:05 FINE: Thread-1 Database connection pool current size: 2
+2025-03-09 13:16:05 WARNING: Thread-1 Column in position 2 in SHUFFLING_ID_HEIGHT_IDX is 'HEIGHT' instead of 'FULL_HASH'. Fast trimming is disabled for table IGNIS.SHUFFLING
+2025-03-09 13:16:05 WARNING: Thread-1 Column in position 2 in SHUFFLING_ID_HEIGHT_IDX is 'HEIGHT' instead of 'FULL_HASH'. Fast trimming is disabled for table AEUR.SHUFFLING
+2025-03-09 13:16:05 WARNING: Thread-1 Column in position 2 in SHUFFLING_ID_HEIGHT_IDX is 'HEIGHT' instead of 'FULL_HASH'. Fast trimming is disabled for table BITSWIFT.SHUFFLING
+2025-03-09 13:16:05 WARNING: Thread-1 Column in position 2 in SHUFFLING_ID_HEIGHT_IDX is 'HEIGHT' instead of 'FULL_HASH'. Fast trimming is disabled for table MPG.SHUFFLING
+2025-03-09 13:16:05 WARNING: Thread-1 Column in position 2 in SHUFFLING_ID_HEIGHT_IDX is 'HEIGHT' instead of 'FULL_HASH'. Fast trimming is disabled for table GPS.SHUFFLING
+2025-03-09 13:16:05 WARNING: Thread-1 Column CHILD_CHAIN_ID in PUBLIC.HOLDING_MIGRATE is not BIGINT. Fast trimming is disabled
+2025-03-09 13:16:05 INFO: Thread-1 Genesis block already in database
+2025-03-09 13:16:05 FINE: Thread-1 Will pop-off block 11351772526243231612
+2025-03-09 13:16:05 FINE: Thread-1 Deleting blocks starting from height 1266259
+2025-03-09 13:16:05 FINE: Thread-1 Average database transaction time is 0.006 seconds
+2025-03-09 13:16:05 FINE: Thread-1 Rollback from block 11351772526243231612 at height 1266259 to 10418809552115101787 at 1266258
+2025-03-09 13:16:05 INFO: Thread-1 Last block height: 1266258
+2025-03-09 13:16:05 INFO: Thread-1 nxt.forceScan = "false"
+2025-03-09 13:16:05 FINE: main Running 1 final tasks...
+2025-03-09 13:16:05 INFO: Thread-3 nxt.apiServerEnforcePOST = "true"
+2025-03-09 13:16:05 INFO: Thread-3 nxt.apiFixResponseContentType = "false"
+2025-03-09 13:16:05 INFO: Thread-3 nxt.disabledAPIs not defined
+2025-03-09 13:16:05 INFO: Thread-3 nxt.disabledAPITags not defined
+2025-03-09 13:16:06 INFO: Thread-3 Started API server at 127.0.0.1:27876
+2025-03-09 13:16:06 FINE: main Starting 10 background jobs
+2025-03-09 13:16:06 FINE: main Starting 3 delayed tasks
+2025-03-09 13:16:06 FINE: Thread-21 Known peers: 244
+2025-03-09 13:16:06 INFO: Thread-20 Looking for UPnP gateway device...
+2025-03-09 13:16:06 INFO: main nxt.runtime.mode not defined
+2025-03-09 13:16:06 INFO: main nxt.launchDesktopApplication = "true"
+2025-03-09 13:16:06 INFO: main Desktop application isDesktopEnabled:false, isLaunchDesktopApplication:true, hasJavaFX:false
+2025-03-09 13:16:06 INFO: Thread-20 nxt.upnpGatewayTimeout = "7000"
+2025-03-09 13:16:06 INFO: main Desktop application is disabled
+2025-03-09 13:16:06 INFO: main Initialization took 1 seconds
+2025-03-09 13:16:06 INFO: main Ardor server 2.5.1 started successfully.
+2025-03-09 13:16:06 INFO: main Copyright © 2013-2016 The Nxt Core Developers.
+2025-03-09 13:16:06 INFO: Thread-20 nxt.upnpDiscoverTimeout = "3000"
+2025-03-09 13:16:06 INFO: main Copyright © 2016-2023 Jelurida IP B.V.
+2025-03-09 13:16:06 INFO: main Copyright © 2023-2024 Jelurida Swiss SA
+2025-03-09 13:16:06 INFO: main Distributed under the Jelurida Public License version 1.3 for the Ardor Public Blockchain Platform, with ABSOLUTELY NO WARRANTY.
+2025-03-09 13:16:06 INFO: main Client UI is at http://localhost:27876/index.html
+2025-03-09 13:16:06 FINE: qtp1207140081-89 Error processing API request
+java.lang.RuntimeException: org.h2.jdbc.JdbcSQLDataException: Invalid value "0" for parameter "parameterIndex" [90008-200]
+	at nxt.blockchain.BlockchainImpl.getTransactions(BlockchainImpl.java:421)
+	at nxt.http.GetRecentBlockchainTransactions.processRequest(GetRecentBlockchainTransactions.java:61)
 	at nxt.http.APIServlet$APIRequestHandler.processRequest(APIServlet.java:140)
 	at nxt.http.APIServlet.process(APIServlet.java:398)
 	at nxt.http.APIServlet.doGet(APIServlet.java:283)
@@ -246,621 +245,87 @@ java.lang.RuntimeException: org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax erro
 	at org.eclipse.jetty.util.thread.QueuedThreadPool.runJob(QueuedThreadPool.java:883)
 	at org.eclipse.jetty.util.thread.QueuedThreadPool$Runner.run(QueuedThreadPool.java:1034)
 	at java.base/java.lang.Thread.run(Thread.java:840)
-Caused by: org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "(SELECT TRANSACTION.* FROM TRANSACTION WHERE 1=1  ORDER BY BLOCK_TIMESTAMP DESC, TRANSACTION_INDEX DESC LIMIT ? ) ORDER BY BLOCK_TIMESTAMP DESC, TRANSACTION_INDEX DESC LIMIT[*] ? OFFSET ? "; SQL statement:
-(SELECT transaction.* FROM transaction WHERE 1=1  ORDER BY block_timestamp DESC, transaction_index DESC LIMIT ? ) ORDER BY block_timestamp DESC, transaction_index DESC LIMIT ? OFFSET ?  [42000-200]
-	at org.h2.message.DbException.getJdbcSQLException(DbException.java:453)
+Caused by: org.h2.jdbc.JdbcSQLDataException: Invalid value "0" for parameter "parameterIndex" [90008-200]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:590)
 	at org.h2.message.DbException.getJdbcSQLException(DbException.java:429)
 	at org.h2.message.DbException.get(DbException.java:205)
-	at org.h2.message.DbException.get(DbException.java:181)
-	at org.h2.message.DbException.getSyntaxError(DbException.java:229)
-	at org.h2.command.Parser.getSyntaxError(Parser.java:1051)
-	at org.h2.command.Parser.prepareCommand(Parser.java:741)
-	at org.h2.engine.Session.prepareLocal(Session.java:657)
-	at org.h2.engine.Session.prepareCommand(Session.java:595)
-	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1235)
-	at org.h2.jdbc.JdbcPreparedStatement.<init>(JdbcPreparedStatement.java:76)
-	at org.h2.jdbc.JdbcConnection.prepareStatement(JdbcConnection.java:352)
-	at nxt.db.FilteredConnection.prepareStatement(FilteredConnection.java:63)
-	at nxt.blockchain.BlockchainImpl.getTransactions(BlockchainImpl.java:388)
+	at org.h2.message.DbException.getInvalidValueException(DbException.java:280)
+	at org.h2.jdbc.JdbcPreparedStatement.setParameter(JdbcPreparedStatement.java:1503)
+	at org.h2.jdbc.JdbcPreparedStatement.setInt(JdbcPreparedStatement.java:394)
+	at nxt.db.FilteredPreparedStatement.setInt(FilteredPreparedStatement.java:90)
+	at nxt.db.DbUtils.setLimits(DbUtils.java:153)
+	at nxt.blockchain.BlockchainImpl.getTransactions(BlockchainImpl.java:417)
 	... 40 more
-2025-02-22 20:05:24 FINE: Thread-20 There are no UPnP gateway devices
-2025-02-22 20:05:24 FINE: Network Listener Network listener started
-2025-02-22 20:05:24 FINE: Message Handler 1 Message Handler 1 started
-2025-02-22 20:05:24 FINE: Message Handler 2 Message Handler 2 started
-2025-02-22 20:05:24 FINE: Message Handler 4 Message Handler 4 started
-2025-02-22 20:05:24 FINE: Message Handler 3 Message Handler 3 started
-2025-02-22 20:05:24 FINE: Thread-30 Proxy trying to connect to 192.99.55.14
-2025-02-22 20:05:24 INFO: Network Listener Connection to 192.99.55.14 completed
-2025-02-22 20:05:26 FINE: Message Handler 1 Handshake complete with 192.99.55.14
-2025-02-22 20:05:26 FINE: Message Handler 2 Ignoring bundler rate for chain GPS (6)
-2025-02-22 20:05:26 FINE: Message Handler 2 Bundler account 5388336047026650204 does not exist
-2025-02-22 20:05:26 FINE: Message Handler 2 Relaying bundler rates from 192.99.55.14
-2025-02-22 20:05:26 FINE: Thread-30 Proxy bootstrap complete, known peer 192.99.55.14 is connected
-2025-02-22 20:05:30 FINE: pool-3-thread-2 Broadcasting blockchain state change from UP_TO_DATE to DOWNLOADING
-2025-02-22 20:05:30 INFO: Network Listener Connection to 108.174.57.217 completed
-2025-02-22 20:05:30 FINE: Network Listener Outbound connect failed to complete: Connection refused
-2025-02-22 20:05:30 INFO: pool-2-thread-15 Connection to 172.245.6.13 failed to complete, disconnecting
-2025-02-22 20:05:30 INFO: Network Listener Connection to 38.45.66.241 completed
-2025-02-22 20:05:30 INFO: Network Listener Connection to 172.245.16.197 completed
-2025-02-22 20:05:30 INFO: Network Listener Connection to 107.174.226.101 completed
-2025-02-22 20:05:30 FINE: Message Handler 1 Handshake complete with 108.174.57.217
-2025-02-22 20:05:30 INFO: Network Listener Connection to 107.174.121.79 completed
-2025-02-22 20:05:30 FINE: Message Handler 4 Ignoring bundler rate for chain GPS (6)
-2025-02-22 20:05:30 FINE: Message Handler 4 Bundler account 5388336047026650204 does not exist
-2025-02-22 20:05:30 FINE: Message Handler 3 Handshake complete with 38.45.66.241
-2025-02-22 20:05:30 FINE: Message Handler 2 Ignoring bundler rate for chain GPS (6)
-2025-02-22 20:05:30 FINE: Message Handler 2 Bundler account 5388336047026650204 does not exist
-2025-02-22 20:05:30 FINE: Message Handler 1 Handshake complete with 107.174.121.79
-2025-02-22 20:05:30 FINE: Message Handler 4 Handshake complete with 107.174.226.101
-2025-02-22 20:05:31 FINE: Message Handler 2 Ignoring bundler rate for chain GPS (6)
-2025-02-22 20:05:31 FINE: Message Handler 2 Bundler account 5388336047026650204 does not exist
-2025-02-22 20:05:31 FINE: Message Handler 3 Handshake complete with 172.245.16.197
-2025-02-22 20:05:31 FINE: Message Handler 1 Ignoring bundler rate for chain GPS (6)
-2025-02-22 20:05:31 FINE: Message Handler 1 Bundler account 5388336047026650204 does not exist
-2025-02-22 20:05:31 FINE: Message Handler 4 Ignoring bundler rate for chain GPS (6)
-2025-02-22 20:05:31 FINE: Message Handler 4 Bundler account 5388336047026650204 does not exist
-2025-02-22 20:05:32 FINE: qtp1207140081-52 Error processing API request
-java.lang.RuntimeException: org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "(SELECT TRANSACTION.* FROM TRANSACTION WHERE 1=1  ORDER BY BLOCK_TIMESTAMP DESC, TRANSACTION_INDEX DESC LIMIT ? ) ORDER BY BLOCK_TIMESTAMP DESC, TRANSACTION_INDEX DESC LIMIT[*] ? OFFSET ? "; SQL statement:
-(SELECT transaction.* FROM transaction WHERE 1=1  ORDER BY block_timestamp DESC, transaction_index DESC LIMIT ? ) ORDER BY block_timestamp DESC, transaction_index DESC LIMIT ? OFFSET ?  [42000-200]
-	at nxt.blockchain.BlockchainImpl.getTransactions(BlockchainImpl.java:400)
-	at nxt.http.GetRecentBlockchainTransactions.processRequest(GetRecentBlockchainTransactions.java:78)
-	at nxt.http.APIServlet$APIRequestHandler.processRequest(APIServlet.java:140)
-	at nxt.http.APIServlet.process(APIServlet.java:398)
-	at nxt.http.APIServlet.doGet(APIServlet.java:283)
-	at javax.servlet.http.HttpServlet.service(HttpServlet.java:687)
-	at javax.servlet.http.HttpServlet.service(HttpServlet.java:790)
-	at org.eclipse.jetty.servlet.ServletHolder.handle(ServletHolder.java:799)
-	at org.eclipse.jetty.servlet.ServletHandler$ChainEnd.doFilter(ServletHandler.java:1656)
-	at nxt.http.API$XFrameOptionsFilter.doFilter(API.java:692)
-	at org.eclipse.jetty.servlet.FilterHolder.doFilter(FilterHolder.java:193)
-	at org.eclipse.jetty.servlet.ServletHandler$Chain.doFilter(ServletHandler.java:1626)
-	at org.eclipse.jetty.servlets.CrossOriginFilter.handle(CrossOriginFilter.java:319)
-	at org.eclipse.jetty.servlets.CrossOriginFilter.doFilter(CrossOriginFilter.java:273)
-	at org.eclipse.jetty.servlet.FilterHolder.doFilter(FilterHolder.java:193)
-	at org.eclipse.jetty.servlet.ServletHandler$Chain.doFilter(ServletHandler.java:1626)
-	at org.eclipse.jetty.servlet.ServletHandler.doHandle(ServletHandler.java:552)
-	at org.eclipse.jetty.server.handler.ScopedHandler.handle(ScopedHandler.java:143)
-	at org.eclipse.jetty.server.handler.gzip.GzipHandler.handle(GzipHandler.java:731)
-	at org.eclipse.jetty.security.SecurityHandler.handle(SecurityHandler.java:600)
-	at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:127)
-	at org.eclipse.jetty.server.handler.ScopedHandler.nextHandle(ScopedHandler.java:235)
-	at org.eclipse.jetty.server.handler.ContextHandler.doHandle(ContextHandler.java:1440)
-	at org.eclipse.jetty.server.handler.ScopedHandler.nextScope(ScopedHandler.java:188)
-	at org.eclipse.jetty.servlet.ServletHandler.doScope(ServletHandler.java:505)
-	at org.eclipse.jetty.server.handler.ScopedHandler.nextScope(ScopedHandler.java:186)
-	at org.eclipse.jetty.server.handler.ContextHandler.doScope(ContextHandler.java:1355)
-	at org.eclipse.jetty.server.handler.ScopedHandler.handle(ScopedHandler.java:141)
-	at org.eclipse.jetty.server.handler.HandlerList.handle(HandlerList.java:59)
-	at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:127)
-	at org.eclipse.jetty.server.Server.handle(Server.java:516)
-	at org.eclipse.jetty.server.HttpChannel.lambda$handle$1(HttpChannel.java:487)
-	at org.eclipse.jetty.server.HttpChannel.dispatch(HttpChannel.java:732)
-	at org.eclipse.jetty.server.HttpChannel.handle(HttpChannel.java:479)
-	at org.eclipse.jetty.server.HttpConnection.onFillable(HttpConnection.java:277)
-	at org.eclipse.jetty.io.AbstractConnection$ReadCallback.succeeded(AbstractConnection.java:311)
-	at org.eclipse.jetty.io.FillInterest.fillable(FillInterest.java:105)
-	at org.eclipse.jetty.io.ChannelEndPoint$1.run(ChannelEndPoint.java:104)
-	at org.eclipse.jetty.util.thread.strategy.EatWhatYouKill.runTask(EatWhatYouKill.java:338)
-	at org.eclipse.jetty.util.thread.strategy.EatWhatYouKill.doProduce(EatWhatYouKill.java:315)
-	at org.eclipse.jetty.util.thread.strategy.EatWhatYouKill.tryProduce(EatWhatYouKill.java:173)
-	at org.eclipse.jetty.util.thread.strategy.EatWhatYouKill.produce(EatWhatYouKill.java:137)
-	at org.eclipse.jetty.util.thread.QueuedThreadPool.runJob(QueuedThreadPool.java:883)
-	at org.eclipse.jetty.util.thread.QueuedThreadPool$Runner.run(QueuedThreadPool.java:1034)
-	at java.base/java.lang.Thread.run(Thread.java:840)
-Caused by: org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "(SELECT TRANSACTION.* FROM TRANSACTION WHERE 1=1  ORDER BY BLOCK_TIMESTAMP DESC, TRANSACTION_INDEX DESC LIMIT ? ) ORDER BY BLOCK_TIMESTAMP DESC, TRANSACTION_INDEX DESC LIMIT[*] ? OFFSET ? "; SQL statement:
-(SELECT transaction.* FROM transaction WHERE 1=1  ORDER BY block_timestamp DESC, transaction_index DESC LIMIT ? ) ORDER BY block_timestamp DESC, transaction_index DESC LIMIT ? OFFSET ?  [42000-200]
-	at org.h2.message.DbException.getJdbcSQLException(DbException.java:453)
-	at org.h2.message.DbException.getJdbcSQLException(DbException.java:429)
-	at org.h2.message.DbException.get(DbException.java:205)
-	at org.h2.message.DbException.get(DbException.java:181)
-	at org.h2.message.DbException.getSyntaxError(DbException.java:229)
-	at org.h2.command.Parser.getSyntaxError(Parser.java:1051)
-	at org.h2.command.Parser.prepareCommand(Parser.java:741)
-	at org.h2.engine.Session.prepareLocal(Session.java:657)
-	at org.h2.engine.Session.prepareCommand(Session.java:595)
-	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1235)
-	at org.h2.jdbc.JdbcPreparedStatement.<init>(JdbcPreparedStatement.java:76)
-	at org.h2.jdbc.JdbcConnection.prepareStatement(JdbcConnection.java:352)
-	at nxt.db.FilteredConnection.prepareStatement(FilteredConnection.java:63)
-	at nxt.blockchain.BlockchainImpl.getTransactions(BlockchainImpl.java:388)
-	... 44 more
-2025-02-22 20:05:35 INFO: pool-3-thread-6 Blockchain download in progress
-2025-02-22 20:05:40 FINE: pool-2-thread-8 Timeout trying to connect to 157.230.61.216
-2025-02-22 20:05:45 INFO: Network Listener Connection to 38.45.64.189 completed
-2025-02-22 20:05:45 FINE: Message Handler 1 Handshake complete with 38.45.64.189
-2025-02-22 20:05:45 FINE: Message Handler 4 Ignoring bundler rate for chain GPS (6)
-2025-02-22 20:05:46 FINE: pool-3-thread-6 Got 5 confirmations
-2025-02-22 20:05:46 INFO: pool-3-thread-6 Downloaded 719 blocks in 10 s, 67 per s, 619 min left
-2025-02-22 20:05:49 FINE: pool-3-thread-6 Transaction 5:568dd0ac3505ffb4b1a731cbc932aa6f358b99555588bc67b9dfc9258b8eb09c has been released
-2025-02-22 20:05:49 FINE: pool-3-thread-6 Early finish of transaction 5:568dd0ac3505ffb4b1a731cbc932aa6f358b99555588bc67b9dfc9258b8eb09c at height 1242120
-2025-02-22 20:05:49 FINE: pool-3-thread-6 Transaction 5:1c60023f2332e062a46b38b5b055091e60b1ed241b769911508845df7d2249bf has been released
-2025-02-22 20:05:49 FINE: pool-3-thread-6 Early finish of transaction 5:1c60023f2332e062a46b38b5b055091e60b1ed241b769911508845df7d2249bf at height 1242128
-2025-02-22 20:05:49 FINE: pool-3-thread-6 Transaction 5:d3a14b8c82e0cdbdc78a2b50b90d0870c2ff31774bb1d8dfed66edc2ed7d378d has been released
-2025-02-22 20:05:49 FINE: pool-3-thread-6 Early finish of transaction 5:d3a14b8c82e0cdbdc78a2b50b90d0870c2ff31774bb1d8dfed66edc2ed7d378d at height 1242131
-2025-02-22 20:05:49 FINE: pool-3-thread-6 Transaction 5:da29a1bedc5bed738926b5bc9bc8a72ee726169da89c17ebb7d73a4a873a4a72 has been released
-2025-02-22 20:05:49 FINE: pool-3-thread-6 Early finish of transaction 5:da29a1bedc5bed738926b5bc9bc8a72ee726169da89c17ebb7d73a4a873a4a72 at height 1242135
-2025-02-22 20:05:51 FINE: pool-3-thread-6 Got 5 confirmations
-2025-02-22 20:05:51 INFO: pool-3-thread-6 Downloaded 719 blocks in 4 s, 91 per s, 468 min left
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:f373d45a8edbe8a5fa644d8c7020d15bf6a6ee13affbecf3b1991bc5955e3264 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:f373d45a8edbe8a5fa644d8c7020d15bf6a6ee13affbecf3b1991bc5955e3264 at height 1243311
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:ab09e9784758f1eec38dd4e4654c5adf9c8941f186f6a0d1891d4179a7b9768f has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:ab09e9784758f1eec38dd4e4654c5adf9c8941f186f6a0d1891d4179a7b9768f at height 1243311
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:f6d78ca5d790947faf15b8a4c343058f8298dcb73cce300430685bbcc6015ea7 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:f6d78ca5d790947faf15b8a4c343058f8298dcb73cce300430685bbcc6015ea7 at height 1243311
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:9c7e5593ca9599d978bf33c6dbc06a4f5c417e93146f9c1ed5f7ff3d32667ec7 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:9c7e5593ca9599d978bf33c6dbc06a4f5c417e93146f9c1ed5f7ff3d32667ec7 at height 1243312
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:88158dbf5be30ceb0ec35750c108bac0b842bfabf8c43ed854fd5e145af894db has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:88158dbf5be30ceb0ec35750c108bac0b842bfabf8c43ed854fd5e145af894db at height 1243342
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:f301be873a55954dfb15f866d7638efd9b3892d901b8cc5b95b7bfe223165848 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:f301be873a55954dfb15f866d7638efd9b3892d901b8cc5b95b7bfe223165848 at height 1243347
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:07bc5e3eabdcbce86efa59f75d07f7e8eb43fba7f2d0dc0f5d455e9265682886 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:07bc5e3eabdcbce86efa59f75d07f7e8eb43fba7f2d0dc0f5d455e9265682886 at height 1243347
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:f37451527d387a9eb606a41efcda233d5d81fa0f58a98b89617435d0cb40eeda has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:f37451527d387a9eb606a41efcda233d5d81fa0f58a98b89617435d0cb40eeda at height 1243347
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:8b3c870f9852dec4921d25332cc6e01546cc0da50cd51ef733f2381cc14bb1f4 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:8b3c870f9852dec4921d25332cc6e01546cc0da50cd51ef733f2381cc14bb1f4 at height 1243348
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:8e47f5acfe2d47d22151fd54cffa3e7cb326dc80b7b83a71a4f805b8d6b5de9f has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:8e47f5acfe2d47d22151fd54cffa3e7cb326dc80b7b83a71a4f805b8d6b5de9f at height 1243348
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:de063281e60bb8651c691f7d0149b3b59238759e48d86dc721b917f9158ad180 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:de063281e60bb8651c691f7d0149b3b59238759e48d86dc721b917f9158ad180 at height 1243348
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:757dba4f8af7e10e454e2522ecd1f964219f06728a42965284559241378e217b has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:757dba4f8af7e10e454e2522ecd1f964219f06728a42965284559241378e217b at height 1243348
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:4b9e2a60606190ef6d3d336e54369a1d45db0c2b2b2991e3fbda504c8d5e1102 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:4b9e2a60606190ef6d3d336e54369a1d45db0c2b2b2991e3fbda504c8d5e1102 at height 1243348
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:ee0add1326e90023310ed157732332cd8cf1a8287d5b9622a476d8359f0cd196 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:ee0add1326e90023310ed157732332cd8cf1a8287d5b9622a476d8359f0cd196 at height 1243348
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:e7036bdbd072242eef0815c6f245f95f82cd78c527f2b5e65b646d19fd2c580a has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:e7036bdbd072242eef0815c6f245f95f82cd78c527f2b5e65b646d19fd2c580a at height 1243348
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:48be645bb8995752ed4e4ab678a22c88132d756660c6766d0f91014c287a10d8 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:48be645bb8995752ed4e4ab678a22c88132d756660c6766d0f91014c287a10d8 at height 1243348
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:4fcbf5e4eaad3c4612e64d069f9ab1a39833809ce79929be9ce717e2f767845c has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:4fcbf5e4eaad3c4612e64d069f9ab1a39833809ce79929be9ce717e2f767845c at height 1243348
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:06652ffdaf044a56a64b81b62725d3ebebd9c495de36940ea05eaf98f3016eb1 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:06652ffdaf044a56a64b81b62725d3ebebd9c495de36940ea05eaf98f3016eb1 at height 1243348
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:48e3ff4b67221f3ba6275235739b298e954fb0d4a95468d22621c52bebb2d6c8 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:48e3ff4b67221f3ba6275235739b298e954fb0d4a95468d22621c52bebb2d6c8 at height 1243348
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:f505f8b4954e3054a81708f0670966b79e1e041c3cc7da8a1d08af9f095bebe5 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:f505f8b4954e3054a81708f0670966b79e1e041c3cc7da8a1d08af9f095bebe5 at height 1243348
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:3396ae8c5b3d41a6606cc93dd747f4fe44609143e79a98fb3663969664b42c6a has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:3396ae8c5b3d41a6606cc93dd747f4fe44609143e79a98fb3663969664b42c6a at height 1243348
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:516dd3c9b4befc28c01b0251a31666e78bba865e6a063adef4fa3cc6482e7a7b has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:516dd3c9b4befc28c01b0251a31666e78bba865e6a063adef4fa3cc6482e7a7b at height 1243348
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:d28b570c904575740c6e80340d2d8387b11b06bd1667a0553ec390d6a8fcb5e1 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:d28b570c904575740c6e80340d2d8387b11b06bd1667a0553ec390d6a8fcb5e1 at height 1243348
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:fb638f15f555c4deaa36ca56047221bb8634cdc7279cf391bfb6a8172a501caa has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:fb638f15f555c4deaa36ca56047221bb8634cdc7279cf391bfb6a8172a501caa at height 1243348
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:2eb23e0b8fae5354a24d470e64162dce91cd100a3a0e3cc6b8fe5d2a41b04c50 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:2eb23e0b8fae5354a24d470e64162dce91cd100a3a0e3cc6b8fe5d2a41b04c50 at height 1243348
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:735e90c61d97305e1bcb4e839bde43f2b0e490c31652860e0e22d1fb816f586f has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:735e90c61d97305e1bcb4e839bde43f2b0e490c31652860e0e22d1fb816f586f at height 1243348
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:abc2b5cd247222f9edf75a2cf572faa935bde40061fd539101c1a1988fc677be has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:abc2b5cd247222f9edf75a2cf572faa935bde40061fd539101c1a1988fc677be at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:5c6b3dde9ead69f2a9b6a0b423dac8eda3ab504078445569ecfe826e5fdabe46 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:5c6b3dde9ead69f2a9b6a0b423dac8eda3ab504078445569ecfe826e5fdabe46 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:de386eb4154a88af200cc8c3a5437dd7f37df3653fd72b344278fba46fc9272e has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:de386eb4154a88af200cc8c3a5437dd7f37df3653fd72b344278fba46fc9272e at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:5fb003508daa7c60a37cea8b2fa61796e537b0706c846b1221a6ae7d05e3deb4 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:5fb003508daa7c60a37cea8b2fa61796e537b0706c846b1221a6ae7d05e3deb4 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:cfae64f631967e990a9a085592e50e9806a29e5cc86844292ee3c656b1c74c48 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:cfae64f631967e990a9a085592e50e9806a29e5cc86844292ee3c656b1c74c48 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:30e0ed4d7ec78e669a65af024afbd82e3246d965ad41196de7c4359b506d4a9c has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:30e0ed4d7ec78e669a65af024afbd82e3246d965ad41196de7c4359b506d4a9c at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:a0ead72fecc2d91405ff51d25ee259d75f82be6c3ddb8ae6849ef8a44661fc4f has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:a0ead72fecc2d91405ff51d25ee259d75f82be6c3ddb8ae6849ef8a44661fc4f at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:6b829564a69b8664fb9966a26c58a8afed24271782987303c25f7de5ba3d898d has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:6b829564a69b8664fb9966a26c58a8afed24271782987303c25f7de5ba3d898d at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:ce386c98d9b04eaf1b1ca2b202398f5d241c7f50ce38197dfada760ef29fd700 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:ce386c98d9b04eaf1b1ca2b202398f5d241c7f50ce38197dfada760ef29fd700 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:0b596f2ebabd4bcb68df6da3cd4f1765fc06c3e9f7c5c78a43a80da5c4c715da has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:0b596f2ebabd4bcb68df6da3cd4f1765fc06c3e9f7c5c78a43a80da5c4c715da at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:dec8df1eade6ecdd0847b077ff96dfaa8d1f90c2b2af8a7db25bb0423f74f4eb has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:dec8df1eade6ecdd0847b077ff96dfaa8d1f90c2b2af8a7db25bb0423f74f4eb at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:2b28f7d09f3fe24cdda99509d08c556f8d909845d64712c5a5efa83a81f8ea05 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:2b28f7d09f3fe24cdda99509d08c556f8d909845d64712c5a5efa83a81f8ea05 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:1caf719bdfa1dc0148db0e50f28202f3dc16d1cd498419d13c1c7ef5a219ca8f has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:1caf719bdfa1dc0148db0e50f28202f3dc16d1cd498419d13c1c7ef5a219ca8f at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:a23a5c64bb1c10ce65217005bef5a545559c5daed08f3e4315a5d36d4b15656e has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:a23a5c64bb1c10ce65217005bef5a545559c5daed08f3e4315a5d36d4b15656e at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:cbeb006e5519927b584c483821e50cbc2a8418507677ae5da2f1d6e74d4c4b14 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:cbeb006e5519927b584c483821e50cbc2a8418507677ae5da2f1d6e74d4c4b14 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:4bd64bb62bbe334fa167d160292a03561fa11135b4bfb362231c54e1eca6c601 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:4bd64bb62bbe334fa167d160292a03561fa11135b4bfb362231c54e1eca6c601 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:f0881561bc70d52a65a1e2c615829a0a52ac1f13dc62b3b5e4732afa3c2133f2 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:f0881561bc70d52a65a1e2c615829a0a52ac1f13dc62b3b5e4732afa3c2133f2 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:3df5c5c38124321436fe534e682e97e1a6eb4451fcaa4df2fa657469a42f5cbe has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:3df5c5c38124321436fe534e682e97e1a6eb4451fcaa4df2fa657469a42f5cbe at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:4b0b5ab16905d975e653ba04b4d23a0842c9bb04c1e439b47673a3859ee4d8c8 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:4b0b5ab16905d975e653ba04b4d23a0842c9bb04c1e439b47673a3859ee4d8c8 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:4493e069b907547cf5fbb7a27d763cd3f57612c8adb86bf468cb49e3e3dc6465 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:4493e069b907547cf5fbb7a27d763cd3f57612c8adb86bf468cb49e3e3dc6465 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:6406f5eb5481a8358d4de34c1ac4bd3d4ba7312bd969e260f2da3281cb912ab4 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:6406f5eb5481a8358d4de34c1ac4bd3d4ba7312bd969e260f2da3281cb912ab4 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:f95254febc305931d1fa0f66e18a5fb4f2a77ad1392f19bcda5531dc50ae760d has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:f95254febc305931d1fa0f66e18a5fb4f2a77ad1392f19bcda5531dc50ae760d at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:f9962cea91b97e75807650adbd0d59055693b789754d0850cbd43bc1e9a708fc has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:f9962cea91b97e75807650adbd0d59055693b789754d0850cbd43bc1e9a708fc at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:f73d53ff4dbdb5cd136a1ec24cd4a11310627d024b91a8566a3fcfa19ff9f1c8 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:f73d53ff4dbdb5cd136a1ec24cd4a11310627d024b91a8566a3fcfa19ff9f1c8 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:97e1ba25a736444cada49c6cd2636f484f4b8ada54a0dc4ed6d9e1104d6c1d0f has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:97e1ba25a736444cada49c6cd2636f484f4b8ada54a0dc4ed6d9e1104d6c1d0f at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:7d4d3b2f7c6822e6d307e1fca20e3cd46ae4c195ed63706fa4c515e9f6f5367f has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:7d4d3b2f7c6822e6d307e1fca20e3cd46ae4c195ed63706fa4c515e9f6f5367f at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:1dd20d9981e75faa6e295d656244de9ad7eab72dcbcec49a483162610a25a70c has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:1dd20d9981e75faa6e295d656244de9ad7eab72dcbcec49a483162610a25a70c at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:c78b80225705e5f0c6367ef99e864635760f8a8003c16542d2717f16d67502b6 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:c78b80225705e5f0c6367ef99e864635760f8a8003c16542d2717f16d67502b6 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:ec32ad6eaa7b52ea96fa512c659c2c906c25c419986632237b144808e203dd16 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:ec32ad6eaa7b52ea96fa512c659c2c906c25c419986632237b144808e203dd16 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:8eb55a0f9c13b9c54681894881d4de441298c00f486b7a7904f5c5b249243a2f has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:8eb55a0f9c13b9c54681894881d4de441298c00f486b7a7904f5c5b249243a2f at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:1e317a2d61e0bc8f41af8fd1630699d73a33677c1266639b3f15f4e4aa4b4a07 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:1e317a2d61e0bc8f41af8fd1630699d73a33677c1266639b3f15f4e4aa4b4a07 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:d8d5aedcbed08bc6d8238de9633bceff5880454e3cc0a7e61bd81b4efbe84b2f has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:d8d5aedcbed08bc6d8238de9633bceff5880454e3cc0a7e61bd81b4efbe84b2f at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:d8f7ddad7efbca28679f0f1af7ba5301ea63e1fbda04dc760d9f0bef59107fcf has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:d8f7ddad7efbca28679f0f1af7ba5301ea63e1fbda04dc760d9f0bef59107fcf at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:f5d67134e4b8fda803cc664fe014f611833f97d343ca9d2ffc12feacc60fd328 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:f5d67134e4b8fda803cc664fe014f611833f97d343ca9d2ffc12feacc60fd328 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:6817db8cf7db66f1da9fe3966b3539412ac31b14e9e5483677b80282fd4a2ec2 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:6817db8cf7db66f1da9fe3966b3539412ac31b14e9e5483677b80282fd4a2ec2 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:a7de1b3d6c6e195c7599c5e5c0d054ce98b879dbb5476e72ecd48ec0a1750371 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:a7de1b3d6c6e195c7599c5e5c0d054ce98b879dbb5476e72ecd48ec0a1750371 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:07b7e2bf820cc73835b34779c2b2f2b3bfb209f9fd00e733d5770bc69d4e2099 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:07b7e2bf820cc73835b34779c2b2f2b3bfb209f9fd00e733d5770bc69d4e2099 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:782289e6f24d826b551e93b9c5a62c6530409ca168a5b687d5476d6f34c573da has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:782289e6f24d826b551e93b9c5a62c6530409ca168a5b687d5476d6f34c573da at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:c5419e013bd2c3b7fa2d7d7ba91020055d2cb8486f2c9bb502ea674a303134f0 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:c5419e013bd2c3b7fa2d7d7ba91020055d2cb8486f2c9bb502ea674a303134f0 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:2a519bf037a52fccbcf508ed00ee01e4a07f35c80357f901d18859b77de49c6e has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:2a519bf037a52fccbcf508ed00ee01e4a07f35c80357f901d18859b77de49c6e at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:bc3dc3a850159e9fda57d7d838be8c80fc93bc5f203dc65ff3a409ac8b9141c5 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:bc3dc3a850159e9fda57d7d838be8c80fc93bc5f203dc65ff3a409ac8b9141c5 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:84db5cb7b9c9a2aa2ee8c6f189a5345bfc786fe52f3806a57e4b012ffe48b7a6 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:84db5cb7b9c9a2aa2ee8c6f189a5345bfc786fe52f3806a57e4b012ffe48b7a6 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:d62485ee58dceed9301ea8e71ec0216d405e37b6f33a1d3f45f10a3f429c20be has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:d62485ee58dceed9301ea8e71ec0216d405e37b6f33a1d3f45f10a3f429c20be at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:fadfedafdced56e358f3414cb72b0eff2a3572b08c2ca6e822520befb130896d has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:fadfedafdced56e358f3414cb72b0eff2a3572b08c2ca6e822520befb130896d at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:bf23ba795e197eae86a2e605ed61d27eeb8d9de974735026277ac7e8d2831b6c has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:bf23ba795e197eae86a2e605ed61d27eeb8d9de974735026277ac7e8d2831b6c at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:2d93493e3171e4b0e11d4497aba9e9272b7f566855ef352b7e88d9a4f3373b72 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:2d93493e3171e4b0e11d4497aba9e9272b7f566855ef352b7e88d9a4f3373b72 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:d7ba84b68a0123e522d8cfd65c8ce7ef56bb563b617869ddb7a39bfeed58eeee has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:d7ba84b68a0123e522d8cfd65c8ce7ef56bb563b617869ddb7a39bfeed58eeee at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:75d4050d4575142084e0872cb1174090dbbbfcabaa79dcd4d12e975831d656b0 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:75d4050d4575142084e0872cb1174090dbbbfcabaa79dcd4d12e975831d656b0 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:5c602fb5b77036d2918c2d68391da1687fa529f7acd3aa34088fddcd0ef394e1 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:5c602fb5b77036d2918c2d68391da1687fa529f7acd3aa34088fddcd0ef394e1 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:df4993353830bb7283e01173db5b5386c4bcb746cc8d00322305ed50adc30f96 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:df4993353830bb7283e01173db5b5386c4bcb746cc8d00322305ed50adc30f96 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:830d70e225e2db5d2ee0ec6cd56989228994a9fa88c40a5cfa501ee6136b9750 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:830d70e225e2db5d2ee0ec6cd56989228994a9fa88c40a5cfa501ee6136b9750 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:0fbf12e7b4ec4ef1f6265e71f1a20d1153430a6f20af3475cfe199db1c86f779 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:0fbf12e7b4ec4ef1f6265e71f1a20d1153430a6f20af3475cfe199db1c86f779 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:af015084f0c893ad36bd3e0d0b5a1c938ce8f270d40be08101f66b8e65cf4cea has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:af015084f0c893ad36bd3e0d0b5a1c938ce8f270d40be08101f66b8e65cf4cea at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:bf1002ab8561d9274a6bf8f31392a5ae3f2fd6f6cb0c490cb297f1dad9e78abe has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:bf1002ab8561d9274a6bf8f31392a5ae3f2fd6f6cb0c490cb297f1dad9e78abe at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:c4eb67eee54e8114f12714fc72c2c37bdc791a708941103f37b618974e380b49 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:c4eb67eee54e8114f12714fc72c2c37bdc791a708941103f37b618974e380b49 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:281361b1b89bfe41f44a278efd1878972b4833b18de13447286ae53172f995d1 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:281361b1b89bfe41f44a278efd1878972b4833b18de13447286ae53172f995d1 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:452074a5abc55bda42a6b996e1c33cd4d79552f8a77ee4436481d377fff326ff has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:452074a5abc55bda42a6b996e1c33cd4d79552f8a77ee4436481d377fff326ff at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:a9cdbd07fc8794b857d7dc1acd3fed36cc5f6abef79a087f542777eedde3ece6 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:a9cdbd07fc8794b857d7dc1acd3fed36cc5f6abef79a087f542777eedde3ece6 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:c279d4fa91a9ba29b55c53cabb9eae04aebe26cf40d548b29e6a99bb93d9c55c has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:c279d4fa91a9ba29b55c53cabb9eae04aebe26cf40d548b29e6a99bb93d9c55c at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:7337563d079159143fe716d54e0bd08587df087455afb15ecff08fb056e36d6d has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:7337563d079159143fe716d54e0bd08587df087455afb15ecff08fb056e36d6d at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:138f35b7518ad491f9b0672b4c38abce092f22499b80510bca256bae43b90b4d has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:138f35b7518ad491f9b0672b4c38abce092f22499b80510bca256bae43b90b4d at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:2e24f14cb0c335a422748baf9c67892e1b68a0872bafd471883f473ac486d93c has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:2e24f14cb0c335a422748baf9c67892e1b68a0872bafd471883f473ac486d93c at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:da71e7f500d7c365c97a190a46cc2252bf0bd79fe28d8b1f13fb6a5eee076973 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:da71e7f500d7c365c97a190a46cc2252bf0bd79fe28d8b1f13fb6a5eee076973 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:2b44e784bc3200d7b57a2ceff58d0b3fb5f69e775f400a67b28a8f25b98a49d9 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:2b44e784bc3200d7b57a2ceff58d0b3fb5f69e775f400a67b28a8f25b98a49d9 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:7a87c444fdb62d72cfcb272df5ecb4180992a67f1a5dc6f882918935cfe66abd has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:7a87c444fdb62d72cfcb272df5ecb4180992a67f1a5dc6f882918935cfe66abd at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:28a9e91b85086dd48dc329327f5231d48a19170a9f3c36ab01e97695ad18334e has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:28a9e91b85086dd48dc329327f5231d48a19170a9f3c36ab01e97695ad18334e at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:e701e6386d195556bad3a485340ba23eb842ecec5e314cc58c26ffe3c46dbb91 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:e701e6386d195556bad3a485340ba23eb842ecec5e314cc58c26ffe3c46dbb91 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:5e7abee3580351de6deb7eef3682e36d26c267ce540f119cbc34ca97efe8c198 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:5e7abee3580351de6deb7eef3682e36d26c267ce540f119cbc34ca97efe8c198 at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:386aa20aac0f1ac5140dd46a5cdbb3f03f17b937b9deebb26daa4a95ebc342ff has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:386aa20aac0f1ac5140dd46a5cdbb3f03f17b937b9deebb26daa4a95ebc342ff at height 1243349
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Transaction 5:819031ca5d25378b978914e23ace377609d7f2ec4df87705e4216d8f55c7f4d5 has been released
-2025-02-22 20:05:53 FINE: pool-3-thread-6 Early finish of transaction 5:819031ca5d25378b978914e23ace377609d7f2ec4df87705e4216d8f55c7f4d5 at height 1243349
-2025-02-22 20:05:54 FINE: pool-3-thread-6 Got 5 confirmations
-2025-02-22 20:05:54 INFO: pool-3-thread-6 Downloaded 719 blocks in 2 s, 116 per s, 356 min left
-2025-02-22 20:05:55 FINE: pool-2-thread-8 Timeout trying to connect to 147.182.219.219
-2025-02-22 20:05:57 FINE: pool-3-thread-6 No blocks returned from 38.45.66.241
-2025-02-22 20:05:57 FINE: pool-3-thread-6 No blocks returned from 38.45.66.241
-2025-02-22 20:05:57 FINE: pool-3-thread-6 No blocks returned from 38.45.66.241
-2025-02-22 20:05:58 FINE: pool-3-thread-6 At height 1243635 phased transaction 5:2d1c613c6cfa856fadf67789ef9dcd5abf1f857b8c6d1da6fe3be108b153e06b does not yet meet quorum, cannot finish early
-2025-02-22 20:05:58 FINE: pool-3-thread-6 At height 1243751 phased transaction 5:7a6257ef1ac48beae07ecdb177c1f3d7c29dfee71f6ee274f66e9bc21a6f7cbc does not yet meet quorum, cannot finish early
-2025-02-22 20:05:58 FINE: pool-3-thread-6 Transaction 5:314eac146d22e82e8722f8065534fae6998202245787be411439c572afb75c23 has been released
-2025-02-22 20:05:58 FINE: pool-3-thread-6 Early finish of transaction 5:314eac146d22e82e8722f8065534fae6998202245787be411439c572afb75c23 at height 1243756
-2025-02-22 20:05:59 FINE: pool-3-thread-6 Got 5 confirmations
-2025-02-22 20:05:59 INFO: pool-3-thread-6 Downloaded 719 blocks in 5 s, 122 per s, 352 min left
-2025-02-22 20:06:00 INFO: Network Listener Connection to 89.250.243.27 completed
-2025-02-22 20:06:01 FINE: Message Handler 3 Handshake complete with 89.250.243.27
-2025-02-22 20:06:01 FINE: Message Handler 4 Ignoring bundler rate for chain GPS (6)
-2025-02-22 20:06:04 FINE: pool-3-thread-6 At height 1244544 phased transaction 5:465cb062d7817246bbef2897055ff154c112d9822af5dbd623b309b8556044af does not yet meet quorum, cannot finish early
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:3b36923bcd4eea54e99f9c3afbbee8ef8871829d3bfc1e418e0d9c8673daad9e has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:3b36923bcd4eea54e99f9c3afbbee8ef8871829d3bfc1e418e0d9c8673daad9e at height 1244647
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:e0a08cb4a0cccaba7871c1f585220d0969c180f0331958666aedba07df71f996 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:e0a08cb4a0cccaba7871c1f585220d0969c180f0331958666aedba07df71f996 at height 1244650
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:ea5a6f508ed3b4e575cb6c7fb7e3ffa58e6d55f6e87fc92fbe97fed3675e7f50 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:ea5a6f508ed3b4e575cb6c7fb7e3ffa58e6d55f6e87fc92fbe97fed3675e7f50 at height 1244658
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:8b6bb5b4c17719c0ec73ec834a59430a13a19b74e371943a0e860f4e007251f0 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:8b6bb5b4c17719c0ec73ec834a59430a13a19b74e371943a0e860f4e007251f0 at height 1244666
-2025-02-22 20:06:05 FINE: pool-3-thread-6 At height 1244668 phased transaction 5:5dcfcf7680b8dba97c6cd66008447259af0ea0b92219ff6ac88dd3b5f6e7d07b does not yet meet quorum, cannot finish early
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:6fa105b7b78b65dd8cd881c9457b23fcfe292d22b88076f4e0a718909d421a15 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:6fa105b7b78b65dd8cd881c9457b23fcfe292d22b88076f4e0a718909d421a15 at height 1244671
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:da34e6da566d759806cacf3951f3033f02dba5fed59b4632f8f8f25b384b1b5d has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:da34e6da566d759806cacf3951f3033f02dba5fed59b4632f8f8f25b384b1b5d at height 1244672
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:43d37105b1ac2732bf2bae9dbb158483b246d977a3af4ec3c1dff11d4939998b has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:43d37105b1ac2732bf2bae9dbb158483b246d977a3af4ec3c1dff11d4939998b at height 1244679
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:710ffb862887bbf59df8cc71fdbaf36ff04f2614802a619d6280d16d5a227ed2 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:710ffb862887bbf59df8cc71fdbaf36ff04f2614802a619d6280d16d5a227ed2 at height 1244680
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:8552e964e8c230820e07e85c32b2b8a5fb8369c5aae8071d5afa687b9acfdcd3 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:8552e964e8c230820e07e85c32b2b8a5fb8369c5aae8071d5afa687b9acfdcd3 at height 1244683
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:20d96fe9c0a1e28bcba169d046aa07846d855143fa8bbff9726708510017f537 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:20d96fe9c0a1e28bcba169d046aa07846d855143fa8bbff9726708510017f537 at height 1244685
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:5f223fcfc466ed65d489ffb749ef5e379bbcc3921245c7bd53ad27c0fd121771 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:5f223fcfc466ed65d489ffb749ef5e379bbcc3921245c7bd53ad27c0fd121771 at height 1244689
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:51160ae77465e0c64a768d5f6c30420a41bfca08345ac7c199969a29c52a9e33 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:51160ae77465e0c64a768d5f6c30420a41bfca08345ac7c199969a29c52a9e33 at height 1244692
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:6c8a9a6c071a0a13256fe27f2bf398a7f817efd0bb04e45fbd815d50c35e0604 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:6c8a9a6c071a0a13256fe27f2bf398a7f817efd0bb04e45fbd815d50c35e0604 at height 1244698
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:04404bf7fabb031d2b906e6e33bde7c1e8b028faf8b17288102309abfb9e9097 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:04404bf7fabb031d2b906e6e33bde7c1e8b028faf8b17288102309abfb9e9097 at height 1244699
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:e010c5a91cfba5c50a87b931064d7cf0fe8995528797f728ac91898e7c9766f8 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:e010c5a91cfba5c50a87b931064d7cf0fe8995528797f728ac91898e7c9766f8 at height 1244699
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:f8e718e101b2cc498bca153f50159557cca4faf50df6883bea058e6c049ce7d2 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:f8e718e101b2cc498bca153f50159557cca4faf50df6883bea058e6c049ce7d2 at height 1244699
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:e7e915004493e39a0c4f748066b1184361350007ae9f43846eea97fd40284388 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:e7e915004493e39a0c4f748066b1184361350007ae9f43846eea97fd40284388 at height 1244701
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:4d1d5b2afa3bbf9b37304a31b66208b7d01555195bca63e19f3044dec8a4f4bb has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:4d1d5b2afa3bbf9b37304a31b66208b7d01555195bca63e19f3044dec8a4f4bb at height 1244703
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:1ea596803a68175068c62ba86c011a595b31e2ff522842f35bb875b1d097cc6f has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:1ea596803a68175068c62ba86c011a595b31e2ff522842f35bb875b1d097cc6f at height 1244706
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:17addacb1b8b2822829b18d20b28dad9021e9a82eccc561a4081c3132f6a348d has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:17addacb1b8b2822829b18d20b28dad9021e9a82eccc561a4081c3132f6a348d at height 1244710
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:e28a5ef4e3ce1f4f82e9e1ae2559f42a98caa517040908434918c26d7ceb7c19 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:e28a5ef4e3ce1f4f82e9e1ae2559f42a98caa517040908434918c26d7ceb7c19 at height 1244712
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:6120f02095ea106ba8a6f07c6c7ed1b2437d9b3609d7cf177b86e9b54a9d9624 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:6120f02095ea106ba8a6f07c6c7ed1b2437d9b3609d7cf177b86e9b54a9d9624 at height 1244712
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:cab08b6f55eb15e278c2260d28af44e83e4e65993b608973d8a85c097b2863ca has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:cab08b6f55eb15e278c2260d28af44e83e4e65993b608973d8a85c097b2863ca at height 1244714
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:01a1c051614e9b0389d12ba8d62789c7591acab699ecaf7bfea2ce1ca7fe7577 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:01a1c051614e9b0389d12ba8d62789c7591acab699ecaf7bfea2ce1ca7fe7577 at height 1244718
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:27a2f432ccdcb51686c0542e6369e084a03c0a981ac8a7aff242e65a57e00dc8 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:27a2f432ccdcb51686c0542e6369e084a03c0a981ac8a7aff242e65a57e00dc8 at height 1244720
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:dcbd1324d71a42f60f2e572f065a6fd40e17394c01705663ba69605bda25e913 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:dcbd1324d71a42f60f2e572f065a6fd40e17394c01705663ba69605bda25e913 at height 1244723
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:108d20f61c8ffd2a8c035bbf19299cae741ab68547aa226fbc73bf7d6c951d02 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:108d20f61c8ffd2a8c035bbf19299cae741ab68547aa226fbc73bf7d6c951d02 at height 1244723
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:efa6184435971ba1471ade3ba6647a94fba304ab1d8f378da658228709556df4 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:efa6184435971ba1471ade3ba6647a94fba304ab1d8f378da658228709556df4 at height 1244723
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:5476a0dd3daed80a8cf5f38eb86feb3699971ae04c9e84297d87590bd213a846 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:5476a0dd3daed80a8cf5f38eb86feb3699971ae04c9e84297d87590bd213a846 at height 1244723
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:da5f55fe0ed527eca554f05fa2a0e2c5e8f3bbf2f693d5cf22986dc9e2313ab0 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:da5f55fe0ed527eca554f05fa2a0e2c5e8f3bbf2f693d5cf22986dc9e2313ab0 at height 1244724
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:aad0917ef5c080c59295abbcd2803bc6b463faccbe23f76f880b63d5e511bee5 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:aad0917ef5c080c59295abbcd2803bc6b463faccbe23f76f880b63d5e511bee5 at height 1244727
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:a20312ce39acc3b3604e769a557ca6f9a9bff8c65f033a13c7a549e8b88a3aba has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:a20312ce39acc3b3604e769a557ca6f9a9bff8c65f033a13c7a549e8b88a3aba at height 1244727
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:db2d8beb4a343a430b9889ca8323f2a4e121f305baeed8141c98db3bf16bc934 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:db2d8beb4a343a430b9889ca8323f2a4e121f305baeed8141c98db3bf16bc934 at height 1244727
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:3ab8fc08cc81f5c18f5ee4bc94436148b118d3d794fbb3d6b68c95b3c7b88884 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:3ab8fc08cc81f5c18f5ee4bc94436148b118d3d794fbb3d6b68c95b3c7b88884 at height 1244727
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:9f5118d11266a66efe5d0ae3b7cacf707624ca4aef6964a9a53264992b9cb4d5 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:9f5118d11266a66efe5d0ae3b7cacf707624ca4aef6964a9a53264992b9cb4d5 at height 1244730
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:7dd05f2709a1525082fa85f3bb400f400f1137b9a5fc080fb36943c1b7098f54 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:7dd05f2709a1525082fa85f3bb400f400f1137b9a5fc080fb36943c1b7098f54 at height 1244731
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:7e2952fefb60453a2dc4429038719da25d6e671a08ee25abac2b46ce4ea972b7 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:7e2952fefb60453a2dc4429038719da25d6e671a08ee25abac2b46ce4ea972b7 at height 1244732
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:ab448657b75137d0af6d94dd97032dee2705267e9e3dfc7da63ad8868dbcb344 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:ab448657b75137d0af6d94dd97032dee2705267e9e3dfc7da63ad8868dbcb344 at height 1244733
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:844573d85e42a43baa7510125db3f1453a32845bf4dcd128cfa741413d370740 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:844573d85e42a43baa7510125db3f1453a32845bf4dcd128cfa741413d370740 at height 1244735
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:c92066e30d0755338eabea61665f1112f48fcbe3490e55886b3cc6f529458f89 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:c92066e30d0755338eabea61665f1112f48fcbe3490e55886b3cc6f529458f89 at height 1244737
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:27e9694d16c2cc396c4cfc304c690abdb4d71d9e4acd8cde57dee6784a6ba320 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:27e9694d16c2cc396c4cfc304c690abdb4d71d9e4acd8cde57dee6784a6ba320 at height 1244737
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:96f9506a49ef4e796958a77d18f00b30cd9ccbec630623532fede8a240ed4d8e has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:96f9506a49ef4e796958a77d18f00b30cd9ccbec630623532fede8a240ed4d8e at height 1244737
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:1130711834c4bdea72bd42ed5e1773276ae11577c2b6e0f9747bafaa424e1f94 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:1130711834c4bdea72bd42ed5e1773276ae11577c2b6e0f9747bafaa424e1f94 at height 1244737
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:db14eda96509b5dd69b30bb6c9e3ed73b9c6fbd47f4ae0f50dcf996ef8eddd8f has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:db14eda96509b5dd69b30bb6c9e3ed73b9c6fbd47f4ae0f50dcf996ef8eddd8f at height 1244737
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:b84d8a979cdb6d4b70ad900d8ff495b5df7ea20fdc7c405bec68e564cb7d58f8 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:b84d8a979cdb6d4b70ad900d8ff495b5df7ea20fdc7c405bec68e564cb7d58f8 at height 1244739
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:3057bee019b71ae26b9f021064dd0756364bd94cf4d2b1dc5765b635a18a3918 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:3057bee019b71ae26b9f021064dd0756364bd94cf4d2b1dc5765b635a18a3918 at height 1244740
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:22fb9d8bd37f921cf0eb5e20379e7c31c0ec7bc90adcad9f9552edba98adfa54 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:22fb9d8bd37f921cf0eb5e20379e7c31c0ec7bc90adcad9f9552edba98adfa54 at height 1244741
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:027b786bcfe279f34f569d24544b31c09780713f825ef8b6c2d9a26b72781eb3 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:027b786bcfe279f34f569d24544b31c09780713f825ef8b6c2d9a26b72781eb3 at height 1244741
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:4cb4f49dab5b145df9a55027cd64017ad3c8dec5b80dc0d5df5b3296f8eda18f has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:4cb4f49dab5b145df9a55027cd64017ad3c8dec5b80dc0d5df5b3296f8eda18f at height 1244741
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:f573de33cb3588deb343362eeabddfe8839952e1c1db4ca4b6db76ea43ee8ee9 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:f573de33cb3588deb343362eeabddfe8839952e1c1db4ca4b6db76ea43ee8ee9 at height 1244741
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:db0eab919dc365a7b44e4290e722708493987c1dcedbf173ae6455845f3a9668 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:db0eab919dc365a7b44e4290e722708493987c1dcedbf173ae6455845f3a9668 at height 1244742
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:ad9dcafe7d215defc437bc4bcc84ee0a5b93c3d100a1284b36563fc0de0ce333 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:ad9dcafe7d215defc437bc4bcc84ee0a5b93c3d100a1284b36563fc0de0ce333 at height 1244742
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:8aba17232d47594639de380d858d4a3093283fd5ec234fbb4f18b3240ee0ce63 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:8aba17232d47594639de380d858d4a3093283fd5ec234fbb4f18b3240ee0ce63 at height 1244742
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:4c6597c5f9361c92f5fa649570299a3851c248e6002db816d6184c40b1c15480 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:4c6597c5f9361c92f5fa649570299a3851c248e6002db816d6184c40b1c15480 at height 1244742
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:cd365a718f02f8b7d482cb102e7383fa5f2ac6eb20b6cd53c47f979f05b969c2 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:cd365a718f02f8b7d482cb102e7383fa5f2ac6eb20b6cd53c47f979f05b969c2 at height 1244743
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:8e2bce63f94cd93ae497cae02eddc758f2e461b61b22569dab7e4211a5acff10 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:8e2bce63f94cd93ae497cae02eddc758f2e461b61b22569dab7e4211a5acff10 at height 1244744
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:ba0cce2327c241de3d411efa13bf4287cee5a7c257df30c88f5370e7679ebf4b has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:ba0cce2327c241de3d411efa13bf4287cee5a7c257df30c88f5370e7679ebf4b at height 1244744
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:4284ea8a6c6cdafddf614252b815f44edbebd72857453cd84df0e8f7842eee6f has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:4284ea8a6c6cdafddf614252b815f44edbebd72857453cd84df0e8f7842eee6f at height 1244744
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:ec49e85693dd27a53e7201ddd0716791477865f161167a0d5e77c10c91745a16 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:ec49e85693dd27a53e7201ddd0716791477865f161167a0d5e77c10c91745a16 at height 1244744
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:2189f05e566da3b8258ce8fc03e5b9015d48f18fe75fbf8be422633d120843fc has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:2189f05e566da3b8258ce8fc03e5b9015d48f18fe75fbf8be422633d120843fc at height 1244744
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:cfd4f198936e4e701e708cf0d331a1565b4d4b0cd4b98ad61011ba1e99330f1c has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:cfd4f198936e4e701e708cf0d331a1565b4d4b0cd4b98ad61011ba1e99330f1c at height 1244745
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:dfee1fdcc411e519bcd6840e5a8f5101dc93a55fb0140c271be2d71143e1292c has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:dfee1fdcc411e519bcd6840e5a8f5101dc93a55fb0140c271be2d71143e1292c at height 1244745
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:eb1bea9e3d4282515f7f0be91dd520dcc477c30d3e797c6e65a158a6519fb1ed has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:eb1bea9e3d4282515f7f0be91dd520dcc477c30d3e797c6e65a158a6519fb1ed at height 1244745
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:1743af19073e53ba882c0f0fe5c81ea50f532cffb5d36d4c22d2bd9bc64dad61 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:1743af19073e53ba882c0f0fe5c81ea50f532cffb5d36d4c22d2bd9bc64dad61 at height 1244745
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:7eb28902f09a901b7b46a62288f8f620eb84e918c88b3869e316c07b5aecc137 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:7eb28902f09a901b7b46a62288f8f620eb84e918c88b3869e316c07b5aecc137 at height 1244745
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:ece25bb5fe28daf21a39501e9eaa29061ad34f1b27a9c9f75e73898afc64d7b8 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:ece25bb5fe28daf21a39501e9eaa29061ad34f1b27a9c9f75e73898afc64d7b8 at height 1244745
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:00ab48f465dcda88fc5bacba0652092953e30d936bde8f88e022a4fd018b6ffa has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:00ab48f465dcda88fc5bacba0652092953e30d936bde8f88e022a4fd018b6ffa at height 1244747
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:f010fa8cbd36b573b63cdc836ca67e89737943e19142af89e9029e9f31f80057 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:f010fa8cbd36b573b63cdc836ca67e89737943e19142af89e9029e9f31f80057 at height 1244750
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:ed5bb89dab0c34fac1b03353c5ab9355c4026af83ea5c802339bbd2281c8605d has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:ed5bb89dab0c34fac1b03353c5ab9355c4026af83ea5c802339bbd2281c8605d at height 1244752
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:a787fae4269d721ba4116c5c3e4f2292cb0501796dcd9469990c183d15ca4c2e has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:a787fae4269d721ba4116c5c3e4f2292cb0501796dcd9469990c183d15ca4c2e at height 1244753
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:e2a931a2cd297cf4614f6994ae6f6a5cff31b391e5d48ac8e6d467c2b4084528 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:e2a931a2cd297cf4614f6994ae6f6a5cff31b391e5d48ac8e6d467c2b4084528 at height 1244753
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:686479d86ef9fd32483f131653320fe16076c5cb59cd470c1ba3666fe427f53c has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:686479d86ef9fd32483f131653320fe16076c5cb59cd470c1ba3666fe427f53c at height 1244753
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:91d41fc69185fcce0594c3aa0ff18e588805f1f2804560d6e545986cfde1c750 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:91d41fc69185fcce0594c3aa0ff18e588805f1f2804560d6e545986cfde1c750 at height 1244753
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:d5ee14414b3a8e5ddc87c457c25642569f37901e926fae941a8652ac55236c95 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:d5ee14414b3a8e5ddc87c457c25642569f37901e926fae941a8652ac55236c95 at height 1244755
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:553980f51bdc1d2c05c881fbf364c0c49dff2b5c0c296b0ade2d6c470117fe84 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:553980f51bdc1d2c05c881fbf364c0c49dff2b5c0c296b0ade2d6c470117fe84 at height 1244755
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:99a905f66403fb9f542dfed70a0f860e97db64e7a8e4b9a339268b302c84fb66 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:99a905f66403fb9f542dfed70a0f860e97db64e7a8e4b9a339268b302c84fb66 at height 1244755
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:6b2b3821bdc533b2e323ba79df6f2ce3ac6bb3f245327334c4263e109153a92d has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:6b2b3821bdc533b2e323ba79df6f2ce3ac6bb3f245327334c4263e109153a92d at height 1244755
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:d73b753c500d365fc02a637fd0f4ecd0037d3aacc8a979b35097e2b979695dac has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:d73b753c500d365fc02a637fd0f4ecd0037d3aacc8a979b35097e2b979695dac at height 1244755
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:d5334384fb4285ae1bbfba3b7ab658eec0e0eb5bea593a6e647f27dff98053e9 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:d5334384fb4285ae1bbfba3b7ab658eec0e0eb5bea593a6e647f27dff98053e9 at height 1244755
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:9d900bd243b60beca8a4e07e80fa2c4e167cc0a4391cf39ff58d5eefabc01ee1 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:9d900bd243b60beca8a4e07e80fa2c4e167cc0a4391cf39ff58d5eefabc01ee1 at height 1244755
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:97b3d69b61e1f965887b49b26bb6fccb2a34f3f587706d6c6cd869fdba30029d has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:97b3d69b61e1f965887b49b26bb6fccb2a34f3f587706d6c6cd869fdba30029d at height 1244756
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:5ac01d8c92d7720851b3bac5dcc849ec644d46d32a9eb7777f71978afe9f2114 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:5ac01d8c92d7720851b3bac5dcc849ec644d46d32a9eb7777f71978afe9f2114 at height 1244763
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:a436ddb63ce2b5fdc0409461e0f6bb545e622ff66b14d6a9696991de776bbfbd has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:a436ddb63ce2b5fdc0409461e0f6bb545e622ff66b14d6a9696991de776bbfbd at height 1244765
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:4e21dd49a69610e6b4e77d4bc886ef5199f6e0940cc5bbc54ca19271dee824be has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:4e21dd49a69610e6b4e77d4bc886ef5199f6e0940cc5bbc54ca19271dee824be at height 1244765
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:fe0463e5cb71d8fabaf36feb9ca8ffff8d49a0bc057a9e475116d59843c247c3 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:fe0463e5cb71d8fabaf36feb9ca8ffff8d49a0bc057a9e475116d59843c247c3 at height 1244767
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:c1843741b11623c17865e7158a77f18b3b691cd624c32f317cb1657308682022 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:c1843741b11623c17865e7158a77f18b3b691cd624c32f317cb1657308682022 at height 1244767
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:50ea22071d7ce717d49e48d052d9b55d6403adb0767abf6e7683e52a86660929 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:50ea22071d7ce717d49e48d052d9b55d6403adb0767abf6e7683e52a86660929 at height 1244769
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:09688463a332d152fb954e367ae2d52a10e3dab68d25beea2f3d6c707837010d has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:09688463a332d152fb954e367ae2d52a10e3dab68d25beea2f3d6c707837010d at height 1244770
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:67839c344b638180354b57fbb8223fe9ac30da3f220869e6496a8ac8eebb6576 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:67839c344b638180354b57fbb8223fe9ac30da3f220869e6496a8ac8eebb6576 at height 1244770
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:804bb1031cb491bff227e189eb6a17594c39ccef5f4fc807aafaa112e897604b has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:804bb1031cb491bff227e189eb6a17594c39ccef5f4fc807aafaa112e897604b at height 1244772
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:b87281c4747c12d79b10d35a4b14afa9bb4ae7a0a5714e25e15e02036fd728db has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:b87281c4747c12d79b10d35a4b14afa9bb4ae7a0a5714e25e15e02036fd728db at height 1244772
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:574261833f1f28b5dd13db66d9fbff31bc16ad8c4ad8046c5308b9641aff9fb2 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:574261833f1f28b5dd13db66d9fbff31bc16ad8c4ad8046c5308b9641aff9fb2 at height 1244773
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Transaction 5:6611fe30c209f146004ffc2f1a84e127952479b09cd1b02045106c143185af05 has been released
-2025-02-22 20:06:05 FINE: pool-3-thread-6 Early finish of transaction 5:6611fe30c209f146004ffc2f1a84e127952479b09cd1b02045106c143185af05 at height 1244774
-2025-02-22 20:06:06 FINE: pool-3-thread-6 Got 5 confirmations
-2025-02-22 20:06:06 INFO: pool-3-thread-6 Downloaded 719 blocks in 7 s, 116 per s, 368 min left
-2025-02-22 20:06:08 INFO: pool-3-thread-6 received block 1245000
-2025-02-22 20:06:08 FINE: pool-3-thread-6 Transaction 5:2d1c613c6cfa856fadf67789ef9dcd5abf1f857b8c6d1da6fe3be108b153e06b has been released
-2025-02-22 20:06:08 FINE: pool-3-thread-6 Transaction 5:2a711eee7e874a0bf9bd823a2a590cf2a2b3e51b002429609122d3dfe4c6a5f6 has been released
-2025-02-22 20:06:08 FINE: pool-3-thread-6 Early finish of transaction 5:2a711eee7e874a0bf9bd823a2a590cf2a2b3e51b002429609122d3dfe4c6a5f6 at height 1245158
-2025-02-22 20:06:08 FINE: pool-3-thread-6 Transaction 5:efe3906e72784d552b48e1535230dc778a071001cf57678cc157617fcf7dec7c has been released
-2025-02-22 20:06:08 FINE: pool-3-thread-6 Early finish of transaction 5:efe3906e72784d552b48e1535230dc778a071001cf57678cc157617fcf7dec7c at height 1245162
-2025-02-22 20:06:08 FINE: pool-3-thread-6 Transaction 5:7a6257ef1ac48beae07ecdb177c1f3d7c29dfee71f6ee274f66e9bc21a6f7cbc has been released
-2025-02-22 20:06:08 FINE: pool-3-thread-6 Transaction 5:0283144d45b3860c4c2bea1d0aa03bb5ce0bf6dc57c0d40d5269fb70b3fdb961 has been released
-2025-02-22 20:06:08 FINE: pool-3-thread-6 Early finish of transaction 5:0283144d45b3860c4c2bea1d0aa03bb5ce0bf6dc57c0d40d5269fb70b3fdb961 at height 1245191
-2025-02-22 20:06:10 FINE: pool-3-thread-6 Got 5 confirmations
-2025-02-22 20:06:10 INFO: pool-3-thread-6 Downloaded 719 blocks in 4 s, 123 per s, 348 min left
-2025-02-22 20:06:15 FINE: pool-3-thread-6 Transaction 5:aa005cda9cafd0bbc1cc46887175e665160b8bdd7105d7f58b2f6a70e033b14e has been released
-2025-02-22 20:06:15 FINE: pool-3-thread-6 Early finish of transaction 5:aa005cda9cafd0bbc1cc46887175e665160b8bdd7105d7f58b2f6a70e033b14e at height 1245794
-2025-02-22 20:06:15 FINE: pool-3-thread-6 Transaction 5:465cb062d7817246bbef2897055ff154c112d9822af5dbd623b309b8556044af has been released
-2025-02-22 20:06:15 FINE: pool-3-thread-6 Transaction 5:7ea0eca15d3868df2b77f75040ebee2d1243170741358cb04abce0e136fe81e5 has been released
-2025-02-22 20:06:15 FINE: pool-3-thread-6 Early finish of transaction 5:7ea0eca15d3868df2b77f75040ebee2d1243170741358cb04abce0e136fe81e5 at height 1246082
-2025-02-22 20:06:15 FINE: pool-3-thread-6 Transaction 5:5dcfcf7680b8dba97c6cd66008447259af0ea0b92219ff6ac88dd3b5f6e7d07b has been released
-2025-02-22 20:06:15 FINE: pool-3-thread-6 Transaction 5:a62d5f4c9843ddc081300bc6b8c35a6a954320a1145c4cc92ae73dd6e5bf471e has been released
-2025-02-22 20:06:15 FINE: pool-3-thread-6 Early finish of transaction 5:a62d5f4c9843ddc081300bc6b8c35a6a954320a1145c4cc92ae73dd6e5bf471e at height 1246126
-2025-02-22 20:06:16 FINE: pool-3-thread-6 Transaction 5:13ae12404ed86751d7dc93f99282e1033ddbabc991f4371938c5fc4eadf4ef5c has been released
-2025-02-22 20:06:16 FINE: pool-3-thread-6 Early finish of transaction 5:13ae12404ed86751d7dc93f99282e1033ddbabc991f4371938c5fc4eadf4ef5c at height 1246242
-2025-02-22 20:06:17 FINE: pool-3-thread-6 Got 5 confirmations
-2025-02-22 20:06:17 INFO: pool-3-thread-6 Downloaded 719 blocks in 7 s, 119 per s, 360 min left
-2025-02-22 20:06:23 FINE: pool-3-thread-6 Got 5 confirmations
-2025-02-22 20:06:23 INFO: pool-3-thread-6 Downloaded 719 blocks in 5 s, 120 per s, 346 min left
-2025-02-22 20:06:28 FINE: pool-3-thread-6 Got 5 confirmations
-2025-02-22 20:06:28 INFO: pool-3-thread-6 Downloaded 719 blocks in 5 s, 121 per s, 342 min left
-2025-02-22 20:06:31 FINE: pool-3-thread-6 Got 5 confirmations
-2025-02-22 20:06:31 INFO: pool-3-thread-6 Downloaded 719 blocks in 2 s, 128 per s, 334 min left
-2025-02-22 20:06:33 FINE: pool-3-thread-6 Transaction 5:9a15fec50a502da42fb5262ad58c144808d7e7af1d86032b218c9dea97cb5911 has been released
-2025-02-22 20:06:33 FINE: pool-3-thread-6 Early finish of transaction 5:9a15fec50a502da42fb5262ad58c144808d7e7af1d86032b218c9dea97cb5911 at height 1248588
-2025-02-22 20:06:34 FINE: pool-3-thread-6 At height 1249146 phased transaction 5:14d2e2c916dd1cbdd2b756836ee7ee4e8ba1ca2fed595b57e8bcd695758d9f30 does not yet meet quorum, cannot finish early
-2025-02-22 20:06:40 FINE: pool-3-thread-6 Got 5 confirmations
-2025-02-22 20:06:40 INFO: pool-3-thread-6 Downloaded 719 blocks in 8 s, 122 per s, 349 min left
-2025-02-22 20:06:42 FINE: pool-3-thread-6 Transaction 5:c8382adca7ebedefec2ce366e301b1194d31e3261f07cccdfee6e950c20e44c4 has been released
-2025-02-22 20:06:42 FINE: pool-3-thread-6 Early finish of transaction 5:c8382adca7ebedefec2ce366e301b1194d31e3261f07cccdfee6e950c20e44c4 at height 1249281
-2025-02-22 20:06:42 FINE: pool-3-thread-6 At height 1249283 phased transaction 5:bd2da6890ad4eb5800eb1ee2a06c0470bed915cefcb0e405c952ae7cdee3ef52 does not yet meet quorum, cannot finish early
-2025-02-22 20:06:45 FINE: pool-3-thread-6 Got 5 confirmations
-2025-02-22 20:06:45 INFO: pool-3-thread-6 Downloaded 719 blocks in 4 s, 124 per s, 344 min left
-2025-02-22 20:06:47 INFO: pool-3-thread-6 received block 1250000
-2025-02-22 20:06:48 FINE: pool-3-thread-6 Transaction 5:14d2e2c916dd1cbdd2b756836ee7ee4e8ba1ca2fed595b57e8bcd695758d9f30 has been released
-2025-02-22 20:06:48 FINE: pool-3-thread-6 Got 5 confirmations
-2025-02-22 20:06:48 INFO: pool-3-thread-6 Downloaded 719 blocks in 3 s, 127 per s, 335 min left
-2025-02-22 20:06:49 FINE: pool-3-thread-6 Transaction 5:bd2da6890ad4eb5800eb1ee2a06c0470bed915cefcb0e405c952ae7cdee3ef52 has been released
-2025-02-22 20:06:52 FINE: pool-3-thread-6 Got 5 confirmations
-2025-02-22 20:06:52 INFO: pool-3-thread-6 Downloaded 719 blocks in 3 s, 131 per s, 325 min left
-2025-02-22 20:06:55 FINE: pool-3-thread-6 No blocks returned from 38.45.66.241
-2025-02-22 20:06:55 FINE: pool-3-thread-6 No blocks returned from 38.45.66.241
-2025-02-22 20:06:55 FINE: pool-3-thread-6 No blocks returned from 38.45.66.241
-2025-02-22 20:06:57 FINE: pool-3-thread-6 Transaction 2:c42f62af15ee28a4d9d840af0e53a745c3c4568afc7a93ff40f7ad29a064795c has been rejected
-2025-02-22 20:06:58 FINE: pool-3-thread-6 Got 5 confirmations
-2025-02-22 20:06:58 INFO: pool-3-thread-6 Downloaded 719 blocks in 6 s, 130 per s, 329 min left
-2025-02-22 20:07:03 FINE: pool-3-thread-6 Got 5 confirmations
-2025-02-22 20:07:03 INFO: pool-3-thread-6 Downloaded 719 blocks in 4 s, 131 per s, 326 min left
-2025-02-22 20:07:06 FINE: pool-3-thread-6 Got 5 confirmations
-2025-02-22 20:07:06 INFO: pool-3-thread-6 Downloaded 719 blocks in 3 s, 134 per s, 317 min left
-2025-02-22 20:07:11 FINE: Message Handler 3 Ignoring bundler rate for chain GPS (6)
-2025-02-22 20:07:19 FINE: pool-3-thread-6 Got 5 confirmations
-2025-02-22 20:07:19 INFO: pool-3-thread-6 Downloaded 719 blocks in 13 s, 124 per s, 343 min left
-2025-02-22 20:07:25 FINE: pool-3-thread-6 Got 5 confirmations
-2025-02-22 20:07:25 INFO: pool-3-thread-6 Downloaded 719 blocks in 6 s, 124 per s, 344 min left
-2025-02-22 20:07:27 FINE: pool-3-thread-6 No blocks returned from 38.45.66.241
-2025-02-22 20:07:27 FINE: pool-3-thread-6 No blocks returned from 38.45.66.241
-2025-02-22 20:07:28 INFO: pool-3-thread-6 received block 1255000
-2025-02-22 20:07:30 FINE: pool-3-thread-6 Got 5 confirmations
-2025-02-22 20:07:30 INFO: pool-3-thread-6 Downloaded 719 blocks in 4 s, 125 per s, 340 min left
-2025-02-22 20:07:35 INFO: Thread-0 Shutting down...
-2025-02-22 20:07:35 INFO: Thread-0 AddOns shutdown complete
-2025-02-22 20:07:35 INFO: Thread-0 Shutting down the API server...
-2025-02-22 20:07:35 INFO: Thread-0 API server stopped
-2025-02-22 20:07:35 INFO: Thread-0 Stopping background jobs...
-2025-02-22 20:07:35 INFO: Thread-0 shutting down scheduledThreadPool
-2025-02-22 20:07:35 FINE: pool-3-thread-6 Got 5 confirmations
-2025-02-22 20:07:35 INFO: pool-3-thread-6 Downloaded 719 blocks in 5 s, 125 per s, 339 min left
-2025-02-22 20:07:35 INFO: Thread-0 ...Done
-2025-02-22 20:07:35 INFO: Thread-0 nxt.maxNumberOfMonitors = "100"
-2025-02-22 20:07:35 INFO: Thread-0 shutting down networkService
-2025-02-22 20:07:35 INFO: Thread-0 shutting down peersService
-2025-02-22 20:07:35 FINE: Message Handler 3 Message Handler 3 stopped
-2025-02-22 20:07:35 FINE: Network Listener Network listener stopped
-2025-02-22 20:07:35 FINE: Message Handler 1 Message Handler 1 stopped
-2025-02-22 20:07:35 FINE: Message Handler 4 Message Handler 4 stopped
-2025-02-22 20:07:35 FINE: Message Handler 2 Message Handler 2 stopped
-2025-02-22 20:07:35 INFO: Thread-0 nxt.disableCompactOnShutdown = "false"
-2025-02-22 20:07:46 INFO: Thread-0 Database shutdown completed
-2025-02-22 20:07:46 INFO: Thread-0 Ardor server 2.5.1 stopped.
+2025-03-09 13:16:15 FINE: Thread-20 There are no UPnP gateway devices
+2025-03-09 13:16:15 FINE: Network Listener Network listener started
+2025-03-09 13:16:15 FINE: Message Handler 1 Message Handler 1 started
+2025-03-09 13:16:15 FINE: Message Handler 2 Message Handler 2 started
+2025-03-09 13:16:15 FINE: Message Handler 4 Message Handler 4 started
+2025-03-09 13:16:15 FINE: Message Handler 3 Message Handler 3 started
+2025-03-09 13:16:15 FINE: Thread-33 Proxy trying to connect to 23.94.208.179
+2025-03-09 13:16:15 INFO: Network Listener Connection to 23.94.208.179 completed
+2025-03-09 13:16:15 FINE: Message Handler 1 Handshake complete with 23.94.208.179
+2025-03-09 13:16:15 FINE: Message Handler 2 Ignoring bundler rate for chain GPS (6)
+2025-03-09 13:16:15 FINE: Message Handler 2 Bundler account 5388336047026650204 does not exist
+2025-03-09 13:16:15 FINE: Message Handler 2 Relaying bundler rates from 23.94.208.179
+2025-03-09 13:16:15 FINE: Thread-33 Proxy bootstrap complete, known peer 23.94.208.179 is connected
+2025-03-09 13:16:21 FINE: pool-3-thread-9 Broadcasting blockchain state change from UP_TO_DATE to DOWNLOADING
+2025-03-09 13:16:21 INFO: Network Listener Connection to 172.245.118.114 completed
+2025-03-09 13:16:21 INFO: Network Listener Connection to 51.68.172.25 completed
+2025-03-09 13:16:21 INFO: Network Listener Connection to 37.233.98.21 completed
+2025-03-09 13:16:21 INFO: Network Listener Connection to 49.212.156.13 completed
+2025-03-09 13:16:21 FINE: Message Handler 1 Blacklisting 51.68.172.25 version 2.4.2
+2025-03-09 13:16:21 INFO: Message Handler 1 Will close connection to 51.68.172.25
+2025-03-09 13:16:21 FINE: Message Handler 4 Handshake complete with 37.233.98.21
+2025-03-09 13:16:21 FINE: Message Handler 2 Handshake complete with 172.245.118.114
+2025-03-09 13:16:21 FINE: Message Handler 3 Ignoring bundler rate for chain GPS (6)
+2025-03-09 13:16:21 FINE: Message Handler 3 Bundler account 5388336047026650204 does not exist
+2025-03-09 13:16:21 FINE: Message Handler 2 Ignoring bundler rate for chain GPS (6)
+2025-03-09 13:16:21 FINE: Message Handler 2 Bundler account 5388336047026650204 does not exist
+2025-03-09 13:16:26 INFO: pool-3-thread-4 Blockchain download in progress
+2025-03-09 13:16:31 FINE: pool-2-thread-8 Timeout trying to connect to 137.184.213.97
+2025-03-09 13:16:31 FINE: pool-2-thread-5 Timeout trying to connect to 159.223.137.238
+2025-03-09 13:16:31 FINE: pool-2-thread-12 Timeout trying to connect to 95.91.220.237
+2025-03-09 13:16:36 FINE: pool-3-thread-10 Disconnecting dead peer 49.212.156.13 last updated 226775781 at 226775796
+2025-03-09 13:16:36 INFO: pool-3-thread-10 Will close connection to 49.212.156.13
+2025-03-09 13:16:36 FINE: pool-1-thread-19 Channel already null when disconnecting 49.212.156.13
+2025-03-09 13:16:36 FINE: pool-3-thread-4 No blocks returned from 49.212.156.13
+2025-03-09 13:16:36 FINE: pool-3-thread-4 No blocks returned from 49.212.156.13
+2025-03-09 13:16:36 FINE: pool-3-thread-4 No blocks returned from 49.212.156.13
+2025-03-09 13:16:36 FINE: pool-3-thread-4 No blocks returned from 49.212.156.13
+2025-03-09 13:16:36 INFO: Network Listener Connection to 104.168.9.83 completed
+2025-03-09 13:16:36 INFO: Network Listener Connection to 192.210.141.39 completed
+2025-03-09 13:16:36 FINE: Message Handler 2 Handshake complete with 104.168.9.83
+2025-03-09 13:16:36 FINE: Message Handler 4 Ignoring bundler rate for chain GPS (6)
+2025-03-09 13:16:36 FINE: Message Handler 2 Handshake complete with 192.210.141.39
+2025-03-09 13:16:36 FINE: Message Handler 4 Ignoring bundler rate for chain GPS (6)
+2025-03-09 13:16:38 FINE: pool-3-thread-4 Transaction 2:bc670d6b88a65f2d018b57aa6624b200c561043335c01d7b908614b4f9843c75 has been released
+2025-03-09 13:16:38 FINE: pool-3-thread-4 Early finish of transaction 2:bc670d6b88a65f2d018b57aa6624b200c561043335c01d7b908614b4f9843c75 at height 1266820
+2025-03-09 13:16:38 FINE: pool-3-thread-4 Transaction 2:0edf6bab796aecc1e47697b2f95e6e06530fcae23ad0ef938f42ed11cf152666 has been released
+2025-03-09 13:16:38 FINE: pool-3-thread-4 Transaction 2:18893624bdc868fd0360184e1b7369c61ad6f7f0d8e8502e087a77928df6db1e has been rejected
+2025-03-09 13:16:38 FINE: pool-3-thread-4 Got 4 confirmations
+2025-03-09 13:16:38 INFO: pool-3-thread-4 Downloaded 719 blocks in 12 s, 56 per s, 758 min left
+2025-03-09 13:16:45 FINE: pool-3-thread-4 Got 4 confirmations
+2025-03-09 13:16:45 INFO: pool-3-thread-4 Downloaded 719 blocks in 6 s, 74 per s, 579 min left
+2025-03-09 13:16:46 FINE: pool-2-thread-20 Timeout trying to connect to 178.128.147.222
+2025-03-09 13:16:46 FINE: pool-2-thread-12 Timeout trying to connect to 176.223.143.237
+2025-03-09 13:16:47 INFO: Thread-0 Shutting down...
+2025-03-09 13:16:47 INFO: Thread-0 AddOns shutdown complete
+2025-03-09 13:16:47 INFO: Thread-0 Shutting down the API server...
+2025-03-09 13:16:47 INFO: Thread-0 API server stopped
+2025-03-09 13:16:47 INFO: Thread-0 Stopping background jobs...
+2025-03-09 13:16:47 INFO: Thread-0 shutting down scheduledThreadPool
+2025-03-09 13:16:48 FINE: pool-3-thread-4 Got 4 confirmations
+2025-03-09 13:16:48 INFO: pool-3-thread-4 Downloaded 288 blocks in 2 s, 77 per s, 554 min left
+2025-03-09 13:16:48 INFO: Thread-0 ...Done
+2025-03-09 13:16:48 INFO: Thread-0 nxt.maxNumberOfMonitors = "100"
+2025-03-09 13:16:48 INFO: Thread-0 shutting down networkService
+2025-03-09 13:16:48 INFO: Thread-0 shutting down peersService
+2025-03-09 13:16:48 FINE: Network Listener Network listener stopped
+2025-03-09 13:16:48 FINE: Message Handler 4 Message Handler 4 stopped
+2025-03-09 13:16:48 FINE: Message Handler 1 Message Handler 1 stopped
+2025-03-09 13:16:48 FINE: Message Handler 3 Message Handler 3 stopped
+2025-03-09 13:16:48 FINE: Message Handler 2 Message Handler 2 stopped
+2025-03-09 13:16:48 INFO: Thread-0 nxt.disableCompactOnShutdown = "false"
+2025-03-09 13:17:01 INFO: Thread-0 Database shutdown completed
+2025-03-09 13:17:01 INFO: Thread-0 Ardor server 2.5.1 stopped.
