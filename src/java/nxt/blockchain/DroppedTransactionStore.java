@@ -89,7 +89,6 @@ public class DroppedTransactionStore {
         private final Long id;
         private final boolean isChildBlock;
         private final boolean isFxtChain;
-        private final boolean hasReference;
         private final long poolRetentionScore;
         private final int expiration;
 
@@ -98,7 +97,6 @@ public class DroppedTransactionStore {
             this.id = id;
             this.isChildBlock = comparableData.isChildBlock;
             this.isFxtChain = comparableData.isFxtChain;
-            this.hasReference = comparableData.hasReferencedTransaction;
             this.poolRetentionScore = comparableData.poolRetentionScore;
             this.expiration = expiration;
         }
@@ -110,7 +108,7 @@ public class DroppedTransactionStore {
                     isFxtChain,
                     Integer.MAX_VALUE,
                     false,
-                    hasReference,
+                    false,
                     poolRetentionScore,
                     Long.MAX_VALUE,
                     Long.MAX_VALUE);

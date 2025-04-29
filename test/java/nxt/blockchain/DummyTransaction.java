@@ -1,5 +1,5 @@
 /*
- * Copyright © 2024 Jelurida Swiss SA
+ * Copyright © 2024-2025 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -23,7 +23,7 @@ import org.json.simple.JSONObject;
 import java.util.Collections;
 import java.util.List;
 
-interface DummyTransaction extends Transaction {
+public interface DummyTransaction extends Transaction {
 
     @Override
     default long getId() {

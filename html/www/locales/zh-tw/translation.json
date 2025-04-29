@@ -382,7 +382,7 @@
   "error_invalid_referenced_transaction_hash": "無效的參考交易哈希。",
   "error_invalid_seller": "無效的賣方 ID",
   "error_invalid_token": "該令牌無效。它屬於賬戶 __account_link__。它生成於 __timestamp__ 。",
-  "error_lease_balance_period": "租賃期限不能大於 65535 個區塊。",
+  "error_lease_balance_period": "租賃期限不能大於 32000000 個區塊。",
   "error_max_asset_transfer_warning": "指定數量大於 __qty__。你確定要繼續嗎？再次單擊提交按鈕確認。",
   "error_max_currency_transfer_warning": "指定數量大於 __qty__。您確定要繼續嗎？再次單擊提交按鈕確認。",
   "error_max_tags": "標籤允許的最大數目是__Nr__ 。",

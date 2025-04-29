@@ -1,7 +1,7 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
  * Copyright © 2016-2023 Jelurida IP B.V.
- * Copyright © 2023-2024 Jelurida Swiss SA
+ * Copyright © 2023-2025 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -19,6 +19,7 @@ package nxt.http;
 
 import nxt.NxtException;
 import nxt.blockchain.Transaction;
+import nxt.blockchain.atomictxs.AtomicChildAppendix;
 import nxt.util.Convert;
 import nxt.util.Logger;
 import org.json.simple.JSONObject;
@@ -31,7 +32,8 @@ public final class SignTransaction extends APIServlet.APIRequestHandler {
     static final SignTransaction instance = new SignTransaction();
 
     private SignTransaction() {
-        super(new APITag[] {APITag.TRANSACTIONS}, "unsignedTransactionJSON", "unsignedTransactionBytes", "prunableAttachmentJSON", "secretPhrase", "validate");
+        super(new APITag[] {APITag.TRANSACTIONS}, "unsignedTransactionJSON", "unsignedTransactionBytes",
+                "prunableAttachmentJSON", "secretPhrase", "validate", "atomicChildFullHash");
     }
 
     @Override
@@ -48,6 +50,10 @@ public final class SignTransaction extends APIServlet.APIRequestHandler {
 
         JSONObject response = new JSONObject();
         try {
+            byte[] atomicChildFullHash = ParameterParser.getBytes(req, "atomicChildFullHash", false);
+            if (atomicChildFullHash != Convert.EMPTY_BYTE) {
+                builder.appendix(new AtomicChildAppendix(atomicChildFullHash));
+            }
             Transaction transaction = builder.build(privateKey);
             JSONObject signedTransactionJSON = JSONData.unconfirmedTransaction(transaction);
             if (validate) {

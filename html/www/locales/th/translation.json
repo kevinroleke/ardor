@@ -382,7 +382,7 @@
   "error_invalid_referenced_transaction_hash": "แฮชธุรกรรมอ้างอิงไม่ถูกต้อง",
   "error_invalid_seller": "รหัสผู้ขายไม่ถูกต้อง",
   "error_invalid_token": "โทเค็นไม่ถูกต้องซึ่งปรากฎในบัญชี __account_link__ ถูกสร้างขึ้นใน __timestamp__",
-  "error_lease_balance_period": "ระยะเวลาเช่าไม่ได้สูงกว่า 65535 บล็อก",
+  "error_lease_balance_period": "ระยะเวลาเช่าไม่ได้สูงกว่า 32000000 บล็อก",
   "error_max_asset_transfer_warning": "จำนวนที่ระบุสูงกว่า __qty__ คุณแน่ใจหรือไม่ว่าต้องการดำเนินการต่อ? คลิกปุ่มส่งอีกครั้งเพื่อยืนยัน",
   "error_max_currency_transfer_warning": "จำนวนหน่วยที่ระบุสูงกว่า __qty__ คุณแน่ใจหรือไม่ว่าต้องการดำเนินการต่อ? คลิกปุ่มส่งอีกครั้งเพื่อยืนยัน",
   "error_max_tags": "อนุญาตให้ใช้แท็ก __nr__ ได้มากที่สุด",

@@ -1,7 +1,7 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
  * Copyright © 2016-2023 Jelurida IP B.V.
- * Copyright © 2023-2024 Jelurida Swiss SA
+ * Copyright © 2023-2025 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -412,9 +412,7 @@ var NRS = (function (NRS, $) {
     NRS.setActiveChain = function(chain) {
         NRS.deviceSettings.chain = chain;
         NRS.setJSONItem("device_settings", NRS.deviceSettings);
-        $(".coin-symbol").html(NRS.getActiveChainName());
-        $(".parent-coin-symbol").html(NRS.getParentChainName());
-        $(".coin-symbol-separator").html(" " + $.t("per") + " ");
+        NRS.setupCoinSymbols($(document));
     };
 
     NRS.getActiveChain = function() {

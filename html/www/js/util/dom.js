@@ -1,6 +1,6 @@
 /******************************************************************************
  * Copyright © 2016-2023 Jelurida IP B.V.                                     *
- * Copyright © 2023-2024 Jelurida Swiss SA                                    *
+ * Copyright © 2023-2025 Jelurida Swiss SA                                    *
  *                                                                            *
  * See the LICENSE.txt file at the top-level directory of this distribution   *
  * for licensing information.                                                 *
@@ -123,3 +123,12 @@ $.fn.decimalValidation = function (getMaxFractionLength) {
         });
     });
 };
+
+/**
+ * Unlike .find which searches only in the descendants of the DOM elements
+ * represented by the jQuery object, the $findOrIs method includes in the result
+ * also the DOM elements themselves in case they match the selector
+ */
+$.fn.findOrIs = function (selector) {
+    return this.find(selector).add(this.filter(selector));
+}

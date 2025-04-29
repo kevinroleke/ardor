@@ -382,7 +382,7 @@
   "error_invalid_referenced_transaction_hash": "Hash de la transacción de referencia no válido.",
   "error_invalid_seller": "ID de vendedor no válida",
   "error_invalid_token": "El identificador (token) NO ES VÁLIDO. Parece que pertenece a la cuenta __account_link__. Se generó en __timestamp__.",
-  "error_lease_balance_period": "El periodo de leasing no puede superar los 65535 bloques.",
+  "error_lease_balance_period": "El periodo de leasing no puede superar los 32000000 bloques.",
   "error_max_asset_transfer_warning": "La cantidad especificada es mayor de __qty__. ¿Seguro de que desea continuar? Haga clic en el botón Enviar para confirmar.",
   "error_max_currency_transfer_warning": "El número de unidades especificado es mayor que __qty__. ¿Está seguro de que desea continuar? Haga clic de nuevo en el botón Enviar para confirmar.",
   "error_max_tags": "Se permite un máximo de __nr__ etiquetas.",

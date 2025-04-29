@@ -1,7 +1,7 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
  * Copyright © 2016-2023 Jelurida IP B.V.
- * Copyright © 2023-2024 Jelurida Swiss SA
+ * Copyright © 2023-2025 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -30,7 +30,11 @@ NRS.onSiteBuildDone().then(() => {
 			"contract_params_warning": true
 		};
 
-		$(".modal form input").keydown(function(e) {
+        //--------------------- setupFormElements START --------------------
+        NRS.setupFormElements = function($context) {
+
+        let $modals = $context.findOrIs(".modal");
+		$modals.find("form input").keydown(function(e) {
 			if (e.which == "13") {
 				e.preventDefault();
 				if (NRS.settings["submit_on_enter"] && e.target.type != "textarea") {
@@ -41,7 +45,7 @@ NRS.onSiteBuildDone().then(() => {
 			}
 		});
 
-		$("button.scan-qr-code,a.scan-qr-code").click(function() {
+		$context.find("button.scan-qr-code,a.scan-qr-code").click(function() {
 			let data = $(this).data();
 			let $modal = $(this).closest(".modal");
 			NRS.scanQRCode(data.reader, function (text) {
@@ -55,7 +59,7 @@ NRS.onSiteBuildDone().then(() => {
 			});
 		});
 
-		$(".modal button.btn-primary:not([data-dismiss=modal]):not([data-ignore=true]),button.btn-calculate-fee").click(function() {
+		$modals.find("button.btn-primary:not([data-dismiss=modal]):not([data-ignore=true]),button.btn-calculate-fee").click(function() {
 			var $btn = $(this);
 			var $modal = $(this).closest(".modal");
 			try {
@@ -68,7 +72,7 @@ NRS.onSiteBuildDone().then(() => {
 			}
 		});
 
-		$(".modal input,select,textarea").change(function() {
+		$modals.find("input,select,textarea").change(function() {
 			var id = $(this).attr('id');
 			var modal = $(this).closest(".modal");
 			if (!modal) {
@@ -92,18 +96,22 @@ NRS.onSiteBuildDone().then(() => {
 		});
 
 		$("<span class='input-group-btn input-clear-btn'><button class='btn btn-flat'><i class='far fa-times'></i></button></span>")
-			.appendTo(".input-group-clearable")
+			.appendTo($context.find(".input-group-clearable"))
 			.click(function(e) {
 				e.preventDefault();
 				const $input = $(this).siblings('input[type=text]');
 				$input.val('');
 			});
 
-		$(".input-group-clearable input[type=text]").on("keyup", function(e) {
+		$context.find(".input-group-clearable input[type=text]").on("keyup", function(e) {
 			if (e.keyCode === 27) {
 				$(this).val('');
 			}
 		});
+
+        };
+        //--------------------- setupFormElements END --------------------
+        NRS.setupFormElements($(document));
 
 		function getSuccessMessage(requestType) {
 			var ignore = ["asset_exchange_change_group_name", "asset_exchange_group", "add_contact", "update_contact", "delete_contact",

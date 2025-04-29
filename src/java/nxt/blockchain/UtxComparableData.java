@@ -15,6 +15,8 @@
 
 package nxt.blockchain;
 
+import nxt.blockchain.atomictxs.AtomicChain;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -30,19 +32,19 @@ import java.util.stream.Stream;
  * Represents the data which is used to prioritize {@link UnconfirmedTransaction}s
  * in the unconfirmed pool.
  */
-final class UtxComparableData implements Comparable<UtxComparableData> {
+public final class UtxComparableData implements Comparable<UtxComparableData> {
 
     public static final UtxComparableData HIGHEST = new UtxComparableData(true,
             true, Integer.MIN_VALUE, true,
-            false, // FIXME if having a reference transactions is prioritizing
+            true,
             Long.MAX_VALUE, Long.MIN_VALUE, Long.MIN_VALUE);
 
-    private static final long RETENTION_SCORE_UNIT = 100000000L;
+    private static final long RETENTION_SCORE_UNIT = 10_000_000_000L;
     final boolean isChildBlock;
     final boolean isFxtChain;
     private final int height;
     private final boolean isBundled;
-    final boolean hasReferencedTransaction;
+    final boolean isCompleteAtomicChain;
     final long poolRetentionScore;
     private final long arrivalTimestamp;
     private final long id;
@@ -50,74 +52,35 @@ final class UtxComparableData implements Comparable<UtxComparableData> {
     UtxComparableData(boolean isChildBlock, boolean isFxtChain,
                              int height,
                              boolean isBundled,
-                             boolean hasReferencedTransaction,
+                             boolean isCompleteAtomicChain,
                              long poolRetentionScore, long arrivalTimestamp,
                              long id) {
         this.isChildBlock = isChildBlock;
         this.isFxtChain = isFxtChain;
         this.height = height;
         this.isBundled = isBundled;
-        this.hasReferencedTransaction = hasReferencedTransaction;
+        this.isCompleteAtomicChain = isCompleteAtomicChain;
         this.poolRetentionScore = poolRetentionScore;
         this.arrivalTimestamp = arrivalTimestamp;
         this.id = id;
     }
 
-    UtxComparableData(Transaction transaction, boolean isBundled,
-                      long arrivalTimestamp) {
-        isChildBlock = transaction.getType() == ChildBlockFxtTransactionType.INSTANCE;
-        isFxtChain = transaction.getChain() == FxtChain.FXT;
-        height = transaction.getHeight();
-        poolRetentionScore = calculatePoolRetentionScore(transaction);
+    public UtxComparableData(Transaction transaction, boolean isBundled, boolean isCompleteAtomicChain,
+                      long arrivalTimestamp, long fee, int fullSize) {
+        this.isChildBlock = transaction.getType() == ChildBlockFxtTransactionType.INSTANCE;
+        this.isFxtChain = transaction.getChain() == FxtChain.FXT;
+        this.height = transaction.getHeight();
+        this.poolRetentionScore = calculatePoolRetentionScore(
+                transaction.getChain(), fee, transaction.getDeadline(),
+                fullSize);
         this.isBundled = isBundled;
-        if (isFxtChain) {
-            hasReferencedTransaction = false;
-        } else {
-            hasReferencedTransaction = ((ChildTransaction) transaction).getReferencedTransactionId() != null;
-        }
-
+        this.isCompleteAtomicChain = isCompleteAtomicChain;
         this.arrivalTimestamp = arrivalTimestamp;
-        id = transaction.getId();
-    }
-
-    UtxComparableData(UnconfirmedTransaction utx) {
-        this(utx.getTransaction(), utx.isBundled(), utx.getArrivalTimestamp());
+        this.id = transaction.getId();
     }
 
     @Override
     public int compareTo(UtxComparableData that) {
-        /*
-        The original comparator:
-        (UnconfirmedTransaction o1, UnconfirmedTransaction o2) -> {
-            int result;
-            if ((result = Boolean.compare(o1.getType() == ChildBlockFxtTransactionType.INSTANCE,
-                    o2.getType() == ChildBlockFxtTransactionType.INSTANCE)) != 0) {
-                return result;
-            }
-            if ((result = Boolean.compare(o2.getChain() != FxtChain.FXT, o1.getChain() != FxtChain.FXT)) != 0) {
-                return result;
-            }
-            if ((result = Integer.compare(o2.getHeight(), o1.getHeight())) != 0) {
-                return result;
-            }
-            if (o1.getChain() == FxtChain.FXT && o2.getChain() == FxtChain.FXT) {
-                if ((result = Long.compare(o1.getFee(), o2.getFee())) != 0) {
-                    return result;
-                }
-            }
-            if ((result = Boolean.compare(o1.isBundled(), o2.isBundled())) != 0) {
-                return result;
-            }
-            if ((result = Boolean.compare(o2.getReferencedTransactionId() != null,
-                    o1.getReferencedTransactionId() != null)) != 0) {
-                return result;
-            }
-            if ((result = Long.compare(o2.getArrivalTimestamp(), o1.getArrivalTimestamp())) != 0) {
-                return result;
-            }
-            return Long.compare(o2.getId(), o1.getId());
-        }
-         */
         int result;
         if ((result = Boolean.compare(this.isChildBlock, that.isChildBlock)) != 0) {
             return result;
@@ -134,19 +97,10 @@ final class UtxComparableData implements Comparable<UtxComparableData> {
         if ((result = Boolean.compare(this.isBundled, that.isBundled)) != 0) {
             return result;
         }
-
-        //TODO do we want to prioritize transactions that reference other transactions
-        // or do we want to deprioritize them? In previous code they were deprioritized:
-        //            if ((result = Boolean.compare(o2.getReferencedTransactionId() != null,
-        //                    o1.getReferencedTransactionId() != null)) != 0) {
-        //                return result;
-        //            }
-        // If o1 references and o2 does not, then Boolean.compare(false, true)
-        // returns less than 0, effectively positioning o2 before o1
-        // I keep this logic, but I'm not confident if this was intentional or a bug
-        if ((result = Boolean.compare(that.hasReferencedTransaction, this.hasReferencedTransaction)) != 0) {
+        if ((result = Boolean.compare(this.isCompleteAtomicChain, that.isCompleteAtomicChain)) != 0) {
             return result;
         }
+
         if ((result = Long.compare(this.poolRetentionScore, that.poolRetentionScore)) != 0) {
             return result;
         }
@@ -165,7 +119,7 @@ final class UtxComparableData implements Comparable<UtxComparableData> {
                 && isFxtChain == that.isFxtChain
                 && height == that.height
                 && isBundled == that.isBundled
-                && hasReferencedTransaction == that.hasReferencedTransaction
+                && isCompleteAtomicChain == that.isCompleteAtomicChain
                 && poolRetentionScore == that.poolRetentionScore
                 && arrivalTimestamp == that.arrivalTimestamp
                 && id == that.id;
@@ -174,7 +128,7 @@ final class UtxComparableData implements Comparable<UtxComparableData> {
     @Override
     public int hashCode() {
         return Objects.hash(isChildBlock, isFxtChain, height, isBundled,
-                hasReferencedTransaction, poolRetentionScore, arrivalTimestamp,
+                isCompleteAtomicChain, poolRetentionScore, arrivalTimestamp,
                 id);
     }
 
@@ -185,7 +139,7 @@ final class UtxComparableData implements Comparable<UtxComparableData> {
                 ", isFxtChain=" + isFxtChain +
                 ", height=" + height +
                 ", isBundled=" + isBundled +
-                ", hasReferencedTransaction=" + hasReferencedTransaction +
+                ", isCompleteAtomicChain=" + isCompleteAtomicChain +
                 ", poolRetentionScore=" + poolRetentionScore +
                 ", arrivalTimestamp=" + arrivalTimestamp +
                 ", id=" + id +
@@ -194,24 +148,26 @@ final class UtxComparableData implements Comparable<UtxComparableData> {
 
     public UtxComparableData cloneIgnoringTimeAndId(long newArrivalTimestamp, long newId) {
         return new UtxComparableData(isChildBlock, isFxtChain, height,
-                isBundled, hasReferencedTransaction,
+                isBundled, isCompleteAtomicChain,
                 poolRetentionScore, newArrivalTimestamp, newId);
     }
 
-    private long calculatePoolRetentionScore(Transaction transaction) {
-        if (transaction.getFee() == 0) {
+    private long calculatePoolRetentionScore(Chain chain, long fee,
+                                             short deadline, int byteSize) {
+        if (fee == 0) {
             //At 0 fee the score gets negative and the longer is the deadline
             // the more unwanted is the transaction
-            return -transaction.getDeadline() * RETENTION_SCORE_UNIT;
+            return -deadline * RETENTION_SCORE_UNIT;
         }
 
         //For each whole coin paid as fee, get 1 unit of retention score.
-        BigInteger score = BigInteger.valueOf(transaction.getFee())
+        BigInteger score = BigInteger.valueOf(fee)
                 .multiply(BigInteger.valueOf(RETENTION_SCORE_UNIT))
-                .divide(BigInteger.valueOf(transaction.getChain().ONE_COIN));
+                .divide(BigInteger.valueOf(byteSize))
+                .divide(BigInteger.valueOf(chain.ONE_COIN));
 
         //The final score is inversely proportional to the deadline.
-        score = score.divide(BigInteger.valueOf(transaction.getDeadline()));
+        score = score.divide(BigInteger.valueOf(deadline));
         if (score.compareTo(BigInteger.valueOf(Long.MAX_VALUE)) > 0) {
             return Long.MAX_VALUE;
         }

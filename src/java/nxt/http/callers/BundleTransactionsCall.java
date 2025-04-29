@@ -10,6 +10,26 @@ public class BundleTransactionsCall extends CreateOneSideTransactionCallBuilder<
         return new BundleTransactionsCall().param("chain", chain);
     }
 
+    public BundleTransactionsCall enrichmentChildChain(String enrichmentChildChain) {
+        return param("enrichmentChildChain", enrichmentChildChain);
+    }
+
+    public BundleTransactionsCall enrichmentChildChain(int enrichmentChildChain) {
+        return param("enrichmentChildChain", enrichmentChildChain);
+    }
+
+    public BundleTransactionsCall isChildrenListEnrichment(boolean isChildrenListEnrichment) {
+        return param("isChildrenListEnrichment", isChildrenListEnrichment);
+    }
+
+    public BundleTransactionsCall enrichmentBundlingRulesJSON(String enrichmentBundlingRulesJSON) {
+        return param("enrichmentBundlingRulesJSON", enrichmentBundlingRulesJSON);
+    }
+
+    public BundleTransactionsCall enrichmentTotalFeeLimitFQT(long enrichmentTotalFeeLimitFQT) {
+        return param("enrichmentTotalFeeLimitFQT", enrichmentTotalFeeLimitFQT);
+    }
+
     public BundleTransactionsCall transactionFullHash(String... transactionFullHash) {
         return param("transactionFullHash", transactionFullHash);
     }

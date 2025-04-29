@@ -1,7 +1,7 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
  * Copyright © 2016-2023 Jelurida IP B.V.
- * Copyright © 2023-2024 Jelurida Swiss SA
+ * Copyright © 2023-2025 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -56,12 +56,26 @@ var NRS = (function(NRS, $) {
         loadPromises.push(NRS.asyncLoadPageHTML(path));
     };
 
-    NRS.asyncLoadPageHTML = function(path) {
-    	return fetchResource(path).then(data => $("#content").append(data));
+    NRS.asyncLoadPageHTML = function(path, callback) {
+    	return fetchResource(path).then(data => {
+    	    $("#content").append(data);
+    	    if (callback) {
+    	        callback(null);
+    	    }
+    	});
     };
 
     NRS.loadModalHTML = function(path) {
-    	loadPromises.push(fetchResource(path).then(data => $("body").append(data)));
+    	loadPromises.push(NRS.asyncLoadModalHTML(path));
+    };
+
+    NRS.asyncLoadModalHTML = function(path, callback) {
+        return fetchResource(path).then(data => {
+            $("body").append(data);
+            if (callback) {
+                callback(null);
+            }
+        });
     };
 
     function _replaceModalHTMLTemplateDiv(data, templateName) {
@@ -74,7 +88,7 @@ var NRS = (function(NRS, $) {
         });
     }
 
-    NRS.loadModalHTMLTemplates = function() {
+    NRS.loadModalHTMLTemplates = function(callback) {
         let loadAllHTML = NRS.whenWithProgress(loadPromises, NRS.updateLoadingProgress);
         
         // this function requires the HTML to be already loaded so it acts as a barrier to join all promises
@@ -89,6 +103,9 @@ var NRS = (function(NRS, $) {
             _replaceModalHTMLTemplateDiv(data, 'advanced_rt_hash_template');
             _replaceModalHTMLTemplateDiv(data, 'advanced_broadcast_template');
             _replaceModalHTMLTemplateDiv(data, 'advanced_note_to_self_template');
+            if (callback) {
+                callback();
+            }
         }
         promises.push(fetchResource("html/modals/templates.html").then(data => {
             return loadAllHTML.then(() => replaceModalTemplates(data));

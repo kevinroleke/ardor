@@ -1,7 +1,7 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
  * Copyright © 2016-2023 Jelurida IP B.V.
- * Copyright © 2023-2024 Jelurida Swiss SA
+ * Copyright © 2023-2025 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -103,18 +103,15 @@ public class LeaseTest extends BlockchainTest {
 
     @Test
     public void testLeasePeriodIncrease() {
-        generateBlock();
+        generateBlocks(Constants.LEASING_PERIOD_INCREASE + 1);
+
         LeaseBalanceCall leaseBalanceCall = LeaseBalanceCall.create(FxtChain.FXT.getId()).
                 secretPhrase(BOB.getSecretPhrase()).
                 recipient(ALICE.getStrId()).
                 period(80_000).
                 feeNQT(Constants.ONE_FXT * 2);
-        APICall.InvocationError invocationError = leaseBalanceCall.build().invokeWithError();
-        Assert.assertEquals("Incorrect \"period\" value 80000 not in range [1-65535]", invocationError.getErrorDescription());
 
-        generateBlocks(Constants.LEASING_PERIOD_INCREASE);
-
-        invocationError = leaseBalanceCall.period(Constants.LONG_LEASE_PERIOD_LIMIT + 1).build().invokeWithError();
+        APICall.InvocationError invocationError = leaseBalanceCall.period(Constants.LONG_LEASE_PERIOD_LIMIT + 1).build().invokeWithError();
         Assert.assertEquals("Incorrect \"period\" value 32000001 not in range [1-32000000]", invocationError.getErrorDescription());
 
         leaseBalanceCall.period(Constants.LONG_LEASE_PERIOD_LIMIT).callNoError();

@@ -1,7 +1,7 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
  * Copyright © 2016-2023 Jelurida IP B.V.
- * Copyright © 2023-2024 Jelurida Swiss SA
+ * Copyright © 2023-2025 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -22,6 +22,8 @@ import nxt.Nxt;
 import nxt.NxtException;
 import nxt.account.Account;
 import nxt.account.AccountLedger;
+import nxt.blockchain.atomictxs.AtomicChildAppendix;
+import nxt.blockchain.atomictxs.AtomicParentAppendix;
 import nxt.dbschema.Db;
 import nxt.util.Convert;
 import nxt.util.JSON;
@@ -100,6 +102,8 @@ public final class ChildBlockFxtTransactionType extends FxtTransactionType {
             previousChildTransactionHash = childTransactionHash;
         }
         int payloadLength = 0;
+        Set<ChainTransactionId> atomicChildrenIds = new HashSet<>(childTransactionHashes.length);
+        Set<ChainTransactionId> atomicChildrenRefsFromParent = new HashSet<>(childTransactionHashes.length);
         for (ChildTransactionImpl childTransaction : transaction.getChildTransactions()) {
             try {
                 childTransaction.validate();
@@ -122,7 +126,24 @@ public final class ChildBlockFxtTransactionType extends FxtTransactionType {
             if (childTransaction.getChain().getId() != childChain.getId()) {
                 throw new NxtException.NotValidException("Child transaction " + childTransaction.getStringId() + " belongs to a different child chain");
             }
-
+            AtomicParentAppendix parentAppendix = AtomicParentAppendix.get(childTransaction);
+            if (parentAppendix != null) {
+                //this transaction is an atomic child
+                atomicChildrenIds.add(ChainTransactionId.getChainTransactionId(childTransaction));
+            }
+            AtomicChildAppendix childAppendix = AtomicChildAppendix.get(childTransaction);
+            if (childAppendix != null) {
+                ChainTransactionId childId = new ChainTransactionId(childChain.getId(), childAppendix.getChildFullHash());
+                if (!atomicChildrenRefsFromParent.add(childId)) {
+                    throw new NxtException.NotValidException("More than one atomic parent is referencing the same" +
+                            "child " + childId);
+                }
+            }
+        }
+        if (!atomicChildrenIds.equals(atomicChildrenRefsFromParent)) {
+            atomicChildrenIds.removeAll(atomicChildrenRefsFromParent);
+            throw new NxtException.NotValidException("ChildBlock contains atomic child(ren) without atomic parent: "
+                    + atomicChildrenIds);
         }
     }
 

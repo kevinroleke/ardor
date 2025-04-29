@@ -1,7 +1,7 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
  * Copyright © 2016-2023 Jelurida IP B.V.
- * Copyright © 2023-2024 Jelurida Swiss SA
+ * Copyright © 2023-2025 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -219,6 +219,7 @@ public final class Constants {
     public static final int TRANSACTION_TYPE_SPECIFIC_ASSET_CONTROL = Constants.isTestnet ? Constants.isAutomatedTest ? 20 : 9800000 : 2307000;
     public static final int LEASING_PERIOD_INCREASE = Constants.isTestnet ? Constants.isAutomatedTest ? 20 : 15660000 : 3700000;
     public static final int PREVENT_APPROVAL_OF_EARLY_FINISHED = Constants.isTestnet ? Constants.isAutomatedTest ? 0 : 15660000 : 3700000;
+    public static final int ATOMIC_TRANSACTIONS = Constants.isTestnet ? Constants.isAutomatedTest ? 0 : 18540000 : Integer.MAX_VALUE;
     public static final int CHECKSUM_BLOCK_6 = Constants.isTestnet ? 5666000 : 1453500;
     public static final int CHECKSUM_BLOCK_7 = Constants.isTestnet ? 7464000 : 1797000;
     public static final int CHECKSUM_BLOCK_8 = Constants.isTestnet ? 10360000 : 2351000;
@@ -258,6 +259,8 @@ public final class Constants {
     public static final int MAX_ASSET_TRADE_ROYALTIES_PERCENTAGE = 50;
 
     public static final String ADDON_PLUGINS_RESOURCE_BASE = "addon_plugins";
+
+    public static final String ATOMIC_CHILD_HASH_TO_BE_DETERMINED = "TBD";
 
     private Constants() {
     } // never

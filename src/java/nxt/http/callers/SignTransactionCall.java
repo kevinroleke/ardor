@@ -24,6 +24,14 @@ public class SignTransactionCall extends APICall.Builder<SignTransactionCall> {
         return param("unsignedTransactionBytes", unsignedTransactionBytes);
     }
 
+    public SignTransactionCall atomicChildFullHash(String atomicChildFullHash) {
+        return param("atomicChildFullHash", atomicChildFullHash);
+    }
+
+    public SignTransactionCall atomicChildFullHash(byte[] atomicChildFullHash) {
+        return param("atomicChildFullHash", atomicChildFullHash);
+    }
+
     public SignTransactionCall unsignedTransactionJSON(String unsignedTransactionJSON) {
         return param("unsignedTransactionJSON", unsignedTransactionJSON);
     }

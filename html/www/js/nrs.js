@@ -1,7 +1,7 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
  * Copyright © 2016-2023 Jelurida IP B.V.
- * Copyright © 2023-2024 Jelurida Swiss SA
+ * Copyright © 2023-2025 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -541,6 +541,12 @@ var NRS = (function(NRS, $, undefined) {
 			callback();
 		}
 	};
+
+    NRS.setupCoinSymbols = function($context) {
+        $context.find(".coin-symbol").html(NRS.getActiveChainName());
+        $context.find(".parent-coin-symbol").html(NRS.getParentChainName());
+        $context.find(".coin-symbol-separator").html(" " + $.t("per") + " ");
+    }
 
     NRS.connectionError = function(errorDescription, errorCode) {
         if (errorCode != 19) {

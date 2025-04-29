@@ -382,7 +382,7 @@
   "error_invalid_referenced_transaction_hash": "Hash Giao dịch được tham chiếu bất hợp lệ.",
   "error_invalid_seller": "Mã số người bán không hợp lệ",
   "error_invalid_token": "Mã thông báo không hợp lệ. Nó dường như thuộc về tài khoản __account_link__. Nó được tạo ra trên __timestamp__.",
-  "error_lease_balance_period": "Thời gian thuê không thể cao hơn 65535 khối.",
+  "error_lease_balance_period": "Thời gian thuê không thể cao hơn 32000000 khối.",
   "error_max_asset_transfer_warning": "Số lượng được chỉ định cao hơn __qty__. Bạn có chắc chắn muốn tiếp tục không? Bấm vào nút nộp lần nữa để xác nhận.",
   "error_max_currency_transfer_warning": "Số đơn vị được chỉ định cao hơn __qty__. Bạn có chắc chắn muốn tiếp tục không? Bấm vào nút nộp lần nữa để xác nhận.",
   "error_max_tags": "Cho phép tối đa __nr__ thẻ.",

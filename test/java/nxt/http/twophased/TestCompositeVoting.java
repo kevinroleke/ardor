@@ -1,7 +1,7 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
  * Copyright © 2016-2023 Jelurida IP B.V.
- * Copyright © 2023-2024 Jelurida Swiss SA
+ * Copyright © 2023-2025 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -710,6 +710,38 @@ public class TestCompositeVoting extends BlockchainTest {
 
         //Approved
         Assert.assertEquals(100 * ChildChain.IGNIS.ONE_COIN, BOB.getChainBalanceDiff(ChildChain.IGNIS.getId()));
+    }
+
+    @Test
+    public void testNegatedHash() {
+        String secret = "test A";
+
+        PhasingParamsBuilder phasingParamsBuilder = PhasingParamsBuilder.create()
+                .phasingVotingModel(VoteWeighting.VotingModel.COMPOSITE.getCode())
+                .phasingQuorum(1)
+                .phasingExpression("!H")
+                .setSubPoll("H", PhasingParamsHelper.hashSubpoll(secret));
+        SendMoneyCall sendMoneyCall = SendMoneyCall.create(IGNIS.getId())
+                .secretPhrase(ALICE.getSecretPhrase())
+                .feeNQT(4 * IGNIS.ONE_COIN)
+                .recipient(BOB.getStrId())
+                .amountNQT(100 * IGNIS.ONE_COIN)
+                .phased(true)
+                .phasingFinishHeight(Nxt.getBlockchain().getHeight() + 5)
+                .phasingParams(phasingParamsBuilder.toJSONString());
+
+        String fullHash = new JSONAssert(sendMoneyCall.call()).str("fullHash");
+
+        generateBlocks(2);
+
+        ApproveTransactionCall approveBuilder = ACTestUtils.approveBuilder(fullHash, CHUCK, secret);
+        approveBuilder.revealedSecretText(secret);
+        new JSONAssert(approveBuilder.call()).str("fullHash");
+
+        generateBlock();
+
+        //Transaction canceled
+        Assert.assertEquals(0, BOB.getChainBalanceDiff(ChildChain.IGNIS.getId()));
     }
 
     @SuppressWarnings("SameParameterValue")

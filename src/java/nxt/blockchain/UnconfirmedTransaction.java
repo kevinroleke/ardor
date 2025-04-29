@@ -1,7 +1,7 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
  * Copyright © 2016-2023 Jelurida IP B.V.
- * Copyright © 2023-2024 Jelurida Swiss SA
+ * Copyright © 2023-2025 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -47,7 +47,6 @@ public abstract class UnconfirmedTransaction implements Transaction {
     private final long arrivalTimestamp;
     private final long feePerByte;
     private volatile boolean isBundled;
-    private UtxComparableData comparableData;
 
     UnconfirmedTransaction(TransactionImpl transaction, long arrivalTimestamp, boolean isBundled) {
         this.transaction = transaction;
@@ -94,14 +93,13 @@ public abstract class UnconfirmedTransaction implements Transaction {
         return transaction;
     }
 
-    long getArrivalTimestamp() {
+    public long getArrivalTimestamp() {
         return arrivalTimestamp;
     }
 
     void setBundled(boolean bundled) {
         isBundled = bundled;
         TransactionProcessorImpl.getInstance().unconfirmedTransactionTable.insert(this);
-        comparableData = null;
     }
 
     public boolean isBundled() {
@@ -333,10 +331,4 @@ public abstract class UnconfirmedTransaction implements Transaction {
         return getTransaction().getPrunableEncryptedMessage();
     }
 
-    UtxComparableData getComparableData() {
-        if (comparableData == null) {
-            comparableData = new UtxComparableData(this);
-        }
-        return comparableData;
-    }
 }

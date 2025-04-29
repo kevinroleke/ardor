@@ -1,6 +1,6 @@
 /*
  * Copyright © 2016-2023 Jelurida IP B.V.
- * Copyright © 2023-2024 Jelurida Swiss SA
+ * Copyright © 2023-2025 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -59,12 +59,13 @@ public class APICallGenerator {
             "purchase", "holding", "block", "ecBlockId", "setter", "cancellingAccount"
     ).or(phasingParamWhich(endsWith("Holding")));
 
-    private static final Predicate<String> CHAIN_IDENTIFIERS = exactMatch("chain", "exchange");
+    private static final Predicate<String> CHAIN_IDENTIFIERS = exactMatch("chain", "exchange").or(contains("Chain"));
 
     private static final Predicate<String> INT_IDENTIFIERS = exactMatch("height", "fromHeight", "toHeight", "timestamp", "firstIndex", "lastIndex",
             "type", "subtype", "deadline", "ecBlockHeight", "totalPieces", "minimumPieces", "minParticipants", "childIndex",
             "startFromChildIndex", "decimals", "issuanceHeight", "expirationHeight", "controlMinDuration", "controlMaxDuration",
-            "period", "finishHeight", "numberOfConfirmations", "registrationPeriod", "quantity", "deliveryDeadlineTimestamp")
+            "period", "finishHeight", "numberOfConfirmations", "registrationPeriod", "quantity", "deliveryDeadlineTimestamp",
+            "atomicOrphanUnconfirmedPoolDeadline")
             .or(phasingParamWhich(endsWith("FinishHeight")));
 
     private static final Predicate<String> BYTE_IDENTIFIERS = exactMatch("holdingType", "algorithm", "minDifficulty",

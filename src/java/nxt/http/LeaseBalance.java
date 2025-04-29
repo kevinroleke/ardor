@@ -1,7 +1,7 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
  * Copyright © 2016-2023 Jelurida IP B.V.
- * Copyright © 2023-2024 Jelurida Swiss SA
+ * Copyright © 2023-2025 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -18,6 +18,7 @@
 package nxt.http;
 
 import nxt.Constants;
+import nxt.Nxt;
 import nxt.NxtException;
 import nxt.account.Account;
 import nxt.account.AccountControlFxtTransactionType;
@@ -51,7 +52,8 @@ public final class LeaseBalance extends CreateTransaction {
             response.put("errorDescription", "recipient account does not have public key");
             return response;
         }
-        Attachment attachment = new EffectiveBalanceLeasingAttachment(period, false);
+        boolean isShortPeriod = Constants.isAutomatedTest && Nxt.getBlockchain().getHeight() < Constants.LEASING_PERIOD_INCREASE;
+        Attachment attachment = new EffectiveBalanceLeasingAttachment(period, isShortPeriod);
         return transactionParameters(req, account, attachment).setRecipientId(recipient).createTransaction();
     }
 }

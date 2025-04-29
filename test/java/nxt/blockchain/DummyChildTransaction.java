@@ -1,5 +1,5 @@
 /*
- * Copyright © 2024 Jelurida Swiss SA
+ * Copyright © 2024-2025 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -20,7 +20,7 @@ import nxt.messaging.EncryptedMessageAppendix;
 import nxt.messaging.MessageAppendix;
 import nxt.voting.PhasingAppendix;
 
-interface DummyChildTransaction extends DummyTransaction, ChildTransaction {
+public interface DummyChildTransaction extends DummyTransaction, ChildTransaction {
     @Override
     default long getFxtTransactionId() {
         return 0;
@@ -53,6 +53,11 @@ interface DummyChildTransaction extends DummyTransaction, ChildTransaction {
 
     @Override
     default ChildChain getChain() {
+        return null;
+    }
+
+    @Override
+    default ChildTransaction getAtomicChild() {
         return null;
     }
 }

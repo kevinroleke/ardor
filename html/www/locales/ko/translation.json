@@ -382,7 +382,7 @@
   "error_invalid_referenced_transaction_hash": "잘못 참조된 트랜잭션 해시입니다.",
   "error_invalid_seller": "잘못된 판매자 ID",
   "error_invalid_token": "토큰은 유효하지 않습니다. 계정 __account_link__에 속한 것으로 보입니다. __timestamp__에서 생성되었습니다.",
-  "error_lease_balance_period": "임대 기간은 65535블록을 초과할 수 없습니다.",
+  "error_lease_balance_period": "임대 기간은 32000000블록을 초과할 수 없습니다.",
   "error_max_asset_transfer_warning": "지정된 수량이 __qty__보다 큽니다. 계속하시겠습니까? 제출 버튼을 다시 클릭하여 확인하십시오.",
   "error_max_currency_transfer_warning": "지정된 단위의 수량이 __qty__보다 큽니다. 계속하시겠습니까? 제출 버튼을 다시 클릭하여 확인하십시오.",
   "error_max_tags": "최대 __nr__ 개의 태그를 사용할 수 있습니다.",

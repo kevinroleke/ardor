@@ -1,7 +1,7 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
  * Copyright © 2016-2023 Jelurida IP B.V.
- * Copyright © 2023-2024 Jelurida Swiss SA
+ * Copyright © 2023-2025 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -17,6 +17,8 @@
 
 package nxt.blockchain;
 
+import nxt.Constants;
+import nxt.Nxt;
 import nxt.NxtException;
 import nxt.messaging.EncryptToSelfMessageAppendix;
 import nxt.messaging.EncryptedMessageAppendix;
@@ -76,4 +78,21 @@ final class UnconfirmedChildTransaction extends UnconfirmedTransaction implement
         return getTransaction().getReferencedTransactionId();
     }
 
+    @Override
+    public ChildTransaction getAtomicChild() {
+        return getTransaction().getAtomicChild();
+    }
+
+    @Override
+    public void validate() throws NxtException.ValidationException {
+        super.validate();
+        if (Nxt.getBlockchain().getHeight() >= Constants.ATOMIC_TRANSACTIONS) {
+            short maxDeadline = ChildTransactionImpl.getMaxDeadline(getTransaction());
+            if (getDeadline() > maxDeadline) {
+                throw new NxtException.NotValidException("Deadline " +
+                        getDeadline() + " exceeds the max deadline of " +
+                        maxDeadline + "; fee = " + getFee());
+            }
+        }
+    }
 }

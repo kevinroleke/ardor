@@ -74,8 +74,20 @@ public class CreateOneSideTransactionCallBuilder<T extends CreateOneSideTransact
         return unsignedLongParam("phasingHolding", phasingHolding);
     }
 
+    public T atomicParentUnsignedHash(String atomicParentUnsignedHash) {
+        return param("atomicParentUnsignedHash", atomicParentUnsignedHash);
+    }
+
     public T phasingRecipientPropertySetter(String phasingRecipientPropertySetter) {
         return param("phasingRecipientPropertySetter", phasingRecipientPropertySetter);
+    }
+
+    public T atomicChildFullHash(String atomicChildFullHash) {
+        return param("atomicChildFullHash", atomicChildFullHash);
+    }
+
+    public T atomicChildFullHash(byte[] atomicChildFullHash) {
+        return param("atomicChildFullHash", atomicChildFullHash);
     }
 
     public T messageToEncryptToSelf(String messageToEncryptToSelf) {
@@ -148,6 +160,10 @@ public class CreateOneSideTransactionCallBuilder<T extends CreateOneSideTransact
 
     public T feeRateNQTPerFXT(long feeRateNQTPerFXT) {
         return param("feeRateNQTPerFXT", feeRateNQTPerFXT);
+    }
+
+    public T atomicOrphanUnconfirmedPoolDeadline(int atomicOrphanUnconfirmedPoolDeadline) {
+        return param("atomicOrphanUnconfirmedPoolDeadline", atomicOrphanUnconfirmedPoolDeadline);
     }
 
     public T phasingRecipientPropertyValue(String phasingRecipientPropertyValue) {

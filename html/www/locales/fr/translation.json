@@ -382,7 +382,7 @@
   "error_invalid_referenced_transaction_hash": "Hachahge de la transaction référencée invalide.",
   "error_invalid_seller": "ID du vendeur invalide",
   "error_invalid_token": "Le token est INVALIDE. Il semble appartenir au compte __account_link__. Il a été généré le __timestamp__.",
-  "error_lease_balance_period": "Le bail ne peut être supérieur à 65535 blocs.",
+  "error_lease_balance_period": "Le bail ne peut être supérieur à 32000000 blocs.",
   "error_max_asset_transfer_warning": "La quantité spécifiée est supérieure à __qty__. Êtes-vous sûr de vouloir continuer? Cliquez sur le bouton Soumettre pour confirmer.",
   "error_max_currency_transfer_warning": "La quantité spécifiée est supérieure à __qty__. Êtes-vous sûr de vouloir continuer? Cliquez à nouveau sur le bouton Soumettre pour confirmer.",
   "error_max_tags": "Un maximum de __nr__ tags est autorisé.",

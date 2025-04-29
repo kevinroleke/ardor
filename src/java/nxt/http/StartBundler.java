@@ -1,7 +1,7 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
  * Copyright © 2016-2023 Jelurida IP B.V.
- * Copyright © 2023-2024 Jelurida Swiss SA
+ * Copyright © 2023-2025 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -25,13 +25,10 @@ import nxt.blockchain.ChildChain;
 import nxt.blockchain.FxtChain;
 import nxt.crypto.Crypto;
 import nxt.peer.Peers;
-import nxt.util.Convert;
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -49,31 +46,12 @@ public final class StartBundler extends APIServlet.APIRequestHandler {
         byte[] privateKey = ParameterParser.getPrivateKey(req, true);
         ChildChain childChain = ParameterParser.getChildChain(req);
 
-        JSONArray bundlingRulesJson = ParameterParser.getJsonArray(req, "bundlingRulesJSON");
         long totalFeesLimitFQT = ParameterParser.getLong(req, "totalFeesLimitFQT", 0, Constants.MAX_BALANCE_NQT, false);
+
+        JSONArray bundlingRulesJson = ParameterParser.getJsonArray(req, "bundlingRulesJSON");
         List<Bundler.Rule> rules;
         if (bundlingRulesJson != null) {
-            rules = new ArrayList<>(bundlingRulesJson.size());
-            for (Object o : bundlingRulesJson) {
-                JSONObject ruleJson = (JSONObject) o;
-                long minRateNQTPerFXT = Convert.parseLong(ruleJson.get("minRateNQTPerFXT"));
-                long overpayFQTPerFXT = Convert.parseLong(ruleJson.get("overpayFQTPerFXT"));
-                String feeCalculatorName = Convert.emptyToNull((String) ruleJson.get("feeCalculatorName"));
-                JSONArray filtersJson = (JSONArray) ruleJson.get("filters");
-                List<Bundler.Filter> filters;
-                if (filtersJson != null) {
-                    filters = new ArrayList<>(filtersJson.size());
-                    filtersJson.forEach(obj -> {
-                        JSONObject filterJson = (JSONObject) obj;
-                        String filterName = Convert.emptyToNull((String) filterJson.get("name"));
-                        String filterParameter = Convert.emptyToNull((String) filterJson.get("parameter"));
-                        filters.add(Bundler.createBundlingFilter(filterName, filterParameter));
-                    });
-                } else {
-                    filters = Collections.emptyList();
-                }
-                rules.add(Bundler.createBundlingRule(minRateNQTPerFXT, overpayFQTPerFXT, feeCalculatorName, filters));
-            }
+            rules = ParameterParser.parseBundlingRulesJson(bundlingRulesJson);
         } else {
             long minRateNQTPerFXT = ParameterParser.getLong(req, "minRateNQTPerFXT", 0, Constants.MAX_BALANCE_NQT, true);
             long overpayFQTPerFXT = ParameterParser.getLong(req, "overpayFQTPerFXT", 0, Constants.MAX_BALANCE_NQT, false);

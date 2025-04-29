@@ -1,7 +1,7 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
  * Copyright © 2016-2023 Jelurida IP B.V.
- * Copyright © 2023-2024 Jelurida Swiss SA
+ * Copyright © 2023-2025 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -28,6 +28,7 @@ import nxt.http.accountControl.PermissionPolicyChangeTest;
 import nxt.http.accountproperties.AccountPropertiesSuite;
 import nxt.http.alias.CreateAliasTest;
 import nxt.http.assetexchange.AssetExchangeSuite;
+import nxt.http.atomictxs.AtomicTransactionsTest;
 import nxt.http.bundling.BundlingSuite;
 import nxt.http.coinexchange.CoinExchangeSuite;
 import nxt.http.configuration.ConfigurationSuite;
@@ -61,7 +62,8 @@ import org.junit.runners.Suite;
         CryptoSuite.class,
         ChildChainTest.class,
         PermissionPolicyChangeTest.class,
-        ConfigurationSuite.class
+        ConfigurationSuite.class,
+        AtomicTransactionsTest.class
 })
 public class TestDbSuite extends SafeShutdownSuite {
 }

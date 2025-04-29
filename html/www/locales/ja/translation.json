@@ -382,7 +382,7 @@
   "error_invalid_referenced_transaction_hash": "無効な参照先トランザクション ハッシュです。",
   "error_invalid_seller": "無効な販売者 ID",
   "error_invalid_token": "トークンが有効ではありません。__account_link__ アカウントが所有しているようです。このトークンは __timestamp__ に生成されました。",
-  "error_lease_balance_period": "リース期間は、65535 ブロック以上に設定できません。",
+  "error_lease_balance_period": "リース期間は、32000000 ブロック以上に設定できません。",
   "error_max_asset_transfer_warning": "指定した数量は __qty__ を超えていますが、本当に続行してもよろしいですか？確認のために、もう一度送信ボタンをクリックしてください。",
   "error_max_currency_transfer_warning": "指定したユニット数は __qty__ を超えていますが、本当に続行してもよろしいですか？確認のために、もう一度送信ボタンをクリックしてください。",
   "error_max_tags": "許可されている最大タグ数は __nr__ です。",

@@ -1,7 +1,7 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
  * Copyright © 2016-2023 Jelurida IP B.V.
- * Copyright © 2023-2024 Jelurida Swiss SA
+ * Copyright © 2023-2025 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -18,6 +18,8 @@
 package nxt.blockchain;
 
 import nxt.account.PublicKeyAnnouncementAppendix;
+import nxt.blockchain.atomictxs.AtomicChildAppendix;
+import nxt.blockchain.atomictxs.AtomicParentAppendix;
 import nxt.messaging.EncryptToSelfMessageAppendix;
 import nxt.messaging.EncryptedMessageAppendix;
 import nxt.messaging.MessageAppendix;
@@ -58,6 +60,8 @@ public final class AppendixParsers {
         map.put(PrunableEncryptedMessageAppendix.appendixType, PrunableEncryptedMessageAppendix.appendixParser);
         map.put(PublicKeyAnnouncementAppendix.appendixType, PublicKeyAnnouncementAppendix.appendixParser);
         map.put(PhasingAppendix.appendixType, PhasingAppendix.appendixParser);
+        map.put(AtomicChildAppendix.appendixType, AtomicChildAppendix.appendixParser);
+        map.put(AtomicParentAppendix.appendixType, AtomicParentAppendix.appendixParser);
         parsersMap = Collections.unmodifiableSortedMap(map);
     }
 

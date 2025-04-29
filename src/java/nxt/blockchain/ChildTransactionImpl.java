@@ -1,7 +1,7 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
  * Copyright © 2016-2023 Jelurida IP B.V.
- * Copyright © 2023-2024 Jelurida Swiss SA
+ * Copyright © 2023-2025 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -25,6 +25,7 @@ import nxt.account.AccountLedger;
 import nxt.account.AccountRestrictions;
 import nxt.account.PublicKeyAnnouncementAppendix;
 import nxt.ae.AssetControl;
+import nxt.blockchain.atomictxs.AtomicChildAppendix;
 import nxt.crypto.Crypto;
 import nxt.db.DbUtils;
 import nxt.dbschema.Db;
@@ -111,6 +112,8 @@ public final class ChildTransactionImpl extends TransactionImpl implements Child
     private final EncryptToSelfMessageAppendix encryptToSelfMessage;
     private final PublicKeyAnnouncementAppendix publicKeyAnnouncement;
     private final PhasingAppendix phasing;
+    private final AtomicChildAppendix atomicChildAppendix;
+    private ChildTransactionImpl atomicChild;
 
     private volatile long fxtTransactionId;
 
@@ -124,6 +127,7 @@ public final class ChildTransactionImpl extends TransactionImpl implements Child
         PublicKeyAnnouncementAppendix publicKeyAnnouncementAppendix = null;
         EncryptToSelfMessageAppendix encryptToSelfMessageAppendix = null;
         PhasingAppendix phasingAppendix = null;
+        AtomicChildAppendix atomicChildAppendix = null;
         for (Appendix.AbstractAppendix appendix : appendages()) {
             switch (appendix.getAppendixType()) {
                 case MessageAppendix.appendixType:
@@ -141,6 +145,9 @@ public final class ChildTransactionImpl extends TransactionImpl implements Child
                 case PhasingAppendix.appendixType:
                     phasingAppendix = (PhasingAppendix) appendix;
                     break;
+                case AtomicChildAppendix.appendixType:
+                    atomicChildAppendix = (AtomicChildAppendix) appendix;
+                    break;
             }
         }
         this.message = messageAppendix;
@@ -148,6 +155,7 @@ public final class ChildTransactionImpl extends TransactionImpl implements Child
         this.publicKeyAnnouncement = publicKeyAnnouncementAppendix;
         this.encryptToSelfMessage = encryptToSelfMessageAppendix;
         this.phasing = phasingAppendix;
+        this.atomicChildAppendix = atomicChildAppendix;
         if (builder.fee < 0) {
             long minFeeFQT = getMinimumFeeFQT(Nxt.getBlockchain().getHeight());
             if (builder.feeRateNQTPerFXT < 0) {
@@ -240,6 +248,36 @@ public final class ChildTransactionImpl extends TransactionImpl implements Child
     @Override
     public byte[] getSignature() {
         return signature;
+    }
+
+    @Override
+    public ChildTransactionImpl getAtomicChild() {
+        if (this.atomicChild != null) {
+            return this.atomicChild;
+        }
+        if (atomicChildAppendix == null) {
+            return null;
+        }
+        TransactionHome transactionHome = childChain.getTransactionHome();
+        byte[] atomicChildFullHash = atomicChildAppendix.getChildFullHash();
+        if (getSignature() != null && transactionHome.hasTransaction(this.getFullHash(),
+                Nxt.getBlockchain().getHeight() + 1)) {
+            //This atomic parent is confirmed
+            this.atomicChild = (ChildTransactionImpl)transactionHome.findTransaction(atomicChildFullHash);
+        } else {
+            //This atomic parent is unconfirmed
+            UnconfirmedTransaction unconfirmedTransaction = TransactionProcessorImpl.getInstance()
+                    .getUnconfirmedTransaction(Convert.fullHashToId(atomicChildFullHash));
+            if (unconfirmedTransaction == null) {
+                return null;
+            }
+            if (!Arrays.equals(unconfirmedTransaction.getFullHash(), atomicChildFullHash)) {
+                throw new IllegalStateException(String.format("Unconfirmed transaction hash mismatch %s %s",
+                        Convert.toHexString(atomicChildFullHash), Convert.toHexString(unconfirmedTransaction.getFullHash())));
+            }
+            this.atomicChild = (ChildTransactionImpl) unconfirmedTransaction.getTransaction();
+        }
+        return atomicChild;
     }
 
     @Override
@@ -511,6 +549,16 @@ public final class ChildTransactionImpl extends TransactionImpl implements Child
             Logger.logDebugMessage("Failed to parse transaction: " + JSON.toJSONString(transactionData));
             throw e;
         }
+    }
+
+    public static short getMaxDeadline(ChildTransaction t) {
+        //At fee=0 the max deadline is 15; at fee = childChain.ONE_COIN / 100 the max deadline is 1440
+        long maxDeadline = 15 + BigInteger.valueOf(t.getFee()).multiply(BigInteger.valueOf((1440 - 15) * 100))
+                .divide(BigInteger.valueOf(t.getChain().ONE_COIN)).longValueExact();
+        if (maxDeadline > Short.MAX_VALUE) {
+            return Short.MAX_VALUE;
+        }
+        return (short)maxDeadline;
     }
 
 }

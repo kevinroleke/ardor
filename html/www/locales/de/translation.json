@@ -382,7 +382,7 @@
   "error_invalid_referenced_transaction_hash": "Ungültiger Hash der Referenztransaktion.",
   "error_invalid_seller": "Ungültige Verkäufer-ID",
   "error_invalid_token": "Das Token ist NICHT GÜLTIG. Es scheint zum Konto __account_link__ zu gehören. Es wurde am __timestamp__ generiert.",
-  "error_lease_balance_period": "Der Leasing-Zeitraum darf nicht größer als 65535 Blöcke sein.",
+  "error_lease_balance_period": "Der Leasing-Zeitraum darf nicht größer als 32000000 Blöcke sein.",
   "error_max_asset_transfer_warning": "Die angegebene Menge ist höher als __qty__. Sind Sie sicher, dass Sie fortfahren möchten? Klicken Sie zur Bestätigung erneut auf die Schaltfläche zum Übermitteln.",
   "error_max_currency_transfer_warning": "Menge an Einheiten ist höher als __qty__. Sind Sie sicher, dass Sie fortfahren möchten? Klicken Sie zur Bestätigung erneut auf die Schaltfläche zum Übermitteln.",
   "error_max_tags": "Es sind höchstens __nr__ Tags zulässig.",

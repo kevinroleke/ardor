@@ -1,6 +1,6 @@
 /*
  * Copyright © 2016-2023 Jelurida IP B.V.
- * Copyright © 2023-2024 Jelurida Swiss SA
+ * Copyright © 2023-2025 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -18,20 +18,28 @@ package nxt.http;
 
 import nxt.BlockchainTest;
 import nxt.Nxt;
+import nxt.account.PaymentTransactionType;
 import nxt.addons.JA;
 import nxt.addons.JO;
 import nxt.blockchain.ChildChain;
+import nxt.blockchain.TransactionType;
 import nxt.http.APICall.InvocationError;
+import nxt.http.bundling.BundlerTest;
 import nxt.http.callers.BundleTransactionsCall;
 import nxt.http.callers.SendMessageCall;
+import nxt.http.callers.SendMoneyCall;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static nxt.blockchain.ChildChain.AEUR;
-import static nxt.blockchain.ChildChain.IGNIS;
 import static nxt.blockchain.FxtChain.FXT;
 
 public class BundleTransactionsTest extends BlockchainTest {
@@ -175,10 +183,140 @@ public class BundleTransactionsTest extends BlockchainTest {
         Assert.assertEquals(10, getDeadline(actual));
     }
 
+    @Test
+    public void testEnrichmentWithoutFilter() {
+        List<String> hashes = new ArrayList<>();
+        hashes.add(sendMessageCall()
+                .callNoError()
+                .getString("fullHash"));
+
+        hashes.add(sendMessageCall()
+                .callNoError()
+                .getString("fullHash"));
+
+        //we still filter by minRateNQTPerFXT. I.e. we don't bundle transactions
+        // below this rate
+        String hashSmallFee = sendMessageCall()
+                .feeNQT(chain.ONE_COIN / 10)
+                .callNoError()
+                .getString("fullHash");
+
+        BundleTransactionsCall builder = bundleTransactionsCall(hashes.get(0))
+                .isChildrenListEnrichment(true)
+                .enrichmentBundlingRulesJSON("[{\"minRateNQTPerFXT\":1000000}]");
+        JO actual = builder.callNoError();
+
+        assertChildren(hashes, actual);
+
+        actual = builder.transactionFullHash(hashes.get(0), hashSmallFee).callNoError();
+        hashes.add(hashSmallFee);
+        assertChildren(hashes, actual);
+    }
+
+    @Test
+    public void testEnrichmentOnly() {
+        List<String> hashes = Arrays.asList(
+                sendMessageCall()
+                        .callNoError()
+                        .getString("fullHash"),
+                sendMessageCall()
+                        .callNoError()
+                        .getString("fullHash"));
+
+        JO actual = bundleTransactionsCall()
+                .isChildrenListEnrichment(true)
+                .enrichmentChildChain(chain.getId())
+                .enrichmentBundlingRulesJSON("[{\"minRateNQTPerFXT\":1000000}]")
+                .callNoError();
+
+        assertChildren(hashes, actual);
+    }
+
+    @Test
+    public void testEnrichmentFeeCalculation() {
+        BundlerTest.stopAllDefaultBundlers();
+        List<String> hashes = new ArrayList<>();
+        hashes.add(sendMessageCall()
+                .callNoError()
+                .getString("fullHash"));
+        hashes.add(sendMessageCall()
+                .callNoError()
+                .getString("fullHash"));
+
+        BundleTransactionsCall builder = bundleTransactionsCall(hashes.get(0))
+                .feeNQT(-1)
+                .isChildrenListEnrichment(true)
+                .enrichmentTotalFeeLimitFQT(FXT.ONE_COIN)
+                .enrichmentBundlingRulesJSON("[{\"minRateNQTPerFXT\":1000000}]");
+        JO response = builder.callNoError();
+
+        assertChildren(hashes, response);
+
+        // 0.01 ARDR + 0.01 ARDR - the min fee
+        Assert.assertEquals(2 * FXT.ONE_COIN / 100, response.getJo("transactionJSON").getLong("feeNQT"));
+
+        hashes.add(sendMessageCall()
+                .feeNQT(3 * chain.ONE_COIN / 10)
+                .callNoError()
+                .getString("fullHash"));
+
+        response = builder.enrichmentBundlingRulesJSON(
+                "[{\"minRateNQTPerFXT\":100000, " +
+                "\"feeCalculatorName\":\"PROPORTIONAL_FEE\"}]").callNoError();
+
+        assertChildren(hashes, response);
+
+        // minRateNQTPerFXT is 10 AEUR. hashes[0] is specified as transactionFullHash,
+        // so the minimum fee FQT is paid for it. The fee for the two other transactions
+        // is calculated proportionally
+        // 0.01 ARDR + 1 / 10 + 0.3 / 10
+        Assert.assertEquals(14 * FXT.ONE_COIN / 100, response.getJo("transactionJSON").getLong("feeNQT"));
+    }
+
+    @Test
+    public void testEnrichmentWithFilter() {
+        List<String> expected = new ArrayList<>();
+        expected.add(sendMessageCall()
+                .callNoError()
+                .getString("fullHash"));
+        sendMessageCall()
+                .callNoError()
+                .getString("fullHash");
+
+        expected.add(SendMoneyCall.create(chain.getId()).secretPhrase(BOB.getSecretPhrase())
+                .recipient(CHUCK.getId()).amountNQT(4 * chain.ONE_COIN).feeNQT(0)
+                .callNoError()
+                .getString("fullHash"));
+
+        //enrich only with send money transactions
+        TransactionType type = PaymentTransactionType.ORDINARY;
+        BundleTransactionsCall builder = bundleTransactionsCall(expected.get(0))
+                .isChildrenListEnrichment(true)
+                .enrichmentBundlingRulesJSON("[{\"minRateNQTPerFXT\":0, " +
+                        "\"filters\":[{\"name\":\"TransactionTypeBundler\", " +
+                            "\"parameter\":\"" + type.getType() + ":" + type.getSubtype() + "\"}]}]");
+
+        JO response = builder.callNoError();
+
+        assertChildren(expected, response);
+    }
+
+
+
+    private static void assertChildren(List<String> expected, JO response) {
+        JA actualHashes = response.getJo("transactionJSON")
+                .getJo("attachment")
+                .getArray("childTransactionFullHashes");
+        Assert.assertEquals(expected.size(), actualHashes.size());
+
+        Assert.assertEquals(new HashSet<>(expected),
+                new HashSet<>(actualHashes.values()));
+    }
+
     private BundleTransactionsCall bundleTransactionsCall(String... hashes) {
         final BundleTransactionsCall builder = BundleTransactionsCall.create(FXT.getId())
                 .secretPhrase(ALICE.getSecretPhrase())
-                .feeNQT(IGNIS.ONE_COIN);
+                .feeNQT(FXT.ONE_COIN);
         if (hashes.length == 0) {
             return builder;
         }

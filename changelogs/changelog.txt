@@ -1,3 +1,39 @@
+ardor-client-2.5.1, released 2025-01-28:
+
+The processing of unconfirmed transaction has been significantly improved and
+optimized, implementing protection against broadcast storms.
+
+The priority of unconfirmed transactions is now based on a pool retention
+score, calculated from the transaction fee and deadline.
+
+Propagation of unconfirmed transactions between peers has also been
+optimized to filter out lower priority transactions when the pool is full
+and to return the higher priority transactions first.
+
+Added a dumpCache parameter to the GetUnconfirmedTransactions API to allow
+retrieving the transactions currently in the unconfirmed transactions cache.
+
+Included info about the unconfirmed transaction pool (poolSize and
+droppedStoreSize) in the GetState API response.
+
+Added nxt.droppedTransactionsStoreSize parameter, default 150000, to control
+the size of memory cache used to keep track of dropped transactions in a
+broadcast storm.
+
+Added a checkpoint after the 2.5.0 hardfork. Peers running older versions are
+blacklisted.
+
+Added a nxt.tools.DecryptConfigFile tool to be able to decrypt an encrypted
+config file from the command line without having to start Ardor.
+
+A copy of the nxt-default.properties file is now included in ardor.jar. When
+running from ardor.jar, the values in nxt-default.properties inside ardor.jar
+override those in conf/nxt-default.properties.
+
+Fixed the contract runner validator mode to not use referenced transactions.
+
+
+--------------------------------------------------------------------------------
 ardor-client-2.5.0, released 2024-10-18:
 
 Upgrading to this release is mandatory before block 3700000, expected around

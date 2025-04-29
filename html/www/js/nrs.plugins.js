@@ -1,7 +1,7 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
  * Copyright © 2016-2023 Jelurida IP B.V.
- * Copyright © 2023-2024 Jelurida Swiss SA
+ * Copyright © 2023-2025 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -122,7 +122,6 @@ NRS.onSiteBuildDone().then(() => {
             var notFound = undefined;
             var mandatoryFiles = [
                 pluginPath + 'html/pages/' + pluginFile + '.html',
-                pluginPath + 'html/modals/' + pluginFile + '.html',
                 pluginPath + 'js/nrs.' + pluginFile + '.js',
                 pluginPath + 'css/' + pluginFile + '.css'
             ];
@@ -254,19 +253,14 @@ NRS.onSiteBuildDone().then(() => {
             NRS.dataLoaded();
         };
 
-        NRS.loadPlugin = function(pluginId) {
+        NRS.loadPlugin = function(pluginId, loadCallback) {
             var plugin = NRS.plugins[pluginId];
             var manifest = NRS.plugins[pluginId]['manifest'];
             var pluginPath = NRS.getPluginPath(pluginId);
             var pluginFile = NRS.getPluginFileName(pluginId);
-            async.series([
+            var steps = [
                 function(callback){
-                    NRS.asyncLoadPageHTML(pluginPath + 'html/pages/' + pluginFile + '.html');
-                    callback(null);
-                },
-                function(callback){
-                    NRS.asyncLoadPageHTML(pluginPath + 'html/modals/' + pluginFile + '.html');
-                    callback(null);
+                    NRS.asyncLoadPageHTML(pluginPath + 'html/pages/' + pluginFile + '.html', callback);
                 },
                 function(callback){
                     $.getScript(pluginPath + 'js/nrs.' + pluginFile + '.js').done(function() {
@@ -301,7 +295,49 @@ NRS.onSiteBuildDone().then(() => {
                         callback(null);
                     })
                 }
-            ])
+            ];
+
+            if (Array.isArray(manifest.modals)) {
+                manifest.modals.forEach((modalFileName, index) => {
+                    steps.splice(
+                        1 + index,
+                        0,
+                        function(callback) {
+                            NRS.asyncLoadModalHTML(pluginPath + 'html/modals/' + modalFileName + '.html', callback);
+                        }
+                    );
+                });
+            } else {
+                steps.splice(1, 0, function(callback){
+                    NRS.asyncLoadModalHTML(pluginPath + 'html/modals/' + pluginFile + '.html', callback);
+                });
+            }
+            async.series(steps, function(err, results) {
+                if (err) {
+                    NRS.logException(err);
+                }
+                loadCallback();
+            });
+        };
+
+        NRS.setupPluginModal = function(pluginId, modalFileName) {
+            let $modal = $("#p_" + NRS.getPluginFileName(pluginId) + "_modal_" + modalFileName);
+            NRS.setupModalElements($modal);
+            NRS.setupFormElements($modal);
+            NRS.setupCoinSymbols($modal);
+        }
+
+        NRS.setupPluginsElements = function() {
+            $.each(NRS.plugins, function(pluginId, pluginDict) {
+                let manifest = pluginDict['manifest'];
+                if (Array.isArray(manifest.modals)) {
+                    manifest.modals.forEach((modalFileName, index) => {
+                        NRS.setupPluginModal(pluginId, modalFileName);
+                    });
+                } else {
+                    NRS.setupPluginModal(pluginId, pluginId);
+                }
+            });
         };
 
         NRS.loadPlugins = function() {
@@ -318,6 +354,7 @@ NRS.onSiteBuildDone().then(() => {
                 NRS.addTreeviewSidebarMenuItem(options);
             }
 
+            let remaining = Object.keys(NRS.plugins).length;
             $.each(NRS.plugins, function(pluginId, pluginDict) {
                 NRS.logConsole("Iterating over plugins");
                 if ((NRS.settings["enable_plugins"] == "0" || NRS.disablePluginsDuringSession) && pluginDict['launch_status'] == NRS.constants.PL_PAUSED) {
@@ -325,7 +362,18 @@ NRS.onSiteBuildDone().then(() => {
                     pluginDict['launch_status_msg'] = $.t('plugin_deactivated', 'Deactivated');
                 }
                 if (pluginDict['launch_status'] == NRS.constants.PL_PAUSED) {
-                    NRS.loadPlugin(pluginId);
+                    NRS.loadPlugin(pluginId, function() {
+                        remaining--;
+                        if (remaining === 0) {
+                            NRS.loadModalHTMLTemplates(function() {
+                                NRS.setupPluginsElements();
+                                $("[data-i18n]").i18n();
+                                NRS.logConsole("Plugins loaded");
+                            });
+                        }
+                    });
+                } else {
+                    remaining--;
                 }
             });
             var growlOptions = {
@@ -348,9 +396,6 @@ NRS.onSiteBuildDone().then(() => {
                 }
                 $.growl(msg, growlOptions);
             }
-
-            NRS.loadModalHTMLTemplates();
-            NRS.logConsole("Plugins loaded");
         };
 
         NRS.getPluginRowHTML = function(pluginId) {

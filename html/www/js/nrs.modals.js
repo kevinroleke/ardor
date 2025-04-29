@@ -1,7 +1,7 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
  * Copyright © 2016-2023 Jelurida IP B.V.
- * Copyright © 2023-2024 Jelurida Swiss SA
+ * Copyright © 2023-2025 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -57,13 +57,16 @@ NRS.onSiteBuildDone().then(() => {
 			}
 		});
 
+        //--------------------- setupModalElements START --------------------
+        NRS.setupModalElements = function($context) {
+
 		//Reset scroll position of tab when shown.
-		$('a[data-toggle="tab"]').on("shown.bs.tab", function(e) {
+		$context.find('a[data-toggle="tab"]').on("shown.bs.tab", function(e) {
 			var target = $(e.target).attr("href");
 			$(target).scrollTop(0);
 		});
 
-		$(".add_message").on("change", function() {
+		$context.find(".add_message").on("change", function() {
 			var $form = $(this).closest("form");
 			var $optionalMessage = $form.find(".optional_message");
 			if ($(this).is(":checked")) {
@@ -90,7 +93,7 @@ NRS.onSiteBuildDone().then(() => {
 			}
 		});
 
-		$(".is-shared-secret").on("change", function() {
+		$context.find(".is-shared-secret").on("change", function() {
 			var $pieceBox = $(this).closest("form").find('div[data-modal-ui-element="multi_piece_modal_ui_element"]');
 			var $secretPhraseInput = $(this).closest("form").find('.secret-phrase-input');
 			if ($(this).is(":checked")) {
@@ -108,7 +111,7 @@ NRS.onSiteBuildDone().then(() => {
 			}
 		});
 
-		$(".add_note_to_self").on("change", function() {
+		$context.find(".add_note_to_self").on("change", function() {
 			if ($(this).is(":checked")) {
 				$(this).closest("form").find(".optional_note").fadeIn();
 			} else {
@@ -116,7 +119,7 @@ NRS.onSiteBuildDone().then(() => {
 			}
 		});
 
-		$(".do_not_broadcast").on("change", function() {
+		$context.find(".do_not_broadcast").on("change", function() {
 			if ($(this).is(":checked")) {
 				$(this).closest("form").find(".optional_do_not_sign").fadeIn();
 			} else {
@@ -127,7 +130,7 @@ NRS.onSiteBuildDone().then(() => {
 			}
 		});
 
-		$(".do_not_sign").on("change", function() {
+		$context.find(".do_not_sign").on("change", function() {
 			var passphrase = $(this).closest("form").find(".secret_phrase input");
 			if ($(this).is(":checked")) {
 				passphrase.val("");
@@ -142,7 +145,7 @@ NRS.onSiteBuildDone().then(() => {
 		});
 
 		// hide modal when another one is activated.
-		var modal = $(".modal");
+		var modal = $context.findOrIs(".modal");
 		modal.on("show.bs.modal", function() {
 			var $inputFields = $(this).find("input[name=recipient], input[name=account_id], input[name=phasingWhitelisted], input.account_id_mask").not("[type=hidden]");
 			$.each($inputFields, function() {
@@ -318,6 +321,53 @@ NRS.onSiteBuildDone().then(() => {
 			isFakeWarningDisplayed = false;
 		});
 
+        $context.find("button[data-dismiss='modal']").on("click", function() {
+            NRS.modalStack = [];
+        });
+
+        $context.find(".advanced_info a").on("click", function(e) {
+            e.preventDefault();
+            var $modal = $(this).closest(".modal");
+            var text = $(this).text().toLowerCase();
+            if (text == $.t("advanced").toLowerCase()) {
+                var not = ".optional_note, .optional_do_not_sign, .optional_public_key";
+                var requestType = $modal.find('input[name="request_type"]').val();
+                if (requestType != "approveTransaction"
+                    && NRS.accountInfo.accountControls && $.inArray('PHASING_ONLY', NRS.accountInfo.accountControls) > -1) {
+                    not += ", .approve_modal";
+                }
+                $modal.find(".advanced").not(not).fadeIn();
+            } else {
+                $modal.find(".advanced").hide();
+            }
+
+            $modal.find(".advanced_extend").each(function(index, obj) {
+                var normalSize = $(obj).data("normal");
+                var advancedSize = $(obj).data("advanced");
+                if (text == "advanced") {
+                    $(obj).addClass("col-xs-" + advancedSize + " col-sm-" + advancedSize + " col-md-" + advancedSize).removeClass("col-xs-" + normalSize + " col-sm-" + normalSize + " col-md-" + normalSize);
+                } else {
+                    $(obj).removeClass("col-xs-" + advancedSize + " col-sm-" + advancedSize + " col-md-" + advancedSize).addClass("col-xs-" + normalSize + " col-sm-" + normalSize + " col-md-" + normalSize);
+                }
+            });
+
+            if (text == $.t("advanced").toLowerCase()) {
+                $(this).text($.t("basic"));
+            } else {
+                $(this).text($.t("advanced"));
+            }
+            // Close accidentally triggered popovers
+            $(".show_popover").popover("hide");
+        });
+
+        $context.find(".fee-priority-slider").on("change mousemove", function() {
+            NRS.updateFeePriorityText($(this));
+        });
+
+        };
+        //--------------------- setupModalElements END --------------------
+        NRS.setupModalElements($(document));
+
 		NRS.showModalError = function(errorMessage, $modal) {
 			var $btn = $modal.find("button.btn-primary:not([data-dismiss=modal], .ignore)");
 			$modal.find("button").prop("disabled", false);
@@ -336,45 +386,6 @@ NRS.onSiteBuildDone().then(() => {
 			$modal.modal("unlock");
 			$modal.modal("hide");
 		};
-
-		$("button[data-dismiss='modal']").on("click", function() {
-			NRS.modalStack = [];
-		});
-
-		$(".advanced_info a").on("click", function(e) {
-			e.preventDefault();
-			var $modal = $(this).closest(".modal");
-			var text = $(this).text().toLowerCase();
-			if (text == $.t("advanced").toLowerCase()) {
-				var not = ".optional_note, .optional_do_not_sign, .optional_public_key";
-				var requestType = $modal.find('input[name="request_type"]').val();
-				if (requestType != "approveTransaction"
-					&& NRS.accountInfo.accountControls && $.inArray('PHASING_ONLY', NRS.accountInfo.accountControls) > -1) {
-					not += ", .approve_modal";
-				}
-				$modal.find(".advanced").not(not).fadeIn();
-			} else {
-				$modal.find(".advanced").hide();
-			}
-
-			$modal.find(".advanced_extend").each(function(index, obj) {
-				var normalSize = $(obj).data("normal");
-				var advancedSize = $(obj).data("advanced");
-				if (text == "advanced") {
-					$(obj).addClass("col-xs-" + advancedSize + " col-sm-" + advancedSize + " col-md-" + advancedSize).removeClass("col-xs-" + normalSize + " col-sm-" + normalSize + " col-md-" + normalSize);
-				} else {
-					$(obj).removeClass("col-xs-" + advancedSize + " col-sm-" + advancedSize + " col-md-" + advancedSize).addClass("col-xs-" + normalSize + " col-sm-" + normalSize + " col-md-" + normalSize);
-				}
-			});
-
-			if (text == $.t("advanced").toLowerCase()) {
-				$(this).text($.t("basic"));
-			} else {
-				$(this).text($.t("advanced"));
-			}
-			// Close accidentally triggered popovers
-			$(".show_popover").popover("hide");
-		});
 
 		NRS.isShowFakeWarning = function() {
 			if (NRS.settings.fake_entity_warning != "1") {
@@ -398,10 +409,6 @@ NRS.onSiteBuildDone().then(() => {
             var $priorityText = $slider.siblings(".fee-priority-text");
             $priorityText.text($.t(priorityTextPerIndex[$slider.val()]));
         };
-
-        $(".fee-priority-slider").on("change mousemove", function() {
-            NRS.updateFeePriorityText($(this));
-        });
 
 		return NRS;
 	}(NRS || {}, jQuery));

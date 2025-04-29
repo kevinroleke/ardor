@@ -1,5 +1,5 @@
 /*
- * Copyright © 2024 Jelurida Swiss SA
+ * Copyright © 2024-2025 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -15,6 +15,7 @@
 
 package nxt.blockchain;
 
+import nxt.blockchain.atomictxs.AtomicChainsSet;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -63,6 +64,11 @@ public class UtxComparableDataTest {
         }
 
         @Override
+        public int getFullSize() {
+            return 100;
+        }
+
+        @Override
         public short getDeadline() {
             return deadline;
         }
@@ -79,14 +85,12 @@ public class UtxComparableDataTest {
     }
 
     private static class MockChildTransaction extends MockTransaction implements DummyChildTransaction {
-        private final ChainTransactionId getReferencedTransactionId;
+
 
         public MockChildTransaction(long id, int height, long fee,
                                     short deadline, Chain chain,
-                                    TransactionType type,
-                                    ChainTransactionId getReferencedTransactionId) {
+                                    TransactionType type) {
             super(id, height, fee, deadline, chain, type);
-            this.getReferencedTransactionId = getReferencedTransactionId;
         }
 
         @Override
@@ -94,17 +98,13 @@ public class UtxComparableDataTest {
             return (ChildChain) super.getChain();
         }
 
-        @Override
-        public ChainTransactionId getReferencedTransactionId() {
-            return getReferencedTransactionId;
-        }
     }
 
 
     private UtxComparableData createComparableData(boolean isChildBlock,
                                                    boolean isFxtChain, int height,
                                                    boolean isBundled,
-                                                   boolean hasReferencedTransaction,
+                                                   boolean isCompleteAtomicChain,
                                                    long fee, short deadline,
                                                    long arrivalTimestamp,
                                                    long id) {
@@ -118,12 +118,11 @@ public class UtxComparableDataTest {
                     chain, type);
         } else {
             mockedTransaction = new MockChildTransaction(id, height, fee,
-                    deadline, chain, type,
-                    hasReferencedTransaction ? new ChainTransactionId(
-                            chain.getId(), new byte[32]) : null);
+                    deadline, chain, type);
         }
         UtxComparableData comparableData = new UtxComparableData(
-                mockedTransaction, isBundled, arrivalTimestamp);
+                mockedTransaction, isBundled, isCompleteAtomicChain, arrivalTimestamp,
+                mockedTransaction.getFee(), mockedTransaction.getFullSize());
         Assert.assertTrue(comparableData.compareTo(UtxComparableData.HIGHEST) < 0);
         return comparableData;
     }
@@ -217,14 +216,13 @@ public class UtxComparableDataTest {
     }
 
     @Test
-    public void testHavingReferenceTransactionPriority() {
+    public void testCompleteAtomicChainPriority() {
         UtxComparableData cd1 = createComparableData(false, true, 100, false,
                 true, 1000, (short) 1, 1000, 1);
         UtxComparableData cd2 = createComparableData(false, true, 100, false,
                 false, 1000, (short) 1, 1000, 2);
 
-        //TODO should transactions that reference other transactions have lower priority?
-        assertOrdering(cd2, cd1);
+        assertOrdering(cd1, cd2);
     }
 
     @Test

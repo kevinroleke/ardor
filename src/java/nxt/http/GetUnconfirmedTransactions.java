@@ -1,7 +1,7 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
  * Copyright © 2016-2023 Jelurida IP B.V.
- * Copyright © 2023-2024 Jelurida Swiss SA
+ * Copyright © 2023-2025 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -33,6 +33,7 @@ import org.json.simple.JSONStreamAware;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -57,8 +58,8 @@ public final class GetUnconfirmedTransactions extends APIServlet.APIRequestHandl
         JSONObject response = new JSONObject();
         JSONArray transactions = new JSONArray();
         if ("true".equalsIgnoreCase(req.getParameter("dumpCache"))) {
-            SortedSet<? extends Transaction> transactionSet =
-                    Nxt.getTransactionProcessor().getCachedUnconfirmedTransactions(Collections.emptyList());
+            List<? extends Transaction> transactionSet =
+                    Nxt.getTransactionProcessor().getCachedUnconfirmedTransactions(Collections.emptyList(), lastIndex);
             int index = 0;
             for (Transaction transaction : transactionSet) {
                 if (index >= firstIndex && index < lastIndex) {

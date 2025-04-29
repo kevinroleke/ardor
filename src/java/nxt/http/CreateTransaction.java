@@ -1,7 +1,7 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
  * Copyright © 2016-2023 Jelurida IP B.V.
- * Copyright © 2023-2024 Jelurida Swiss SA
+ * Copyright © 2023-2025 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -33,6 +33,8 @@ import nxt.blockchain.FxtChain;
 import nxt.blockchain.FxtTransactionType;
 import nxt.blockchain.Transaction;
 import nxt.blockchain.TransactionType;
+import nxt.blockchain.atomictxs.AtomicChildAppendix;
+import nxt.blockchain.atomictxs.AtomicParentAppendix;
 import nxt.crypto.Crypto;
 import nxt.messaging.EncryptToSelfMessageAppendix;
 import nxt.messaging.MessageAppendix;
@@ -76,7 +78,7 @@ public abstract class CreateTransaction extends APIServlet.APIRequestHandler {
             "phasingExpression",
             "ecBlockId", "ecBlockHeight", "voucher",
             "sharedPiece", "sharedPiece", "sharedPiece", "sharedPieceAccount",
-            "transactionPriority"
+            "transactionPriority", "atomicChildFullHash", "atomicParentUnsignedHash", "atomicOrphanUnconfirmedPoolDeadline"
     };
 
     private static final String[] recipientParameters = new String[]{
@@ -193,6 +195,7 @@ public abstract class CreateTransaction extends APIServlet.APIRequestHandler {
         boolean isVoucher = "true".equalsIgnoreCase(req.getParameter("voucher"));
         String publicKeyValue = Convert.emptyToNull(req.getParameter("publicKey"));
         boolean broadcast = !"false".equalsIgnoreCase(req.getParameter("broadcast")) && privateKey != null && !isVoucher;
+        boolean isUndeterminedAtomicParent = false;
         Appendix encryptedMessage = null;
         if (attachment.getTransactionType().canHaveRecipient() && recipientId != 0) {
             Account recipient = Account.getAccount(recipientId);
@@ -218,7 +221,7 @@ public abstract class CreateTransaction extends APIServlet.APIRequestHandler {
         }
 
         short deadline = parameters.getDeadline();
-        long feeNQT = ParameterParser.getLong(req, "feeNQT", -1L, Constants.MAX_BALANCE_NQT, -1L);
+        long feeNQT = parameters.getFeeNQT();
         int ecBlockHeight = ParameterParser.getInt(req, "ecBlockHeight", 0, Integer.MAX_VALUE, false);
         long ecBlockId = Convert.parseUnsignedLong(req.getParameter("ecBlockId"));
         if (ecBlockId != 0 && ecBlockId != Nxt.getBlockchain().getBlockIdAtHeight(ecBlockHeight)) {
@@ -227,7 +230,7 @@ public abstract class CreateTransaction extends APIServlet.APIRequestHandler {
         if (ecBlockId == 0 && ecBlockHeight > 0) {
             ecBlockId = Nxt.getBlockchain().getBlockIdAtHeight(ecBlockHeight);
         }
-        int timestamp = ParameterParser.getTimestamp(req);
+        int timestamp = parameters.getTimestamp();
         long feeRateNQTPerFXT = ParameterParser.getLong(req, "feeRateNQTPerFXT", -1L, Constants.MAX_BALANCE_NQT, -1L);
         JSONObject response = new JSONObject();
 
@@ -265,6 +268,25 @@ public abstract class CreateTransaction extends APIServlet.APIRequestHandler {
                         .appendix(publicKeyAnnouncement)
                         .appendix(encryptToSelfMessage)
                         .appendix(phasing);
+                if (Constants.ATOMIC_CHILD_HASH_TO_BE_DETERMINED.equalsIgnoreCase(req.getParameter("atomicChildFullHash"))) {
+                    if (privateKey != null) {
+                        throw new ParameterException(JSONResponses.error("Atomic parent with undetermined child cannot be signed"));
+                    }
+                    builder.appendix(new AtomicChildAppendix(new byte[32]));
+                    isUndeterminedAtomicParent = true;
+                } else {
+                    byte[] atomicChildFullHash = ParameterParser.getBytes(req, "atomicChildFullHash", false);
+                    if (atomicChildFullHash != Convert.EMPTY_BYTE) {
+                        builder.appendix(new AtomicChildAppendix(atomicChildFullHash));
+                    }
+                }
+                byte[] atomicParentUnsignedHash = ParameterParser.getBytes(req, "atomicParentUnsignedHash", false);
+                if (atomicParentUnsignedHash != Convert.EMPTY_BYTE) {
+                    int atomicOrphanUnconfirmedPoolDeadline = ParameterParser.getInt(req,
+                            "atomicOrphanUnconfirmedPoolDeadline", 0, 0xffff,
+                            Math.min(0xffff, deadline * 60));
+                    builder.appendix(new AtomicParentAppendix(atomicOrphanUnconfirmedPoolDeadline, atomicParentUnsignedHash));
+                }
             } else {
                 if (!(attachment.getTransactionType() instanceof FxtTransactionType)) {
                     throw new ParameterException(JSONResponses.incorrect("chain",
@@ -327,7 +349,11 @@ public abstract class CreateTransaction extends APIServlet.APIRequestHandler {
             }
             response.put("transactionJSON", transactionJSON);
             try {
-                response.put("unsignedTransactionBytes", Convert.toHexString(transaction.getUnsignedBytes()));
+                byte[] unsignedBytes = transaction.getUnsignedBytes();
+                response.put("unsignedTransactionBytes", Convert.toHexString(unsignedBytes));
+                if (isUndeterminedAtomicParent) {
+                    response.put("unsignedBytesHash", Convert.toHexString(Crypto.sha256().digest(unsignedBytes)));
+                }
             } catch (NxtException.NotYetEncryptedException ignore) {}
             if (privateKey != null) {
                 if (isVoucher) {
@@ -348,7 +374,9 @@ public abstract class CreateTransaction extends APIServlet.APIRequestHandler {
                 Nxt.getTransactionProcessor().broadcast(transaction);
                 response.put("broadcasted", true);
             } else {
-                transaction.validate();
+                if (!isUndeterminedAtomicParent) {
+                    transaction.validate();
+                }
                 if (!isVoucher) {
                     response.put("broadcasted", false);
                 }
@@ -389,6 +417,8 @@ public abstract class CreateTransaction extends APIServlet.APIRequestHandler {
         private long senderId;
         private long recipientId;
         private long amountNQT;
+        private long feeNQT;
+        private int timestamp;
         private short deadline;
         private Attachment attachment;
         private Chain txChain;
@@ -416,6 +446,16 @@ public abstract class CreateTransaction extends APIServlet.APIRequestHandler {
 
         public CreateTransactionParameters setAmountNQT(long amountNQT) {
             this.amountNQT = amountNQT;
+            return this;
+        }
+
+        public CreateTransactionParameters setFeeNQT(long feeNQT) {
+            this.feeNQT = feeNQT;
+            return this;
+        }
+
+        public CreateTransactionParameters setTimestamp(int timestamp) {
+            this.timestamp = timestamp;
             return this;
         }
 
@@ -482,6 +522,13 @@ public abstract class CreateTransaction extends APIServlet.APIRequestHandler {
             return amountNQT;
         }
 
+        public long getFeeNQT() throws ParameterException {
+            if (feeNQT != 0) {
+                return feeNQT;
+            }
+            return ParameterParser.getLong(req, "feeNQT", -1L, Constants.MAX_BALANCE_NQT, -1L);
+        }
+
         public long getRecipientId() {
             return recipientId;
         }
@@ -495,6 +542,13 @@ public abstract class CreateTransaction extends APIServlet.APIRequestHandler {
                 return message;
             }
             return ParameterParser.getPlainMessage(req);
+        }
+
+        public int getTimestamp() throws ParameterException {
+            if (timestamp != 0) {
+                return timestamp;
+            }
+            return ParameterParser.getTimestamp(req);
         }
 
         public short getDeadline() throws ParameterException {

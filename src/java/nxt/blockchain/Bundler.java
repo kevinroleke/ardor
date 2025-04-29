@@ -1,7 +1,7 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
  * Copyright © 2016-2023 Jelurida IP B.V.
- * Copyright © 2023-2024 Jelurida Swiss SA
+ * Copyright © 2023-2025 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -21,6 +21,8 @@ import nxt.Constants;
 import nxt.Nxt;
 import nxt.NxtException;
 import nxt.account.Account;
+import nxt.blockchain.atomictxs.AtomicChain;
+import nxt.blockchain.atomictxs.AtomicChainsSet;
 import nxt.crypto.Crypto;
 import nxt.db.DbIterator;
 import nxt.db.FilteringIterator;
@@ -34,10 +36,10 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -51,6 +53,11 @@ public final class Bundler {
      */
     public interface Filter {
         boolean ok(Bundler bundler, ChildTransaction childTransaction);
+
+        default boolean ok(Bundler bundler, AtomicChain<? extends ChildTransaction> atomicChain) {
+            return atomicChain.stream().allMatch(t -> ok(bundler, t));
+        }
+
         default String getName() {
             return getClass().getSimpleName();
         }
@@ -121,7 +128,7 @@ public final class Bundler {
     }
 
     /**
-     * Bundling rule - transactions that match the filter and minimum rate of the rule are bundled. The fee payed by the
+     * Bundling rule - transactions that match the filter and minimum rate of the rule are bundled. The fee paid by the
      * bundler for the transaction is calculated according to the feeCalculator of the rule. More than one rule can be
      * specified per bundler, the transaction is processed according to the first rule which accepts the transaction.
      */
@@ -163,20 +170,20 @@ public final class Bundler {
             return feeCalculator;
         }
 
-        protected boolean isTransactionAccepted(Bundler bundler, ChildTransactionImpl childTransaction) {
+        protected boolean isAtomicChainAccepted(Bundler bundler, AtomicChain<ChildTransactionImpl> chain) {
             int blockchainHeight = Nxt.getBlockchain().getHeight();
-            long minChildFeeFQT = childTransaction.getMinimumFeeFQT(blockchainHeight);
-            long childFee = childTransaction.getFee();
-            BigInteger minParentFeeFQT = minRateNQTPerFXTBigInteger.multiply(BigInteger.valueOf(minChildFeeFQT));
-            if (BigInteger.valueOf(childFee).multiply(Constants.ONE_FXT_BIG_INTEGER).compareTo(minParentFeeFQT) < 0) {
-//                Logger.logInfoMessage("Bundler not bundling child transaction %d:%s fee %d [FQT] lower than min required fee %d [FQT]",
-//                        childTransaction.getChain().getId(),
-//                        Convert.toHexString(childTransaction.getFullHash()),
-//                        BigInteger.valueOf(childFee),
-//                        minParentFeeFQT.divide(Constants.ONE_FXT_BIG_INTEGER));
+            long minChildFeeFQT = chain.stream()
+                    .mapToLong(t -> t.getMinimumFeeFQT(blockchainHeight)).reduce(0, Math::addExact);
+            long childFee = chain.getTotalFee();
+            BigInteger minFeeNQTMulOneFXT = minRateNQTPerFXTBigInteger.multiply(BigInteger.valueOf(minChildFeeFQT));
+            if (BigInteger.valueOf(childFee).multiply(Constants.ONE_FXT_BIG_INTEGER).compareTo(minFeeNQTMulOneFXT) < 0) {
+                //Logger.logDebugMessage("Bundler not bundling %s fee %d [NQT] lower than min required fee %d [NQT]",
+                //        chain,
+                //        BigInteger.valueOf(childFee),
+                //        minFeeNQTMulOneFXT.divide(Constants.ONE_FXT_BIG_INTEGER));
                 return false;
             }
-            return filters.stream().allMatch(filter -> filter.ok(bundler, childTransaction));
+            return filters.stream().allMatch(filter -> filter.ok(bundler, chain));
         }
 
         public long overpay(long feeFQT) {
@@ -336,6 +343,47 @@ public final class Bundler {
         return null;
     }
 
+    /**
+     * Enrich a prospective child block list with child transactions according
+     * to the specified
+     * <code>bundlingRules</code> and the <code>totalFeesLimitFQT</code> .
+     * <p>
+     * The <code>totalFeesLimitFQT</code> is internally adjusted by subtracting
+     * the minimum required fee for each transaction already present in the
+     * provided <code>childTransactions</code> list.
+     *
+     * @param childTransactions The list of child transactions that are currently
+     *                          planned for inclusion in the child block.
+     * @param childChain        The child chain from which transactions to be
+     *                          added to the list.
+     * @param timestamp         The timestamp of the prospective ChildBlock transaction
+     * @param deadline          The deadline of the prospective ChildBlock transaction
+     * @param totalFeesLimitFQT Limit on the fee that the child block transactions
+     *                          can consume
+     * @param bundlingRules     Bundling rules for filtering or prioritizing the
+     *                          additional transactions
+     * @return The minimum fee the ChildBlock transaction must pay
+     * @throws nxt.NxtException.NotValidException If total fee is not enough to
+     *                          cover the minimum fee for the existing transactions
+     */
+    public static long enrichChildBlockList(List<ChildTransaction> childTransactions,
+                                            ChildChain childChain, int timestamp, short deadline,
+                                            long totalFeesLimitFQT, List<Rule> bundlingRules) throws NxtException.NotValidException {
+        long calculatedFeeFQT = childTransactions.stream()
+                .mapToLong(Transaction::getMinimumFeeFQT)
+                .sum();
+        totalFeesLimitFQT -= calculatedFeeFQT;
+        if (totalFeesLimitFQT < 0) {
+            throw new NxtException.NotValidException("Total fee not enough to cover the minimum fee for the existing transactions");
+        }
+        Bundler tempBundler = new Bundler(childChain, totalFeesLimitFQT, bundlingRules);
+        List<AtomicChain<ChildTransactionImpl>> orderedList = tempBundler.getBundlableUnconfirmedTransactions(timestamp, deadline);
+        orderedList.removeIf(c -> c.stream().anyMatch(childTransactions::contains));
+        FilterResult filterResult = tempBundler.filterAndCollectFee(orderedList, childTransactions);
+        calculatedFeeFQT = Math.addExact(calculatedFeeFQT, filterResult.feeFQT);
+        return calculatedFeeFQT;
+    }
+
     public static List<Bundler> getAllBundlers() {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
@@ -475,15 +523,24 @@ public final class Bundler {
     private final AtomicLong currentTotalFeesFQT = new AtomicLong();
     private final AtomicLong confirmedTotalFeesFQT = new AtomicLong();
 
+    private Bundler(ChildChain childChain, long totalFeesLimitFQT, List<Rule> bundlingRules) {
+        this(childChain, null, totalFeesLimitFQT, bundlingRules);
+    }
+
     private Bundler(ChildChain childChain, byte[] privateKey, long totalFeesLimitFQT, List<Rule> bundlingRules) {
         this.childChain = childChain;
         this.privateKey = privateKey;
-        this.publicKey = Crypto.getPublicKey(privateKey);
-        this.accountId = Account.getId(publicKey);
         this.totalFeesLimitFQT = totalFeesLimitFQT;
         this.bundlingRules = new ArrayList<>(bundlingRules);
-        Map<Long, Bundler> chainBundlers = bundlers.computeIfAbsent(childChain, k -> new ConcurrentHashMap<>());
-        chainBundlers.put(accountId, this);
+        if (privateKey != null) {
+            this.publicKey = Crypto.getPublicKey(privateKey);
+            this.accountId = Account.getId(publicKey);
+            Map<Long, Bundler> chainBundlers = bundlers.computeIfAbsent(childChain, k -> new ConcurrentHashMap<>());
+            chainBundlers.put(accountId, this);
+        } else {
+            this.publicKey = null;
+            this.accountId = 0;
+        }
     }
 
     public final ChildChain getChildChain() {
@@ -536,71 +593,23 @@ public final class Bundler {
     private void runBundling() {
         BlockchainImpl.getInstance().writeLock();
         try {
-            int now = Nxt.getEpochTime();
+            int timestamp = Nxt.getEpochTime();
             List<ChildBlockFxtTransaction> childBlockFxtTransactions = new ArrayList<>();
-            List<ChildTransactionImpl> orderedChildTransactions = new LinkedList<>();
-            try (FilteringIterator<UnconfirmedTransaction> unconfirmedTransactions = new FilteringIterator<>(
-                    TransactionProcessorImpl.getInstance().getUnconfirmedChildTransactions(childChain),
-                    transaction -> transaction.getTransaction().hasAllReferencedTransactions(transaction.getTimestamp(), 0))) {
-                for (UnconfirmedTransaction unconfirmedTransaction : unconfirmedTransactions) {
-                    ChildTransactionImpl childTransaction = (ChildTransactionImpl) unconfirmedTransaction.getTransaction();
-                    if (childTransaction.getExpiration() < now + 60 * defaultChildBlockDeadline || childTransaction.getTimestamp() > now) {
-                        continue;
-                    }
-                    orderedChildTransactions.add(childTransaction);
-                }
-            }
+            List<AtomicChain<ChildTransactionImpl>> orderedChains = getBundlableUnconfirmedTransactions(timestamp, defaultChildBlockDeadline);
 
             boolean addMoreChildBlockTransactions = true;
-            while (addMoreChildBlockTransactions && !orderedChildTransactions.isEmpty()) {
-                addMoreChildBlockTransactions = false;
+            while (addMoreChildBlockTransactions && !orderedChains.isEmpty()) {
                 List<ChildTransaction> childTransactions = new ArrayList<>();
-                long totalFeeFQT = 0;
-                int payloadLength = 0;
-                Map<TransactionType, Map<String, Integer>> duplicates = new HashMap<>();
-
-                // Transactions accepted by preceding bundling rules are bundled with priority over ones accepted
-                // by subsequent rules
-                rulesLoop:
-                for (Rule bundlingRule : bundlingRules) {
-                    Iterator<ChildTransactionImpl> it = orderedChildTransactions.iterator();
-                    while (it.hasNext()) {
-                        ChildTransactionImpl childTransaction = it.next();
-
-                        int childFullSize = childTransaction.getFullSize();
-                        if (payloadLength + childFullSize > Constants.MAX_CHILDBLOCK_PAYLOAD_LENGTH) {
-                            continue;
-                        }
-                        if (!bundlingRule.isTransactionAccepted(this, childTransaction)) {
-                            continue;
-                        }
-                        long feeFQT = bundlingRule.calculateFeeFQT(childTransaction);
-                        if (Math.addExact(currentTotalFeesFQT.get(), Math.addExact(totalFeeFQT, feeFQT)) > totalFeesLimitFQT && totalFeesLimitFQT > 0) {
-                            Logger.logDebugMessage("Bundler " + Long.toUnsignedString(accountId) + " will exceed total fees limit, not bundling");
-                            continue;
-                        }
-                        if (childTransaction.attachmentIsDuplicate(duplicates, true)) {
-                            continue;
-                        }
-                        it.remove();
-                        childTransactions.add(childTransaction);
-                        totalFeeFQT = Math.addExact(totalFeeFQT, feeFQT);
-                        payloadLength += childFullSize;
-                        if (childTransactions.size() >= Constants.MAX_NUMBER_OF_CHILD_TRANSACTIONS
-                                || payloadLength >= Constants.MAX_CHILDBLOCK_PAYLOAD_LENGTH) {
-                            addMoreChildBlockTransactions = true;
-                            break rulesLoop;
-                        }
-                    }
-                }
+                FilterResult filterResult = filterAndCollectFee(orderedChains, childTransactions);
+                addMoreChildBlockTransactions = filterResult.isOutputFull;
                 if (childTransactions.size() > 0) {
-                    if (totalFeeFQT > FxtChain.FXT.getBalanceHome().getBalance(accountId).getUnconfirmedBalance()) {
+                    if (filterResult.feeFQT > FxtChain.FXT.getBalanceHome().getBalance(accountId).getUnconfirmedBalance()) {
                         Logger.logInfoMessage("Bundler account " + Long.toUnsignedString(accountId)
-                                + " does not have sufficient balance to cover total Ardor fees " + totalFeeFQT);
-                    } else if (!hasBetterChildBlockFxtTransaction(childTransactions, totalFeeFQT)) {
+                                + " does not have sufficient balance to cover total Ardor fees " + filterResult.feeFQT);
+                    } else if (!hasBetterChildBlockFxtTransaction(childTransactions, filterResult.feeFQT)) {
                         try {
-                            ChildBlockFxtTransaction childBlockFxtTransaction = bundle(childTransactions, totalFeeFQT, now);
-                            currentTotalFeesFQT.addAndGet(totalFeeFQT);
+                            ChildBlockFxtTransaction childBlockFxtTransaction = bundle(childTransactions, filterResult.feeFQT, timestamp);
+                            currentTotalFeesFQT.addAndGet(filterResult.feeFQT);
                             synchronized (broadcastedQueue) {
                                 broadcastedQueue.offer(new BroadcastedFxtTransaction(childBlockFxtTransaction));
                             }
@@ -625,6 +634,99 @@ public final class Bundler {
             BlockchainImpl.getInstance().writeUnlock();
         }
     }
+
+    private List<AtomicChain<ChildTransactionImpl>> getBundlableUnconfirmedTransactions(int timestamp, short deadline) {
+        AtomicChainsSet<ChildTransactionImpl> atomicChains = new AtomicChainsSet<>(
+                    Comparator.comparingLong(AtomicChain<ChildTransactionImpl>::getFeePerByte)
+                            .thenComparing(AtomicChain.FULL_HASH_COMPARATOR));
+        try (FilteringIterator<UnconfirmedTransaction> unconfirmedTransactions = new FilteringIterator<>(
+                TransactionProcessorImpl.getInstance().getUnconfirmedChildTransactions(childChain),
+                transaction -> transaction.getTransaction().hasAllReferencedTransactions(transaction.getTimestamp(), 0))) {
+            for (UnconfirmedTransaction unconfirmedTransaction : unconfirmedTransactions) {
+                ChildTransactionImpl childTransaction = (ChildTransactionImpl) unconfirmedTransaction.getTransaction();
+                if (childTransaction.getExpiration() < timestamp + 60 * deadline || childTransaction.getTimestamp() > timestamp) {
+                    continue;
+                }
+                atomicChains.add(childTransaction);
+            }
+        }
+        return atomicChains.getCompleteChains();
+    }
+
+    private static class FilterResult {
+        /**
+         * True if the output list exceeds the MAX_NUMBER_OF_CHILD_TRANSACTIONS
+         * or the payloadSize exceeds MAX_CHILDBLOCK_PAYLOAD_LENGTH
+         */
+        boolean isOutputFull;
+
+        /**
+         * The total fee paid for the transactions that are accepted by the filter
+         * routine
+         */
+        long feeFQT;
+    }
+
+    /**
+     * Iterates the transactions in the orderedInputList and moves the ones that are
+     * accepted by the bundler rules to the outputList until the output is full
+     * by count or payload size. The fee paid for each transaction is accumulated
+     * in the totalFeeFQT field of the result. Transactions for which totalFeeFQT
+     * would exceed the totalFeesLimitFQT are filtered out.
+     * <p>
+     * Transactions accepted by preceding bundling rules are prioritized over
+     * ones accepted by subsequent rules no matter their position in
+     * orderedInputList.
+     *
+     * @param orderedInputList The input list. Should be ordered according to the
+     *                         transactions priority, usually the fee per byte they pay.
+     * @param outputList      The output list. May not be empty, the payloadLength
+     *                        will be calculated accordingly
+     * @return A {@link FilterResult} instance
+     */
+    private FilterResult filterAndCollectFee(List<AtomicChain<ChildTransactionImpl>> orderedInputList,
+                                             List<ChildTransaction> outputList) {
+        FilterResult result = new FilterResult();
+        int payloadLength = outputList.stream().mapToInt(Transaction::getFullSize).sum();
+        Map<TransactionType, Map<String, Integer>> duplicates = new HashMap<>();
+        for (Rule bundlingRule : bundlingRules) {
+            Iterator<AtomicChain<ChildTransactionImpl>> it = orderedInputList.iterator();
+            while (it.hasNext()) {
+                AtomicChain<ChildTransactionImpl> chain = it.next();
+
+                int childFullSize = chain.getFullSize();
+                if (payloadLength + childFullSize > Constants.MAX_CHILDBLOCK_PAYLOAD_LENGTH) {
+                    continue;
+                }
+                if (outputList.size() + chain.size() > Constants.MAX_NUMBER_OF_CHILD_TRANSACTIONS) {
+                    continue;
+                }
+                if (!bundlingRule.isAtomicChainAccepted(this, chain)) {
+                    continue;
+                }
+                long feeFQT = chain.stream()
+                        .mapToLong(bundlingRule::calculateFeeFQT).reduce(0, Math::addExact);
+                if (Math.addExact(currentTotalFeesFQT.get(), Math.addExact(result.feeFQT, feeFQT)) > totalFeesLimitFQT && totalFeesLimitFQT > 0) {
+                    Logger.logDebugMessage("Bundler " + Long.toUnsignedString(accountId) + " will exceed total fees limit, not bundling");
+                    continue;
+                }
+                if (chain.stream().anyMatch(t -> t.attachmentIsDuplicate(duplicates, true))) {
+                    continue;
+                }
+                it.remove();
+                outputList.addAll(chain);
+                result.feeFQT = Math.addExact(result.feeFQT, feeFQT);
+                payloadLength += childFullSize;
+                if (outputList.size() == Constants.MAX_NUMBER_OF_CHILD_TRANSACTIONS
+                        || payloadLength == Constants.MAX_CHILDBLOCK_PAYLOAD_LENGTH) {
+                    result.isOutputFull = true;
+                    return result;
+                }
+            }
+        }
+        return result;
+    }
+
 
     private void restoreFeesFromExpiredTransactions(Block lastBlock) {
         //we stay on the safe side and restore the currentTotalFeesFQT only after the created transaction

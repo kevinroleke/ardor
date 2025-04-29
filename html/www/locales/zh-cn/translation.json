@@ -382,7 +382,7 @@
   "error_invalid_referenced_transaction_hash": "参考交易哈希无效。",
   "error_invalid_seller": "卖方 ID 无效",
   "error_invalid_token": "该令牌无效。它似乎属于帐户 __account_link__，生成于 __timestamp__ 。",
-  "error_lease_balance_period": "租赁期限不能大于 65535 个区块。",
+  "error_lease_balance_period": "租赁期限不能大于 32000000 个区块。",
   "error_max_asset_transfer_warning": "指定数量大于 __qty__。确定要继续吗？再次单击提交按钮确认。",
   "error_max_currency_transfer_warning": "指定单位数量大于 __qty__。确定要继续吗？再次单击提交按钮确认。",
   "error_max_tags": "标签允许的最大数量是 __nr__。",

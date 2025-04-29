@@ -382,7 +382,7 @@
   "error_invalid_referenced_transaction_hash": "Hash transaksi yang direferensikan tidak valid.",
   "error_invalid_seller": "ID Penjual tidak valid",
   "error_invalid_token": "Token ini TIDAK VALID. Tampaknya token milik akun __account_link__. Token dihasilkan pada __timestamp__.",
-  "error_lease_balance_period": "Periode sewa tidak bisa lebih tinggi dari 65535 blok.",
+  "error_lease_balance_period": "Periode sewa tidak bisa lebih tinggi dari 32000000 blok.",
   "error_max_asset_transfer_warning": "Kuantitas yang ditetapkan lebih tinggi dari __qty__. Apakah Anda yakin Anda ingin melanjutkan? Klik tombol kirim untuk mengonfirmasi.",
   "error_max_currency_transfer_warning": "Kuantitas yang ditetapkan lebih tinggi dari __qty__. Apakah Anda yakin ingin melanjutkan? Klik tombol kirim untuk mengonfirmasi.",
   "error_max_tags": "Maksimum __nr__ tag diperbolehkan.",
