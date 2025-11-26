@@ -31,7 +31,7 @@ public final class ParseTransaction extends APIServlet.APIRequestHandler {
     static final ParseTransaction instance = new ParseTransaction();
 
     private ParseTransaction() {
-        super(new APITag[] {APITag.TRANSACTIONS}, "transactionJSON", "transactionBytes", "prunableAttachmentJSON");
+        super(new APITag[] {APITag.TRANSACTIONS}, "transactionJSON", "transactionBytes", "prunableAttachmentJSON", "validate");
     }
 
     @Override
@@ -43,12 +43,15 @@ public final class ParseTransaction extends APIServlet.APIRequestHandler {
 
         Transaction transaction = ParameterParser.parseTransaction(transactionJSON, transactionBytes, prunableAttachmentJSON).build();
         JSONObject response = JSONData.unconfirmedTransaction(transaction);
-        try {
-            transaction.validate();
-        } catch (NxtException.ValidationException|RuntimeException e) {
-            Logger.logDebugMessage(e.getMessage(), e);
-            response.put("validate", false);
-            JSONData.putException(response, e, "Invalid transaction");
+        boolean validate = !"false".equalsIgnoreCase(req.getParameter("validate"));
+        if (validate) {
+            try {
+                transaction.validate();
+            } catch (NxtException.ValidationException | RuntimeException e) {
+                Logger.logDebugMessage(e.getMessage(), e);
+                response.put("validate", false);
+                JSONData.putException(response, e, "Invalid transaction");
+            }
         }
         response.put("verify", transaction.verifySignature());
         return response;

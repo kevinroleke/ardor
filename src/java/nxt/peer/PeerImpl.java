@@ -117,6 +117,7 @@ final class PeerImpl implements Peer {
 
     /** Peer state */
     private volatile State state = State.NON_CONNECTED;
+    private final Object stateLock = new Object();
 
     /** Peer disconnect is pending */
     private volatile boolean disconnectPending;
@@ -149,7 +150,7 @@ final class PeerImpl implements Peer {
     private final ConcurrentLinkedQueue<ByteBuffer> pendingInputQueue = new ConcurrentLinkedQueue<>();
 
     /** Handshake message */
-    private ByteBuffer handshakeMessage;
+    private volatile ByteBuffer handshakeMessage;
 
     /** Input buffer */
     private ByteBuffer inputBuffer;
@@ -168,6 +169,9 @@ final class PeerImpl implements Peer {
 
     /** Connection condition */
     private final Condition connectCondition = connectLock.newCondition();
+
+    /** Serialize connectPeer() invocations */
+    private final ReentrantLock initiateConnectLock = new ReentrantLock();
 
     /** Connect in progress */
     private volatile boolean connectPending = false;
@@ -218,16 +222,18 @@ final class PeerImpl implements Peer {
      *
      * @param   state                   New state
      */
-    private synchronized void setState(State state) {
-        if (this.state != state) {
-            if (this.state == State.NON_CONNECTED) {
-                this.state = state;
-                Peers.notifyListeners(this, Peers.Event.ADD_ACTIVE_PEER);
-            } else if (state != State.NON_CONNECTED) {
-                this.state = state;
-                Peers.notifyListeners(this, Peers.Event.CHANGE_ACTIVE_PEER);
-            } else {
-                this.state = state;
+    private void setState(State state) {
+        synchronized (stateLock) {
+            if (this.state != state) {
+                if (this.state == State.NON_CONNECTED) {
+                    this.state = state;
+                    Peers.notifyListeners(this, Peers.Event.ADD_ACTIVE_PEER);
+                } else if (state != State.NON_CONNECTED) {
+                    this.state = state;
+                    Peers.notifyListeners(this, Peers.Event.CHANGE_ACTIVE_PEER);
+                } else {
+                    this.state = state;
+                }
             }
         }
     }
@@ -899,22 +905,28 @@ final class PeerImpl implements Peer {
      * if the output queue reaches the maximum number of pending messages.
      */
     void setInbound() {
-        connectLock.lock();
-        try {
-            if (state != State.CONNECTED && keyEvent != null) {
-                isInbound = true;
-                startHandshake();
-                setState(State.CONNECTED);
-                keyEvent.update(SelectionKey.OP_READ, 0);
-                Logger.logInfoMessage("Connection from " + host + " accepted");
-            } else {
-                Logger.logInfoMessage("Did not accept connection from " + host + ", peer state is " + state);
-            }
-        } finally {
-            connectLock.unlock();
+        if (state != State.CONNECTED && keyEvent != null) {
+            isInbound = true;
+            startHandshake();
+            setState(State.CONNECTED);
+            keyEvent.update(SelectionKey.OP_READ, 0);
+            Logger.logInfoMessage("Connection from " + host + " accepted");
+        } else {
+            Logger.logInfoMessage("Did not accept connection from " + host + ", peer state is " + state);
         }
     }
 
+    boolean tryConnectLock() {
+        return connectLock.tryLock();
+    }
+
+    void connectLock() {
+        connectLock.lock();
+    }
+
+    void connectUnlock() {
+        connectLock.unlock();
+    }
 
     /**
      * Connect the peer
@@ -924,29 +936,34 @@ final class PeerImpl implements Peer {
      */
     @Override
     public void connectPeer() {
-        connectLock.lock();
+        initiateConnectLock.lock();
         try {
-            if (state != State.CONNECTED) {
-                if (!connectPending) {
-                    unBlacklist();
-                    isOldVersion = false;
-                    setLastConnectAttempt(Nxt.getEpochTime());
-                    NetworkHandler.createConnection(this);
-                    connectPending = true;
-                }
-                if (!connectCondition.await(NetworkHandler.peerConnectTimeout, TimeUnit.SECONDS)) {
-                    if (connectPending) {
-                        Logger.logDebugMessage("Timeout trying to connect to " + host);
-                        disconnectPeer();
+            connectLock.lock();
+            try {
+                if (state != State.CONNECTED) {
+                    if (!connectPending) {
+                        unBlacklist();
+                        isOldVersion = false;
+                        setLastConnectAttempt(Nxt.getEpochTime());
+                        NetworkHandler.createConnection(this);
+                        connectPending = true;
+                    }
+                    if (!connectCondition.await(NetworkHandler.peerConnectTimeout, TimeUnit.SECONDS)) {
+                        if (connectPending) {
+                            Logger.logDebugMessage("Timeout trying to connect to " + host);
+                            disconnectPeer();
+                        }
                     }
                 }
+            } catch (InterruptedException exc) {
+                Logger.logDebugMessage("Connect to " + host + " interrupted");
+            } catch (Exception exc) {
+                Logger.logErrorMessage("Unable to wait for connect to complete", exc);
+            } finally {
+                connectLock.unlock();
             }
-        } catch (InterruptedException exc) {
-            Logger.logDebugMessage("Connect to " + host + " interrupted");
-        } catch (Exception exc) {
-            Logger.logErrorMessage("Unable to wait for connect to complete", exc);
         } finally {
-            connectLock.unlock();
+            initiateConnectLock.unlock();
         }
     }
 
@@ -957,8 +974,9 @@ final class PeerImpl implements Peer {
      * We will not send any more messages until we receive the GetInfo message from the peer.
      *
      * @param   success                 TRUE if the connection is established
+     * @return TRUE if the connection is truly complete
      */
-    void connectComplete(boolean success) {
+    boolean connectComplete(boolean success) {
         connectLock.lock();
         try {
             if (connectPending) {
@@ -970,9 +988,11 @@ final class PeerImpl implements Peer {
                 lastUpdated = Nxt.getEpochTime();
                 setState(State.CONNECTED);
                 Logger.logInfoMessage("Connection to " + host + " completed");
+                return true;
             } else {
                 Logger.logInfoMessage("Connection to " + host + " failed to complete, disconnecting");
                 disconnectPeer();
+                return false;
             }
         } finally {
             connectLock.unlock();
@@ -1008,15 +1028,18 @@ final class PeerImpl implements Peer {
     synchronized void handshakeComplete() {
         Logger.logDebugMessage("Handshake complete with " + getHost());
         endHandshake();
-        while (!pendingInputQueue.isEmpty()) {
-            MessageHandler.processMessage(this, pendingInputQueue.poll());
+        ByteBuffer pendingInput;
+        while ((pendingInput = pendingInputQueue.poll()) != null) {
+            MessageHandler.processMessage(this, pendingInput);
         }
-        while (!pendingOutputQueue.isEmpty()) {
-            outputQueue.offer(NetworkHandler.getMessageBytes(this, pendingOutputQueue.poll()));
+        NetworkMessage pendingOutput;
+        while ((pendingOutput = pendingOutputQueue.poll()) != null) {
+            outputQueue.offer(NetworkHandler.getMessageBytes(this, pendingOutput));
         }
-        if (!outputQueue.isEmpty()) {
+        NetworkHandler.KeyEvent localKeyEvent = keyEvent;
+        if (localKeyEvent != null && !outputQueue.isEmpty()) {
             try {
-                keyEvent.update(SelectionKey.OP_WRITE, 0);
+                localKeyEvent.update(SelectionKey.OP_WRITE, 0);
             } catch (IllegalStateException exc) {
                 Logger.logErrorMessage("Unable to update network selection key", exc);
             }
@@ -1130,19 +1153,21 @@ final class PeerImpl implements Peer {
      *
      * @return                          Next message or null
      */
-    synchronized ByteBuffer getQueuedMessage() {
-        ByteBuffer message;
-        if (disconnectPending) {
-            message = null;
-        } else if (handshakeMessage != null) {
-            message = handshakeMessage;
-            handshakeMessage = null;
-        } else if (isHandshakePending()) {
-            message = null;
-        } else {
-            message = outputQueue.poll();
+    ByteBuffer getQueuedMessage() {
+        synchronized (outputQueue) {
+            ByteBuffer message;
+            if (disconnectPending) {
+                message = null;
+            } else if (handshakeMessage != null) {
+                message = handshakeMessage;
+                handshakeMessage = null;
+            } else if (isHandshakePending()) {
+                message = null;
+            } else {
+                message = outputQueue.poll();
+            }
+            return message;
         }
-        return message;
     }
 
     /**

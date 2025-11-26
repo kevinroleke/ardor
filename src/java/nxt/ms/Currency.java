@@ -214,8 +214,8 @@ public final class Currency {
         }
     }
 
-    public static void importCurrency(long id, long accountId, String code, String name) {
-        Currency currency = new Currency(id, accountId, code, name);
+    public static void importCurrency(long id, long accountId, String code, String name, ChildChain childChain) {
+        Currency currency = new Currency(id, accountId, code, name, childChain);
         currencyTable.insert(currency);
     }
 
@@ -297,7 +297,7 @@ public final class Currency {
         this.isDeleted = rs.getBoolean("is_deleted");
     }
 
-    private Currency(long id, long accountId, String code, String name) {
+    private Currency(long id, long accountId, String code, String name, ChildChain childChain) {
         this.currencyId = id;
         this.dbKey = currencyDbKeyFactory.newKey(this.currencyId);
         this.accountId = accountId;
@@ -305,7 +305,7 @@ public final class Currency {
         this.code = code;
         this.description = name;
         this.type = CurrencyType.EXCHANGEABLE.getCode();
-        this.childChain = ChildChain.IGNIS;
+        this.childChain = childChain;
         this.initialSupplyQNT = 1;
         this.reserveSupplyQNT = 0;
         this.maxSupplyQNT = 1;

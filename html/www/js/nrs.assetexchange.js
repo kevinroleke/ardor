@@ -1994,6 +1994,9 @@ NRS.onSiteBuildDone().then(() => {
 
         /* OPEN ORDERS PAGE */
         NRS.pages.open_orders = function () {
+            openOrdersPagination["ask"].reset();
+            openOrdersPagination["bid"].reset();
+
             var loaded = 0;
             NRS.getOpenOrders("ask", function () {
                 loaded++;
@@ -2010,6 +2013,30 @@ NRS.onSiteBuildDone().then(() => {
             });
         };
 
+        var openOrdersPagination = {};
+        openOrdersPagination["ask"] = new NRS.Pagination();
+        openOrdersPagination["ask"].getContainer = function () {
+            return $("#ask_orders_pagination");
+        };
+        openOrdersPagination["ask"].goToIndex = function(index) {
+            this.firstIndex = index;
+            NRS.getOpenOrders("ask", function () {});
+        };
+
+        openOrdersPagination["bid"] = new NRS.Pagination();
+        openOrdersPagination["bid"].getContainer = function () {
+            return $("#bid_orders_pagination");
+        };
+        openOrdersPagination["bid"].goToIndex = function(index) {
+            this.firstIndex = index;
+            NRS.getOpenOrders("bid", function () {});
+        };
+        $.each(openOrdersPagination, function (key, pagination) {
+            pagination.getItemsPerPage = function() {
+                return Math.max(NRS.itemsPerPage, 100);
+            };
+        });
+
         NRS.getOpenOrders = function (type, callback) {
             var uppercase = type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
             var lowercase = type.toLowerCase();
@@ -2018,32 +2045,46 @@ NRS.onSiteBuildDone().then(() => {
 
             NRS.sendRequest(getAccountCurrentOrders, {
                 "account": NRS.account,
-                "firstIndex": 0,
-                "lastIndex": 100
+                "firstIndex": openOrdersPagination[lowercase].getFirstIndex(),
+                "lastIndex": openOrdersPagination[lowercase].getLastIndex()
             }, function (response) {
-                if (response[accountOrders] && response[accountOrders].length) {
-                    var nrOrders = 0;
-                    for (var i = 0; i < response[accountOrders].length; i++) {
-                        NRS.sendRequest("getAsset+", {
-                            "asset": response[accountOrders][i].asset,
-                            "_extra": {
-                                "id": i
-                            }
-                        }, function (asset, input) {
-                            if (NRS.currentPage != "open_orders") {
-                                return;
-                            }
-                            response[accountOrders][input["_extra"].id].assetName = asset.name;
-                            response[accountOrders][input["_extra"].id].decimals = asset.decimals;
-                            nrOrders++;
-                            if (nrOrders == response[accountOrders].length) {
-                                NRS.openOrdersLoaded(response[accountOrders], lowercase, callback);
-                            }
+                var orders = response[accountOrders] || [];
+                if (!orders.length) {
+                    openOrdersPagination[lowercase].setResultSize(0);
+                    NRS.openOrdersLoaded([], lowercase, callback);
+                    return;
+                }
+
+                // collect unique asset IDs
+                var assetIds = [], seen = {};
+                orders.forEach(function (o) {
+                    if (!seen[o.asset]) {
+                        seen[o.asset] = true;
+                        assetIds.push(o.asset);
+                    }
+                });
+
+                // batch fetch asset details
+                NRS.sendRequest("getAssets+", { "assets": assetIds }, function (assetResp) {
+                    var assetMap = {};
+                    if (assetResp.assets && assetResp.assets.length) {
+                        assetResp.assets.forEach(function (a) {
+                            assetMap[a.asset] = a;
                         });
                     }
-                } else {
-                    NRS.openOrdersLoaded([], lowercase, callback);
-                }
+
+                    // annotate each order
+                    orders.forEach(function (o) {
+                        var info = assetMap[o.asset] || {};
+                        o.assetName = info.name || "";
+                        o.decimals = info.decimals || 0;
+                    });
+
+                    NRS.openOrdersLoaded(orders, lowercase, callback);
+
+                    openOrdersPagination[lowercase].onResult(orders);
+                    NRS.addPagination(openOrdersPagination[lowercase]);
+                });
             });
         };
 

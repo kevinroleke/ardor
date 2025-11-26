@@ -101,6 +101,7 @@ NRS.onSiteBuildDone().then(() => {
 
         NRS.pagination = {};
         NRS.defaultPagination = new Pagination();
+        NRS.Pagination = Pagination;
 
         NRS.getCurrentPagination = function () {
             let result = NRS.pagination[NRS.currentPage];

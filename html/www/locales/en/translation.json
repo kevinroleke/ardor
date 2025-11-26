@@ -2211,6 +2211,7 @@
   "euro_pegged_chain": "Euro Pegged Chain",
   "bits_chain": "Bitswift Blockchain",
   "mpg_chain": "Max Property Group Chain",
+  "nxt_chain": "Nxt Blockchain",
   "contract_reference": "Contract Reference",
   "select_contract_to_trigger": "--- Select Contract to Trigger ---",
   "invocation": "Invocation",

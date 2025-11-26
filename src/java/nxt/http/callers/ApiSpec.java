@@ -518,7 +518,7 @@ public enum ApiSpec {
 
     getDGSTagsLike(true, null, "chain", "tagPrefix", "inStockOnly", "firstIndex", "lastIndex", "adminPassword", "requireBlock", "requireLastBlock"),
 
-    parseTransaction(false, null, "transactionJSON", "transactionBytes", "prunableAttachmentJSON", "requireBlock", "requireLastBlock"),
+    parseTransaction(false, null, "transactionJSON", "transactionBytes", "prunableAttachmentJSON", "validate", "requireBlock", "requireLastBlock"),
 
     getCurrency(true, null, "chain", "currency", "code", "includeCounts", "includeDeleted", "requireBlock", "requireLastBlock"),
 

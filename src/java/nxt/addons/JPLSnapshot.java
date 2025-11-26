@@ -32,6 +32,7 @@ import nxt.util.Convert;
 import nxt.util.JSON;
 import nxt.util.Listener;
 import nxt.util.Logger;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
 import org.json.simple.JSONValue;
@@ -53,7 +54,7 @@ import java.util.concurrent.CountDownLatch;
 public final class JPLSnapshot implements AddOn {
 
     public APIServlet.APIRequestHandler getAPIRequestHandler() {
-        return new JPLSnapshotAPI("newGenesisAccounts", new APITag[] {APITag.ADDONS}, "height");
+        return new JPLSnapshotAPI("newGenesisAccounts", new APITag[] {APITag.ADDONS}, "height", "isNxtSnapshot");
     }
 
     public String getAPIRequestType() {
@@ -63,12 +64,13 @@ public final class JPLSnapshot implements AddOn {
 
     /**
      * <p>The downloadJPLSnapshot API can be used to generate a genesis block JSON for a clone to satisfy the JPL 10% sharedrop
-     * requirement to existing Ignis holders.</p>
+     * requirement to existing Ignis or NXT holders.</p>
      *
-     * <p>This utility takes a snapshot of account balances and public keys on the Ignis child chain as of the specified height,
-     * scales down the balance of each account proportionately so that the total of balances of sharedrop accounts is equal
-     * to 10% of the total of all balances, and merges this data with the supplied new genesis accounts and balances. (If the total
-     * of new genesis account balances is zero, the balance of sharedrop accounts is left unchanged.)</p>
+     * <p>This utility takes a snapshot of account balances and public keys on the Ignis child chain (by default) or the NXT child
+     * chain (if isNxtSnapshot=true) as of the specified height, scales down the balance of each account proportionately so that the
+     * total of balances of sharedrop accounts is equal to 10% of the total of all balances, and merges this data with the supplied
+     * new genesis accounts and balances. (If the total of new genesis account balances is zero, the balance of sharedrop accounts is
+     * left unchanged.)</p>
      *
      * <p>Note that using a height more than 800 blocks in the past will normally require a blockchain rescan, which takes a
      * few hours to complete. Do not interrupt this process.</p>
@@ -77,12 +79,15 @@ public final class JPLSnapshot implements AddOn {
      * <ul><li>newGenesisAccounts - a JSON formatted file containing all new account public keys and balances to be included
      * in the clone genesis block</li>
      * <li>height - the Ardor blockchain height at which to take the snapshot</li>
+     * <li>isNxtSnapshot - (optional) boolean, set to true to snapshot NXT child chain instead of Ignis; defaults to false</li>
      * </ul>
      *
      * <p>Response</p>
-     * <ul><li>A JSON formatted file, FXT.json, containing a mapping of public keys to their initial balances, for both new
-     * accounts and sharedrop accounts, which should be placed in the conf/data directory of the clone blockchain,
+     * <ul><li>For Ignis snapshots: A JSON formatted file, FXT.json, containing a mapping of public keys to their initial balances,
+     * for both new accounts and sharedrop accounts, which should be placed in the conf/data directory of the clone blockchain,
      * renamed to the clone parent chain token.</li>
+     * <li>For NXT snapshots: A JSON formatted file, genesisAccounts.json, containing separate "balances" and "publicKeys" sections,
+     * which should be placed in the conf/data directory of the clone blockchain.</li>
      * </ul>
      *
      * <p>Input file format</p>
@@ -131,6 +136,7 @@ public final class JPLSnapshot implements AddOn {
             if (height <= 0 || height > Nxt.getBlockchain().getHeight()) {
                 return JSONResponses.INCORRECT_HEIGHT;
             }
+            boolean isNxtSnapshot = "true".equalsIgnoreCase(request.getParameter("isNxtSnapshot"));
             JSONObject inputJSON = new JSONObject();
             ParameterParser.FileData fileData = ParameterParser.getFileData(request, "newGenesisAccounts", false);
             if (fileData != null) {
@@ -143,7 +149,7 @@ public final class JPLSnapshot implements AddOn {
                     }
                 }
             }
-            JPLSnapshotListener listener = new JPLSnapshotListener(height, inputJSON);
+            JPLSnapshotListener listener = new JPLSnapshotListener(height, inputJSON, isNxtSnapshot);
             new Thread(() -> {
                 Nxt.getBlockchainProcessor().addListener(listener, BlockchainProcessor.Event.AFTER_BLOCK_ACCEPT);
                 Nxt.getBlockchainProcessor().scan(height - 1, false);
@@ -151,7 +157,8 @@ public final class JPLSnapshot implements AddOn {
             }).start();
             StringBuilder sb = new StringBuilder(1024);
             JSON.encodeObject(listener.getSnapshot(), sb);
-            response.setHeader("Content-Disposition", "attachment; filename=FXT.json");
+            String filename = isNxtSnapshot ? "genesisAccounts.json" : "FXT.json";
+            response.setHeader("Content-Disposition", "attachment; filename=" + filename);
             response.setContentLength(sb.length());
             response.setCharacterEncoding("UTF-8");
             try (PrintWriter writer = response.getWriter()) {
@@ -197,24 +204,26 @@ public final class JPLSnapshot implements AddOn {
 
         private final int height;
         private final JSONObject inputJSON;
+        private final boolean isNxtSnapshot;
         private final SortedMap<String, Object> snapshot = new TreeMap<>();
         private final CountDownLatch latch = new CountDownLatch(1);
 
-        private JPLSnapshotListener(int height, JSONObject inputJSON) {
+        private JPLSnapshotListener(int height, JSONObject inputJSON, boolean isNxtSnapshot) {
             this.height = height;
             this.inputJSON = inputJSON;
+            this.isNxtSnapshot = isNxtSnapshot;
         }
 
         @Override
         public void notify(Block block) {
             if (block.getHeight() == height) {
-                SortedMap<String, Long> snapshotIgnisBalances = snapshotIgnisBalances();
-                Logger.logInfoMessage("Snapshot contains " + snapshotIgnisBalances.entrySet().size() + " Ignis balances");
-                BigInteger snapshotTotal = BigInteger.valueOf(snapshotIgnisBalances.values().stream().mapToLong(Long::longValue).sum());
-                Logger.logInfoMessage("Snapshot total is " + Convert.longValueExact(snapshotTotal));
+                SortedMap<String, Long> snapshotBalances = snapshotBalances();
+                Logger.logInfoMessage("Snapshot contains %d %s balances", snapshotBalances.size(), isNxtSnapshot ? "NXT" : "Ignis");
+                BigInteger snapshotTotal = BigInteger.valueOf(snapshotBalances.values().stream().mapToLong(Long::longValue).sum());
+                Logger.logInfoMessage("Snapshot total is %d", Convert.longValueExact(snapshotTotal));
                 BigInteger inputTotal = BigInteger.valueOf(inputJSON.values().stream().mapToLong(value -> (Long) value).sum());
                 if (!inputTotal.equals(BigInteger.ZERO)) {
-                    snapshotIgnisBalances.entrySet().forEach(entry -> {
+                    snapshotBalances.entrySet().forEach(entry -> {
                         long snapshotBalance = entry.getValue();
                         long adjustedBalance = Convert.longValueExact(BigInteger.valueOf(snapshotBalance).multiply(inputTotal)
                                 .divide(snapshotTotal).divide(BigInteger.valueOf(9)));
@@ -222,7 +231,7 @@ public final class JPLSnapshot implements AddOn {
                     });
                 }
                 SortedMap<String, String> snapshotPublicKeys = snapshotPublicKeys();
-                Logger.logInfoMessage("Snapshot contains " + snapshotPublicKeys.entrySet().size() + " account public keys");
+                Logger.logInfoMessage("Snapshot contains " + snapshotPublicKeys.size() + " account public keys");
                 Logger.logInfoMessage("Adding " + inputJSON.size() + " input accounts");
                 inputJSON.forEach((key, value) -> {
                     String inputPublicKey = (String)key;
@@ -232,12 +241,22 @@ public final class JPLSnapshot implements AddOn {
                     if (snapshotPublicKey != null && !snapshotPublicKey.equals(inputPublicKey)) {
                         throw new RuntimeException("Public key collision, input " + inputPublicKey + ", snapshot contains " + snapshotPublicKey);
                     }
-                    snapshotIgnisBalances.merge(account, inputBalance, (a, b) -> a + b);
+                    snapshotBalances.merge(account, inputBalance, (a, b) -> a + b);
                 });
-                snapshotIgnisBalances.forEach((key, value) -> {
-                    String publicKey = snapshotPublicKeys.get(key);
-                    snapshot.put(publicKey != null ? publicKey : key, value);
-                });
+
+                if (isNxtSnapshot) {
+                    // Assemble NXT format output (dual-section)
+                    JSONArray publicKeys = new JSONArray();
+                    publicKeys.addAll(snapshotPublicKeys.values());
+                    snapshot.put("publicKeys", publicKeys);
+                    snapshot.put("balances", snapshotBalances);
+                } else {
+                    snapshotBalances.forEach((key, value) -> {
+                        String publicKey = snapshotPublicKeys.get(key);
+                        snapshot.put(publicKey != null ? publicKey : key, value);
+                    });
+                }
+
                 latch.countDown();
             }
         }
@@ -271,9 +290,10 @@ public final class JPLSnapshot implements AddOn {
             return map;
         }
 
-        private SortedMap<String, Long> snapshotIgnisBalances() {
+        private SortedMap<String, Long> snapshotBalances() {
             SortedMap<String, Long> map = new TreeMap<>();
-            try (Connection con = Db.db.getConnection(ChildChain.IGNIS.getDbSchema());
+            ChildChain childChain = isNxtSnapshot ? ChildChain.NXT : ChildChain.IGNIS;
+            try (Connection con = Db.db.getConnection(childChain.getDbSchema());
                  PreparedStatement pstmt = con.prepareStatement("SELECT account_id, balance FROM balance WHERE " +
                          "balance > 0 AND LATEST=true AND account_id <> " + Constants.BURN_ACCOUNT_ID)) {
                 try (ResultSet rs = pstmt.executeQuery()) {

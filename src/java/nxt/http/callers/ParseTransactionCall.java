@@ -35,4 +35,8 @@ public class ParseTransactionCall extends APICall.Builder<ParseTransactionCall> 
     public ParseTransactionCall requireBlock(String requireBlock) {
         return param("requireBlock", requireBlock);
     }
+
+    public ParseTransactionCall validate(boolean validate) {
+        return param("validate", validate);
+    }
 }

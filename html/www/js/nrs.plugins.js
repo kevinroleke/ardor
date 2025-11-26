@@ -322,9 +322,13 @@ NRS.onSiteBuildDone().then(() => {
 
         NRS.setupPluginModal = function(pluginId, modalFileName) {
             let $modal = $("#p_" + NRS.getPluginFileName(pluginId) + "_modal_" + modalFileName);
+            if ($modal.data("plugin-modals-already-set-up")) {
+                return;
+            }
             NRS.setupModalElements($modal);
             NRS.setupFormElements($modal);
             NRS.setupCoinSymbols($modal);
+            $modal.data("plugin-modals-already-set-up", true);
         }
 
         NRS.setupPluginsElements = function() {

@@ -645,6 +645,13 @@ public class FxtDbVersion extends DbVersion {
             case 196:
                 apply("ALTER TABLE asset ADD COLUMN royalties_percentage INT AFTER has_control_phasing");
             case 197:
+                Db.db.runInDbTransaction(() -> {
+                    if (Constants.isTestnet) {
+                        ChildChainLoader.enableChildChainLoading(ChildChain.NXT, Constants.NXT_BLOCK, Constants.NXT_BLOCK);
+                    }
+                    apply(null);
+                });
+            case 198:
                 return;
             default:
                 throw new RuntimeException("Forging chain database inconsistent with code, at update " + nextUpdate

@@ -28,6 +28,9 @@ import nxt.util.UPnP;
 import nxt.util.security.BlockchainPermission;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadInfo;
+import java.lang.management.ThreadMXBean;
 import java.net.BindException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -41,6 +44,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedSelectorException;
+import java.nio.channels.NotYetConnectedException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -135,6 +139,8 @@ public final class NetworkHandler implements Runnable {
     /** My address */
     private static String myAddress;
 
+    private static String loopbackHost = null; // extracted from myAddress. If set, must start with '127.' to bind all connections to loopback device for testing
+
     /** My host name */
     private static String myHost;
 
@@ -153,6 +159,11 @@ public final class NetworkHandler implements Runnable {
                 if (myHost == null) {
                     throw new RuntimeException("nxt.myAddress is not a valid host address");
                 }
+
+                if (myHost.startsWith("127.")) {
+                    loopbackHost = myHost;
+                }
+
                 if (myPort == TESTNET_PEER_PORT && !Constants.isTestnet) {
                     throw new RuntimeException("Port " + TESTNET_PEER_PORT + " should only be used for testnet");
                 }
@@ -404,13 +415,7 @@ public final class NetworkHandler implements Runnable {
     private void processEvents() {
         int count;
         try {
-            //
-            // Process pending selection key events
-            //
-            KeyEvent keyEvent;
-            while ((keyEvent = keyEventQueue.poll()) != null) {
-                keyEvent.process();
-            }
+            processPendingKeyEvents();
             //
             // Process selectable events
             //
@@ -448,6 +453,41 @@ public final class NetworkHandler implements Runnable {
             networkShutdown = true;
         } catch (IOException exc) {
             Logger.logErrorMessage("I/O error while processing selection event", exc);
+        } catch (NotYetConnectedException exc) {
+            Logger.logErrorMessage("", exc);
+        }
+    }
+
+    private void processPendingKeyEvents() {
+        KeyEvent keyEvent;
+        while ((keyEvent = keyEventQueue.poll()) != null) {
+            keyEvent.process();
+        }
+    }
+
+    @FunctionalInterface
+    private interface ThrowingRunnable {
+        void run() throws IOException;
+    }
+    /**
+     * Safely acquire the connectLock of a peer by processing the pending key
+     * events while waiting. Execute the provided routine and unlock the connectLock
+     * @param peer Peer to lock
+     * @param r Routine
+     */
+    private void doWithConnectLock(PeerImpl peer, ThrowingRunnable r) throws IOException {
+        while (true) {
+            if (peer.tryConnectLock()) {
+                try {
+                    r.run();
+                } finally {
+                    peer.connectUnlock();
+                }
+                break;
+            } else {
+                processPendingKeyEvents();
+                Thread.yield();
+            }
         }
     }
 
@@ -503,6 +543,7 @@ public final class NetworkHandler implements Runnable {
             try {
                 cyclicBarrier.await(5, TimeUnit.SECONDS);
             } catch (BrokenBarrierException | InterruptedException | TimeoutException exc) {
+                //printDeadlockDebug();
                 throw new IllegalStateException("Thread interrupted while waiting for key event completion", exc);
             }
             cyclicBarrier.reset();
@@ -534,10 +575,41 @@ public final class NetworkHandler implements Runnable {
                     try {
                         cyclicBarrier.await(5, TimeUnit.SECONDS);
                     } catch (BrokenBarrierException | InterruptedException | TimeoutException exc) {
+                        //printDeadlockDebug();
                         throw new IllegalStateException("Thread interrupted while waiting for key event completion", exc);
                     }
                 }
             }
+        }
+
+        private void printDeadlockDebug() {
+            StringBuilder message = new StringBuilder("---- listenerThread stack -----\n");
+            StackTraceElement[] stackTrace = listenerThread.getStackTrace();
+            for (StackTraceElement element : stackTrace) {
+                message.append(element.toString()).append("\n");
+            }
+
+            ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
+            ThreadInfo[] threadInfos = threadMXBean.dumpAllThreads(true, true);
+
+            for (ThreadInfo threadInfo : threadInfos) {
+                if (threadInfo.getThreadState() == Thread.State.BLOCKED) {
+                    message.append("Thread ").append(
+                            threadInfo.getThreadName()).append(
+                            " is blocked, waiting for lock on ").append(
+                            threadInfo.getLockName()).append(
+                            " held by ").append(
+                            threadInfo.getLockOwnerName()).append("\n");
+                } else if (threadInfo.getThreadState() == Thread.State.WAITING ||
+                        threadInfo.getThreadState() == Thread.State.TIMED_WAITING) {
+                    message.append("Thread ").append(
+                            threadInfo.getThreadName()).append(
+                            " is waiting on ").append(
+                            threadInfo.getLockName()).append("\n");
+                }
+            }
+
+            Logger.logDebugMessage(message.toString());
         }
 
         /**
@@ -591,7 +663,11 @@ public final class NetworkHandler implements Runnable {
             InetSocketAddress remoteAddress = new InetSocketAddress(address, peer.getPort());
             SocketChannel channel = SocketChannel.open();
             channel.configureBlocking(false);
-            channel.bind(null);
+            if (loopbackHost == null) {
+                channel.bind(null);
+            } else {
+                channel.bind(new InetSocketAddress(loopbackHost, 0));
+            }
             channel.connect(remoteAddress);
             peer.setConnectionAddress(remoteAddress);
             peer.setChannel(channel);
@@ -635,8 +711,11 @@ public final class NetworkHandler implements Runnable {
                 if (keyEvent != null) {
                     keyEvent.update(SelectionKey.OP_READ, SelectionKey.OP_CONNECT);
                 }
-                peer.connectComplete(true);
-                sendGetInfoMessage(peer);
+                doWithConnectLock(peer, () -> {
+                    if (peer.connectComplete(true)) {
+                        sendGetInfoMessage(peer);
+                    }
+                });
             }
         } catch (IOException exc) {
             if (exc instanceof SocketException && exc.getMessage() != null) {
@@ -671,25 +750,32 @@ public final class NetworkHandler implements Runnable {
                     Logger.logDebugMessage("Max inbound connections reached: Connection rejected from " + hostAddress);
                 } else if (peer.isBlacklisted()) {
                     channel.close();
-                } else if (connectionMap.get(remoteAddress.getAddress()) != null) {
-                    channel.close();
-                    Logger.logDebugMessage("Connection already established with " + hostAddress + ", disconnecting");
-                    peer.disconnectPeer();
                 } else {
-                    channel.configureBlocking(false);
-                    peer.setConnectionAddress(remoteAddress);
-                    peer.setChannel(channel);
-                    peer.setLastUpdated(Nxt.getEpochTime());
-                    connectionMap.put(remoteAddress.getAddress(), peer);
-                    inboundCount.incrementAndGet();
-                    Peers.addPeer(peer);
-                    KeyEvent event = new KeyEvent(peer, channel, 0);
-                    SelectionKey key = event.register();
-                    if (key == null) {
-                        Logger.logErrorMessage("Unable to register socket channel for " + peer.getHost());
-                    } else {
-                        peer.setInbound();
-                    }
+                    doWithConnectLock(peer, () -> {
+                        if (connectionMap.get(remoteAddress.getAddress()) != null) {
+                            channel.close();
+                            Logger.logDebugMessage("Connection already established with " + hostAddress + ", disconnecting");
+                            // We need to set the connection address or else the entry for
+                            // this address is not removed from the connectionMap in disconnectPeer
+                            peer.setConnectionAddress(remoteAddress);
+                            peer.disconnectPeer();
+                        } else {
+                            channel.configureBlocking(false);
+                            peer.setConnectionAddress(remoteAddress);
+                            peer.setChannel(channel);
+                            peer.setLastUpdated(Nxt.getEpochTime());
+                            connectionMap.put(remoteAddress.getAddress(), peer);
+                            inboundCount.incrementAndGet();
+                            Peers.addPeer(peer);
+                            KeyEvent event = new KeyEvent(peer, channel, 0);
+                            SelectionKey key = event.register();
+                            if (key == null) {
+                                Logger.logErrorMessage("Unable to register socket channel for " + peer.getHost());
+                            } else {
+                                peer.setInbound();
+                            }
+                        }
+                    });
                 }
             }
         } catch (IOException exc) {
@@ -735,11 +821,13 @@ public final class NetworkHandler implements Runnable {
                     if (count <= 0) {
                         if (count < 0) {
                             Logger.logDebugMessage("Connection with " + peer.getHost() + " closed by peer");
-                            KeyEvent keyEvent = peer.getKeyEvent();
-                            if (keyEvent != null) {
-                                keyEvent.update(0, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
-                            }
-                            peer.disconnectPeer();
+                            doWithConnectLock(peer, () -> {
+                                KeyEvent keyEvent = peer.getKeyEvent();
+                                if (keyEvent != null) {
+                                    keyEvent.update(0, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+                                }
+                                peer.disconnectPeer();
+                            });
                         }
                         break;
                     }
@@ -879,16 +967,22 @@ public final class NetworkHandler implements Runnable {
         }
     }
 
-    private static void disconnectAndBlacklist(PeerImpl peer, IOException exc) {
+    private void disconnectAndBlacklist(PeerImpl peer, IOException exc) {
         Logger.logDebugMessage(String.format("%s: Peer %s", exc.getMessage(), peer.getHost()));
-        KeyEvent keyEvent = peer.getKeyEvent();
-        if (keyEvent != null) {
-            keyEvent.update(0, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
-        }
-        if (NON_BLACKLISTING_MESSAGES.contains(exc.getMessage())) {
-            peer.disconnectPeer();
-        } else {
-            peer.blacklist(exc);
+        try {
+            doWithConnectLock(peer, () -> {
+                KeyEvent keyEvent = peer.getKeyEvent();
+                if (keyEvent != null) {
+                    keyEvent.update(0, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+                }
+                if (NON_BLACKLISTING_MESSAGES.contains(exc.getMessage())) {
+                    peer.disconnectPeer();
+                } else {
+                    peer.blacklist(exc);
+                }
+            });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

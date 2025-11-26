@@ -394,7 +394,7 @@ var NRS = (function (NRS, $) {
 
     NRS.getChainDescription = function(chainId) {
         if (CHAIN_DESCRIPTION.length == 0) {
-            CHAIN_DESCRIPTION = ["", $.t("parent_chain"), $.t("main_child_chain"), $.t("euro_pegged_chain"), $.t("bits_chain"), $.t("mpg_chain"), $.t("gps_chain")];
+            CHAIN_DESCRIPTION = ["", $.t("parent_chain"), $.t("main_child_chain"), $.t("euro_pegged_chain"), $.t("bits_chain"), $.t("mpg_chain"), $.t("gps_chain"), $.t("nxt_chain")];
         }
         return CHAIN_DESCRIPTION[chainId];
     };

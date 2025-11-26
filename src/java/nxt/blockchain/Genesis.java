@@ -28,7 +28,6 @@ import nxt.ms.Currency;
 import nxt.util.Convert;
 import nxt.util.Logger;
 import nxt.util.ResourceLookup;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -36,12 +35,15 @@ import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public final class Genesis {
 
@@ -141,31 +143,40 @@ public final class Genesis {
                 Db.db.clearCache();
             }
         }
-        Logger.logDebugMessage("Total balance %f %s", (double)total / chain.ONE_COIN, chain.getName());
+        Logger.logDebugMessage("Total balance %.8f %s", BigDecimal.valueOf(total).divide(BigDecimal.valueOf(chain.ONE_COIN)), chain.getName());
     }
 
     private static void importAliases(MessageDigest digest) {
         try (InputStreamReader is = new InputStreamReader(new DigestInputStream(
                 ResourceLookup.getSystemResourceAsStream("data/IGNIS_ALIASES" + (Constants.isTestnet ? "-testnet.json" : ".json")), digest), "UTF-8")) {
             JSONObject aliases = (JSONObject) JSONValue.parseWithException(is);
-            Logger.logDebugMessage("Loading aliases");
-            int count = 0;
-            long aliasId = 1;
-            AliasHome ignisAliasHome = ChildChain.IGNIS.getAliasHome();
-            for (Map.Entry<String, Map<String, String>> entry : ((Map<String, Map<String, String>>)aliases).entrySet()) {
-                String aliasName = entry.getKey();
-                String aliasURI = entry.getValue().get("uri");
-                long accountId = Long.parseUnsignedLong(entry.getValue().get("account"));
-                ignisAliasHome.importAlias(aliasId++, accountId, aliasName, aliasURI);
-                if (count++ % Constants.BATCH_COMMIT_SIZE == 0) {
-                    Db.db.commitTransaction();
-                    Db.db.clearCache();
-                }
-            }
-            Logger.logDebugMessage("Loaded " + count + " aliases");
+            loadAliases(ChildChain.IGNIS, aliases, Collections.emptySet());
         } catch (IOException|ParseException e) {
             throw new RuntimeException("Failed to process aliases", e);
         }
+    }
+
+    public static void loadAliases(ChildChain childChain, JSONObject aliases, Set<Long> conflictingAccounts) {
+        Logger.logDebugMessage("Loading aliases for chain %s", childChain.getName());
+        int count = 0;
+        long aliasId = 1;
+        AliasHome aliasHome = childChain.getAliasHome();
+        for (Map.Entry<String, Map<String, String>> entry : ((Map<String, Map<String, String>>)aliases).entrySet()) {
+            String aliasName = entry.getKey();
+            String aliasURI = entry.getValue().get("uri");
+            String accountIdString = entry.getValue().get("account");
+            long accountId = Long.parseUnsignedLong(accountIdString);
+            if (conflictingAccounts.contains(accountId)) {
+                Logger.logDebugMessage("Alias %s for conflicting account %s redirected", aliasName, accountIdString);
+                accountId = Constants.COLLISIONS_REDIRECT_ACCOUNT_ID;
+            }
+            aliasHome.importAlias(aliasId++, accountId, aliasName, aliasURI);
+            if (count++ % Constants.BATCH_COMMIT_SIZE == 0) {
+                Db.db.commitTransaction();
+                Db.db.clearCache();
+            }
+        }
+        Logger.logDebugMessage("Loaded " + count + " aliases");
     }
 
     private static void importAssets(MessageDigest digest) {
@@ -205,25 +216,38 @@ public final class Genesis {
         try (InputStreamReader is = new InputStreamReader(new DigestInputStream(
                 ResourceLookup.getSystemResourceAsStream("data/IGNIS_CURRENCIES" + (Constants.isTestnet ? "-testnet.json" : ".json")), digest), "UTF-8")) {
             JSONObject currencies = (JSONObject) JSONValue.parseWithException(is);
-            Logger.logDebugMessage("Loading currencies");
-            int count = 0;
-            long currencyId = 1;
-            for (Map.Entry<String, Map<String, String>> entry : ((Map<String, Map<String, String>>)currencies).entrySet()) {
-                String currencyCode = entry.getKey();
-                String currencyName = entry.getValue().get("name");
-                long accountId = Long.parseUnsignedLong(entry.getValue().get("account"));
-                Account account = Account.addOrGetAccount(accountId);
-                account.addToCurrencyAndUnconfirmedCurrencyUnits(null, null, currencyId, 1);
-                Currency.importCurrency(currencyId++, accountId, currencyCode, currencyName);
-                if (count++ % Constants.BATCH_COMMIT_SIZE == 0) {
-                    Db.db.commitTransaction();
-                    Db.db.clearCache();
-                }
-            }
-            Logger.logDebugMessage("Loaded " + count + " currencies");
+            loadCurrencies(ChildChain.IGNIS, currencies, 1, Collections.emptySet());
         } catch (IOException|ParseException e) {
             throw new RuntimeException("Failed to process currencies", e);
         }
+    }
+
+    public static void loadCurrencies(ChildChain childChain, JSONObject currencies, long nextCurrencyId,
+                                      Set<Long> conflictingAccounts) {
+        Logger.logDebugMessage("Loading currencies for chain %s", childChain.getName());
+        int count = 0;
+        for (Map.Entry<String, Map<String, String>> entry : ((Map<String, Map<String, String>>)currencies).entrySet()) {
+            String currencyCode = entry.getKey();
+            String currencyName = entry.getValue().get("name");
+            String accountIdString = entry.getValue().get("account");
+            long accountId = Long.parseUnsignedLong(accountIdString);
+            if (conflictingAccounts.contains(accountId)) {
+                Logger.logDebugMessage("Currency %s for conflicting account %s redirected", currencyCode, accountIdString);
+                accountId = Constants.COLLISIONS_REDIRECT_ACCOUNT_ID;
+            }
+            while (Currency.getCurrency(nextCurrencyId, true) != null) {
+                Logger.logDebugMessage("Currency %s already exists, skipping", Long.toUnsignedString(nextCurrencyId));
+                nextCurrencyId++; // wrapping if going over max is fine
+            }
+            Account account = Account.addOrGetAccount(accountId);
+            account.addToCurrencyAndUnconfirmedCurrencyUnits(null, null, nextCurrencyId, 1);
+            Currency.importCurrency(nextCurrencyId++, accountId, currencyCode, currencyName, childChain);
+            if (count++ % Constants.BATCH_COMMIT_SIZE == 0) {
+                Db.db.commitTransaction();
+                Db.db.clearCache();
+            }
+        }
+        Logger.logDebugMessage("Loaded " + count + " currencies");
     }
 
     private static void importAccountInfo(MessageDigest digest) {

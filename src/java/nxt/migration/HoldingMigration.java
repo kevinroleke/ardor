@@ -35,7 +35,7 @@ class HoldingMigration {
     static void init() {
     }
 
-    private static final DbKey.LongKeyFactory DB_KEY_FACTORY = new DbKey.LongKeyFactory<HoldingMigration>("child_chain_id") {
+    private static final DbKey.LongKeyFactory<HoldingMigration> DB_KEY_FACTORY = new DbKey.LongKeyFactory<HoldingMigration>("child_chain_id") {
         @Override
         public DbKey newKey(HoldingMigration holdingMigration) {
             return holdingMigration.dbKey;

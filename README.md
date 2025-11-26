@@ -24,7 +24,7 @@ in such a way that no trusted third parties are required anymore.
     - *Debian* - `http://www.webupd8.org/2014/03/how-to-install-oracle-java-8-in-debian.html`
     - *FreeBSD* - `pkg install openjdk8`
 
-  - *repository* - `git clone https://bitbucket.org/Jelurida/ardor.git`
+  - *repository* - `git clone https://git.jelurida.com/git/ardor`
   
 ----
 ## Run it! ##
@@ -48,7 +48,7 @@ in such a way that no trusted third parties are required anymore.
 
   - we love **pull requests**
   - we love issues (resolved ones actually ;-) )
-  - in any case, make sure you leave **your ideas** at BitBucket
+  - in any case, make sure you leave **your ideas** at https://talk.jelurida.com
   - assist others on the issue tracker
   - **review** existing code and pull requests
   - cf. coding guidelines in DEVELOPERS-GUIDE.md
@@ -61,7 +61,7 @@ in such a way that no trusted third parties are required anymore.
     - or if started from command line, ctrl+c or close the console window
 
   - UI Errors or Stacktraces?
-    - report on BitBucket
+    - report on https://talk.jelurida.com
 
   - Permissions Denied?
     - no spaces and only latin characters in the path to the Ardor installation directory

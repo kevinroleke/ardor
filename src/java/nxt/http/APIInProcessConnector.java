@@ -32,6 +32,7 @@ public class APIInProcessConnector implements APIConnector {
 
     private final Map<String, List<String>> params;
     private final Map<String, byte[]> parts;
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(APIInProcessConnector.class);
 
     APIInProcessConnector(Map<String, List<String>> params, Map<String, byte[]> parts) {
         this.params = params;
@@ -53,8 +54,7 @@ public class APIInProcessConnector implements APIConnector {
     }
 
     private void logRequestParameters() {
-        if (!Logger.isInfoEnabled()) {
-            Logger.logInfoMessage("%s", params.get("requestType"));
+        if (!log.isInfoEnabled()) {
             return;
         }
         String paramsStr = params.entrySet().stream().map(e -> {
@@ -66,6 +66,6 @@ public class APIInProcessConnector implements APIConnector {
             }
             return e.getKey() + "=" + e.getValue().toString();
         }).collect(Collectors.joining("&"));
-        Logger.logInfoMessage("%s: request %s", params.get("requestType"), paramsStr);
+        log.info("{}: request {}", params.get("requestType"), paramsStr);
     }
 }

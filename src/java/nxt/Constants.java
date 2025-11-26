@@ -225,6 +225,8 @@ public final class Constants {
     public static final int CHECKSUM_BLOCK_8 = Constants.isTestnet ? 10360000 : 2351000;
     public static final int CHECKSUM_BLOCK_9 = Constants.isTestnet ? 15290000 : 3313000;
     public static final int CHECKSUM_BLOCK_10 = Constants.isTestnet ? 17294000 : 3702000;
+    public static final int NXT_BLOCK = Constants.isTestnet ? Constants.isAutomatedTest ? 1 : 20200200 : Integer.MAX_VALUE;
+    public static final long COLLISIONS_REDIRECT_ACCOUNT_ID = Convert.parseAccountId("ARDOR-QYH8-3QAU-DQKS-E4Q3Z");
 
 
     public static final int LAST_CHECKSUM_BLOCK = CHECKSUM_BLOCK_10;

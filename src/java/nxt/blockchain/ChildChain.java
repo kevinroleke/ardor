@@ -147,6 +147,14 @@ public class ChildChain extends Chain {
             .setIsEnabled(() -> Nxt.getBlockchain().getHeight() >= Constants.GPS_BLOCK)
             .build();
 
+    public static final ChildChain NXT = new ChildChainBuilder(7, "NXT")
+            .setTotalAmount(Constants.isTestnet ? 999_406_960_05418662L : 998_813_920_10854240L)
+            .setShufflingDepositNQT(Constants.isTestnet ? 7 * 1_00000000 : 10 * 1_00000000)
+            .setNextPermissionPolicy(defaultNextPolicyType, defaultPolicyChangeHeight)
+            .setMasterAdminAccounts(defaultAdminAccounts)
+            .setIsEnabled(() -> Nxt.getBlockchain().getHeight() >= Constants.NXT_BLOCK)
+            .build();
+
     public static ChildChain getChildChain(String name) {
         return childChains.get(name);
     }

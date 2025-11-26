@@ -5,7 +5,7 @@
   "main": "nrs.node.bridge.js",
   "repository": {
     "type": "git",
-    "url": "https://bitbucket.org/Jelurida/ardor.git"
+    "url": "https://git.jelurida.com/git/ardor"
   },
   "keywords": [
     "blockchain",
