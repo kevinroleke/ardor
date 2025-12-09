@@ -294,6 +294,7 @@ public enum APIEnum {
     GET_BUNDLER_RATES("getBundlerRates", GetBundlerRates.class),
     GET_FXT_TRANSACTION("getFxtTransaction", GetFxtTransaction.class),
     GET_BALANCES("getBalances", GetBalances.class),
+    GET_RICH_ACCOUNTS("getRichAccounts", GetRichAccounts.class),
     SIMULATE_COIN_EXCHANGE("simulateCoinExchange", SimulateCoinExchange.class),
     GET_EFFECTIVE_BALANCE("getEffectiveBalance", GetEffectiveBalance.class),
     BLACKLIST_BUNDLER("blacklistBundler", BlacklistBundler.class),

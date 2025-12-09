@@ -23,6 +23,8 @@ import nxt.blockchain.Chain;
 import nxt.blockchain.FxtChain;
 import nxt.db.DbKey;
 import nxt.db.VersionedEntityDbTable;
+import nxt.db.DbClause;
+import nxt.db.DbIterator;
 import nxt.util.Listener;
 import nxt.util.Listeners;
 import nxt.util.security.BlockchainPermission;
@@ -133,6 +135,10 @@ public final class BalanceHome {
             balance = new Balance(accountId);
         }
         return balance;
+    }
+
+    public DbIterator<Balance> getTopBalances(int from, int to) {
+        return balanceTable.getManyBy(DbClause.EMPTY_CLAUSE, from, to, " ORDER BY balance DESC");
     }
 
     public final class Balance {
