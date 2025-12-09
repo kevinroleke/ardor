@@ -16,6 +16,7 @@
   "license": "MIT",
   "homepage": "https://ardordocs.jelurida.com/Node_JS_module",
   "dependencies": {
+    "@noble/curves": "^2.0.0",
     "async": "2.6.3",
     "big-integer": "1.6.48",
     "big.js": "5.2.2",
