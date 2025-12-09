@@ -100,7 +100,7 @@ var NRS = (function(NRS, $, undefined) {
         is_remote_node_ssl: true,
         validators_count: 3,
         bootstrap_nodes_count: 5,
-		chain: "2",
+		chain: "4",
 		camera_id: 0,
 		camera_flip_horizontally: null,
 		account_prefix: "ARDOR",

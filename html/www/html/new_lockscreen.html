@@ -1,0 +1,472 @@
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~ Copyright © 2013-2016 The Nxt Core Developers.                            ~
+  ~ Copyright © 2016-2023 Jelurida IP B.V.                                    ~
+  ~ Copyright © 2023-2025 Jelurida Swiss SA                                   ~
+  ~                                                                           ~
+  ~ See the LICENSE.txt file at the top-level directory of this distribution  ~
+  ~ for licensing information.                                                ~
+  ~                                                                           ~
+  ~ Unless otherwise agreed in a custom licensing agreement with Jelurida     ~
+  ~ Swiss SA, no part of this software, including this file, may be copied,   ~
+  ~ modified, propagated, or distributed except according to the terms        ~
+  ~ contained in the LICENSE.txt file.                                        ~
+  ~                                                                           ~
+  ~ Removal or modification of this copyright notice is prohibited.           ~
+  ~                                                                           ~
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+
+<style>
+:root {
+    --bitswift-primary: #003b5c;
+    --bitswift-secondary: #78be43;
+    --bitswift-bg: #f8f9fa;
+    --bitswift-text: #333;
+}
+
+.body-container {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bitswift-container {
+    width: 100%;
+    max-width: 500px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 59, 92, 0.3);
+    overflow: hidden;
+}
+
+.bitswift-header {
+    background: var(--bitswift-primary);
+    color: white;
+    padding: 24px;
+    text-align: center;
+}
+
+.bitswift-header img {
+    height: 50px;
+}
+
+.bitswift-header h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.bitswift-header .subtitle {
+    margin-top: 8px;
+    opacity: 0.9;
+    font-size: 16px;
+}
+
+.bitswift-body {
+    padding: 32px;
+}
+
+.mode-selector {
+    display: flex;
+    margin-bottom: 32px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 4px;
+}
+
+.mode-button {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.mode-button.active {
+    background: var(--bitswift-secondary);
+    color: white;
+}
+
+.mode-button:not(.active) {
+    color: #666;
+}
+
+.mode-button:hover:not(.active) {
+    background: #e9ecef;
+}
+
+.body-container .form-section {
+    display: none;
+}
+
+.body-container .form-section.active {
+    display: block;
+}
+
+.body-container .form-group {
+    margin-bottom: 24px;
+}
+
+.body-container .form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--bitswift-text);
+}
+
+.body-container .form-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.2s ease;
+    font-family: monospace;
+    resize: vertical;
+}
+
+.body-container .form-input:focus {
+    outline: none;
+    border-color: var(--bitswift-secondary);
+}
+
+.mnemonic-display {
+    background: #f8f9fa;
+    border: 2px dashed var(--bitswift-secondary);
+    border-radius: 8px;
+    padding: 20px;
+    font-family: monospace;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--bitswift-primary);
+    word-break: break-word;
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.warning-box {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 24px;
+    color: #856404;
+}
+
+.warning-box strong {
+    color: #b45309;
+}
+
+.body-container .button-group {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+}
+
+.body-container .btn {
+    flex: 1;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.body-container .btn-primary {
+    background: var(--bitswift-secondary);
+    color: white;
+}
+
+.body-container .btn-primary:hover {
+    background: #6ba037;
+}
+
+.body-container .btn-primary:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.body-container .btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.body-container .btn-secondary:hover {
+    background: #5a6268;
+}
+
+.bitswift-footer {
+    background: #f8f9fa;
+    padding: 16px 32px;
+    text-align: center;
+    border-top: 1px solid #e9ecef;
+    margin-top: auto;
+}
+
+.footer-link {
+    color: var(--bitswift-primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.footer-link:hover {
+    text-decoration: underline;
+}
+
+.hidden {
+    display: none;
+}
+</style>
+<div class="body-container">
+<div id="new-lockscreen" class="bitswift-container">
+    <div class="bitswift-header">
+        <img src="img/bitswift.png" />
+    </div>
+
+    <div class="bitswift-body">
+        <div class="mode-selector">
+            <button class="mode-button active" data-mode="login">Login</button>
+            <button class="mode-button" data-mode="create">Create Account</button>
+        </div>
+
+        <!-- Login Section -->
+        <div id="login-section" class="form-section active">
+            <div class="form-group">
+                <label class="form-label" for="login-passphrase">Enter Your Passphrase</label>
+                <textarea
+                    class="form-input"
+                    id="login-passphrase"
+                    rows="3"
+                    placeholder="Enter your 12-24 word mnemonic phrase here..."
+                    spellcheck="false"
+                ></textarea>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-primary" id="login-btn">Login</button>
+            </div>
+        </div>
+
+        <!-- Create Account Section -->
+        <div id="create-section" class="form-section">
+            <div id="create-step-1">
+                <div class="warning-box">
+                    <strong>Important:</strong> Your mnemonic phrase is the only way to recover your account. Write it down and store it in a safe place. Never share it with anyone.
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" id="generate-mnemonic-btn">Generate New Mnemonic</button>
+                </div>
+            </div>
+
+            <div id="create-step-2" class="hidden">
+                <div class="form-group">
+                    <label class="form-label">Your New Mnemonic Phrase</label>
+                    <div id="mnemonic-display" class="mnemonic-display"></div>
+                </div>
+
+                <div class="warning-box">
+                    <strong>Save This Phrase:</strong> Write down these words in order and keep them safe. You will need them to access your account.
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" id="back-to-generate-btn">Back</button>
+                    <button class="btn btn-primary" id="confirm-saved-btn">I've Saved It</button>
+                </div>
+            </div>
+
+            <div id="create-step-3" class="hidden">
+                <div class="form-group">
+                    <label class="form-label" for="confirm-passphrase">Confirm Your Mnemonic</label>
+                    <textarea
+                        class="form-input"
+                        id="confirm-passphrase"
+                        rows="3"
+                        placeholder="Enter your mnemonic phrase to confirm you've saved it..."
+                        spellcheck="false"
+                    ></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" id="back-to-mnemonic-btn">Back</button>
+                    <button class="btn btn-primary" id="create-account-btn">Create Account</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="error-message" class="warning-box hidden" style="background: #f8d7da; border-color: #f5c6cb; color: #721c24;">
+            <div id="error-text"></div>
+        </div>
+    </div>
+
+    <div class="bitswift-footer">
+        <a href="#" class="footer-link" id="advanced-mode">Advanced Mode</a>
+    </div>
+</div>
+</div>
+
+<script>
+class BitswiftLockscreen {
+    constructor() {
+        this.currentMnemonic = '';
+        this.init();
+    }
+
+    init() {
+        this.setupEventListeners();
+    }
+
+    setupEventListeners() {
+        // Mode switching
+        document.querySelectorAll('.mode-button').forEach(button => {
+            button.addEventListener('click', () => this.switchMode(button.dataset.mode));
+        });
+
+        // Create account flow
+        document.getElementById('generate-mnemonic-btn').addEventListener('click', () => this.generateMnemonic());
+        document.getElementById('back-to-generate-btn').addEventListener('click', () => this.showStep('create-step-1'));
+        document.getElementById('confirm-saved-btn').addEventListener('click', () => this.showStep('create-step-3'));
+        document.getElementById('back-to-mnemonic-btn').addEventListener('click', () => this.showStep('create-step-2'));
+        document.getElementById('create-account-btn').addEventListener('click', () => this.createAccount());
+
+        // Login
+        document.getElementById('login-btn').addEventListener('click', () => this.login());
+
+        // Enter key handling
+        document.getElementById('login-passphrase').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                this.login();
+            }
+        });
+
+        document.getElementById('confirm-passphrase').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                this.createAccount();
+            }
+        });
+
+        document.getElementById('advanced-mode').addEventListener('click', function() {
+            document.getElementById('lockscreen').style.display = 'block';
+            document.getElementById('new-lockscreen').style.display = 'none';
+        });
+    }
+
+    switchMode(mode) {
+        // Update button states
+        document.querySelectorAll('.mode-button').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.mode === mode);
+        });
+
+        // Show/hide sections
+        document.querySelectorAll('.form-section').forEach(section => {
+            section.classList.remove('active');
+        });
+        document.getElementById(`${mode}-section`).classList.add('active');
+
+        // Reset create flow
+        if (mode === 'create') {
+            this.showStep('create-step-1');
+        }
+
+        this.hideError();
+    }
+
+    showStep(stepId) {
+        document.querySelectorAll('#create-section > div').forEach(div => {
+            div.classList.add('hidden');
+        });
+        document.getElementById(stepId).classList.remove('hidden');
+    }
+
+    generateMnemonic() {
+        let numberOfWords = 12;
+        let crypto = window.crypto || window.msCrypto;
+        let mnemonic = crypto ? BIP39.generateMnemonic((numberOfWords * 11 * 32) / 33, NRS.constants.SECRET_WORDS) : null;
+
+        this.currentMnemonic = mnemonic;
+        document.getElementById('mnemonic-display').textContent = this.currentMnemonic;
+        this.showStep('create-step-2');
+    }
+
+    createAccount() {
+        const confirmedMnemonic = document.getElementById('confirm-passphrase').value.trim();
+
+        if (!confirmedMnemonic) {
+            this.showError('Please enter your mnemonic phrase to confirm.');
+            return;
+        }
+
+        if (confirmedMnemonic !== this.currentMnemonic) {
+            this.showError('The mnemonic phrase you entered does not match. Please try again.');
+            return;
+        }
+
+        // Redirect to application
+        this.redirectToApp();
+    }
+
+    login() {
+        const passphrase = document.getElementById('login-passphrase').value.trim();
+
+        if (!passphrase) {
+            this.showError('Please enter your passphrase.');
+            return;
+        }
+
+        const words = passphrase.split(/\s+/);
+        if (words.length < 12) {
+            this.showError('Please enter a valid mnemonic phrase (at least 12 words).');
+            return;
+        }
+
+        // Redirect to application
+        this.redirectToApp();
+    }
+
+    redirectToApp() {
+        // Use the NRS login system instead of redirecting
+        document.querySelector('.body-container').style.display = 'none';
+        if (typeof NRS !== 'undefined' && NRS.loginWithOptions) {
+            const passphrase = document.getElementById('login-passphrase').value.trim() || this.currentMnemonic;
+
+            // Set the chain to BITSWIFT before login to avoid chain properties error
+            if (NRS.deviceSettings) {
+                NRS.deviceSettings.chain = "4";
+            }
+
+            NRS.loginWithOptions({ isPassphraseLogin: true, id: passphrase, chain: "4" });
+        } else {
+            // Fallback: remove loading class to show main app
+            document.documentElement.classList.remove('loading');
+            document.body.classList.remove('loading');
+            const lockscreen = document.getElementById('lockscreen');
+            if (lockscreen) {
+                lockscreen.classList.remove('loading');
+            }
+        }
+    }
+
+    showError(message) {
+        document.getElementById('error-text').textContent = message;
+        document.getElementById('error-message').classList.remove('hidden');
+    }
+
+    hideError() {
+        document.getElementById('error-message').classList.add('hidden');
+    }
+}
+
+// Initialize the lockscreen when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    new BitswiftLockscreen();
+});
+</script>

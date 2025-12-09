@@ -128,8 +128,11 @@ body::after {
 
 html.lockscreen,
 html.lockscreen body {
-  height: 100%;
   overflow-x: auto;
+}
+
+#page {
+    width: 100%;
 }
 
 a {
@@ -2007,8 +2010,8 @@ hr {
 }
 
 #lockscreen {
-  height: 100%;
   overflow: auto;
+  display: none;
 }
 
 #lockscreen > .panel.col-md-6 {

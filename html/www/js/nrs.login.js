@@ -651,6 +651,7 @@ NRS.onSiteBuildDone().then(() => {
 
         NRS.loginWithOptions = async function(options, callback) {
             NRS.spinner.spin($(".spinner_container")[0]);
+            document.querySelector('.body-container').style.display = 'none';
             let asyncCallsDefer = $.Deferred();
             let $loginError = $("#login_error");
             $loginError.hide();
