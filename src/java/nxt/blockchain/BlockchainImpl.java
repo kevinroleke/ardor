@@ -360,6 +360,88 @@ public final class BlockchainImpl implements Blockchain {
         return getTransactions(childChain, accountId, 0, type, subtype, blockTimestamp, false, false, false, 0, -1, includeExpiredPrunable, false);
     }
 
+
+    @Override
+    public DbIterator<ChildTransactionImpl> getTransactions(ChildChain childChain, int numberOfConfirmations, byte type, byte subtype,
+                                                       int blockTimestamp, boolean withMessage, boolean phasedOnly, boolean nonPhasedOnly,
+                                                       int from, int to, boolean includeExpiredPrunable, boolean executedOnly) {
+        if (phasedOnly && nonPhasedOnly) {
+            throw new IllegalArgumentException("At least one of phasedOnly or nonPhasedOnly must be false");
+        }
+        int height = numberOfConfirmations > 0 ? getHeight() - numberOfConfirmations : Integer.MAX_VALUE;
+        if (height < 0) {
+            throw new IllegalArgumentException("Number of confirmations required " + numberOfConfirmations
+                    + " exceeds current blockchain height " + getHeight());
+        }
+        int lastBlockTimestamp = height < Integer.MAX_VALUE ? getBlockTimestampAtHeight(height) : Integer.MAX_VALUE;
+        int subQueryLimit = to <= 0 || to < from || to == Integer.MAX_VALUE ? Integer.MAX_VALUE : to + 1;
+
+        Connection con = null;
+        try {
+            StringBuilder buf = new StringBuilder();
+            buildTransactionsSubQuery(true, buf, blockTimestamp, lastBlockTimestamp, type, subtype,
+                    withMessage, phasedOnly, nonPhasedOnly, executedOnly, subQueryLimit, true);
+            buf.append("UNION ALL ");
+            buildTransactionsSubQuery(false, buf, blockTimestamp, lastBlockTimestamp, type, subtype,
+                    withMessage, phasedOnly, nonPhasedOnly, executedOnly, subQueryLimit, true);
+
+            buf.append("ORDER BY block_timestamp DESC, transaction_index DESC");
+            buf.append(DbUtils.limitsClause(from, to));
+            con = Db.db.getConnection(childChain.getDbSchema());
+            int i = 0;
+            PreparedStatement pstmt = con.prepareStatement(buf.toString());
+            int prunableExpiration = Math.max(0, Constants.INCLUDE_EXPIRED_PRUNABLE && includeExpiredPrunable ?
+                    Nxt.getEpochTime() - Constants.MAX_PRUNABLE_LIFETIME :
+                    Nxt.getEpochTime() - Constants.MIN_PRUNABLE_LIFETIME);
+            i = setTransactionsSubQueryParams(true, pstmt, i, blockTimestamp, lastBlockTimestamp, type, subtype,
+                    withMessage, prunableExpiration, subQueryLimit);
+            i = setTransactionsSubQueryParams(false, pstmt, i, blockTimestamp, lastBlockTimestamp, type, subtype,
+                    withMessage, prunableExpiration, subQueryLimit);
+            DbUtils.setLimits(++i, pstmt, from, to);
+            return getTransactions(childChain, con, pstmt);
+        } catch (SQLException e) {
+            DbUtils.close(con);
+            throw new RuntimeException(e.toString(), e);
+        }
+    }
+
+    @Override
+    public DbIterator<FxtTransactionImpl> getTransactions(FxtChain chain, int from, int to) {
+        Connection con = null;
+        try {
+            StringBuilder buf = new StringBuilder();
+            buf.append("SELECT transaction_fxt.* FROM transaction_fxt ");
+            buf.append("ORDER BY block_timestamp DESC, transaction_index DESC ");
+            buf.append(DbUtils.limitsClause(from, to));
+            con = Db.db.getConnection(FxtChain.FXT.getDbSchema());
+            PreparedStatement pstmt = con.prepareStatement(buf.toString());
+            DbUtils.setLimits(1, pstmt, from, to);
+            return getTransactions(chain, con, pstmt);
+        } catch (SQLException e) {
+            DbUtils.close(con);
+            throw new RuntimeException(e.toString(), e);
+        }
+    }
+
+    @Override
+    public DbIterator<ChildTransactionImpl> getTransactions(ChildChain chain, int from, int to) {
+        Connection con = null;
+        try {
+            StringBuilder buf = new StringBuilder();
+            buf.append("SELECT transaction.* FROM transaction ");
+            buf.append("ORDER BY block_timestamp DESC, transaction_index DESC ");
+            buf.append(DbUtils.limitsClause(from, to));
+            con = Db.db.getConnection(chain.getDbSchema());
+            PreparedStatement pstmt = con.prepareStatement(buf.toString());
+            DbUtils.setLimits(1, pstmt, from, to);
+            return getTransactions(chain, con, pstmt);
+        } catch (SQLException e) {
+            DbUtils.close(con);
+            throw new RuntimeException(e.toString(), e);
+        }
+    }
+
+
     @Override
     public DbIterator<ChildTransactionImpl> getTransactions(ChildChain childChain, long accountId, int numberOfConfirmations, byte type, byte subtype,
                                                        int blockTimestamp, boolean withMessage, boolean phasedOnly, boolean nonPhasedOnly,
@@ -379,10 +461,10 @@ public final class BlockchainImpl implements Blockchain {
         try {
             StringBuilder buf = new StringBuilder();
             buildTransactionsSubQuery(true, buf, blockTimestamp, lastBlockTimestamp, type, subtype,
-                    withMessage, phasedOnly, nonPhasedOnly, executedOnly, subQueryLimit);
+                    withMessage, phasedOnly, nonPhasedOnly, executedOnly, subQueryLimit, false);
             buf.append("UNION ALL ");
             buildTransactionsSubQuery(false, buf, blockTimestamp, lastBlockTimestamp, type, subtype,
-                    withMessage, phasedOnly, nonPhasedOnly, executedOnly, subQueryLimit);
+                    withMessage, phasedOnly, nonPhasedOnly, executedOnly, subQueryLimit, false);
 
             buf.append("ORDER BY block_timestamp DESC, transaction_index DESC");
             buf.append(DbUtils.limitsClause(from, to));
@@ -406,17 +488,29 @@ public final class BlockchainImpl implements Blockchain {
 
     private void buildTransactionsSubQuery(boolean isReceivedSubQuery, StringBuilder buf, int firstTimestamp, int lastTimestamp,
                                            byte type, byte subtype, boolean withMessage, boolean phasedOnly,
-                                           boolean nonPhasedOnly, boolean executedOnly, int subQueryLimit) {
+                                           boolean nonPhasedOnly, boolean executedOnly, int subQueryLimit, boolean noSender) {
         buf.append("(SELECT transaction.* FROM transaction ");
         if (executedOnly && !nonPhasedOnly) {
             buf.append(" LEFT JOIN phasing_poll_result ON transaction.id = phasing_poll_result.id ");
             buf.append(" AND transaction.full_hash = phasing_poll_result.full_hash ");
         }
+        /*
         if (isReceivedSubQuery) {
             buf.append("WHERE recipient_id = ? AND sender_id <> ? ");
         } else {
             buf.append("WHERE sender_id = ? ");
         }
+        */
+        if (noSender) {
+            buf.append("WHERE 1=1 ");
+        } else {
+            if (isReceivedSubQuery) {
+                buf.append("WHERE recipient_id = ? AND sender_id <> ? ");
+            } else {
+                buf.append("WHERE sender_id = ? ");
+            }
+        }
+
         if (firstTimestamp > 0) {
             buf.append("AND block_timestamp >= ? ");
         }
@@ -442,17 +536,54 @@ public final class BlockchainImpl implements Blockchain {
         } else if (nonPhasedOnly) {
             buf.append("AND phased = FALSE ");
         }
+        if (noSender) {
+            buf.append(" ORDER BY block_timestamp DESC, transaction_index DESC ");
+        }
+
         if (executedOnly && !nonPhasedOnly) {
             buf.append("AND (phased = FALSE OR approved = TRUE)");
         }
         if (subQueryLimit < Integer.MAX_VALUE) {
-            if (isReceivedSubQuery) {
-                buf.append(" ORDER BY recipient_id, block_timestamp DESC LIMIT ? ");
+            if (noSender) {
+                if (isReceivedSubQuery) {
+                    buf.append("LIMIT ? ");
+                } else {
+                    buf.append("LIMIT ? ");
+                }
             } else {
-                buf.append(" ORDER BY sender_id, block_timestamp DESC LIMIT ? ");
-            }
+                if (isReceivedSubQuery) {
+                    buf.append(" ORDER BY recipient_id, block_timestamp DESC LIMIT ? ");
+                } else {
+                    buf.append(" ORDER BY sender_id, block_timestamp DESC LIMIT ? ");
+                }
+             }
         }
         buf.append(") ");
+    }
+
+    private int setTransactionsSubQueryParams(boolean isReceivedSubQuery, PreparedStatement pstmt, int i,
+                                              int firstTimestamp, int lastTimestamp,
+                                              byte type, byte subtype, boolean withMessage,
+                                              int prunableExpiration, int subQueryLimit) throws SQLException {
+        if (firstTimestamp > 0) {
+            pstmt.setInt(++i, firstTimestamp);
+        }
+        if (lastTimestamp < Integer.MAX_VALUE) {
+            pstmt.setInt(++i, lastTimestamp);
+        }
+        if (type >= 0) {
+            pstmt.setByte(++i, type);
+            if (subtype >= 0) {
+                pstmt.setByte(++i, subtype);
+            }
+        }
+        if (withMessage) {
+            pstmt.setInt(++i, prunableExpiration);
+        }
+        if (subQueryLimit < Integer.MAX_VALUE) {
+            pstmt.setInt(++i, subQueryLimit);
+        }
+        return i;
     }
 
     private int setTransactionsSubQueryParams(boolean isReceivedSubQuery, PreparedStatement pstmt, int i,
@@ -520,6 +651,58 @@ public final class BlockchainImpl implements Blockchain {
             throw new RuntimeException(e.toString(), e);
         }
     }
+
+    @Override
+    public DbIterator<? extends FxtTransaction> getTransactions(FxtChain chain,
+                int numberOfConfirmations, byte type, byte subtype, int blockTimestamp, int from, int to) {
+        int height = numberOfConfirmations > 0 ? getHeight() - numberOfConfirmations : Integer.MAX_VALUE;
+        if (height < 0) {
+            throw new IllegalArgumentException("Number of confirmations required " + numberOfConfirmations
+                    + " exceeds current blockchain height " + getHeight());
+        }
+        Connection con = null;
+        try {
+            StringBuilder buf = new StringBuilder();
+            buf.append("SELECT * FROM transaction_fxt WHERE 1=1 ");
+            if (blockTimestamp > 0) {
+                buf.append("AND block_timestamp >= ? ");
+            }
+            if (type < 0) {
+                buf.append("AND type = ? ");
+                if (subtype >= 0) {
+                    buf.append("AND subtype = ? ");
+                }
+            }
+            if (height < Integer.MAX_VALUE) {
+                buf.append("AND height <= ? ");
+            }
+
+            buf.append("ORDER BY block_timestamp DESC, transaction_index DESC");
+            buf.append(DbUtils.limitsClause(from, to));
+            con = Db.db.getConnection(FxtChain.FXT.getDbSchema());
+            PreparedStatement pstmt;
+            int i = 0;
+            pstmt = con.prepareStatement(buf.toString());
+            if (blockTimestamp > 0) {
+                pstmt.setInt(++i, blockTimestamp);
+            }
+            if (type < 0) {
+                pstmt.setByte(++i, type);
+                if (subtype >= 0) {
+                    pstmt.setByte(++i, subtype);
+                }
+            }
+            if (height < Integer.MAX_VALUE) {
+                pstmt.setInt(++i, height);
+            }
+            DbUtils.setLimits(++i, pstmt, from, to);
+            return getTransactions(chain, con, pstmt);
+        } catch (SQLException e) {
+            DbUtils.close(con);
+            throw new RuntimeException(e.toString(), e);
+        }
+    }
+
 
     @Override
     public DbIterator<? extends FxtTransaction> getTransactions(FxtChain chain, long accountId,
