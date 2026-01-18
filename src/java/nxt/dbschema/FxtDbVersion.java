@@ -1,7 +1,7 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
  * Copyright © 2016-2023 Jelurida IP B.V.
- * Copyright © 2023-2025 Jelurida Swiss SA
+ * Copyright © 2023-2026 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -652,6 +652,13 @@ public class FxtDbVersion extends DbVersion {
                     apply(null);
                 });
             case 198:
+                Db.db.runInDbTransaction(() -> {
+                    if (!Constants.isTestnet) {
+                        ChildChainLoader.enableChildChainLoading(ChildChain.NXT, Constants.NXT_BLOCK, Constants.NXT_BLOCK);
+                    }
+                    apply(null);
+                });
+            case 199:
                 return;
             default:
                 throw new RuntimeException("Forging chain database inconsistent with code, at update " + nextUpdate

@@ -1,7 +1,7 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
  * Copyright © 2016-2023 Jelurida IP B.V.
- * Copyright © 2023-2025 Jelurida Swiss SA
+ * Copyright © 2023-2026 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -38,7 +38,7 @@ public interface RuntimeMode {
         return Arrays.asList(
                 "Copyright © 2013-2016 The Nxt Core Developers.",
                 "Copyright © 2016-2023 Jelurida IP B.V.",
-                "Copyright © 2023-2025 Jelurida Swiss SA",
+                "Copyright © 2023-2026 Jelurida Swiss SA",
                 "Distributed under the Jelurida Public License version 1.3 for the Ardor Public Blockchain Platform, with ABSOLUTELY NO WARRANTY."
         );
     }
