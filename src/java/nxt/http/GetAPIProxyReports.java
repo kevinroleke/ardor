@@ -1,6 +1,6 @@
 /*
  * Copyright © 2021-2023 Jelurida IP B.V.
- * Copyright © 2023-2025 Jelurida Swiss SA
+ * Copyright © 2023-2026 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.

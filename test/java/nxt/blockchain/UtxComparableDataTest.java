@@ -1,5 +1,5 @@
 /*
- * Copyright © 2024-2025 Jelurida Swiss SA
+ * Copyright © 2024-2026 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.

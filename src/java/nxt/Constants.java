@@ -1,7 +1,7 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
  * Copyright © 2016-2023 Jelurida IP B.V.
- * Copyright © 2023-2025 Jelurida Swiss SA
+ * Copyright © 2023-2026 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -219,13 +219,13 @@ public final class Constants {
     public static final int TRANSACTION_TYPE_SPECIFIC_ASSET_CONTROL = Constants.isTestnet ? Constants.isAutomatedTest ? 20 : 9800000 : 2307000;
     public static final int LEASING_PERIOD_INCREASE = Constants.isTestnet ? Constants.isAutomatedTest ? 20 : 15660000 : 3700000;
     public static final int PREVENT_APPROVAL_OF_EARLY_FINISHED = Constants.isTestnet ? Constants.isAutomatedTest ? 0 : 15660000 : 3700000;
-    public static final int ATOMIC_TRANSACTIONS = Constants.isTestnet ? Constants.isAutomatedTest ? 0 : 18540000 : Integer.MAX_VALUE;
+    public static final int ATOMIC_TRANSACTIONS = Constants.isTestnet ? Constants.isAutomatedTest ? 0 : 18540000 : 4333333;
     public static final int CHECKSUM_BLOCK_6 = Constants.isTestnet ? 5666000 : 1453500;
     public static final int CHECKSUM_BLOCK_7 = Constants.isTestnet ? 7464000 : 1797000;
     public static final int CHECKSUM_BLOCK_8 = Constants.isTestnet ? 10360000 : 2351000;
     public static final int CHECKSUM_BLOCK_9 = Constants.isTestnet ? 15290000 : 3313000;
     public static final int CHECKSUM_BLOCK_10 = Constants.isTestnet ? 17294000 : 3702000;
-    public static final int NXT_BLOCK = Constants.isTestnet ? Constants.isAutomatedTest ? 1 : 20200200 : Integer.MAX_VALUE;
+    public static final int NXT_BLOCK = Constants.isTestnet ? Constants.isAutomatedTest ? 1 : 20200200 : 4333333;
     public static final long COLLISIONS_REDIRECT_ACCOUNT_ID = Convert.parseAccountId("ARDOR-QYH8-3QAU-DQKS-E4Q3Z");
 
 

@@ -1,6 +1,6 @@
 /*
  * Copyright © 2016-2023 Jelurida IP B.V.
- * Copyright © 2023-2025 Jelurida Swiss SA
+ * Copyright © 2023-2026 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -132,11 +132,11 @@ public final class JPLSnapshot implements AddOn {
 
         @Override
         protected JSONStreamAware processRequest(HttpServletRequest request, HttpServletResponse response) throws NxtException {
+            boolean isNxtSnapshot = "true".equalsIgnoreCase(request.getParameter("isNxtSnapshot"));
             int height = ParameterParser.getHeight(request);
-            if (height <= 0 || height > Nxt.getBlockchain().getHeight()) {
+            if (height <= 0 || height > Nxt.getBlockchain().getHeight() || (isNxtSnapshot && height <= Constants.NXT_BLOCK)) {
                 return JSONResponses.INCORRECT_HEIGHT;
             }
-            boolean isNxtSnapshot = "true".equalsIgnoreCase(request.getParameter("isNxtSnapshot"));
             JSONObject inputJSON = new JSONObject();
             ParameterParser.FileData fileData = ParameterParser.getFileData(request, "newGenesisAccounts", false);
             if (fileData != null) {

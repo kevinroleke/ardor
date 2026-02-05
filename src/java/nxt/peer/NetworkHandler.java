@@ -1,7 +1,7 @@
 /*
  * Copyright © 2013-2016 The Nxt Core Developers.
  * Copyright © 2016-2023 Jelurida IP B.V.
- * Copyright © 2023-2025 Jelurida Swiss SA
+ * Copyright © 2023-2026 Jelurida Swiss SA
  *
  * See the LICENSE.txt file at the top-level directory of this distribution
  * for licensing information.
@@ -453,8 +453,6 @@ public final class NetworkHandler implements Runnable {
             networkShutdown = true;
         } catch (IOException exc) {
             Logger.logErrorMessage("I/O error while processing selection event", exc);
-        } catch (NotYetConnectedException exc) {
-            Logger.logErrorMessage("", exc);
         }
     }
 
@@ -821,13 +819,7 @@ public final class NetworkHandler implements Runnable {
                     if (count <= 0) {
                         if (count < 0) {
                             Logger.logDebugMessage("Connection with " + peer.getHost() + " closed by peer");
-                            doWithConnectLock(peer, () -> {
-                                KeyEvent keyEvent = peer.getKeyEvent();
-                                if (keyEvent != null) {
-                                    keyEvent.update(0, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
-                                }
-                                peer.disconnectPeer();
-                            });
+                            disconnectPeer(peer);
                         }
                         break;
                     }
@@ -879,6 +871,9 @@ public final class NetworkHandler implements Runnable {
             }
         } catch (IOException exc) {
             disconnectAndBlacklist(peer, exc);
+        } catch (NotYetConnectedException e) {
+            Logger.logDebugMessage("Peer " + peer.getHost() + " not yet connected on read. Disconnecting...");
+            disconnectPeer(peer);
         }
     }
 
@@ -964,6 +959,9 @@ public final class NetworkHandler implements Runnable {
             }
         } catch (IOException exc) {
             disconnectAndBlacklist(peer, exc);
+        } catch (NotYetConnectedException e) {
+            Logger.logDebugMessage("Peer " + peer.getHost() + " not yet connected on write. Disconnecting...");
+            disconnectPeer(peer);
         }
     }
 
@@ -982,6 +980,21 @@ public final class NetworkHandler implements Runnable {
                 }
             });
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void disconnectPeer(PeerImpl peer) {
+        try {
+            doWithConnectLock(peer, () -> {
+                KeyEvent keyEvent = peer.getKeyEvent();
+                if (keyEvent != null) {
+                    keyEvent.update(0, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+                }
+                peer.disconnectPeer();
+            });
+        } catch (IOException e) {
+            //It cannot happen since the runnable is not throwing IOException
             throw new RuntimeException(e);
         }
     }
