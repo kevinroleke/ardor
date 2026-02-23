@@ -442,6 +442,16 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
                 return;
             }
             transaction.validate();
+
+            //TODO this validation was moved to ChildTransactionImpl.validate and it
+            // must be removed after Constants.MAX_DEADLINE_BLOCK
+            short maxDeadline = ChildTransactionImpl.getMaxDeadline(transaction);
+            if (transaction.getDeadline() > maxDeadline) {
+                throw new NxtException.NotValidException("Deadline " +
+                        transaction.getDeadline() + " exceeds the max deadline of " +
+                        maxDeadline + "; fee = " + transaction.getFee());
+            }
+
             UnconfirmedTransaction unconfirmedTransaction = ((TransactionImpl) transaction).newUnconfirmedTransaction(System.currentTimeMillis(), false);
             boolean broadcastLater = BlockchainProcessorImpl.getInstance().isProcessingBlock();
             if (broadcastLater) {
@@ -939,6 +949,21 @@ public final class TransactionProcessorImpl implements TransactionProcessor {
                     try (DbIterator<UnconfirmedTransaction> it = getAllUnconfirmedTransactions()) {
                         while (it.hasNext()) {
                             UnconfirmedTransaction unconfirmedTransaction = it.next();
+
+                            //TODO This check is only done to prevent broadcasting
+                            // of transactions that were accepted in the unconfirmed pool
+                            // with invalid deadline. It must be removed after
+                            // Constants.MAX_DEADLINE_BLOCK when all such
+                            // transactions are anyways invalid and should not
+                            // enter the unconfirmed pool
+                            short maxDeadline = ChildTransactionImpl.getMaxDeadline(unconfirmedTransaction.getTransaction());
+                            if (unconfirmedTransaction.getDeadline() > maxDeadline) {
+                                Logger.logErrorMessage("Transaction " +
+                                        unconfirmedTransaction.getId() +
+                                        " deadline exceeds the maxDeadline and will not be loaded to cache");
+                                continue;
+                            }
+
                             addToCache(unconfirmedTransaction);
                         }
                     }

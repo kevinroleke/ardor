@@ -1,0 +1,8 @@
+This is a bugfix release to address an issue with validation of transaction
+deadlines. As the fix requires a hardfork, it is a mandatory upgrade for both
+mainnet and testnet.
+
+The hardfork for mainnet has been scheduled for block 4390000 expected on
+March 12, 2026 and for testnet for block 20777000 expected on March 3, 2026.
+All nodes must upgrade before these blocks.
+

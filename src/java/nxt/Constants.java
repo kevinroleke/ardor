@@ -220,15 +220,14 @@ public final class Constants {
     public static final int LEASING_PERIOD_INCREASE = Constants.isTestnet ? Constants.isAutomatedTest ? 20 : 15660000 : 3700000;
     public static final int PREVENT_APPROVAL_OF_EARLY_FINISHED = Constants.isTestnet ? Constants.isAutomatedTest ? 0 : 15660000 : 3700000;
     public static final int ATOMIC_TRANSACTIONS = Constants.isTestnet ? Constants.isAutomatedTest ? 0 : 18540000 : 4333333;
+    public static final int NXT_BLOCK = Constants.isTestnet ? Constants.isAutomatedTest ? Integer.MAX_VALUE : 20200200 : 4333333;
+    public static final int MAX_DEADLINE_BLOCK = Constants.isTestnet ? Constants.isAutomatedTest ? 0 : 20777000 : 4390000;
+
     public static final int CHECKSUM_BLOCK_6 = Constants.isTestnet ? 5666000 : 1453500;
     public static final int CHECKSUM_BLOCK_7 = Constants.isTestnet ? 7464000 : 1797000;
     public static final int CHECKSUM_BLOCK_8 = Constants.isTestnet ? 10360000 : 2351000;
     public static final int CHECKSUM_BLOCK_9 = Constants.isTestnet ? 15290000 : 3313000;
     public static final int CHECKSUM_BLOCK_10 = Constants.isTestnet ? 17294000 : 3702000;
-    public static final int NXT_BLOCK = Constants.isTestnet ? Constants.isAutomatedTest ? 1 : 20200200 : 4333333;
-    public static final long COLLISIONS_REDIRECT_ACCOUNT_ID = Convert.parseAccountId("ARDOR-QYH8-3QAU-DQKS-E4Q3Z");
-
-
     public static final int LAST_CHECKSUM_BLOCK = CHECKSUM_BLOCK_10;
 
     public static final int LAST_KNOWN_BLOCK =  Constants.isAutomatedTest ? 0 : CHECKSUM_BLOCK_10;
@@ -242,8 +241,8 @@ public final class Constants {
             Convert.parseHexString("e0c762473a4f1d397cc9ac8c2f3d73665bde6026f5ad4ecbcc9817887d7227e7"),
     };
 
-    public static final int[] MIN_VERSION = new int[] {2, 5, 0};
-    public static final int[] MIN_PROXY_VERSION = new int[] {2, 5, 0};
+    public static final int[] MIN_VERSION = new int[] {2, 6, 0};
+    public static final int[] MIN_PROXY_VERSION = new int[] {2, 6, 0};
 
     public static final long UNCONFIRMED_POOL_DEPOSIT_FQT = 10 * ONE_FXT;
 
@@ -254,6 +253,8 @@ public final class Constants {
     public static final String ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz";
     public static final String ALLOWED_CURRENCY_CODE_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     public static final long BURN_ACCOUNT_ID = Convert.parseAccountId("ARDOR-Q9KZ-74XD-WERK-CV6GB");
+
+    public static final long COLLISIONS_REDIRECT_ACCOUNT_ID = Convert.parseAccountId("ARDOR-QYH8-3QAU-DQKS-E4Q3Z");
 
     public static final boolean DISABLE_FULL_TEXT_SEARCH = Nxt.getBooleanProperty("nxt.disableFullTextSearch");
     public static final boolean DISABLE_METADATA_DETECTION = Nxt.getBooleanProperty("nxt.disableMetadataDetection");
