@@ -86,6 +86,8 @@ final class UnconfirmedChildTransaction extends UnconfirmedTransaction implement
     @Override
     public void validate() throws NxtException.ValidationException {
         super.validate();
+        //TODO this validation was moved to ChildTransactionImpl.validate and it
+        // must be removed after Constants.MAX_DEADLINE_BLOCK
         if (Nxt.getBlockchain().getHeight() >= Constants.ATOMIC_TRANSACTIONS) {
             short maxDeadline = ChildTransactionImpl.getMaxDeadline(getTransaction());
             if (getDeadline() > maxDeadline) {

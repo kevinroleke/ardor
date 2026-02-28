@@ -2194,7 +2194,7 @@ public abstract class NetworkMessage {
          */
         @Override
         int getLength() {
-            return super.getLength() + 8 + 8 + 2 + excludedTransactions.length;
+            return super.getLength() + 8 + 8 + 2 + (excludedTransactions == null ? 0 : excludedTransactions.length);
         }
 
         /**

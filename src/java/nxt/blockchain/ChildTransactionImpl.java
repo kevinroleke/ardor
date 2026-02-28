@@ -352,6 +352,14 @@ public final class ChildTransactionImpl extends TransactionImpl implements Child
                     throw new NxtException.NotValidException("Invalid referenced transaction chain " + referencedTransactionId.getChainId());
                 }
             }
+            if (Nxt.getBlockchain().getHeight() >= Constants.MAX_DEADLINE_BLOCK) {
+                short maxDeadline = ChildTransactionImpl.getMaxDeadline(this);
+                if (getDeadline() > maxDeadline) {
+                    throw new NxtException.NotValidException("Deadline " +
+                            getDeadline() + " exceeds the max deadline of " +
+                            maxDeadline + "; fee = " + getFee());
+                }
+            }
             boolean validatingAtFinish = phasing != null && getSignature() != null && childChain.getPhasingPollHome().getPoll(this) != null;
             int appendixType = -1;
             for (Appendix.AbstractAppendix appendage : appendages()) {
@@ -551,7 +559,7 @@ public final class ChildTransactionImpl extends TransactionImpl implements Child
         }
     }
 
-    public static short getMaxDeadline(ChildTransaction t) {
+    public static short getMaxDeadline(Transaction t) {
         //At fee=0 the max deadline is 15; at fee = childChain.ONE_COIN / 100 the max deadline is 1440
         long maxDeadline = 15 + BigInteger.valueOf(t.getFee()).multiply(BigInteger.valueOf((1440 - 15) * 100))
                 .divide(BigInteger.valueOf(t.getChain().ONE_COIN)).longValueExact();
